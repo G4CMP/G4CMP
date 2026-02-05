@@ -14,6 +14,8 @@
 // 20220824  R. Cormier -- Default to scalar probs if no polynomials
 // 20230429  G4CMP-357: Move mutex in GetXyzElectrode() to avoid data race.
 // 20260105  G4CMP-514: Modify G4CMPSurfaceProperty for specular reflection.
+// 20260205  G4CMP-582: Make the frequency parameter of RefProb functions
+//    in G4CMPSurfaceProperty optional.
 
 #include "G4CMPSurfaceProperty.hh"
 #include "G4CMPVElectrodePattern.hh"
@@ -216,13 +218,13 @@ ExpandCoeffsPoly(G4double freq, const std::vector<G4double>& coeff) const {
 }
 
 G4double G4CMPSurfaceProperty::AnharmonicReflProb(G4double freq) const {
-  if (anharmonicCoeffs.empty() || freq > anharmonicMaxFreq) return 0.;
+  if (freq < 0 || anharmonicCoeffs.empty() || freq > anharmonicMaxFreq) return 0.;
  
   return ExpandCoeffsPoly(freq, anharmonicCoeffs);
 }
 
 G4double G4CMPSurfaceProperty::DiffuseReflProb(G4double freq) const {
-  if (diffuseCoeffs.empty() || freq > anharmonicMaxFreq)
+  if (freq < 0 || diffuseCoeffs.empty() || freq > anharmonicMaxFreq)
     return 1. - thePhononMatPropTable.GetConstProperty("specProb");
 
   if (freq > diffuseMaxFreq) freq = diffuseMaxFreq;	// Flat plateau
@@ -230,7 +232,7 @@ G4double G4CMPSurfaceProperty::DiffuseReflProb(G4double freq) const {
 }
 
 G4double G4CMPSurfaceProperty::SpecularReflProb(G4double freq) const {
-  if (specularCoeffs.empty() || freq > diffuseMaxFreq)
+  if (freq < 0 || specularCoeffs.empty() || freq > diffuseMaxFreq)
     return 1. - DiffuseReflProb(freq) - AnharmonicReflProb(freq);
 
   return ExpandCoeffsPoly(freq, specularCoeffs);

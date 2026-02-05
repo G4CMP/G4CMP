@@ -12,6 +12,8 @@
 //		probabilities, and computation functions.
 // 20200601  G4CMP-206: Need thread-local copies of electrode pointers
 // 20260105  G4CMP-514: Modify G4CMPSurfaceProperty for specular reflection.
+// 20260205  G4CMP-582: Make the frequency parameter of RefProb functions
+//    in G4CMPSurfaceProperty optional.
 
 #ifndef G4CMPSurfaceProperty_h
 #define G4CMPSurfaceProperty_h 1
@@ -119,9 +121,9 @@ public:
   }
 
   // Functions to compute reflection probabilities vs. frequency
-  G4double AnharmonicReflProb(G4double freq) const;
-  G4double DiffuseReflProb(G4double freq) const;
-  G4double SpecularReflProb(G4double freq) const;
+  G4double AnharmonicReflProb(G4double freq = -1.) const;
+  G4double DiffuseReflProb(G4double freq = -1.) const;
+  G4double SpecularReflProb(G4double freq = -1.) const;
 
   // Complex electrode geometries
   void SetChargeElectrode(G4CMPVElectrodePattern* cel);
