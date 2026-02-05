@@ -19,6 +19,29 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 [ Main line "develop" ChangeHistory; when merging, put develop updates here: ]
 
+2026-02-02  G4CMP-572 : Fix errors in computing lattice orientation matrix.
+2026-01-28  G4CMP-558 : Address compiler warnings from array arguments.
+
+2026-01-28  g4cmp-V10-01-00 Compilation and link compatibility with G4 v11.
+2026-01-28  G4CMP-494 : Migrate code to be compatible with G4 v11 and v10.
+2026-01-07  G4CMP-565 : Apply G4 v11 migrations to new quasiparticle code.
+2026-01-07  G4CMP-563 : Remove copy operators from G4CMPParticleChangeForQP.
+2025-12-11  G4CMP-553 : Update vis export in examples, complete hyperN daughters.
+2025-12-03  G4CMP-552 : To silence DecayChannel warnings, add hyperN daughters.
+2025-12-03  G4CMP-551 : Fix compatibility implementation of G4StrUtil::*strip()
+2025-11-28  G4CMP-547 : Ensure that ParticleChange touchable is always cleared.
+2025-11-26  G4CMP-546 : Include C++ version matching in examples CMake files.
+2025-11-25  G4CMP-545 : Improve CMake to match C++ version with Geant4 build.
+2025-11-18  G4CMP-526 : Use local G4PhysicsModelCatalog.cc as workaround.
+2025-11-17  G4CMP-541 : Replace ::Invisible with ::GetInvisibe() in examples.
+2025-11-16  G4CMP-525 : Provide G4StrUtil namespace for use with G4 v10.
+2025-11-16  G4CMP-539 : Use wrapper function for MPT::AddConstProperty().
+2025-11-16  G4CMP-524 : Replace std::random_shuffle with std::shuffle.
+2025-11-16  G4CMP-522 : Replace G4VTouchable forward decl with #include.
+
+2026-01-28  g4cmp-V10-00-02 Fixes to compiler warnings in new QP tracking.
+2026-01-27  G4CMP-579 : Address compiler warnings in g4cmp-V10-00-01.
+
 2026-01-22  g4cmp-V10-00-01 Fixes to new QP tracking to restore good behavior.
 2026-01-22  G4CMP-567 : Restore MaxReflections behaviour for zero-bounces case.
 2026-01-19  G4CMP-574 : Fix segfault from errant charge transport queries in

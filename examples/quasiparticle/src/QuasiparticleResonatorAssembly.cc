@@ -127,7 +127,7 @@ ConstructResonatorAssembly(G4RotationMatrix * pRot,
   //Now attribute a physical material to the housing
   G4LogicalVolume * log_baseAlLayer =
     new G4LogicalVolume(solid_baseAlLayer,aluminum_mat,baseAlLayerNameLog);
-  log_baseAlLayer->SetVisAttributes(G4VisAttributes::Invisible);
+  log_baseAlLayer->SetVisAttributes(G4VisAttributes::GetInvisible());
   
   //Now, create a physical volume and G4PVPlacement for storing as the final
   //output. This is the top volume.
@@ -158,7 +158,7 @@ ConstructResonatorAssembly(G4RotationMatrix * pRot,
   //Now that we have the resonator line and shunt capacitor, we should loop
   //through the fundamental volumes list and start making connections between
   //the empties and the in-plane base layer of which they are children
-  for (int iV = 0; iV < fFundamentalVolumeList.size(); ++iV) {
+  for (size_t iV = 0; iV < fFundamentalVolumeList.size(); ++iV) {
     if (std::get<0>(fFundamentalVolumeList[iV]).find("Vacuum") != std::string::npos) {
       G4String name1 = std::get<1>(fFundamentalVolumeList[iV]) + "_baseAlLayer";
       G4String name2 = "baseAlLayer_" + std::get<1>(fFundamentalVolumeList[iV]);

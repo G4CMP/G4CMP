@@ -28,6 +28,7 @@
 // 20231122  Remove 50% momentum flip (see G4CMP-375)
 // 20240823  Allow ConfigManager IVRateModel setting to override config.txt
 // 20250424  Add phonon emission and angular distribution.
+// 20251116  M. Kelsey -- Replace G4String functions with G4StrUtil, for G4 v11
 
 #include "G4CMPInterValleyScattering.hh"
 #include "G4CMPConfigManager.hh"
@@ -44,6 +45,7 @@
 #include "G4PhysicalConstants.hh"
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
+#include "G4StrUtil.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4ThreeVector.hh"
 #include "G4VParticleChange.hh"
@@ -78,30 +80,27 @@ void G4CMPInterValleyScattering::UseRateModel(G4String model) {
 	     : G4CMPConfigManager::GetIVRateModel());
   }
 
-  model.toLower();
+  G4StrUtil::to_lower(model);
   if (model == modelName) return;	// Requested model already in use
 
   // Select from valid names; fall back to Quadratic if invalid name specified
-       if (model(0) == 'q') {
-           UseRateModel(new G4CMPIVRateQuadratic);
-           doValleySwitch=true;    // Deprecated IV scattering PostStepDoIt
-           }
-  else if (model(0) == 'l') {
-      UseRateModel(new G4CMPIVRateLinear);
-      doValleySwitch=true;    // Deprecated IV scattering PostStepDoIt
-      }
-  else if (model(0) == 'm') {
-      UseRateModel(new G4CMPInterValleyRate);
-      doValleySwitch=false;    // Up-to-date IV scattering PostStepDoIt
-      }
-  else {
+  if (model.front() == 'q') {
+    UseRateModel(new G4CMPIVRateQuadratic);
+    doValleySwitch=true;    // Deprecated IV scattering PostStepDoIt
+  } else if (model.front() == 'l') {
+    UseRateModel(new G4CMPIVRateLinear);
+    doValleySwitch=true;    // Deprecated IV scattering PostStepDoIt}
+  } else if (model.front() == 'm') {
+    UseRateModel(new G4CMPInterValleyRate);
+    doValleySwitch=false;    // Up-to-date IV scattering PostStepDoIt
+  } else {
     G4cerr << GetProcessName() << " ERROR: Unrecognized rate model '"
 	   << model << "'" << G4endl;
     if (!GetRateModel()) UseRateModel("Quadratic");
   }
 
   modelName = GetRateModel()->GetName();
-  modelName.toLower();
+  G4StrUtil::to_lower(modelName);
 
   // Ensure that TimeStepper process is given new model
   PushModelToTimeStepper();

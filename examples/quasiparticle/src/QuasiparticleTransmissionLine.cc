@@ -36,6 +36,7 @@
 #include "G4Trd.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
+#include "G4StrUtil.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4UnionSolid.hh"
@@ -128,7 +129,7 @@ ConstructTransmissionLine(G4RotationMatrix* pRot,
   //Now attribute a physical material to the housing
   G4LogicalVolume * log_baseAlLayer =
     new G4LogicalVolume(solid_baseAlLayer,aluminum_mat,baseAlLayerNameLog);
-  log_baseAlLayer->SetVisAttributes(G4VisAttributes::Invisible);
+  log_baseAlLayer->SetVisAttributes(G4VisAttributes::GetInvisible());
 
   //Now, create a physical volume and G4PVPlacement for storing as the final
   //output. This is the top volume.
@@ -282,20 +283,24 @@ ConstructTransmissionLine(G4RotationMatrix* pRot,
   
   //Find the volumes of interest
   std::map<std::string,G4VPhysicalVolume*> tempContainer;
-  for (int iV = 0; iV < fFundamentalVolumeList.size(); ++iV) {
-    if (std::get<1>(fFundamentalVolumeList[iV]).contains("TransmissionLinePad1_PadConductor")) {
+  for (size_t iV = 0; iV < fFundamentalVolumeList.size(); ++iV) {
+    if (G4StrUtil::contains(std::get<1>(fFundamentalVolumeList[iV]),
+			    "TransmissionLinePad1_PadConductor")) {
       tempContainer.emplace("Pad1Conductor",
                             std::get<2>(fFundamentalVolumeList[iV]));
     }
-    if (std::get<1>(fFundamentalVolumeList[iV]).contains("TransmissionLinePad1_PadEmpty")) {
+    if (G4StrUtil::contains(std::get<1>(fFundamentalVolumeList[iV]),
+			    "TransmissionLinePad1_PadEmpty")) {
       tempContainer.emplace("Pad1Empty",
                             std::get<2>(fFundamentalVolumeList[iV]));
     }    
-    if (std::get<1>(fFundamentalVolumeList[iV]).contains("TransmissionLinePad2_PadConductor")) {
+    if (G4StrUtil::contains(std::get<1>(fFundamentalVolumeList[iV]),
+			    "TransmissionLinePad2_PadConductor")) {
       tempContainer.emplace("Pad2Conductor",
                             std::get<2>(fFundamentalVolumeList[iV]));
     }
-    if (std::get<1>(fFundamentalVolumeList[iV]).contains("TransmissionLinePad2_PadEmpty")) {
+    if (G4StrUtil::contains(std::get<1>(fFundamentalVolumeList[iV]),
+			    "TransmissionLinePad2_PadEmpty")) {
       tempContainer.emplace("Pad2Empty",
                             std::get<2>(fFundamentalVolumeList[iV]));
     }
@@ -416,7 +421,7 @@ QuasiparticleTransmissionLine::GetListOfAllFundamentalSubVolumes() {
 
 void QuasiparticleTransmissionLine::
 AddComplexGeometryPadSubVolumesToThisList(QuasiparticlePad* pad) {
-  for (int iSubVol = 0; iSubVol < pad->GetListOfAllFundamentalSubVolumes().size(); ++iSubVol) {
+  for (size_t iSubVol = 0; iSubVol < pad->GetListOfAllFundamentalSubVolumes().size(); ++iSubVol) {
     std::tuple<std::string,G4String,G4VPhysicalVolume*>
       theTuple(std::get<0>(pad->GetListOfAllFundamentalSubVolumes()[iSubVol]),
                std::get<1>(pad->GetListOfAllFundamentalSubVolumes()[iSubVol]),
