@@ -32,11 +32,12 @@ public:
   virtual G4double Threshold(G4double Eabove=0.) const;
 
   // Initialize numerical parameters below
-  virtual void LoadDataForTrack(const G4Track* track);
+  virtual void LoadDataForTrack(const G4Track* track,
+				const G4bool overrideMomentumReset=false);
     
   // Store IV rates for G4CMPInterValleyScattering  
   const std::vector<G4double>& GetIVProb() const {return IVprob;} 
-      
+
 
 protected:
   G4double IVRate() const;		// intervalley D0, D1 rate

@@ -19,6 +19,49 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 [ Main line "develop" ChangeHistory; when merging, put develop updates here: ]
 
+2026-01-22  g4cmp-V10-00-01 Fixes to new QP tracking to restore good behavior.
+2026-01-22  G4CMP-567 : Restore MaxReflections behaviour for zero-bounces case.
+2026-01-19  G4CMP-574 : Fix segfault from errant charge transport queries in
+                        superconducting volumes during charge turnaround steps
+2026-01-09  G4CMP-568 : Fix GNUmakefile and CMakeLists.txt for QP examples.
+2026-01-07  G4CMP-556 : Replace Geant4_LICENSE with plain text version.
+
+2026-01-07  g4cmp-V10-00-00 Quasiparticle tracking in superconducting films.
+2026-01-07  G4CMP-219 : Quasiparticle tracking in superconducting films.
+2025-12-31  G4CMP-559 : Fix longstanding bug with loop in "examples.%" target
+2025-10-23  G4CMP-521 : Fix phonon reflection bug from PhononDownconversion.
+2025-10-07  G4CMP-512 : Fix compilation error introduced with G4CMP-497.
+2025-08-29  G4CMP-497 : Protect FillParticleChange with Phonon Check.
+2025-09-08  G4CMP-500 : Changed non-fundamental SC inputs to go through
+                        G4LatticePhysical instantiation
+2025-09-04  G4CMP-499 : Set Tcrit to Gap0 via BCS relation to remove parameter
+2025-08-14  G4CMP-496 : Fix phonon wavevector & momentum direction from DoDecay.
+
+2025-10-30  g4cmp-V09-09-02 Final bug fix for chargeBounces errors.
+2025-11-08  G4CMP-533 : Fix long-standing typo in README: neutron -> neutral.
+2025-11-08  G4CMP-527 : Adjust post-step "surface" point for all boundary actions.
+
+2025-10-30  g4cmp-V09-09-01 Bug fixes following V09-09-00 release.
+2025-10-25  G4CMP-520 : Fix incorrect local transform in TrackLimiter.
+2025-10-24  G4CMP-519 : Protect against zero energy in charge DoAbsorption().
+2025-10-24  G4CMP-523 : Remove undesirable checks from G4CMPTrackLimiter.
+2025-10-15  G4CMP-516 : Address compiler warnings seen with GCC-11.4.0.
+
+2025-10-13  g4cmp-V09-09-00 Several fixes for charge tracking; phonon tutorial
+2025-10-13  G4CMP-503 : Enable charge reflections; diffuse only for electrons.
+2025-10-07  G4CMP-478 : Lowered G4CMPDriftTrapIonization minimum energy.
+2025-09-29  G4CMP-358 : Identify and stop charged tracks stuck in mesh field.
+2025-09-29  G4CMP-510 : Include residual kinetic energy in charge recombination.
+2025-09-25  G4CMP-505 : Fix Confluence link in README.md.
+2025-09-12  G4CMP-504 : Add tutorial for computing phonon DOS in new materials.
+
+2025-08-23  g4cmp-V09-08-00 Thermal phonon killing, suppress surface phonons.
+2025-08-01  G4CMP-326 : Kill "thermal" phonons in TrackLimiter if temp>0.
+2025-07-11  G4CMP-491 : Turn off phonon surface displacement loop by default.
+
+2025-07-10  g4cmp-V09-07-01 Support generating Doxygen class info Web pages.
+2025-07-10  G4CMP-492 : Add Doxyfile to support generate Doxygen class info.
+
 2025-05-12  g4cmp-V09-07-00 Phonon specular reflection at curved surfaces.
 2025-05-12  G4CMP-317 : Implement surface 'displacement' for phonon reflection.
 2025-05-10  G4CMP-483 : Ensure backwards compatibility for vector utilities.
