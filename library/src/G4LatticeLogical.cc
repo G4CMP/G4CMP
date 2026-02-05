@@ -62,6 +62,7 @@
 // 20250424  Add ConverteVcmToeV to convert IV deformation potential units
 // 20250904  R. Linehan -- Linking Tcrit to Delta0 for superconductors
 // 20250905  G4CMP-500 -- Removing non-fundamental superconductor parameters
+// 20260205  G4CMP-495  -- Added non-parabolicity function
 
 #include "G4LatticeLogical.hh"
 #include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****
@@ -686,6 +687,15 @@ G4LatticeLogical::GetElectronEffectiveMass(G4int iv,
   G4double Ekin = MapPtoEkin(iv, p);
   // return p.mag2()/(2*c_squared*Ekin);		// Non-relativistic
   return (p.mag2()-Ekin*Ekin)/(2.*Ekin*c_squared);	// Relativistic
+}
+
+// Get non-parabolic term sqrt(1+4*alpha*Ekin)
+G4double G4LatticeLogical::GetNonParabolicity(const G4double Ekin) const {
+#ifdef G4CMP_DEBUG
+  if (verboseLevel>1)
+    G4cout << "G4LatticeLogical::GetNonParabolicity " << sqrt(1+4*fAlpha*Ekin) << G4endl;
+#endif
+  return sqrt(1+4*fAlpha*Ekin);
 }
 
 // Compute vector in spherical frame from the ellipsoidal fame

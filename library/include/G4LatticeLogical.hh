@@ -46,6 +46,7 @@
 // 20250904  R. Linehan -- Linked Tcrit to Delta0 for superconductors
 // 20250905  G4CMP-500  -- Removed non-fundamental superconductor params from
 //              lattice info
+// 20260205  G4CMP-495  -- Added non-parabolicity function
 
 #ifndef G4LatticeLogical_h
 #define G4LatticeLogical_h
@@ -292,6 +293,7 @@ public:
   G4double GetIVLinExponent() const  { return fIVLinExponent; }
 
   G4double GetAlpha() const	     { return fAlpha; }
+  G4double GetNonParabolicity(const G4double Ekin) const ;
   G4double GetElectronAcousticDeform() const { return fAcDeform_e; }
   G4double GetHoleAcousticDeform() const { return fAcDeform_h; }
   G4int    GetNIVDeform() const { return (G4int)fIVDeform.size(); }
