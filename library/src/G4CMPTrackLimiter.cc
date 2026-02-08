@@ -21,6 +21,7 @@
 // 20251015  G4CMP-516:  Add excessPath to ChargeStuck() boolean return.
 // 20251024  G4CMP-523:  Remove alternative "stuck tracks" testing code.
 // 20251025  G4CMP-520:  Remove redundant (and incorrect) InvalidPosition().
+// 20260207  G4CMP-583:  Improve escaped-track detector for zero-length steps.
 
 #include "G4CMPTrackLimiter.hh"
 #include "G4CMPConfigManager.hh"
@@ -77,7 +78,7 @@ G4VParticleChange* G4CMPTrackLimiter::PostStepDoIt(const G4Track& track,
   if (verboseLevel>1) G4cout << GetProcessName() << "::PostStepDoIt" << G4endl;
 
   // Skip reflection zero-length steps
-  if (step.GetStepLength() == 0.) return &aParticleChange;
+  if (GoodReflection(step)) return &aParticleChange;
 
   // Apply minimum energy cut to kill tracks with optional NIEL deposit
   if (BelowEnergyCut(track)) {
@@ -123,20 +124,32 @@ G4VParticleChange* G4CMPTrackLimiter::PostStepDoIt(const G4Track& track,
 
 // Evaluate current track
 
+G4bool G4CMPTrackLimiter::GoodReflection(const G4Step& step) const {
+  G4VPhysicalVolume* postPV = step.GetPostStepPoint()->GetPhysicalVolume();
+
+  // Zero-length step, inbound back to active lattice volume
+  G4double refl = (step.GetStepLength() == 0. && postPV == GetCurrentVolume());
+  return refl;
+}
+
 G4bool G4CMPTrackLimiter::BelowEnergyCut(const G4Track& track) const {
   G4double ecut =
     (G4CMP::IsChargeCarrier(track) ? G4CMPConfigManager::GetMinChargeEnergy()
      : G4CMP::IsPhonon(track) ? G4CMPConfigManager::GetMinPhononEnergy() : -1.);
 
-  return (track.GetKineticEnergy() < ecut);
+  G4double ekin = track.GetKineticEnergy();
+  if (verboseLevel>1)
+    G4cout << " Ekin < " << ecut/eV << " eV? " << (ekin<ecut) << G4endl;
+
+  return (ekin < ecut);
 }
 
 G4bool G4CMPTrackLimiter::EscapedFromVolume(const G4Step& step) const {
-    G4StepPoint* preS = step.GetPreStepPoint();
-    G4StepPoint* postS = step.GetPostStepPoint();
+  G4StepPoint* preS = step.GetPreStepPoint();
+  G4StepPoint* postS = step.GetPostStepPoint();
 
-  G4VPhysicalVolume* prePV  = step.GetPreStepPoint()->GetPhysicalVolume();
-  G4VPhysicalVolume* postPV = step.GetPostStepPoint()->GetPhysicalVolume();
+  G4VPhysicalVolume* prePV  = preS->GetPhysicalVolume();
+  G4VPhysicalVolume* postPV = postS->GetPhysicalVolume();
 
   if (verboseLevel>1) {
     G4cout << GetProcessName() << "::EscapedFromVolume()" << G4endl
@@ -144,31 +157,10 @@ G4bool G4CMPTrackLimiter::EscapedFromVolume(const G4Step& step) const {
 	   << " postPV " << (postPV?postPV->GetName():"OutOfWorld")
 	   << " status " << postS->GetStepStatus()
 	   << G4endl;
-
-    if (verboseLevel>2) {
-      const G4ThreeVector& prePt = preS->GetPosition();
-      const G4ThreeVector& postPt = postS->GetPosition();
-
-      G4cout << std::setprecision(std::numeric_limits<double>::max_digits10)
-	     << "preStep status " << preS->GetStepStatus() << G4endl
-	     << "preStep Pos    " << prePt << G4endl
-	     << "postStep Pos   " << postPt << G4endl
-	     << "stepPos dir    " << (postPt - prePt).unit() << G4endl
-	     << "step Mom dir   " << postS->GetMomentumDirection() << G4endl
-	     << "currPV Name    " << GetCurrentVolume()->GetName() << G4endl;
-
-      G4VSolid* solid = GetCurrentVolume()->GetLogicalVolume()->GetSolid();
-      EInside isIn = solid->Inside(GetLocalPosition(postS->GetPosition()));
-      const char* inName = (isIn==kInside ? "inside" : isIn==kOutside
-			    ? "outside" : "surface");
-      G4cout << "Value for surface " << inName << G4endl;
-    }
   }
 
-  // Track is NOT at a boundary, is stepping outside volume, or already escaped
-  G4bool escape =
-    ((postS->GetStepStatus() != fGeomBoundary) &&
-     (postPV != GetCurrentVolume() || prePV != GetCurrentVolume()));
+  // Track is neither starting nor ending in active volume
+  G4bool escape = (postPV != GetCurrentVolume() && prePV != GetCurrentVolume());
 
   if (verboseLevel>1) G4cout << " escape? " << escape << G4endl;
   
