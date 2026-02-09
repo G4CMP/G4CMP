@@ -201,10 +201,10 @@ DoReflectionElectron(const G4Track& aTrack, const G4Step& aStep,
     G4ThreeVector vel = GetGlobalVelocityVector(aTrack);
     reflDir = DoSpecularElectron(vel, surfNorm, surfacePoint);
   } else {
-    reflDir = DoDiffuseElectron(surfNorm, surfacePoint, ptrk);
+    reflDir = DoDiffuseElectron(surfNorm, surfacePoint);
   }
 
-  FillParticleChange(GetCurrentValley(), aTrack.GetKineticEnergy(), reflDir);
+  FillParticleChange(GetCurrentValley(), aTrack.GetKineticEnergy(), reflDir*ptrk.mag());
 }
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
@@ -244,12 +244,11 @@ DoSpecularElectron(const G4ThreeVector& inDir,
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
 DoDiffuseElectron(const G4ThreeVector& surfNorm,
-		  const G4ThreeVector& /*surfPos*/, const G4ThreeVector& ptrk) const {
+		  const G4ThreeVector& /*surfPos*/) const {
   if (verboseLevel>2) G4cout << " DoDiffuseElectron " << surfNorm << G4endl;
 
   // Charge scatters randomly off of surface
   G4ThreeVector p = G4CMP::LambertReflection(surfNorm);
-  p *= ptrk.mag();
   return p;
 }
 
