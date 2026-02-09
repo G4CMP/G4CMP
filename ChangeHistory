@@ -7,7 +7,8 @@ Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 *** WARNING: This is a detached-HEAD branch from V09-09-02, not develop ***
-2026-02-07  G4CMP-583 : Improve detection, killing of 'escaped tracks'.
+2026-02-09  G4CMP-583 : Improve detection, killing of 'escaped tracks'.
+2026-02-09  G4CMP-580 : Include magnitude with reflected charge momentum.
 *** WARNING: This is a detached-HEAD branch from V09-09-02, not develop ***
 
 2025-10-30  g4cmp-V09-09-02 Final bug fix for chargeBounces errors.
