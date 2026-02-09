@@ -190,6 +190,7 @@ DoReflectionElectron(const G4Track& aTrack, const G4Step& aStep,
   // Get outward normal from current volume
   G4ThreeVector vDir = aStep.GetPreStepPoint()->GetMomentumDirection();
   G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(aStep,vDir);
+  G4ThreeVector ptrk = GetLocalDirection(aStep.GetPostStepPoint()->GetMomentum());
 
   // FUTURE: Get specular vs. diffuse probability from parameters
   G4bool specular = false;
@@ -199,7 +200,7 @@ DoReflectionElectron(const G4Track& aTrack, const G4Step& aStep,
     G4ThreeVector vel = GetGlobalVelocityVector(aTrack);
     reflDir = DoSpecularElectron(vel, surfNorm, surfacePoint);
   } else {
-    reflDir = DoDiffuseElectron(surfNorm, surfacePoint);
+    reflDir = DoDiffuseElectron(surfNorm, surfacePoint, ptrk);
   }
 
   FillParticleChange(GetCurrentValley(), aTrack.GetKineticEnergy(), reflDir);
@@ -242,11 +243,12 @@ DoSpecularElectron(const G4ThreeVector& inDir,
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
 DoDiffuseElectron(const G4ThreeVector& surfNorm,
-		  const G4ThreeVector& /*surfPos*/) const {
+		  const G4ThreeVector& /*surfPos*/, const G4ThreeVector& ptrk) const {
   if (verboseLevel>2) G4cout << " DoDiffuseElectron " << surfNorm << G4endl;
 
   // Charge scatters randomly off of surface
   G4ThreeVector p = G4CMP::LambertReflection(surfNorm);
+  p *= ptrk.mag();
   return p;
 }
 

@@ -70,7 +70,7 @@ protected:
 					   const G4ThreeVector& surfPos) const;
 
   virtual G4ThreeVector DoDiffuseElectron(const G4ThreeVector& surfNorm,
-					  const G4ThreeVector& surfPos) const;
+					  const G4ThreeVector& surfPos, const G4ThreeVector& ptrk) const;
 
   virtual void DoReflectionHole(const G4Track& aTrack,const G4Step& aStep,
 				G4ParticleChange& aParticleChange);
