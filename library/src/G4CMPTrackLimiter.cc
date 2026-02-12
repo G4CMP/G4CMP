@@ -28,6 +28,7 @@
 #include "G4CMPGeometryUtils.hh"
 #include "G4CMPUtils.hh"
 #include "G4ForceCondition.hh"
+#include "G4LatticeManager.hh"
 #include "G4LatticePhysical.hh"
 #include "G4Navigator.hh"
 #include "G4ParticleChange.hh"
@@ -163,11 +164,23 @@ G4bool G4CMPTrackLimiter::EscapedFromVolume(const G4Step& step) const {
 	   << G4endl;
   }
 
-  // Track is neither starting nor ending in active volume
-  G4bool escape = (postPV != GetCurrentVolume() && prePV != GetCurrentVolume());
+  // Track is either starting or ending in active volume
+  G4bool inCurrent = (prePV == GetCurrentVolume() ||
+		      postPV == GetCurrentVolume());
 
-  if (verboseLevel>1) G4cout << " escape? " << escape << G4endl;
-  
+  // Cross-check whether pre- and post-step volumes have lattices
+  // (This is valid for cases where a track is transmissing between volumes)
+  G4LatticeManager* latMgr = G4LatticeManager::Instance();
+  G4bool hasLattice = (latMgr->HasLattice(prePV) ||
+		       latMgr->HasLattice(postPV));
+
+  G4bool escape = (!inCurrent || !hasLattice);
+
+  if (verboseLevel>1) {
+    G4cout << " inCurrent? " << inCurrent << ", hasLattice? " << hasLattice
+	   << ", escape? " << escape << G4endl;
+  }
+
   return escape;
 }
 
