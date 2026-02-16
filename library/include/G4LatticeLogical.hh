@@ -293,7 +293,7 @@ public:
   G4double GetIVLinExponent() const  { return fIVLinExponent; }
 
   G4double GetAlpha() const	     { return fAlpha; }
-  G4double GetNonParabolicity(const G4double Ekin) const ;
+  G4double GetNonParabolicity(const G4double Kin) const ;
   G4double GetElectronAcousticDeform() const { return fAcDeform_e; }
   G4double GetHoleAcousticDeform() const { return fAcDeform_h; }
   G4int    GetNIVDeform() const { return (G4int)fIVDeform.size(); }

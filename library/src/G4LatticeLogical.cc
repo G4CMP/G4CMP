@@ -520,7 +520,15 @@ G4LatticeLogical::MapPToP_Q(G4int ivalley, const G4ThreeVector& P) const {
     G4cout << " P_Q " << nToV*(GetMassTensor()*(vToN*P*c_squared/electron_mass_c2)) << G4endl;
 #endif
 
-  return nToV*(GetMassTensor()*(vToN*P/GetElectronMass()));
+    if (fAlpha == 0) {
+        return nToV*(GetMassTensor()*(vToN*P/GetElectronMass()));
+    }
+
+    else if (fAlpha != 0) {
+        G4double Etest = MapPtoEkin(ivalley, P);
+        return nToV*(GetMassTensor()*(vToN*P/GetElectronMass()*GetNonParabolicity(Etest)));
+    }
+
 }
 
 G4ThreeVector 
@@ -538,7 +546,18 @@ G4LatticeLogical::MapP_QToP(G4int ivalley, const G4ThreeVector& P_Q) const {
     G4cout << " P " << nToV*(GetMInvTensor()*(vToN*P_Q*electron_mass_c2/c_squared)) << G4endl;
 #endif
 
-  return nToV*(GetMInvTensor()*(vToN*P_Q*GetElectronMass()));
+    if (fAlpha == 0) {
+        return nToV*(GetMInvTensor()*(vToN*P_Q*GetElectronMass()));
+    }
+
+    else if (fAlpha != 0) {
+      G4ThreeVector tempopo = P_Q;
+      tempopo /= c_light;
+      tempopo = EllipsoidalToSphericalTranformation(ivalley , tempopo);
+      G4double Kin = sqrt(tempopo*tempopo/GetElectronMass() + GetElectronMass()*c_squared*GetElectronMass()*c_squared) - GetElectronMass()*c_squared;
+      G4double Etest = sqrt(1+4*fAlpha*Kin);
+      return nToV*(GetMInvTensor()*(vToN*P_Q*GetElectronMass()/Etest));
+    }
 }
 
 G4ThreeVector
@@ -631,7 +650,15 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
   }
 #endif
 
-  return pdir*PMag;
+    if (fAlpha == 0) {
+        return pdir*PMag;
+    }
+
+    else if (fAlpha != 0) {
+        return pdir*PMag/GetNonParabolicity(Ekin);
+    }
+
+  
 }
 
 G4double  
@@ -660,7 +687,16 @@ G4LatticeLogical::MapPtoEkin(G4int iv, const G4ThreeVector& p) const {
   }
 #endif
 
-  return sqrt(bandP/GetElectronMass() + GetElectronMass()*c_squared*GetElectronMass()*c_squared) - GetElectronMass()*c_squared;
+    G4double Kin = sqrt(bandP/GetElectronMass() + GetElectronMass()*c_squared*GetElectronMass()*c_squared) - GetElectronMass()*c_squared;
+
+    if (fAlpha == 0) {
+        return Kin;
+    }
+
+    else if (fAlpha != 0) {
+        return -1/2/fAlpha + sqrt(1+4*fAlpha*Kin)/2/fAlpha;
+
+    }
 
 }
 
@@ -693,9 +729,9 @@ G4LatticeLogical::GetElectronEffectiveMass(G4int iv,
 G4double G4LatticeLogical::GetNonParabolicity(const G4double Ekin) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
-    G4cout << "G4LatticeLogical::GetNonParabolicity " << sqrt(1+4*fAlpha*Ekin) << G4endl;
+    G4cout << "G4LatticeLogical::GetNonParabolicity " << 1+2*fAlpha*Ekin << G4endl;
 #endif
-  return sqrt(1+4*fAlpha*Ekin);
+  return 1+2*fAlpha*Ekin;
 }
 
 // Compute vector in spherical frame from the ellipsoidal fame
