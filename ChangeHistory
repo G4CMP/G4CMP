@@ -6,6 +6,7 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-02-18  G4CMP-588 : Must present NumberOfSecondaries before filling.
 2026-02-12  G4CMP-581 : CreateXXX() should use warnings, check null pointers.
 2026-02-09  G4CMP-580 : Include magnitude with reflected charge momentum.
 2026-02-07  G4CMP-583 : Improve detection, killing of 'escaped tracks'.
