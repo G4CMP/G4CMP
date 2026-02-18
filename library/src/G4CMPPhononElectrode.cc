@@ -40,6 +40,7 @@
 // 20250423  N. Tenpas -- Replace duplicated GetLambertianVector() code.
 // 20251115  G4CMP-539 -- Replace AddConstProperty() with UpdateMPT().
 // 20260212  G4CMP-581 -- Skip invalid phonons (null pointers), report skips.
+// 20260218  G4CMP-588 -- Fix change above by presenting secondary buffer.
 
 #include "G4CMPPhononElectrode.hh"
 #include "G4CMPGeometryUtils.hh"
@@ -146,6 +147,9 @@ ProcessAbsorption(const G4Track& track, const G4Step& step, G4double EDep,
   G4double Ekin = GetKineticEnergy(track);
   G4ThreeVector k = GetLocalWaveVector(track);
 
+  // Preset size of secondaries buffer, then reduce it later if needed
+  particleChange.SetNumberOfSecondaries(phononEnergies.size());
+
   G4ThreeVector reflectedKDir;
   size_t nsec = 0;
   for (G4double E : phononEnergies) {
@@ -165,8 +169,6 @@ ProcessAbsorption(const G4Track& track, const G4Step& step, G4double EDep,
     nsec++;
   }	// for (E : ...)
 
-  // Set number of secondaries allowing for errors above
-  particleChange.SetNumberOfSecondaries(nsec);
   if (nsec < phononEnergies.size()) {
     std::stringstream msg;
     msg << "Created " << nsec << " phonons vs. " << phononEnergies.size()
