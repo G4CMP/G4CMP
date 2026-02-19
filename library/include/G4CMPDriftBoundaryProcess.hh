@@ -30,6 +30,7 @@
 // 20251013  Add functions for specular and diffuse electron reflection.
 // 20251204  G4CMP-511 -- Create parallel Lambertian reflection code for charges.
 // 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
+// 20250219  G4CMP-513 : Provide separate specular and diffuse reflection for charges.
 
 #ifndef G4CMPDriftBoundaryProcess_h
 #define G4CMPDriftBoundaryProcess_h 1
@@ -64,18 +65,11 @@ protected:
   virtual void DoReflection(const G4Track& aTrack,const G4Step& aStep,
 			    G4ParticleChange& aParticleChange);
 
-  virtual void DoReflectionElectron(const G4Track& aTrack,const G4Step& aStep,
-				    G4ParticleChange& aParticleChange);
+  virtual G4ThreeVector DoSpecularReflection(const G4Track& aTrack,const G4Step& aStep);
 
-  virtual G4ThreeVector DoSpecularElectron(const G4ThreeVector& inDir,
-					   const G4ThreeVector& surfNorm,
-					   const G4ThreeVector& surfPos) const;
+  virtual G4ThreeVector DoSpecRefElectron(const G4Track& aTrack,const G4Step& aStep);
 
-  virtual G4ThreeVector DoDiffuseElectron(const G4ThreeVector& surfNorm,
-					  const G4ThreeVector& surfPos) const;
-
-  virtual void DoReflectionHole(const G4Track& aTrack,const G4Step& aStep,
-				G4ParticleChange& aParticleChange);
+  virtual G4ThreeVector DoSpecRefHole(const G4Step& aStep);
 
   // Called when maximum bounces have been recorded; does recombination
   virtual void DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
