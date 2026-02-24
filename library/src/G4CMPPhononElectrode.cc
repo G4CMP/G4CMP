@@ -39,6 +39,8 @@
 // 20250422  N. Tenpas -- Add position arguments for PhononVelocityIsInward.
 // 20250423  N. Tenpas -- Replace duplicated GetLambertianVector() code.
 // 20251115  G4CMP-539 -- Replace AddConstProperty() with UpdateMPT().
+// 20260212  G4CMP-581 -- Skip invalid phonons (null pointers), report skips.
+// 20260218  G4CMP-588 -- Fix change above by presenting secondary buffer.
 
 #include "G4CMPPhononElectrode.hh"
 #include "G4CMPGeometryUtils.hh"
@@ -48,6 +50,8 @@
 #include "G4CMPSurfaceProperty.hh"
 #include "G4CMPTrackUtils.hh"
 #include "G4CMPUtils.hh"
+#include "G4Exception.hh"
+#include "G4ExceptionSeverity.hh"
 #include "G4LatticeManager.hh"
 #include "G4LatticePhysical.hh"
 #include "G4ParticleChange.hh"
@@ -56,6 +60,7 @@
 #include "G4Track.hh"
 #include "G4VTouchable.hh"
 #include "Randomize.hh"
+#include <sstream>
 
 
 // Constructor and destructor
@@ -139,13 +144,14 @@ ProcessAbsorption(const G4Track& track, const G4Step& step, G4double EDep,
   G4ThreeVector vDir = track.GetMomentumDirection();
   G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(step,vDir);
   
-  // Create secondaries for all of the generated phonon energies
-  particleChange.SetNumberOfSecondaries(phononEnergies.size());
-
   G4double Ekin = GetKineticEnergy(track);
   G4ThreeVector k = GetLocalWaveVector(track);
 
+  // Preset size of secondaries buffer, then reduce it later if needed
+  particleChange.SetNumberOfSecondaries(phononEnergies.size());
+
   G4ThreeVector reflectedKDir;
+  size_t nsec = 0;
   for (G4double E : phononEnergies) {
     G4double kmag = k.mag()*E/Ekin;	// Scale k vector by energy
     G4int pol = ChoosePhononPolarization();
@@ -157,9 +163,20 @@ ProcessAbsorption(const G4Track& track, const G4Step& step, G4double EDep,
 					  pol, kmag*reflectedKDir,
 					  E, track.GetGlobalTime(),
 					  track.GetPosition());
+    if (!phonon) continue;
+
     particleChange.AddSecondary(phonon);
+    nsec++;
   }	// for (E : ...)
 
+  if (nsec < phononEnergies.size()) {
+    std::stringstream msg;
+    msg << "Created " << nsec << " phonons vs. " << phononEnergies.size()
+	<< " expected.";
+    G4Exception("G4CMPPhononElectrode", "Electrode001", JustWarning,
+		msg.str().c_str());
+  }
+		
   // Sanity check: secondaries' energy should equal assigned E
   if (verboseLevel>1) {
     G4double Esum = 0.;

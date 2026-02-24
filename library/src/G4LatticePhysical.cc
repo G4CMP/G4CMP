@@ -28,6 +28,7 @@
 // 20220921  G4CMP-319 -- Add utilities for thermal (Maxwellian) distributions
 // 20250507  G4CMP-480 -- Swap rotation matrix for local<-->lattice transforms.
 // 20250905  G4CMP-500 -- Remove non-fundamental superconductor parameters
+// 20260131  G4CMP-572 -- Restore behaviour from G4CMP-480, lost by G4CMP-500.
 
 #include "G4LatticePhysical.hh"
 #include "G4CMPConfigManager.hh"
@@ -105,6 +106,7 @@ void G4LatticePhysical::SetMillerOrientation(G4int h, G4int k, G4int l,
   lMiller = l;
   fRot = rot;
 
+  // Unit vector corresponding to (h,k,l) Miller coordinates
   G4ThreeVector norm = (h*GetBasis(0)+k*GetBasis(1)+l*GetBasis(2)).unit();
 
   if (verboseLevel>1) G4cout << " norm = " << norm << G4endl;
@@ -115,8 +117,6 @@ void G4LatticePhysical::SetMillerOrientation(G4int h, G4int k, G4int l,
   fInverse = fOrient.inverse();
 
   if (verboseLevel>1) G4cout << " fOrient = " << fOrient << G4endl;
-
-  // FIXME:  Is this equivalent to (phi,theta,rot) Euler angles???
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -134,12 +134,12 @@ G4double G4LatticePhysical::GetTemperature() const {
 
 const G4ThreeVector&
 G4LatticePhysical::RotateToLattice(G4ThreeVector& dir) const {
-  return dir.transform(fInverse);
+  return dir.transform(fOrient);
 }
 
 const G4ThreeVector& 
 G4LatticePhysical::RotateToSolid(G4ThreeVector& dir) const {
-  return dir.transform(fOrient);
+  return dir.transform(fInverse);
 }
 
 

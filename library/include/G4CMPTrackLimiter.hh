@@ -18,6 +18,7 @@
 // 20250515  Add configuration settings for "stuck track" cuts
 // 20250801  G4CMP-326:  Kill thermal phonons if finite temperature set.
 // 20251025  G4CMP-520:  Remove redundant (and incorrect) InvalidPosition().
+// 20260207  G4CMP-583:  Improve escaped-track detector for zero-length steps.
 
 #ifndef G4CMPTrackLimiter_hh
 #define G4CMPTrackLimiter_hh 1
@@ -52,6 +53,7 @@ public:
 				const G4bool overrideMomentumReset=false);
 
 protected:
+  G4bool GoodReflection(const G4Step& step) const;
   G4bool BelowEnergyCut(const G4Track& track) const;
   G4bool EscapedFromVolume(const G4Step& step) const;
   G4bool ChargeStuck(const G4Track& track);	// Non-const to use caches
