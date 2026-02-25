@@ -181,12 +181,12 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
   G4ThreeVector reflDir;
 
   if (random < specProb) {
-    reflDir = DoSpecularReflection(aTrack, aStep);
+    reflP = DoSpecularReflection(aTrack, aStep);
   } else { // Do diffuse reflection (electrons & holes)
-    reflDir = LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep), GetCurrentValley());
+    reflP = LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep), GetCurrentValley());
   }
 
-  FillParticleChange(GetCurrentValley(), aTrack.GetKineticEnergy(), reflDir);
+  FillParticleChange(GetCurrentValley(), reflP);
 }
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
@@ -194,20 +194,20 @@ DoSpecularReflection(const G4Track& aTrack, const G4Step& aStep) {
   if (verboseLevel>1)
     G4cout << GetProcessName() << ": Electron reflected" << G4endl;
 
-  G4ThreeVector reflDir;
+  G4ThreeVector reflP;
   
-  if (IsElectron())  reflDir = DoSpecRefElectron(aTrack, aStep);
-  else if (IsHole()) reflDir = DoSpecRefHole(aStep);
+  if (IsElectron())  reflP = DoSpecularElectron(aTrack, aStep);
+  else if (IsHole()) reflP = DoSpecularHole(aStep);
   else {
     G4Exception("G4CMPDriftBoundaryProcess::DoReflection", "Boundary004",
                 EventMustBeAborted, "Invalid particle for this process.");
   }
 
-  return reflDir;
+  return reflP;
 }
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
-DoSpecRefElectron(const G4Track& aTrack, const G4Step& aStep) {
+DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   G4ThreeVector k = GetLocalWaveVector(aTrack);
   G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(aStep);
 
@@ -223,6 +223,12 @@ DoSpecRefElectron(const G4Track& aTrack, const G4Step& aStep) {
   // Specular reflection reverses wavevector along normal
   G4double dirNorm = k * surfNorm;
   G4ThreeVector k -= 2.*dirNorm*surfNorm;
+
+  // If reflected velocity is outward facing, fall back to diffuse reflection
+  G4int mode = GetPolarization(aStep.GetTrack());
+  if (!G4CMP::VelocityIsInward(theLattice, mode, k, surfNorm)) {
+    k = LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep), GetCurrentValley());
+  }
   
   if (verboseLevel>2) {
     G4cout << " New wavevector direction " << k.unit() << G4endl;
@@ -243,11 +249,11 @@ DoSpecRefElectron(const G4Track& aTrack, const G4Step& aStep) {
     G4cout << " Cross-check new wavevector direction " << vnew.unit() << G4endl;
   }
 
-  return k;
+  return p;
 }
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
-DoSpecRefHole(const G4Step& aStep) {
+DoSpecularHole(const G4Step& aStep) {
   if (verboseLevel>1) {
     G4cout << GetProcessName() << "DoSpecularHole " << G4endl;
   }
@@ -266,7 +272,7 @@ DoSpecRefHole(const G4Step& aStep) {
     G4cout << " New momentum direction " << momDir << G4endl;
   }
   
-  return momDir;
+  return aTrack.GetMomentum().mag() * momDir;
 }
 
 
