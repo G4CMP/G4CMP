@@ -62,14 +62,14 @@ protected:
   virtual void DoAbsorption(const G4Track& aTrack, const G4Step& aStep,
 			    G4ParticleChange& aParticleChange);
 
-  virtual void DoReflection(const G4Track& aTrack,const G4Step& aStep,
+  virtual void DoReflection(const G4Track& aTrack, const G4Step& aStep,
 			    G4ParticleChange& aParticleChange);
 
-  virtual G4ThreeVector DoSpecularReflection(const G4Track& aTrack,const G4Step& aStep);
+  virtual G4ThreeVector DoSpecularReflection(const G4Track& aTrack, const G4Step& aStep);
 
-  virtual G4ThreeVector DoSpecularElectron(const G4Track& aTrack,const G4Step& aStep);
+  virtual G4ThreeVector DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep);
 
-  virtual G4ThreeVector DoSpecularHole(const G4Step& aStep);
+  virtual G4ThreeVector DoSpecularHole(const G4Track& aTrack, const G4Step& aStep);
 
   // Called when maximum bounces have been recorded; does recombination
   virtual void DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,

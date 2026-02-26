@@ -178,7 +178,7 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
 
   G4double random = G4UniformRand();
 
-  G4ThreeVector reflDir;
+  G4ThreeVector reflP;
 
   if (random < specProb) {
     reflP = DoSpecularReflection(aTrack, aStep);
@@ -253,7 +253,7 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
 }
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
-DoSpecularHole(const G4Step& aStep) {
+DoSpecularHole(const G4Track& /*aTrack*/, const G4Step& aStep) {
   if (verboseLevel>1) {
     G4cout << GetProcessName() << "DoSpecularHole " << G4endl;
   }
