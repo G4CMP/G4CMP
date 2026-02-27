@@ -227,7 +227,7 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   // If reflected velocity is outward facing, fall back to diffuse reflection
   G4int mode = GetPolarization(aStep.GetTrack());
   if (!G4CMP::VelocityIsInward(theLattice, mode, k, surfNorm)) {
-    k = LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep), GetCurrentValley());
+    k = LambertianReflection(theLattice, surfNorm, GetCurrentValley());
   }
   
   if (verboseLevel>2) {
@@ -235,7 +235,7 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   }
   
   // Convert wavevector back to momentum and update direction
-  RotateToGlobalDirection(k);
+  RotateToLocalDirection(k);
   G4ThreeVector p = theLattice->MapV_elToP(GetCurrentValley(), k);
   RotateToGlobalDirection(p);
   
@@ -243,10 +243,10 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
     G4cout << " New momentum direction " << p.unit() << G4endl;
     
     // SANITY CHECK:  Does new momentum get back to new velocity?
-    G4ThreeVector vnew = theLattice->MapPtoV_el(GetCurrentValley(),
+    G4ThreeVector kNew = theLattice->MapPtoK(GetCurrentValley(),
 						GetLocalDirection(p));
-    RotateToGlobalDirection(vnew);
-    G4cout << " Cross-check new wavevector direction " << vnew.unit() << G4endl;
+    RotateToGlobalDirection(kNew);
+    G4cout << " Cross-check new wavevector direction " << kNew.unit() << G4endl;
   }
 
   return p;
