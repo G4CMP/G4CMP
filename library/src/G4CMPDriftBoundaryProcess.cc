@@ -209,6 +209,7 @@ DoSpecularReflection(const G4Track& aTrack, const G4Step& aStep) {
 G4ThreeVector G4CMPDriftBoundaryProcess::
 DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   G4ThreeVector k = GetLocalWaveVector(aTrack);
+  RotateToGlobalDirection(k);
   G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(aStep);
 
   if (verboseLevel>1) {
@@ -235,8 +236,7 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   }
   
   // Convert wavevector back to momentum and update direction
-  RotateToLocalDirection(k);
-  G4ThreeVector p = theLattice->MapV_elToP(GetCurrentValley(), k);
+  G4ThreeVector p = theLattice->MapV_elToP(GetCurrentValley(), GetLocalDirection(k));
   RotateToGlobalDirection(p);
   
   if (verboseLevel>2) {
