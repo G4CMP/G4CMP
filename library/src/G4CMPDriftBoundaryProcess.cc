@@ -197,7 +197,7 @@ DoSpecularReflection(const G4Track& aTrack, const G4Step& aStep) {
   G4ThreeVector reflP;
   
   if (IsElectron())  reflP = DoSpecularElectron(aTrack, aStep);
-  else if (IsHole()) reflP = DoSpecularHole(aStep);
+  else if (IsHole()) reflP = DoSpecularHole(aTrack, aStep);
   else {
     G4Exception("G4CMPDriftBoundaryProcess::DoReflection", "Boundary004",
                 EventMustBeAborted, "Invalid particle for this process.");
@@ -253,7 +253,7 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
 }
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
-DoSpecularHole(const G4Track& /*aTrack*/, const G4Step& aStep) {
+DoSpecularHole(const G4Track& aTrack, const G4Step& aStep) {
   if (verboseLevel>1) {
     G4cout << GetProcessName() << "DoSpecularHole " << G4endl;
   }
