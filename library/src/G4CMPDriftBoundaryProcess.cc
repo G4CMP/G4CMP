@@ -228,7 +228,7 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   // If reflected velocity is outward facing, fall back to diffuse reflection
   G4int mode = GetPolarization(aStep.GetTrack());
   if (!G4CMP::VelocityIsInward(theLattice, mode, k, surfNorm)) {
-    k = LambertianReflection(theLattice, surfNorm, GetCurrentValley());
+    return LambertianReflection(theLattice, surfNorm, GetCurrentValley());
   }
   
   if (verboseLevel>2) {
