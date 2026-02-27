@@ -222,7 +222,7 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
 
   // Specular reflection reverses wavevector along normal
   G4double dirNorm = k * surfNorm;
-  G4ThreeVector k -= 2.*dirNorm*surfNorm;
+  k -= 2.*dirNorm*surfNorm;
 
   // If reflected velocity is outward facing, fall back to diffuse reflection
   G4int mode = GetPolarization(aStep.GetTrack());
