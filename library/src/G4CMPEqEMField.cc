@@ -103,18 +103,13 @@ void G4CMPEqEMField::SetChargeMomentumMass(G4ChargeState particleCharge,
 void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
 				       const G4double field[],
 				       G4double dydx[]) const {
+
   // No lattice behaviour, just use base class
   if (valleyIndex == -1) {
     G4EqMagElectricField::EvaluateRhsGivenB(y, field, dydx);
     return;
   }
 
-  // Get kinematics into more usable form
-  pos.set(y[0],y[1],y[2]);			// Position
-  mom.set(y[3],y[4],y[5]);			// Momentum
-  Efield.set(field[3],field[4],field[5]);	// Electric field
-
-  force = Efield;	// Apply transforms here so Efield stays original
 
 #ifdef G4CMP_DEBUG
   if (verboseLevel>2) {
@@ -126,7 +121,13 @@ void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
   }
 #endif
 
+  // Get kinematics into more usable form
+  pos.set(y[0],y[1],y[2]);			// Position
+  mom.set(y[3],y[4],y[5]);			// Momentum
+  Efield.set(field[3],field[4],field[5]);	// Electric field
   momdir = mom.unit();
+
+  force = Efield;	// Apply transforms here so Efield stays original
 
   fGlobalToLocal.ApplyAxisTransform(mom);
   vel = theLattice->MapPtoV_el(valleyIndex,mom);
@@ -198,7 +199,21 @@ void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
 #endif
 
   // dp/ds = (dF/dt)*(dt/ds) = qE/beta
-  force *= fCharge*vinv*c_light;
+  if (fCharge>0) { // Temporary solution until we fix (soon) G4CMP-576.
+    force = fCharge*vinv*c_light*Efield;
+  }
+
+  if (fCharge<0) {
+    force *= fCharge*vinv*c_light;
+    //nonParE = theLattice->GetNonParabolicity(MapPtoEkin(valleyIndex,mom));
+    nonParE = (1+2*theLattice->GetAlpha()*theLattice->MapPtoEkin(valleyIndex,mom));
+    forceCorrection = -2*theLattice->GetAlpha()*fCharge*vinv*c_light
+      *Efield*vel*vel*theLattice->GetElectronMass()/nonParE;
+
+    force =force/nonParE;
+    force = force + forceCorrection;
+  }
+
 
 #ifdef G4CMP_DEBUG
   if (verboseLevel>2) {
