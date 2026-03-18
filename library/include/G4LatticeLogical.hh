@@ -46,7 +46,7 @@
 // 20250904  R. Linehan -- Linked Tcrit to Delta0 for superconductors
 // 20250905  G4CMP-500  -- Removed non-fundamental superconductor params from
 //              lattice info
-// 20260205  G4CMP-495  -- Added non-parabolicity function
+// 20260205  G4CMP-495  -- Added non-parabolicity function NonParE.
 
 #ifndef G4LatticeLogical_h
 #define G4LatticeLogical_h

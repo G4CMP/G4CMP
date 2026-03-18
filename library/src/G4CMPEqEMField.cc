@@ -33,6 +33,7 @@
 //		method of each process separately.
 // 20240703 I. Ataee -- Cleaning up the code and using MapPtoV_el instea of redoing
 //		what it does in the EvaluateRhsGivenB method.
+// 20260318 E. Michaud -- Make force non parabolic for electrons.
 
 #include "G4CMPEqEMField.hh"
 #include "G4CMPConfigManager.hh"
@@ -205,8 +206,8 @@ void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
 
   if (fCharge<0) {
     force *= fCharge*vinv*c_light;
-    //nonParE = theLattice->GetNonParabolicity(MapPtoEkin(valleyIndex,mom));
-    nonParE = (1+2*theLattice->GetAlpha()*theLattice->MapPtoEkin(valleyIndex,mom));
+    nonParE = theLattice->GetNonParabolicity(theLattice->MapPtoEkin(valleyIndex,mom));
+    //nonParE = (1+2*theLattice->GetAlpha()*theLattice->MapPtoEkin(valleyIndex,mom));
     forceCorrection = -2*theLattice->GetAlpha()*fCharge*vinv*c_light
       *Efield*vel*vel*theLattice->GetElectronMass()/nonParE;
 

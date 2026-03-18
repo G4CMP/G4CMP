@@ -211,7 +211,7 @@ public:
   G4double GetIVLinExponent() const { return fLattice->GetIVLinExponent(); }
 
   G4double GetAlpha() const          { return fLattice->GetAlpha(); }
-  //G4double GetNonParabolicity(G4double Kin) const  { return fLattice->GetNonParabolicity(Kin); }
+  G4double GetNonParabolicity(G4double Kin) const  { return fLattice->GetNonParabolicity(Kin); }
   G4double GetElectronAcousticDeform() const { return fLattice->GetElectronAcousticDeform(); }
   G4double GetHoleAcousticDeform() const { return fLattice->GetHoleAcousticDeform(); }
 
