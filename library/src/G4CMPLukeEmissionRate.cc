@@ -34,7 +34,7 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
     return 0.;
   }
 
-  G4double kSound = 0.; G4double mass = 0.; G4double l0 = 0.; G4double vsound = 0.;
+  G4double kSound = 0.; G4double mass = 0.; G4double l0 = 0.; G4double vsound = 0.; G4double kmag = 0.;
   G4ThreeVector ktrk(0.);
   G4ThreeVector ptrk = GetLocalMomentum(aTrack);
   G4int iValley = GetValleyIndex(aTrack);
@@ -46,6 +46,17 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
     ktrk = theLattice->EllipsoidalToSphericalTranformation(iValley, ktrk);
     mass = sqrt(theLattice->GetElectronMass()*theLattice->GetElectronDOSMass());
     vsound = theLattice->GetAverageSoundSpeed();
+
+
+    kmag = ktrk.mag();
+    G4double Etrk = theLattice->MapPtoEkin(iValley,ptrk);
+    kSound = vsound*mass/hbar_Planck*theLattice->GetNonParabolicity(Etrk);
+    G4double qmax = 2/(1-2*theLattice->GetAlpha()*theLattice->GetElectronDOSMass()*vsound*vsound)*(kmag-kSound);
+    G4double ratetest = theLattice->GetElectronAcousticDeform()*theLattice->GetElectronAcousticDeform()*theLattice->GetElectronDOSMass()*theLattice->GetElectronDOSMass()/theLattice->GetElectronMass()/12/pi/hbar_Planck/hbar_Planck/kmag/theLattice->GetDensity()/vsound*qmax*qmax*qmax*(1+2*theLattice->GetAlpha()*Etrk-3/2*theLattice->GetAlpha()*hbar_Planck*vsound*qmax*sqrt(theLattice->GetElectronDOSMass()/theLattice->GetElectronMass()));
+
+  return (kmag > kSound) ? ratetest : 0.;
+
+
     // The l0 in configuration file is calculated using the density of states mass
     // l0 = l0*pow(theLattice->GetElectronMass(),3)/(pow(mass,3));
   } else if (G4CMP::IsHole(aTrack)) {
@@ -54,8 +65,8 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
     mass = theLattice->GetHoleMass();
     vsound = theLattice->GetSoundSpeed();
   }
-  G4double kmag = ktrk.mag();
 
+  kmag = ktrk.mag();
   G4double gammaSound = 1/sqrt(1.-vsound*vsound/c_squared);
   kSound = gammaSound*vsound*mass/hbar_Planck;
 

@@ -137,19 +137,25 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
   G4double mass = 0.;
   G4double Etrk = 0.;
   G4double vsound = 0.;
+  G4double kSound = 0.;
   if (IsElectron()) {
     ktrk = lat->MapPtoK(iValley, ptrk);
     // Turning wavevector to spherical frame where electrons act like holes
     // as the mass is isotropic
     ktrk = lat->EllipsoidalToSphericalTranformation(iValley, ktrk);
     mass = sqrt(theLattice->GetElectronMass()*theLattice->GetElectronDOSMass());
-    vsound = 0.1*theLattice->GetSoundSpeed() +0.9*theLattice->GetTransverseSoundSpeed();
+    vsound = theLattice->GetAverageSoundSpeed();
     Etrk = lat->MapPtoEkin(iValley, ptrk);
+
+    kSound = vsound*mass/hbar_Planck*theLattice->GetNonParabolicity(Etrk);
+
   } else if (IsHole()) {
     ktrk = GetLocalWaveVector(aTrack);
     mass = lat->GetHoleMass();
     Etrk = GetKineticEnergy(aTrack);
     vsound = theLattice->GetSoundSpeed();
+    G4double gammaSound = 1/sqrt(1.-vsound*vsound/c_squared);
+    kSound = gammaSound * vsound * mass / hbar_Planck;
   } else {
     G4Exception("G4CMPLukeScattering::PostStepDoIt", "Luke002",
                 EventMustBeAborted, "Unknown charge carrier");
@@ -158,8 +164,7 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
 
   G4ThreeVector kdir = ktrk.unit();
   G4double kmag = ktrk.mag();
-  G4double gammaSound = 1/sqrt(1.-vsound*vsound/c_squared);
-  G4double kSound = gammaSound * vsound * mass / hbar_Planck;
+
 
   // Sanity check: this should have been done in MFP already
   if (kmag <= kSound) return &aParticleChange;
@@ -204,6 +209,10 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
     theta_phonon = MakePhononTheta(kmag, kSound);
     phi_phonon   = G4UniformRand()*twopi;
     q = 2*(kmag*cos(theta_phonon)-kSound);
+
+    if (IsElectron()) {
+q*=1/(1-2*theLattice->GetAlpha()*theLattice->GetElectronDOSMass()*vsound*vsound);
+    }
 
     if (verboseLevel > 1) {
       G4cout << " theta_phonon = " << theta_phonon
