@@ -184,7 +184,7 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
     reflP = DoSpecularReflection(aTrack, aStep);
   } else { // Do diffuse reflection (electrons & holes)
     reflP = LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep), GetCurrentValley());
-    reflP *= GetGlobalMomentum().mag();
+    reflP *= GetGlobalMomentum(aTrack).mag();
   }
 
   FillParticleChange(GetCurrentValley(), reflP);
