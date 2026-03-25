@@ -377,9 +377,11 @@ G4CMP::Compute2DSafetyToDaughterVolume(const G4ThreeVector& pos,
   if (volDaughterSolid->Inside(samplePoint) == kInside) {
     G4ExceptionDescription msg;
     msg << "G4CMP::Compute2DSafetyToDaughterVolume seems to think we're "
-        << "already inside the daughter volume." << G4endl;
+        << "already inside the daughter volume. Returning negative safety "
+        << " to kill track." << G4endl;
     G4Exception("G4CMP::Compute2DSafetyToDaughterVolume()", "Geometry00X",
-                FatalException, msg);
+                JustWarning, msg);
+    return -1.0*CLHEP::um;
   }
   
   //Compute the safety. Since we should be *outside* the daughter volume
@@ -552,9 +554,12 @@ Compute2DSafetyInMotherVolume(G4VSolid * motherSolid,
     G4ExceptionDescription msg;
     msg << "G4CMP::Compute2DSafetyInMotherVolume has a returnDir whose "
         << "magnitude is zero. Given that this is swept, this should not be "
-        << "the case." << G4endl;
+        << "the case. Throwing negative safety so track gets killed" << G4endl;
     G4Exception("G4CMP::Compute2DSafetyInMotherVolume()", "Geometry00X",
-                FatalException, msg);    
+                JustWarning, msg);
+
+    //Set the safety negative, so we can pick it up with our kill-the-track flag
+    motherSafety = -1.0*CLHEP::um;
   }
   
   return motherSafety;

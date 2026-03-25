@@ -6,6 +6,8 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-03-25  G4CMP-592 : Replace FatalExceptions in QPDiffusion with warnings
+
 2026-02-24  g4cmp-V10-01-01 Multiple bug fixes for G4v11 and new TFR/QP code
 2026-02-20  G4CMP-585 : Fix memory leak from G4CMP-547 ParticleChange mod.
 2026-02-18  G4CMP-588 : Must present NumberOfSecondaries before filling.
