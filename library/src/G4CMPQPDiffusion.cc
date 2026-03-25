@@ -745,7 +745,7 @@ G4VParticleChange* G4CMPQPDiffusion::AlongStepDoIt(const G4Track& track,
       //Whenever this is required, this will incur a small bias because we're
       //not changing the time duration for the step
       if (step.GetPostStepPoint()->GetStepStatus() != fGeomBoundary) {
-        if (verboseLevel > 5){
+        if (verboseLevel > 5) {
           G4ExceptionDescription msg;
           msg << "Somehow the CheckNextStep returned a step length that is not "
               << "kInfinity but the step status thinks it's not fGeomBoundary. "
@@ -972,7 +972,7 @@ G4CMPQPDiffusion::PostStepDoIt(const G4Track& track, const G4Step&) {
                        false);
 
   //Cross-check for deliberately negative safeties -- need to kill these tracks)
-  if( the2DSafety < 0.0 ){
+  if (the2DSafety < 0.0) {
     fPreemptivelyKillTrack = true;
     fParticleChange.ProposeTrackStatus(fStopAndKill);
     return &fParticleChange;
@@ -1065,7 +1065,7 @@ G4CMPQPDiffusion::PostStepDoIt(const G4Track& track, const G4Step&) {
                            false);
 
       //Cross-check for deliberately negative safeties -- need to kill these tracks)
-      if( testSafety < 0.0 ){
+      if (testSafety < 0.0) {
         fPreemptivelyKillTrack = true;
         fParticleChange.ProposeTrackStatus(fStopAndKill);
         return &fParticleChange;
@@ -1154,7 +1154,7 @@ G4CMPQPDiffusion::PostStepDoIt(const G4Track& track, const G4Step&) {
       G4ThreeVector safetyDir = the2DSafetyAndDir.second;
 
       //Cross-check for deliberately negative safeties -- need to kill these tracks
-      if( the2DSafety < 0.0 ){
+      if (the2DSafety < 0.0) {
         fPreemptivelyKillTrack = true;
         fParticleChange.ProposeTrackStatus(fStopAndKill);
         return &fParticleChange;
@@ -1168,7 +1168,7 @@ G4CMPQPDiffusion::PostStepDoIt(const G4Track& track, const G4Step&) {
                                         track.GetMomentumDirection(),false);
 
       //Cross-check for deliberately negative safeties -- need to kill these tracks
-      if( the2DSafetyAndDir_Shifted.first < 0.0 ){
+      if (the2DSafetyAndDir_Shifted.first < 0.0) {
         fPreemptivelyKillTrack = true;
         fParticleChange.ProposeTrackStatus(fStopAndKill);
         return &fParticleChange;
@@ -1338,7 +1338,7 @@ FindDirectionToNearbyBoundary(const G4Track& track,
                        useSweepForDaughterSafety);
 
   //Cross-check for deliberately negative safeties -- need to kill these tracks
-  if( shiftedPoint2DSafety < 0.0 ){
+  if (shiftedPoint2DSafety < 0.0) {
     fPreemptivelyKillTrack = true;
     G4ThreeVector theDummyVect(0,0,0);
     return theDummyVect;
@@ -1453,7 +1453,7 @@ FindDirectionToNearbyBoundary(const G4Track& track,
                        useSweepForDaughterSafety);
 
   //Cross-check for deliberately negative safeties -- need to kill these tracks
-  if( option1Safety < 0.0 ){
+  if (option1Safety < 0.0) {
     fPreemptivelyKillTrack = true;
     G4ThreeVector theDummyVect(0,0,0);
     return theDummyVect;
@@ -1473,7 +1473,7 @@ FindDirectionToNearbyBoundary(const G4Track& track,
                        useSweepForDaughterSafety);
 
   //Cross-check for deliberately negative safeties -- need to kill these tracks
-  if( option2Safety < 0.0 ){
+  if (option2Safety < 0.0) {
     fPreemptivelyKillTrack = true;
     G4ThreeVector theDummyVect(0,0,0);
     return theDummyVect;
@@ -1530,7 +1530,7 @@ FindDirectionToNearbyBoundary(const G4Track& track,
                          useSweepForDaughterSafety);
 
     //Cross-check for deliberately negative safeties -- need to kill these tracks
-    if( option1Safety < 0.0 || option2Safety < 0.0 ){
+    if (option1Safety < 0.0 || option2Safety < 0.0) {
       fPreemptivelyKillTrack = true;
       G4ThreeVector theDummyVect(0,0,0);
       return theDummyVect;
@@ -1594,7 +1594,7 @@ FindDirectionToNearbyBoundary(const G4Track& track,
                        useSweepForDaughterSafety);
 
   //Cross-check for deliberately negative safeties -- need to kill these tracks
-  if( checkedSafety < 0.0 ){
+  if (checkedSafety < 0.0) {
     fPreemptivelyKillTrack = true;
     G4ThreeVector theDummyVect(0,0,0);
     return theDummyVect;
@@ -1963,7 +1963,7 @@ G4double G4CMPQPDiffusion::GetMeanFreePath(const G4Track& track,
                                surfaceNorm );
 
           //Cross-check for deliberately negative safeties -- need to kill these tracks
-          if( the2DSafety < 0.0 ) {
+          if (the2DSafety < 0.0) {
             fPreemptivelyKillTrack = true;
             return 0;
           }
@@ -1977,7 +1977,7 @@ G4double G4CMPQPDiffusion::GetMeanFreePath(const G4Track& track,
           the2DSafety = the2DSafetyAndDir.first;
 
           //Cross-check for deliberately negative safeties -- need to kill these tracks
-          if( the2DSafety < 0.0 ) {
+          if (the2DSafety < 0.0) {
             fPreemptivelyKillTrack = true;
             return 0;
           }
@@ -2049,7 +2049,7 @@ G4double G4CMPQPDiffusion::GetMeanFreePath(const G4Track& track,
         the2DSafety = constrained2DSafety;
 
         //Cross-check for deliberately negative safeties -- need to kill these tracks
-        if( the2DSafety < 0.0 ) {
+        if (the2DSafety < 0.0) {
           fPreemptivelyKillTrack = true;
           return 0;
         }
@@ -2105,7 +2105,7 @@ G4double G4CMPQPDiffusion::GetMeanFreePath(const G4Track& track,
                              false);
 
         //Cross-check for deliberately negative safeties -- need to kill these tracks
-        if( the2DSafety < 0.0 ) {
+        if (the2DSafety < 0.0) {
           fPreemptivelyKillTrack = true;
           return 0;
         }
@@ -2121,7 +2121,7 @@ G4double G4CMPQPDiffusion::GetMeanFreePath(const G4Track& track,
         the2DSafety = the2DSafetyAndDir.first;
 
         //Cross-check for deliberately negative safeties -- need to kill these tracks
-        if( the2DSafety < 0.0 ) {
+        if (the2DSafety < 0.0) {
           fPreemptivelyKillTrack = true;
           return 0;
         }
@@ -2131,7 +2131,7 @@ G4double G4CMPQPDiffusion::GetMeanFreePath(const G4Track& track,
 
     //Cross-check for deliberately negative safeties -- need to kill these tracks
     //This is a bit of a safeguard one -- probably not necessary
-    if( the2DSafety < 0.0 ) {
+    if (the2DSafety < 0.0) {
       fPreemptivelyKillTrack = true;
       return 0;
     }
