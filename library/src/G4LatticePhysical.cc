@@ -53,7 +53,7 @@ G4LatticePhysical::G4LatticePhysical()
   : verboseLevel(0), fLattice(0), hMiller(0), kMiller(0), lMiller(0),
     fRot(0.), fTemperature(-1.), fPolycrystalElasticScatteringMFP(DBL_MAX),
     fSCDelta0(0.), fSCTcrit(0.), fSCTeff(0.), fSCDn(0.),
-    fSCQPLocalTrappingTau(DBL_MAX), fSCQPdiffusionStepTau(DBL_MAX) {;}
+    fSCQPLocalTrappingTau(DBL_MAX), fSCQPDiffusionStepTau(DBL_MAX) {;}
 
 // Set lattice orientation (relative to G4VSolid) with Miller indices
 
