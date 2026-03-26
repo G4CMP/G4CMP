@@ -45,7 +45,7 @@ LoadDataForTrack(const G4Track* track, const G4bool /*overrideMomentumReset*/) {
 
 G4double G4CMPInterValleyRate::Rate(const G4Track& aTrack) const {
   const_cast<G4CMPInterValleyRate*>(this)->LoadDataForTrack(&aTrack);
-    
+
   // Initialize Energy and momentum
   eTrk = GetKineticEnergy(aTrack);    
   ivalley = GetValleyIndex(aTrack);
@@ -88,12 +88,12 @@ G4double G4CMPInterValleyRate::Rate(const G4Track& aTrack) const {
       
     // 1st order IV rate
     if (ivorder==1) {  
-        G4double qmax = kmag*(1+sqrt(1-Emin_iv/eTrk));		// max phonon momentum
-        G4double qmin = kmag*(1-sqrt(1-Emin_iv/eTrk));		// min phonon momentum
+        G4double qmax = kmag*(1+sqrt(1-alpha*Emin_iv*Emin_iv/eTrk-Emin_iv/eTrk*(theLattice->GetNonParabolicity(eTrk))));		// max phonon momentum
+        G4double qmin = kmag*(1-sqrt(1- alpha*Emin_iv*Emin_iv/eTrk-Emin_iv/eTrk*(theLattice->GetNonParabolicity(eTrk))));		// min phonon momentum
         scale = m_DOS3half*m_DOS * nVal * D_iv*D_iv
-        /(2*pi*hbar_Planck*density*theLattice->GetElectronMass()*sqrt(theLattice->GetElectronMass())*Emin_iv*kmag)*(theLattice->GetNonParabolicity(eTrk)-2*theLattice->GetAlpha()*Emin_iv);
+        /(16*pi*hbar_Planck*density*theLattice->GetElectronMass()*sqrt(theLattice->GetElectronMass())*Emin_iv*kmag)*(theLattice->GetNonParabolicity(eTrk)-2*alpha*Emin_iv);
         Efunc = energyFunc1st(qmax,qmin);
-    }  
+    }
 
     ivrate = scale * Efunc;
     IVprob.push_back(ivrate);

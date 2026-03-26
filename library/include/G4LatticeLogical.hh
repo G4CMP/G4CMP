@@ -201,6 +201,7 @@ public:
   void SetHoleScatter(G4double l0) { fL0_h = l0; }
   void SetHoleMass(G4double hmass) { fHoleMass = hmass; }
   void SetElectronScatter(G4double l0) { fL0_e = l0; }
+  void SetElectronLukeRateScale(G4double v) { fLukeRateScale_e = v; }
   void SetMassTensor(const G4RotationMatrix& etens);
   void SetMassTensor(G4double mXX, G4double mYY, G4double mZZ);
 
@@ -213,6 +214,8 @@ public:
   G4double GetHoleScatter() const               { return fL0_h; }
   G4double GetHoleMass() const                  { return fHoleMass; }
   G4double GetElectronScatter() const           { return fL0_e; }
+  G4double GetElectronLukeRateScale() const     { return fLukeRateScale_e; }
+
   G4double GetElectronMass() const 		{ return fElectronMass; }
   G4double GetElectronDOSMass() const 		{ return fElectronMDOS; }
   const G4RotationMatrix& GetMassTensor() const { return fMassTensor; }
@@ -347,6 +350,9 @@ private:
   // Compute average speed of sound
   void ComputeAverageSoundSpeed();
 
+  // Compute Luke Scattering rate scale
+  void ComputeLukeScatteringRateScale_e();
+
 private:
   // Create a thread-local buffer to use with MapAtoB() functions
   inline G4ThreeVector& tempvec() const {
@@ -392,6 +398,7 @@ private:
   G4double fVSoundAverage;	// Speed of sound (average over phonon DOS)
   G4double fL0_e;	// Scattering length for electrons
   G4double fL0_h;	// Scattering length for holes
+  G4double fLukeRateScale_e;  // Luke scattering rate scale for electrons
 
   const G4double mElectron;	 // Free electron mass (without G4's c^2)
   G4double fHoleMass;		 // Effective mass of +ve carrier

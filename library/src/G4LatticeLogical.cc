@@ -146,6 +146,7 @@ G4LatticeLogical& G4LatticeLogical::operator=(const G4LatticeLogical& rhs) {
   fVTrans = rhs.fVTrans;
   fL0_e = rhs.fL0_e;
   fL0_h = rhs.fL0_h;
+  fLukeRateScale_e = rhs.fLukeRateScale_e;
   fHoleMass = rhs.fHoleMass;
   fElectronMass = rhs.fElectronMass;
   fElectronMDOS = rhs.fElectronMDOS;
@@ -278,6 +279,9 @@ void G4LatticeLogical::Initialize(const G4String& newName) {
 
   // Compute average speed of sound
   ComputeAverageSoundSpeed();
+
+  // Compute Luke Scattering rate scale
+  ComputeLukeScatteringRateScale_e();
 
 }
 
@@ -1074,6 +1078,13 @@ void G4LatticeLogical::ComputeL0(G4bool IsElec) {
 void G4LatticeLogical::ComputeAverageSoundSpeed() {
   fVSoundAverage = fLDOS*fVSound + (fSTDOS+fFTDOS)*fVTrans;
 }
+
+// Compute Luke Scattering rate scale
+
+void G4LatticeLogical::ComputeLukeScatteringRateScale_e() {
+  fLukeRateScale_e = fAcDeform_e*fAcDeform_e*GetElectronDOSMass()*GetElectronDOSMass()/GetElectronMass()/12/pi/hbar_Planck/hbar_Planck/fDensity/GetAverageSoundSpeed();
+}
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 

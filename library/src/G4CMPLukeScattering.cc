@@ -156,6 +156,7 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
     vsound = theLattice->GetSoundSpeed();
     G4double gammaSound = 1/sqrt(1.-vsound*vsound/c_squared);
     kSound = gammaSound * vsound * mass / hbar_Planck;
+
   } else {
     G4Exception("G4CMPLukeScattering::PostStepDoIt", "Luke002",
                 EventMustBeAborted, "Unknown charge carrier");
@@ -164,7 +165,6 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
 
   G4ThreeVector kdir = ktrk.unit();
   G4double kmag = ktrk.mag();
-
 
   // Sanity check: this should have been done in MFP already
   if (kmag <= kSound) return &aParticleChange;
