@@ -15,11 +15,14 @@
 // 20220907 G4CMP-316 -- Pass track into CreateXYZ() functions; do valley
 //		selection for electrons in CreateChargeCarrier().
 // 20250508 G4CMP-480 -- Apply correct transforms for k->Vg mapping.
+// 20250212 G4CMP-581 -- Change CreatePhonon error to JustWarning(); add
+//		missing CreateQP() call in CreateSecondary.
 
 #include "G4CMPSecondaryUtils.hh"
 #include "G4CMPDriftHole.hh"
 #include "G4CMPDriftElectron.hh"
 #include "G4CMPDriftTrackInfo.hh"
+#include "G4CMPBogoliubovQP.hh"
 #include "G4CMPGeometryUtils.hh"
 #include "G4CMPPhononTrackInfo.hh"
 #include "G4CMPTrackUtils.hh"
@@ -35,6 +38,7 @@
 #include "G4Track.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4VTouchable.hh"
+#include <sstream>
 
 
 // Generic function to create both phonon and charge carrier secondaries
@@ -52,6 +56,11 @@ G4Track* G4CMP::CreateSecondary(const G4Track& track, G4ParticleDefinition* pd,
                                waveVec, track.GetPosition());
   }
 
+  if (G4CMP::IsQP(pd)) {
+    return CreateQP(track, energy, waveVec, track.GetGlobalTime(),
+		    track.GetPosition());
+  }
+    
   G4Exception("G4CMP::CreateSecondary", "Secondary001", EventMustBeAborted,
               ("Particle Definition "+pd->GetParticleName()
 	       +" does not match a G4CMP particle.").c_str());
@@ -63,8 +72,12 @@ G4Track* G4CMP::CreatePhonon(const G4Track& track, G4int mode,
 			     G4double time, const G4ThreeVector& pos) {
   G4LatticePhysical* lat = G4CMP::GetLattice(track);
   if (!lat) {
-    G4Exception("G4CMP::CreatePhonon", "Secondary002", EventMustBeAborted,
-                ("No lattice for volume "+track.GetVolume()->GetName()).c_str());
+    std::stringstream msg;
+    msg << "No lattice for volume " << track.GetVolume()->GetName()
+	<< " @ " << pos;
+
+    G4Exception("G4CMP::CreatePhonon", "Secondary002", JustWarning,
+                msg.str().c_str());
     return nullptr;
   }
 
@@ -108,8 +121,11 @@ G4Track* G4CMP::CreatePhonon(const G4VTouchable* touch, G4int mode,
   G4ThreadLocalStatic auto latMan = G4LatticeManager::GetLatticeManager();
   G4LatticePhysical* lat = latMan->GetLattice(vol);
   if (!lat) {
-    G4Exception("G4CMP::CreatePhonon", "Secondary002", EventMustBeAborted,
-                ("No lattice for volume "+vol->GetName()).c_str());
+    std::stringstream msg;
+    msg << "No lattice for volume " << vol->GetName() << " @ " << pos;
+
+    G4Exception("G4CMP::CreatePhonon", "Secondary002", JustWarning,
+                msg.str().c_str());
     return nullptr;
   }
 
@@ -150,8 +166,12 @@ G4Track* G4CMP::CreateChargeCarrier(const G4Track& track, G4int charge,
 
   G4LatticePhysical* lat = G4CMP::GetLattice(track);
   if (!lat) {
-    G4Exception("G4CMP::CreateChargeCarrier", "Secondary003", EventMustBeAborted,
-                ("No lattice for volume "+track.GetVolume()->GetName()).c_str());
+    std::stringstream msg;
+    msg << "No lattice for volume " << track.GetVolume()->GetName()
+	<< " @ " << pos;
+
+    G4Exception("G4CMP::CreateChargeCarrier", "Secondary003", JustWarning,
+                msg.str().c_str());
     return nullptr;
   }
 
@@ -186,5 +206,31 @@ G4Track* G4CMP::CreateChargeCarrier(const G4Track& track, G4int charge,
 		"Hole has been assigned a valley index.");
   }
 
+  return sec;
+}
+
+
+//Here, function to create a QP given an input track, energy, velocity, time,
+//and position. We attach track info to this at this point, which should
+//create new track info for this QP since this is the first time it's seeing
+//that function run.
+G4Track* G4CMP::CreateQP(const G4Track& /*track*/,
+			 const G4double energy,
+			 const G4ThreeVector& velocity,
+			 const G4double time,
+			 const G4ThreeVector& pos) {
+  
+  //Get the particle definition
+  G4ParticleDefinition* theQP = G4CMPBogoliubovQP::Definition();
+
+  //May need to do a bit of wiggling to avoid the surface, but we'll test first.
+  auto sec = new G4Track(new G4DynamicParticle(theQP,velocity.unit(),energy),
+			 time,pos);  
+
+  //Attach info in auxiliary info for track
+  G4CMP::AttachTrackInfo(sec);
+
+  // Protect against production cuts
+  sec->SetGoodForTrackingFlag(true);
   return sec;
 }

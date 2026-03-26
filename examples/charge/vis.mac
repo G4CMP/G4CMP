@@ -8,7 +8,7 @@
 /g4cmp/chargeBounces 0 # this command allows you to set the max charge bounces
 
 /run/initialize
-/vis/open OGL
+/vis/open OGLIX
 /vis/viewer/set/upVector 1 0 0
 /vis/viewer/set/viewpointVector 1 0 1
 /vis/viewer/zoomTo 2
@@ -16,7 +16,7 @@
 /vis/scene/add/trajectories
 # /vis/scene/add/hits
 /run/beamOn 1
-/vis/ogl/set/printFilename g4cmpCharge
+/vis/ogl/set/printFilename g4cmpCharge.eps
 /vis/ogl/set/printMode pixmap
-/vis/ogl/printEPS
+/vis/ogl/export
 /vis/viewer/clear

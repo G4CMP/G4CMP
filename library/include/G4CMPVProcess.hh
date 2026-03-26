@@ -12,6 +12,10 @@
 // 20170802  Add registration of external scattering rate (MFP) model
 // 20170905  Add accessors to get currentlty active scattering rate
 // 20190906  Add function to initialize rate model after LoadDataForTrack
+// 20260119  G4CMP-574 -- Adding a catch in to prevent querying of normal
+//              charge transport parameters in superconducting volumes
+//              during charge turnaround steps
+
 
 #ifndef G4CMPVProcess_h
 #define G4CMPVProcess_h 1
@@ -19,11 +23,13 @@
 #include "G4VDiscreteProcess.hh"
 #include "G4CMPProcessSubType.hh"
 #include "G4CMPProcessUtils.hh"
+#include "G4CMPSCUtils.hh"
 
 class G4CMPVScatteringRate;
 
 
-class G4CMPVProcess : public G4VDiscreteProcess, public G4CMPProcessUtils {
+class G4CMPVProcess : public G4VDiscreteProcess, public G4CMPProcessUtils,
+		      public G4CMPSCUtils {
 public:
   G4CMPVProcess(const G4String& processName, G4CMPProcessSubType stype);
   virtual ~G4CMPVProcess();
@@ -44,10 +50,14 @@ protected:
 
   // Uses scattering model to compute MFP; subclasses may override
   virtual G4double GetMeanFreePath(const G4Track&, G4double, G4ForceCondition*);
-
+  virtual G4bool UpdateMeanFreePathForLatticeChangeover(const G4Track& aTrack);
+  virtual void UpdateSCAfterLatticeChange();
+  
 private:
   G4CMPVScatteringRate* rateModel;	// Returns scattering rate in hertz
-
+  
+  bool IsLatticeChangeSafeForRateQuery();
+  
   // hide assignment operators as private 
   G4CMPVProcess(G4CMPVProcess&);
   G4CMPVProcess& operator=(const G4CMPVProcess& right);

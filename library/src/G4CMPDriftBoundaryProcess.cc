@@ -17,6 +17,9 @@
 // 20180827  M. Kelsey -- Prevent partitioner from recomputing sampling factors
 // 20210328  Modify above; compute direct-phonon sampling factor here
 // 20250927  AbsorbTrack() should use '&&' to require that both conditions pass
+// 20251015  Resolve shadowed declaration in DoFinalReflection()
+// 20251024  G4CMP-519: Protect against possible zero energy in DoAbsorption()
+// 20251028  G4CMP-527: Move CheckStepBoundary() to ApplyBoundaryAction()
 // 20251204  G4CMP-511 -- Create parallel Lambertian reflection code for charges.
 // 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
 // 20250219  G4CMP-513 : Provide separate specular and diffuse reflection for charges.
@@ -67,7 +70,8 @@ PostStepGetPhysicalInteractionLength(const G4Track& aTrack,
 }
 
 G4double G4CMPDriftBoundaryProcess::
-GetMeanFreePath(const G4Track&, G4double, G4ForceCondition* condition) {
+GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition* condition) {
+  UpdateMeanFreePathForLatticeChangeover(aTrack);
   *condition = Forced;
   return DBL_MAX;
 }
@@ -117,11 +121,12 @@ G4bool G4CMPDriftBoundaryProcess::AbsorbTrack(const G4Track& aTrack,
   }
 
   G4ThreeVector kvec = GetLocalWaveVector(aTrack);
+  G4ThreeVector vDir = aStep.GetPreStepPoint()->GetMomentumDirection();
 
   // NOTE:  K vector above is in local coords, must use local normal
   // Must use PreStepPoint volume for transform.
   G4ThreeVector surfNorm = G4CMP::GetLocalDirection(aTrack.GetTouchable(),
-                                                    G4CMP::GetSurfaceNormal(aStep));
+                                                    G4CMP::GetSurfaceNormal(aStep,vDir));
 
   if (verboseLevel>2) {
     G4cout << " AbsorbTrack: local k-perp " << kvec*surfNorm
@@ -147,14 +152,15 @@ void G4CMPDriftBoundaryProcess::DoAbsorption(const G4Track& aTrack,
   partitioner->UseVolume(aTrack.GetVolume());
 
   G4double eAbs = GetKineticEnergy(aTrack);
-
-  // Compute direct-phonon downsampling here
-  partitioner->ComputePhononSampling(eAbs);
-  partitioner->DoPartition(0., eAbs);
-  partitioner->GetSecondaries(&aParticleChange);
-
-  if (aParticleChange.GetNumberOfSecondaries() == 0) {	// Record energy release
-    aParticleChange.ProposeNonIonizingEnergyDeposit(eAbs);
+  if (eAbs > 0.) {
+    // Compute direct-phonon downsampling here
+    partitioner->ComputePhononSampling(eAbs);
+    partitioner->DoPartition(0., eAbs);
+    partitioner->GetSecondaries(&aParticleChange);
+    
+    if (aParticleChange.GetNumberOfSecondaries() == 0) {
+      aParticleChange.ProposeNonIonizingEnergyDeposit(eAbs);
+    }
   }
 
   aParticleChange.ProposeEnergy(0.);
@@ -281,6 +287,6 @@ DoSpecularHole(const G4Track& aTrack, const G4Step& aStep) {
 
 void G4CMPDriftBoundaryProcess::
 DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
-		  G4ParticleChange& aParticleChange) {
-  DoAbsorption(aTrack, aStep, aParticleChange);
+		  G4ParticleChange& particleChange) {
+  DoAbsorption(aTrack, aStep, particleChange);
 }

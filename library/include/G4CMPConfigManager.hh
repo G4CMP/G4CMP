@@ -47,8 +47,9 @@
 // 20240506  G4CMP-371: Add flag to keep or discard below-minimum track energy.
 // 20241224  G4CMP-419: Add parameter to set LukeScattering debug file
 // 20250209  G4CMP-457: Add short names for Lindhard empirical ionization model.
-// 20250325  G4CMP-463:  Add parameter for phonon surface step size & limit.
+// 20250325  G4CMP-463: Add parameter for phonon surface step size & limit.
 // 20250502  G4CMP-358: Limit number of steps for charged tracks in E-field.
+// 20251116  G4CMP-526: Add function to encapsulate physics ID extraction.
 
 #include "globals.hh"
 #include <iosfwd>
@@ -75,9 +76,11 @@ public:
   static G4int GetVerboseLevel()         { return Instance()->verbose; }
   static G4int GetMaxChargeBounces()	 { return Instance()->ehBounces; }
   static G4int GetMaxPhononBounces()	 { return Instance()->pBounces; }
+  static G4int GetMaxQPBounces()         { return Instance()->qpBounces; }
   static G4int GetMaxChargeSteps()       { return Instance()->ehMaxSteps; }
   static G4int GetMaxLukePhonons()       { return Instance()->maxLukePhonons; }
   static G4int GetPhononSurfStepLimit()  { return Instance()->pSurfStepLimit; }
+  static G4int GetSafetyNSweep2D()       { return Instance()->safetyNSweep2D; }
   static G4bool UseKVSolver()            { return Instance()->useKVsolver; }
   static G4bool FanoStatisticsEnabled()  { return Instance()->fanoEnabled; }
   static G4bool KeepKaplanPhonons()      { return Instance()->kaplanKeepPh; }
@@ -111,13 +114,13 @@ public:
   static const G4String& GetLatticeDir() { return Instance()->LatticeDir; }
   static const G4String& GetIVRateModel() { return Instance()->IVRateModel; }
   static const G4String& GetLukeDebugFile() { return Instance()->lukeFilename; }
-
   static const G4VNIELPartition* GetNIELPartition() { return Instance()->nielPartition; }
 
   // Change values (e.g., via Messenger) -- pass strings by value for toLower()
   static void SetVerboseLevel(G4int value) { Instance()->verbose = value; }
   static void SetMaxChargeBounces(G4int value) { Instance()->ehBounces = value; }
   static void SetMaxPhononBounces(G4int value) { Instance()->pBounces = value; }
+  static void SetMaxQPBounces(G4int value) { Instance()->qpBounces = value; }
   static void SetPhononSurfStepSize(G4double value) { Instance()->pSurfStepSize = value; }
   static void SetPhononSurfStepLimit(G4int value) { Instance()->pSurfStepLimit = value; }
   static void SetMaxChargeSteps(G4int value) { Instance()->ehMaxSteps = value; }
@@ -137,7 +140,8 @@ public:
   static void KeepKaplanPhonons(G4bool value) { Instance()->kaplanKeepPh = value; }
   static void SetIVRateModel(G4String value) { Instance()->IVRateModel = value; }
   static void CreateChargeCloud(G4bool value) { Instance()->chargeCloud = value; }
-
+  static void SetSafetyNSweep2D(G4int value) { Instance()->safetyNSweep2D = value; }
+  
   static void SetETrappingMFP(G4double value) { Instance()->eTrapMFP = value; }
   static void SetHTrappingMFP(G4double value) { Instance()->hTrapMFP = value; }
   static void SetEDTrapIonMFP(G4double value) { Instance()->eDTrapIonMFP = value; }
@@ -185,14 +189,19 @@ private:
   void setNIEL(G4String value);
   void setNIEL(G4VNIELPartition* niel);
 
+  // Extract physics ID code from G4PhysicsModelCatalog
+  G4int setPhysicsModelID() const;
+
 private:
   G4int verbose;	 // Global verbosity (all processes, lattices)
   G4int fPhysicsModelID; // ID key to get aux. track info.
   G4int ehBounces;	 // Maximum e/h reflections ($G4CMP_EH_BOUNCES)
   G4int pBounces;	 // Maximum phonon reflections ($G4CMP_PHON_BOUNCES)
+  G4int qpBounces;       // Maximum QP reflections ($G4CMP_QP_BOUNCES)
   G4int ehMaxSteps;      // Maximum steps for charges ($G$CMP_EH_MAX_STEPS)
   G4int maxLukePhonons;  // Approx. Luke phonon limit ($G4MP_MAX_LUKE)
   G4int pSurfStepLimit;  // Phonon surface displacement step limit ($G4CMP_PHON_SURFLIMIT).
+  G4int safetyNSweep2D;  // # of angular positions to sweep over when computing a 2D safety ($G4CMP_SAFETYNSWEEP2D)
   G4String version;	 // Version name string extracted from .g4cmp-version
   G4String LatticeDir;	 // Lattice data directory ($G4LATTICEDATA)
   G4String IVRateModel;	 // Model for IV rate ($G4CMP_IV_RATE_MODEL)
@@ -220,6 +229,7 @@ private:
   G4bool chargeCloud;    // Produce e/h pairs around position ($G4CMP_CHARGE_CLOUD) 
   G4bool recordMinE;     // Store below-minimum track energy as NIEL when killed
   G4VNIELPartition* nielPartition; // Function class to compute non-ionizing ($G4CMP_NIEL_FUNCTION)
+
   // Empirical Lindhard Model Parameters
     // Model fit parameters
   G4double Empklow;  
@@ -232,6 +242,7 @@ private:
     // If k is not energy dependent, provide/use kFixed
   G4double EmpkFixed; 
   //
+
   G4CMPConfigMessenger* messenger;	// User interface (UI) commands
 };
 

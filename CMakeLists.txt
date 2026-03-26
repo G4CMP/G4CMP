@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------
 # Setup the project
 #
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 project(G4CMP)
 
 # User can provide version string in case build is not from Git source
@@ -24,13 +24,24 @@ include(FindGeant4.cmake)
 #----------------------------------------------------------------------------
 # Set up compiler flags for various build types
 #
-# Always need to build against C++11
-set(CMAKE_CXX_STANDARD 11)
 
 # Set default build type as "Release"
 if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Set build type to Release")
 endif()
+
+# Use same C++ version as was used for Geant4 (v10 or v11)
+if (NOT DEFINED CMAKE_CXX_STANDARD)	# Only if user did not specify
+    if (DEFINED Geant4_CXXSTD)			# For G4 v10, value is "c++NN"
+        string(REPLACE "c++" "" CMAKE_CXX_STANDARD ${Geant4_CXXSTD})
+    elseif (DEFINED Geant4_CXX_STANDARD)	# For G4 v11, value is "NN"
+	set(CMAKE_CXX_STANDARD ${Geant4_CXX_STANDARD})
+    endif()
+endif()
+
+# Store actual value of c++NN derived from above or set by user
+set(G4CMP_CXX_STANDARD ${CMAKE_CXX_STANDARD} CACHE STRING
+   "C++ version used for building G4CMP")
 
 #----------------------------------------------------------------------------
 # Utility function to define simple executables in subdirectories
@@ -46,9 +57,12 @@ endfunction()
 #----------------------------------------------------------------------------
 # Options to build examples and other directories
 #
+option(INSTALL_VALIDATION "Copy validation directory to installation area.  Default: ON" ON)
+option(INSTALL_EXAMPLES "Copy examples directories to installation area. Default: OFF" OFF)
+
 option(BUILD_G4CMP_TOOLS "Build utility and support programs.  Default: ON" ON)
 option(BUILD_G4CMP_TESTS "Build unit tests for classes.  Default: OFF" OFF)
-option(INSTALL_EXAMPLES "Copy examples directories to installation area. Default: OFF" OFF)
+option(BUILD_G4CMP_VALIDATION "Build validation after installation.  Default: OFF" OFF)
 
 #-----------------------------------------------------------------------------
 # Add subdirectories based on options selected
@@ -94,4 +108,15 @@ install(FILES ${PROJECT_SOURCE_DIR}/cmake/UseG4CMP.cmake
 if(INSTALL_EXAMPLES)
     install(DIRECTORY examples DESTINATION . COMPONENT examples
 	    PATTERN ".git" EXCLUDE)
+endif()
+
+if(INSTALL_VALIDATION)
+    install(DIRECTORY validation DESTINATION . COMPONENT validation
+            PATTERN ".git" EXCLUDE)
+endif()
+
+#-----------------------------------------------------------------------------
+# Build validation as "external" project if requested
+if(BUILD_G4CMP_VALIDATION)
+    message(WARNING "BUILD_G4CMP_VALIDATION is not yet implemented.")
 endif()

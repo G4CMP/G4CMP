@@ -15,6 +15,63 @@ Development Project for G4CMP-515
 2025-12-09  G4CMP-511 : Create parallel Lambertian reflection code for charges.
 Development Project for G4CMP-515: Add new tags above.
 
+2026-02-24  g4cmp-V10-01-01 Multiple bug fixes for G4v11 and new TFR/QP code
+2026-02-20  G4CMP-585 : Fix memory leak from G4CMP-547 ParticleChange mod.
+2026-02-18  G4CMP-588 : Must present NumberOfSecondaries before filling.
+2026-02-12  G4CMP-581 : CreateXXX() should use warnings, check null pointers.
+2026-02-09  G4CMP-580 : Include magnitude with reflected charge momentum.
+2026-02-07  G4CMP-583 : Improve detection, killing of 'escaped tracks'.
+2026-02-02  G4CMP-572 : Fix errors in computing lattice orientation matrix.
+2026-01-28  G4CMP-558 : Address compiler warnings from array arguments.
+
+2026-01-28  g4cmp-V10-01-00 Compilation and link compatibility with G4 v11.
+2026-01-28  G4CMP-494 : Migrate code to be compatible with G4 v11 and v10.
+2026-01-07  G4CMP-565 : Apply G4 v11 migrations to new quasiparticle code.
+2026-01-07  G4CMP-563 : Remove copy operators from G4CMPParticleChangeForQP.
+2025-12-11  G4CMP-553 : Update vis export in examples, complete hyperN daughters.
+2025-12-03  G4CMP-552 : To silence DecayChannel warnings, add hyperN daughters.
+2025-12-03  G4CMP-551 : Fix compatibility implementation of G4StrUtil::*strip()
+2025-11-28  G4CMP-547 : Ensure that ParticleChange touchable is always cleared.
+2025-11-26  G4CMP-546 : Include C++ version matching in examples CMake files.
+2025-11-25  G4CMP-545 : Improve CMake to match C++ version with Geant4 build.
+2025-11-18  G4CMP-526 : Use local G4PhysicsModelCatalog.cc as workaround.
+2025-11-17  G4CMP-541 : Replace ::Invisible with ::GetInvisibe() in examples.
+2025-11-16  G4CMP-525 : Provide G4StrUtil namespace for use with G4 v10.
+2025-11-16  G4CMP-539 : Use wrapper function for MPT::AddConstProperty().
+2025-11-16  G4CMP-524 : Replace std::random_shuffle with std::shuffle.
+2025-11-16  G4CMP-522 : Replace G4VTouchable forward decl with #include.
+
+2026-01-28  g4cmp-V10-00-02 Fixes to compiler warnings in new QP tracking.
+2026-01-27  G4CMP-579 : Address compiler warnings in g4cmp-V10-00-01.
+
+2026-01-22  g4cmp-V10-00-01 Fixes to new QP tracking to restore good behavior.
+2026-01-22  G4CMP-567 : Restore MaxReflections behaviour for zero-bounces case.
+2026-01-19  G4CMP-574 : Fix segfault from errant charge transport queries in
+                        superconducting volumes during charge turnaround steps
+2026-01-09  G4CMP-568 : Fix GNUmakefile and CMakeLists.txt for QP examples.
+2026-01-07  G4CMP-556 : Replace Geant4_LICENSE with plain text version.
+
+2026-01-07  g4cmp-V10-00-00 Quasiparticle tracking in superconducting films.
+2026-01-07  G4CMP-219 : Quasiparticle tracking in superconducting films.
+2025-12-31  G4CMP-559 : Fix longstanding bug with loop in "examples.%" target
+2025-10-23  G4CMP-521 : Fix phonon reflection bug from PhononDownconversion.
+2025-10-07  G4CMP-512 : Fix compilation error introduced with G4CMP-497.
+2025-08-29  G4CMP-497 : Protect FillParticleChange with Phonon Check.
+2025-09-08  G4CMP-500 : Changed non-fundamental SC inputs to go through
+                        G4LatticePhysical instantiation
+2025-09-04  G4CMP-499 : Set Tcrit to Gap0 via BCS relation to remove parameter
+2025-08-14  G4CMP-496 : Fix phonon wavevector & momentum direction from DoDecay.
+
+2025-10-30  g4cmp-V09-09-02 Final bug fix for chargeBounces errors.
+2025-11-08  G4CMP-533 : Fix long-standing typo in README: neutron -> neutral.
+2025-11-08  G4CMP-527 : Adjust post-step "surface" point for all boundary actions.
+
+2025-10-30  g4cmp-V09-09-01 Bug fixes following V09-09-00 release.
+2025-10-25  G4CMP-520 : Fix incorrect local transform in TrackLimiter.
+2025-10-24  G4CMP-519 : Protect against zero energy in charge DoAbsorption().
+2025-10-24  G4CMP-523 : Remove undesirable checks from G4CMPTrackLimiter.
+2025-10-15  G4CMP-516 : Address compiler warnings seen with GCC-11.4.0.
+
 2025-10-13  g4cmp-V09-09-00 Several fixes for charge tracking; phonon tutorial
 2025-10-13  G4CMP-503 : Enable charge reflections; diffuse only for electrons.
 2025-10-07  G4CMP-478 : Lowered G4CMPDriftTrapIonization minimum energy.

@@ -20,6 +20,7 @@
 // 20171215  Change 'CheckStepStatus()' to 'IsBoundaryStep()', add function
 //	     to validate step trajectory to boundary.
 // 20250927  Add overloadable function to kill track when max-reflections.
+// 20251028  G4CMP-527: Move CheckStepBoundary() here from DriftBoundaryProcess
 // 20251204  G4CMP-511 -- Create parallel Lambertian reflection code for charges.
 // 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
 
@@ -114,7 +115,9 @@ protected:
 
   // Does const-casting of matTable for access
   G4double GetMaterialProperty(const G4String& key) const;
-
+  
+  void IncrementReflectionCount(const G4Track& aTrack);
+  
 private:
   G4int buVerboseLevel;			// For local use; name avoids collisions
   G4String procName;
@@ -132,6 +135,8 @@ protected:
   // Flag whether a given PV pair has a defined surface property or not
   typedef std::pair<G4VPhysicalVolume*,G4VPhysicalVolume*> BoundaryPV;
   std::map<BoundaryPV, G4bool> hasSurface;
+
+  G4ThreeVector surfacePoint;		// "Adjusted" impact point at surface
 };
 
 #endif	/* G4CMPBoundaryUtils_hh */

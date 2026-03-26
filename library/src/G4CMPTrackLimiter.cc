@@ -18,12 +18,17 @@
 //	       using maxSteps configuration parameter.
 // 20250506  Add local caches to compute cumulative flight distance, RMS
 // 20250801  G4CMP-326:  Kill thermal phonons if finite temperature set.
+// 20251015  G4CMP-516:  Add excessPath to ChargeStuck() boolean return.
+// 20251024  G4CMP-523:  Remove alternative "stuck tracks" testing code.
+// 20251025  G4CMP-520:  Remove redundant (and incorrect) InvalidPosition().
+// 20260207  G4CMP-583:  Improve escaped-track detector for zero-length steps.
 
 #include "G4CMPTrackLimiter.hh"
 #include "G4CMPConfigManager.hh"
 #include "G4CMPGeometryUtils.hh"
 #include "G4CMPUtils.hh"
 #include "G4ForceCondition.hh"
+#include "G4LatticeManager.hh"
 #include "G4LatticePhysical.hh"
 #include "G4Navigator.hh"
 #include "G4ParticleChange.hh"
@@ -38,16 +43,19 @@
 
 
 // Only applies to G4CMP particles
-
+// Note that for QPs, this has been tested and seems to not cause problems,
+// but that if there is weirdness later on, this may not be a bad place to
+// start digging.
 G4bool G4CMPTrackLimiter::IsApplicable(const G4ParticleDefinition& pd) {
-  return (G4CMP::IsPhonon(pd) || G4CMP::IsChargeCarrier(pd));
+  return (G4CMP::IsPhonon(pd) || G4CMP::IsChargeCarrier(pd) || G4CMP::IsQP(pd));
 }
 
 
 // Initialize flight-distance accumulators for new track
 
-void G4CMPTrackLimiter::LoadDataForTrack(const G4Track* track) {
-  G4CMPProcessUtils::LoadDataForTrack(track);
+void G4CMPTrackLimiter::LoadDataForTrack(const G4Track* track,
+					 const G4bool overrideMomentumReset) {
+  G4CMPProcessUtils::LoadDataForTrack(track, overrideMomentumReset);
 
   flightAvg = flightAvg2 = lastFlight = lastRMS = 0.;
 }
@@ -55,8 +63,9 @@ void G4CMPTrackLimiter::LoadDataForTrack(const G4Track* track) {
 
 // Force killing if below cut
 
-G4double G4CMPTrackLimiter::GetMeanFreePath(const G4Track&, G4double,
+G4double G4CMPTrackLimiter::GetMeanFreePath(const G4Track& aTrack, G4double,
 					    G4ForceCondition* condition) {
+  UpdateMeanFreePathForLatticeChangeover(aTrack);
   *condition = StronglyForced;	// Ensures execution even with other Forced
   return DBL_MAX;
 }
@@ -74,7 +83,7 @@ G4VParticleChange* G4CMPTrackLimiter::PostStepDoIt(const G4Track& track,
   if (verboseLevel>1) G4cout << GetProcessName() << "::PostStepDoIt" << G4endl;
 
   // Skip reflection zero-length steps
-  if (step.GetStepLength() == 0.) return &aParticleChange;
+  if (GoodReflection(step)) return &aParticleChange;
 
   // Apply minimum energy cut to kill tracks with optional NIEL deposit
   if (BelowEnergyCut(track)) {
@@ -110,19 +119,6 @@ G4VParticleChange* G4CMPTrackLimiter::PostStepDoIt(const G4Track& track,
     aParticleChange.ProposeTrackStatus(fStopButAlive);
   }
 
-  // Check whether track position and volume are consistent
-  if (InvalidPosition(track)) {
-    std::stringstream msg;
-    msg << "Killing track inconsistent position " << track.GetPosition()
-	<< "\n vs. detector volume " << GetCurrentVolume()->GetName() + ":"
-	<< GetCurrentVolume()->GetCopyNo();
-    G4Exception("G4CMPTrackLimiter", "Limit002", JustWarning,
-		msg.str().c_str());
-    
-    aParticleChange.SetNumberOfSecondaries(0);	// Don't launch bad tracks!
-    aParticleChange.ProposeTrackStatus(fStopAndKill);
-  }
-
   // Kill phonons consistent with thermal populations
   if (PhononIsThermal(track))
     aParticleChange.ProposeTrackStatus(fStopAndKill);
@@ -131,46 +127,34 @@ G4VParticleChange* G4CMPTrackLimiter::PostStepDoIt(const G4Track& track,
 }
 
 
-// Evaluate current track
+// Evaluate current trackx
+
+G4bool G4CMPTrackLimiter::GoodReflection(const G4Step& step) const {
+  G4VPhysicalVolume* postPV = step.GetPostStepPoint()->GetPhysicalVolume();
+
+  // Zero-length step, inbound back to active lattice volume
+  G4double refl = (step.GetStepLength() == 0. && postPV == GetCurrentVolume());
+  return refl;
+}
 
 G4bool G4CMPTrackLimiter::BelowEnergyCut(const G4Track& track) const {
   G4double ecut =
     (G4CMP::IsChargeCarrier(track) ? G4CMPConfigManager::GetMinChargeEnergy()
      : G4CMP::IsPhonon(track) ? G4CMPConfigManager::GetMinPhononEnergy() : -1.);
 
-  return (track.GetKineticEnergy() < ecut);
-}
+  G4double ekin = track.GetKineticEnergy();
+  if (verboseLevel>1)
+    G4cout << " Ekin < " << ecut/eV << " eV? " << (ekin<ecut) << G4endl;
 
-G4bool G4CMPTrackLimiter::InvalidPosition(const G4Track& track) const {
-  G4VPhysicalVolume* trkVol = track.GetVolume();
-  if (!trkVol) return false;
-
-  const G4VTouchable* trkVT = track.GetTouchable();
-  G4ThreeVector trkPos = track.GetPosition();
-  if (verboseLevel>1) {
-    G4cout << GetProcessName() << "::InvalidPosition()" << G4endl
-	   << " trkVol " << trkVol->GetName() << " @ " << trkPos << G4endl;
-  }
-
-  G4CMP::RotateToLocalPosition(trkVT, trkPos);
-  G4VSolid* solid = GetCurrentVolume()->GetLogicalVolume()->GetSolid();
-  EInside isIn = solid->Inside(trkPos);
-  if (verboseLevel>1) {
-    const char* inName = (isIn==kInside ? "inside" : isIn==kOutside
-			  ? "outside" : "surface");
-
-    G4cout << " local " << trkPos << " is " << inName << " volume" << G4endl;
-  }
-
-  return (isIn == kOutside);
+  return (ekin < ecut);
 }
 
 G4bool G4CMPTrackLimiter::EscapedFromVolume(const G4Step& step) const {
-    G4StepPoint* preS = step.GetPreStepPoint();
-    G4StepPoint* postS = step.GetPostStepPoint();
+  G4StepPoint* preS = step.GetPreStepPoint();
+  G4StepPoint* postS = step.GetPostStepPoint();
 
-  G4VPhysicalVolume* prePV  = step.GetPreStepPoint()->GetPhysicalVolume();
-  G4VPhysicalVolume* postPV = step.GetPostStepPoint()->GetPhysicalVolume();
+  G4VPhysicalVolume* prePV  = preS->GetPhysicalVolume();
+  G4VPhysicalVolume* postPV = postS->GetPhysicalVolume();
 
   if (verboseLevel>1) {
     G4cout << GetProcessName() << "::EscapedFromVolume()" << G4endl
@@ -178,34 +162,25 @@ G4bool G4CMPTrackLimiter::EscapedFromVolume(const G4Step& step) const {
 	   << " postPV " << (postPV?postPV->GetName():"OutOfWorld")
 	   << " status " << postS->GetStepStatus()
 	   << G4endl;
-
-    if (verboseLevel>2) {
-      const G4ThreeVector& prePt = preS->GetPosition();
-      const G4ThreeVector& postPt = postS->GetPosition();
-
-      G4cout << std::setprecision(std::numeric_limits<double>::max_digits10)
-	     << "preStep status " << preS->GetStepStatus() << G4endl
-	     << "preStep Pos    " << prePt << G4endl
-	     << "postStep Pos   " << postPt << G4endl
-	     << "stepPos dir    " << (postPt - prePt).unit() << G4endl
-	     << "step Mom dir   " << postS->GetMomentumDirection() << G4endl
-	     << "currPV Name    " << GetCurrentVolume()->GetName() << G4endl;
-
-      G4VSolid* solid = GetCurrentVolume()->GetLogicalVolume()->GetSolid();
-      EInside isIn = solid->Inside(GetLocalPosition(postS->GetPosition()));
-      const char* inName = (isIn==kInside ? "inside" : isIn==kOutside
-			    ? "outside" : "surface");
-      G4cout << "Value for surface " << inName << G4endl;
-    }
   }
 
-  // Track is NOT at a boundary, is stepping outside volume, or already escaped
-  G4bool escape =
-    ((postS->GetStepStatus() != fGeomBoundary) &&
-     (postPV != GetCurrentVolume() || prePV != GetCurrentVolume()));
+  // Track is either starting or ending in active volume
+  G4bool inCurrent = (prePV == GetCurrentVolume() ||
+		      postPV == GetCurrentVolume());
 
-  if (verboseLevel>1) G4cout << " escape? " << escape << G4endl;
-  
+  // Cross-check whether pre- and post-step volumes have lattices
+  // (This is valid for cases where a track is transmissing between volumes)
+  G4LatticeManager* latMgr = G4LatticeManager::Instance();
+  G4bool hasLattice = (latMgr->HasLattice(prePV) ||
+		       latMgr->HasLattice(postPV));
+
+  G4bool escape = (!inCurrent || !hasLattice);
+
+  if (verboseLevel>1) {
+    G4cout << " inCurrent? " << inCurrent << ", hasLattice? " << hasLattice
+	   << ", escape? " << escape << G4endl;
+  }
+
   return escape;
 }
 
@@ -233,68 +208,16 @@ G4bool G4CMPTrackLimiter::PhononIsThermal(const G4Track& track) const {
 // Note: non-const here to use accumulator caches
 
 G4bool G4CMPTrackLimiter::ChargeStuck(const G4Track& track) {
-  if (!IsChargeCarrier()) return false;		// Ignore phonons (for now?)
+  if (!G4CMP::IsChargeCarrier(track)) return false;	// Ignore phonons
 
   // How long and how far has the track been travelling?
   const G4double maxSteps = G4CMPConfigManager::GetMaxChargeSteps();
   G4int nstep = track.GetCurrentStepNumber();
 
-  G4double pathLen = track.GetTrackLength();
-  const G4ThreeVector& pos = track.GetPosition();
-  G4double flightDist = (pos-track.GetVertexPosition()).mag();
-  G4double posShift = (nstep>1) ? (pos-lastPos).mag() : 0.;
-
-
-  if (nstep%stepWindow == 1) {		// Start new window
-    flightAvg = flightAvg2 = 0.;
-    lastPos = pos;
-  }
-
-  // Accumulate flight distance and and sum-of-squares averages
-  flightAvg  = flightAvg + (flightDist-flightAvg)/nstep;
-  flightAvg2 = flightAvg2 + (flightDist*flightDist - flightAvg2)/nstep;
-
-  // Compute change in distance every 10,000 steps
-  G4double fltChange = flightAvg-lastFlight;
-  lastFlight = flightAvg;
-
-  // Compute change in RMS every 10,000 steps
-  G4double RMS = sqrt(flightAvg2 - flightAvg*flightAvg);
-  G4double RMSchange = RMS-lastRMS;
-  lastRMS = RMS;
-
-  // Scattering makes the path length longer, but only a factor of a few
-  G4double pathScale = pathLen / flightDist;
-
-  if (verboseLevel>1) {
-    G4cout << " after " << nstep << " steps @ " << pos << G4endl;
-
-    if (nstep%stepWindow == 1) G4cout << " new stepWindow" << G4endl;
-    else {
-      G4cout << " pos changed " << posShift << " since step "
-	     << 1+((nstep-1)/stepWindow)*stepWindow << G4endl;
-    }
-
-    G4cout << " path " << pathLen << "  flight " << flightDist
-	   << " : ratio " << pathScale << (pathScale>maxPathScale?" > ":" < ")
-	   << maxPathScale << ")" << G4endl
-	   << " flightAvg " << flightAvg << " changed by " << fltChange
-	   << " RMS " << RMS << " changed by " << RMSchange << G4endl;
-  }
-
-  // Possible "stuck" conditions
   G4bool tooManySteps = (maxSteps>0 && nstep>maxSteps);
-  G4bool excessPath = (pathScale > maxPathScale);
-  G4bool windowFull = (nstep>=stepWindow && nstep%stepWindow == 0);
-  G4bool samePos = (windowFull && posShift < minPosShift);
-  G4bool notMoving = (windowFull && fabs(RMSchange) < minFlightRMS);
 
-  if (verboseLevel>2) {
-    G4cout << " tooManySteps " << tooManySteps;
-    if (windowFull)
-      G4cout << " samePos " << samePos << " notMoving " << notMoving;
-    G4cout << G4endl;
-  }
+  if (verboseLevel>2)
+    G4cout << " nstep " << nstep << ": tooManySteps " << tooManySteps << G4endl;
 
-  return (tooManySteps || samePos || notMoving);
+  return tooManySteps;
 }

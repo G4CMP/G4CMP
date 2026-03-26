@@ -15,16 +15,17 @@
 // 20170928 M. Kelsey -- Replace "polarization" with "mode"
 // 20211001 M. Kelsey -- Collapse layered CreateChargeCarrier functions
 // 20220907 G4CMP-316 -- Pass track into CreateXYZ() functions.
+// 20251116  For G4 11, use #include "G4VTouchable.hh"
 
 #ifndef G4CMPSecondaryUtils_hh
 #define G4CMPSecondaryUtils_hh 1
 
 #include "globals.hh"
 #include "G4ThreeVector.hh"
+#include "G4VTouchable.hh"
 
 class G4ParticleDefinition;
 class G4Track;
-class G4VTouchable;
 
 
 namespace G4CMP {
@@ -40,6 +41,12 @@ namespace G4CMP {
 			       const G4ThreeVector& pdir,
 			       const G4ThreeVector& pos);
 
+  G4Track* CreateQP(const G4Track& track,
+		    const G4double energy,
+		    const G4ThreeVector& velocity,
+		    const G4double time,
+		    const G4ThreeVector& pos);
+  
   // DEPRECATED: Version used by application code with output of G4CMPKaplanQP
   G4Track* CreatePhonon(const G4VTouchable* touch, G4int mode,
 			const G4ThreeVector& waveVec, G4double energy,
