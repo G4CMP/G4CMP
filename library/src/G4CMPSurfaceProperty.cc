@@ -50,6 +50,44 @@ G4CMPSurfaceProperty::G4CMPSurfaceProperty(const G4String& name,
                                            G4double pReflProb,
                                            G4double pSpecProb,
                                            G4double pMinK,
+                                           G4SurfaceType stype)
+: G4CMPSurfaceProperty(name, stype) {
+  G4double qSpecProb = 0.0;
+  G4double qpAbsProb = 0.0;
+  G4double qpReflProb = 0.0;
+  FillChargeMaterialPropertiesTable(qAbsProb, qReflProb, qSpecProb, eMinK, hMinK);
+  FillPhononMaterialPropertiesTable(pAbsProb, pReflProb, pSpecProb, pMinK);
+  FillQPMaterialPropertiesTable(qpAbsProb, qpReflProb);
+}
+
+G4CMPSurfaceProperty::G4CMPSurfaceProperty(const G4String& name,
+                                           G4double qAbsProb,
+                                           G4double qReflProb,
+                                           G4double qSpecProb,
+                                           G4double eMinK,
+                                           G4double hMinK,
+                                           G4double pAbsProb,
+                                           G4double pReflProb,
+                                           G4double pSpecProb,
+                                           G4double pMinK,
+                                           G4SurfaceType stype)
+: G4CMPSurfaceProperty(name, stype) {
+  G4double qpAbsProb = 0.0;
+  G4double qpReflProb = 0.0;
+  FillChargeMaterialPropertiesTable(qAbsProb, qReflProb, qSpecProb, eMinK, hMinK);
+  FillPhononMaterialPropertiesTable(pAbsProb, pReflProb, pSpecProb, pMinK);
+  FillQPMaterialPropertiesTable(qpAbsProb, qpReflProb);
+}
+
+G4CMPSurfaceProperty::G4CMPSurfaceProperty(const G4String& name,
+                                           G4double qAbsProb,
+                                           G4double qReflProb,
+                                           G4double eMinK,
+                                           G4double hMinK,
+                                           G4double pAbsProb,
+                                           G4double pReflProb,
+                                           G4double pSpecProb,
+                                           G4double pMinK,
 					                                 G4double qpAbsProb,
 					                                 G4double qpReflProb,
                                            G4SurfaceType stype)
