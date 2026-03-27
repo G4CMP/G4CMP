@@ -269,7 +269,7 @@ G4CMP::LambertianReflection(const G4LatticePhysical* theLattice,
   // If we exceed our max tries, then set things to 0 so we know to kill the track
   if (nTries >= maxTries) {
     //G4cout << "nTries >= maxTries in GetLambertianVector." << G4endl;
-    reflectedKDir = G4ThreeVector(0,0,0);
+    reflectedDir = G4ThreeVector(0,0,0);
   }
   
   return reflectedDir;
