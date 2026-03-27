@@ -48,9 +48,6 @@ public:
                        G4double pReflProb,          // If not absorbed, prob to reflect phonon
                        G4double pSpecProb,          // Prob. of phonon specular reflection
                        G4double pMinK,              // Min wave number to absorb phonon
-		                   G4double qpAbsProb = 0.0,    // Prob. to absorb a bogoliubov QP
-		                   G4double qpReflProb = 1.0,   // Prob to reflect a bogoliubov QP
-		                   // (Note 1-qpAbsProb-qpReflProb is the probability for the QP to transport)
                        G4SurfaceType stype = dielectric_dielectric);
 
   // Second constructor with an extra parameter called qSpecProb
@@ -64,8 +61,35 @@ public:
                        G4double pReflProb,          // If not absorbed, prob to reflect phonon
                        G4double pSpecProb,          // Prob. of phonon specular reflection
                        G4double pMinK,              // Min wave number to absorb phonon
-                       G4double qpAbsProb = 0.0,    // Prob. to absorb a bogoliubov QP
-		                   G4double qpReflProb = 1.0,   // Prob to reflect a bogoliubov QP
+                       G4SurfaceType stype = dielectric_dielectric);
+
+    // Second set of constructors with extra parameters for Bogoliubov QP absorption and reflection
+  G4CMPSurfaceProperty(const G4String& name,
+                       G4double qAbsProb,           // Prob. to absorb charge
+                       G4double qReflProb,          // If not absorbed, prob to reflect charge
+                       G4double eMinK,              // Min wave number to absorb electron
+                       G4double hMinK,              // Min wave number to absorb hole
+                       G4double pAbsProb,           // Prob. to absorb phonon
+                       G4double pReflProb,          // If not absorbed, prob to reflect phonon
+                       G4double pSpecProb,          // Prob. of phonon specular reflection
+                       G4double pMinK,              // Min wave number to absorb phonon
+		                   G4double qpAbsProb,          // Prob. to absorb a bogoliubov QP
+		                   G4double qpReflProb,         // Prob to reflect a bogoliubov QP
+		                   // (Note 1-qpAbsProb-qpReflProb is the probability for the QP to transport)
+                       G4SurfaceType stype = dielectric_dielectric);
+
+  G4CMPSurfaceProperty(const G4String& name,
+                       G4double qAbsProb,           // Prob. to absorb charge
+                       G4double qReflProb,          // If not absorbed, prob to reflect charge
+                       G4double qSpecProb,          // Prob of charge specular reflection
+                       G4double eMinK,              // Min wave number to absorb electron
+                       G4double hMinK,              // Min wave number to absorb hole
+                       G4double pAbsProb,           // Prob. to absorb phonon
+                       G4double pReflProb,          // If not absorbed, prob to reflect phonon
+                       G4double pSpecProb,          // Prob. of phonon specular reflection
+                       G4double pMinK,              // Min wave number to absorb phonon
+                       G4double qpAbsProb,          // Prob. to absorb a bogoliubov QP
+		                   G4double qpReflProb,         // Prob to reflect a bogoliubov QP
 		                   // (Note 1-qpAbsProb-qpReflProb is the probability for the QP to transport)
                        G4SurfaceType stype = dielectric_dielectric);
 
