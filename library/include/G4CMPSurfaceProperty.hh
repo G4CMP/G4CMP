@@ -14,6 +14,7 @@
 // 20260105  G4CMP-514: Modify G4CMPSurfaceProperty for specular reflection.
 // 20260205  G4CMP-582: Make the frequency parameter of RefProb functions
 //    in G4CMPSurfaceProperty optional.
+// 20260327  G4CMP-595: Add preprocessor flag for new charge reflection ctor.
 
 #ifndef G4CMPSurfaceProperty_h
 #define G4CMPSurfaceProperty_h 1
@@ -24,6 +25,10 @@
 #include <map>
 
 class G4CMPVElectrodePattern;
+
+
+// Flag existence of new constructor, for application backward compatibility
+#define G4CMP_HAS_QSPECPROB 1
 
 class G4CMPSurfaceProperty : public G4SurfaceProperty {
 public:
