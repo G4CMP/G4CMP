@@ -92,7 +92,14 @@ G4double G4CMPInterValleyRate::Rate(const G4Track& aTrack) const {
         G4double qmin = kmag*(1-sqrt(1- alpha*Emin_iv*Emin_iv/eTrk-Emin_iv/eTrk*(theLattice->GetNonParabolicity(eTrk))));		// min phonon momentum
         scale = m_DOS3half*m_DOS * nVal * D_iv*D_iv
         /(16*pi*hbar_Planck*density*theLattice->GetElectronMass()*sqrt(theLattice->GetElectronMass())*Emin_iv*kmag)*(theLattice->GetNonParabolicity(eTrk)-2*alpha*Emin_iv);
+
+        if (std::isnan(qmax)) {
+          qmax=0;
+          qmin=0;
+         }
+
         Efunc = energyFunc1st(qmax,qmin);
+
     }
 
     ivrate = scale * Efunc;
