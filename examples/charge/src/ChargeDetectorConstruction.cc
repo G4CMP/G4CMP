@@ -185,7 +185,7 @@ void ChargeDetectorConstruction::SetupGeometry()
   // Define surface properties. Only should be done once
   if (!constructed) {
     topSurfProp = new G4CMPSurfaceProperty("topSurfProp",
-                                           0.5,   // Prob. to absorb charge
+                                           1e-5,  // Prob. to absorb charge
                                            1.,    // If not absorbed, prob to reflect charge
                                            0.5,   // Prob of charge specular reflection (optional)
                                            0.,    // Min wave number to absorb electron
@@ -197,7 +197,7 @@ void ChargeDetectorConstruction::SetupGeometry()
     topSurfProp->SetChargeElectrode(new ChargeElectrodePattern);
 
     botSurfProp = new G4CMPSurfaceProperty("botSurfProp",
-                                           0.5,   // Prob. to absorb charge
+                                           1e-5,  // Prob. to absorb charge
                                            1.,    // If not absorbed, prob to reflect charge
                                            0.5,   // Prob of charge specular reflection (optional)
                                            0.,    // Min wave number to absorb electron
@@ -209,7 +209,7 @@ void ChargeDetectorConstruction::SetupGeometry()
     botSurfProp->SetChargeElectrode(new ChargeElectrodePattern);
 
     wallSurfProp = new G4CMPSurfaceProperty("wallSurfProp",
-                                           0.5,   // Prob. to absorb charge
+                                           1e-5,  // Prob. to absorb charge
                                            1.,    // If not absorbed, prob to reflect charge
                                            0.5,   // Prob of charge specular reflection (optional)
                                            0.,    // Min wave number to absorb electron

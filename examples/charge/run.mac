@@ -1,5 +1,15 @@
 # Production example:  Twenty at-rest e/h pairs per event, 100 events
-/tracking/verbose 0
-/gun/number 20
+/tracking/verbose 1
+/gun/number 1
+
+/g4cmp/voltage -70 V
+
+/g4cmp/producePhonons 0.
+/g4cmp/sampleLuke 0.
+
+/g4cmp/chargeBounces 500 # This command allows you to set the max charge bounces
+
+/run/printProgress 1
 /run/initialize
-/run/beamOn 100
+/process/setVerbose 1 G4CMPChargeBoundary
+/run/beamOn 1
