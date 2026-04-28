@@ -16,7 +16,9 @@ Development Project for G4CMP-515
 2025-12-09  G4CMP-511 : Create parallel Lambertian reflection code for charges.
 Development Project for G4CMP-515: Add new tags above.
 
-2026-04-22	G4CMP-597 : Make fileCmd optional and provide default value.
+2026-04-28  G4CMP-496 : Test for zero energy before generating charge pairs.
+2026-04-28  G4CMP-599 : Add track ID and name to G4CMPTrackLimiter output.
+2026-04-22  G4CMP-597 : Make fileCmd optional and provide default value.
 
 2026-02-24  g4cmp-V10-01-01 Multiple bug fixes for G4v11 and new TFR/QP code
 2026-02-20  G4CMP-585 : Fix memory leak from G4CMP-547 ParticleChange mod.
