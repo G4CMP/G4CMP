@@ -66,6 +66,7 @@
 // 20250127  G4CMP-449 -- Conslidate LukeSampling() function, allow -1.
 // 20251001  G4CMP-503 -- Avoid reporting 'NaN' in phonon energy summary.
 // 20251116  G4CMP-524 -- Replace std::random_shuffle with std::shuffle.
+// 20260428  G4CMP-596 -- Avoid generating charge pairs when energy is zero.
 
 #include "G4CMPEnergyPartition.hh"
 #include "G4CMPChargeCloud.hh"
@@ -468,6 +469,8 @@ void G4CMPEnergyPartition::ComputeLukeSampling(G4double eIon) {
 // Divide ionization energy into electron/hole pairs, with Fano fluctuations
 
 void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
+  if (energy <= 0.) return;			// Avoid unnecessary work
+
   if (verboseLevel)
     G4cout << " GenerateCharges " << energy/MeV << " MeV" << G4endl;
 
