@@ -121,7 +121,7 @@ G4CMPEnergyPartition::G4CMPEnergyPartition(G4Material* mat,
 					   G4LatticePhysical* lat)
   : G4CMPProcessUtils(), verboseLevel(G4CMPConfigManager::GetVerboseLevel()),
     fillSummaryData(false), material(mat), biasVoltage(0.), 
-    holeFraction(0.5), nParticlesMinimum(10),
+    holeFraction(0.5), nParticlesMinimum(G4CMPConfigManager::GetMinGenParticles()),
     applyDownsampling(true), cloud(new G4CMPChargeCloud),
     nPairsTrue(0), nPairsGen(0), chargeEnergyLeft(0.),
     nPhononsTrue(0), nPhononsGen(0), phononEnergyLeft(0.),

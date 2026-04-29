@@ -47,6 +47,7 @@
 // 20250213  G4CMP-457: Add empirical Lindhard NIEL parameters.
 // 20250325  G4CMP-463: Add parameter for phonon surface step size & limit.
 // 20250502  G4CMP-358: Add macro command for maximum steps (stuck tracks).
+// 20260429  G4CMP-598: Add macro command for minimum particle generation.
 
 
 #include "G4UImessenger.hh"
@@ -107,6 +108,7 @@ private:
   G4UIcmdWithABool*   kaplanKeepCmd;
   G4UIcmdWithABool*   ehCloudCmd;
   G4UIcmdWithABool*   recordMinECmd;
+  G4UIcmdWithAnInteger* minParCmd;
 
   // Empirical Lindhard Model Macro Commands
   G4UIcmdWithABool* EmpEDepKCmd;

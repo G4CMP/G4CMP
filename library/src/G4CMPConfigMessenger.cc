@@ -42,8 +42,9 @@
 // 20240506  G4CMP-371: Add flag to keep or discard below-minimum track energy.
 // 20241224  G4CMP-419: Add macro command to set LukeScattering debug file.
 // 20250212  G4CMP-457: Add macro command for Lindhard empirical ionization.
-// 20250502  G4CMP-358: Add macro command for maximum steps (stuck tracks).
 // 20250325  G4CMP-463: Add parameter for phonon surface step size & limit.
+// 20250502  G4CMP-358: Add macro command for maximum steps (stuck tracks).
+// 20260429  G4CMP-598: Add macro command for minimum particle generation.
 
 #include "G4CMPConfigMessenger.hh"
 #include "G4CMPConfigManager.hh"
@@ -68,7 +69,7 @@ G4CMPConfigMessenger::G4CMPConfigMessenger(G4CMPConfigManager* mgr)
     hATrapIonMFPCmd(0), tempCmd(0), pSurfStepSizeCmd(0), minstepCmd(0),
     makePhononCmd(0), makeChargeCmd(0), lukePhononCmd(0), dirCmd(0),
     lukeFileCmd(0), ivRateModelCmd(0), nielPartitionCmd(0), kvmapCmd(0),
-    fanoStatsCmd(0), kaplanKeepCmd(0), ehCloudCmd(0), recordMinECmd(0) {
+    fanoStatsCmd(0), kaplanKeepCmd(0), ehCloudCmd(0), recordMinECmd(0), minParCmd(0) {
   verboseCmd = CreateCommand<G4UIcmdWithAnInteger>("verbose",
 					   "Enable diagnostic messages");
 
@@ -238,6 +239,8 @@ G4CMPConfigMessenger::G4CMPConfigMessenger(G4CMPConfigManager* mgr)
   EmpEhighCmd = CreateCommand<G4UIcmdWithADoubleAndUnit>("/g4cmp/NIELPartition/Empirical/Ehigh",
       "Set Ehigh parameter for Emp Lindhard model.");
   EmpEhighCmd->SetUnitCategory("Energy");
+
+  minParCmd = CreateCommand<G4UIcmdWithAnInteger>("minParticles", "Set minimum number of phonons/charges to generate per interaction");
 }
 
 G4CMPConfigMessenger::~G4CMPConfigMessenger() {
@@ -283,6 +286,7 @@ G4CMPConfigMessenger::~G4CMPConfigMessenger() {
   delete EmpEhighCmd; EmpEhighCmd = 0;
   delete EmpkFixedCmd; EmpkFixedCmd = 0;
   delete EmpEDepKCmd; EmpEDepKCmd = 0;
+  delete minParCmd; minParCmd = 0;
 }
 
 // Parse user input and add to configuration
@@ -378,4 +382,6 @@ void G4CMPConfigMessenger::SetNewValue(G4UIcommand* cmd, G4String value) {
 
   if (cmd == EmpEDepKCmd)
     theManager->SetEmpEDepK(EmpEDepKCmd->GetNewBoolValue(value));
+
+  if (cmd == minParCmd) theManager->SetMinGenParticles(StoI(value));
 }

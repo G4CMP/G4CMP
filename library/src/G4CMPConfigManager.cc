@@ -51,6 +51,7 @@
 // 20251116  M. Kelsey -- Replace G4String functions with G4StrUtil, for G4 v11
 // 20251116  G4CMP-526: Add function to encapsulate physics ID extraction.
 // 20260121  G4CMP-567: Change charge bounces default to zero.
+// 20260429  G4CMP-598: Add minGenParticles parameter.
 
 #include "G4CMPConfigManager.hh"
 #include "G4CMPConfigMessenger.hh"
@@ -133,6 +134,7 @@ G4CMPConfigManager::G4CMPConfigManager()
     EmpEhigh(getenv("G4CMP_EMPIRICAL_EHIGH")?strtod(getenv("G4CMP_EMPIRICAL_EHIGH"),0)*keV:7.0*keV),
     EmpEDepK(getenv("G4CMP_EMPIRICAL_EDEPK")?(atoi(getenv("G4CMP_EMPIRICAL_EDEPK"))!=0):true),
     EmpkFixed(getenv("G4CMP_EMPIRICAL_KFIXED")?strtod(getenv("G4CMP_EMPIRICAL_KFIXED"),0):0.158),
+    minGenParticles(getenv("G4CMP_MIN_GENPARTICLES")?atoi(getenv("G4CMP_MIN_GENPARTICLES")):10),
     messenger(new G4CMPConfigMessenger(this)) {
   fPhysicsModelID = setPhysicsModelID();
   setVersion();
@@ -172,7 +174,7 @@ G4CMPConfigManager::G4CMPConfigManager(const G4CMPConfigManager& master)
     recordMinE(master.recordMinE), nielPartition(master.nielPartition),
     Empklow(master.Empklow), Empkhigh(master.Empkhigh),
     EmpElow(master.EmpElow), EmpEhigh(master.EmpEhigh),
-    EmpEDepK(master.EmpEDepK), EmpkFixed(master.EmpkFixed),
+    EmpEDepK(master.EmpEDepK), EmpkFixed(master.EmpkFixed), minGenParticles(master.minGenParticles),
     messenger(new G4CMPConfigMessenger(this)) {;}
 
 
@@ -250,6 +252,7 @@ void G4CMPConfigManager::printConfig(std::ostream& os) const {
      << "\n/g4cmp/samplingEnergy " << sampleEnergy << "\t\t\t# G4CMP_SAMPLE_ENERGY"
      << "\n/g4cmp/producePhonons " << genPhonons << "\t\t\t\t# G4CMP_MAKE_PHONONS"
      << "\n/g4cmp/produceCharges " << genCharges << "\t\t\t\t# G4CMP_MAKE_CHARGES"
+     << "\n/g4cmp/minParticles " << minGenParticles << "\t\t\t\t# G4CMP_MIN_GENPARTICLES"
      << "\n/g4cmp/sampleLuke " << lukeSample << "\t\t\t\t# G4CMP_LUKE_SAMPLE"
      << "\n/g4cmp/maxLukePhonons " << maxLukePhonons << "\t\t\t# G4CMP_MAX_LUKE"
      << "\n/g4cmp/combiningStepLength " << combineSteps/mm << " mm\t\t\t# G4CMP_COMBINE_STEPLEN"
