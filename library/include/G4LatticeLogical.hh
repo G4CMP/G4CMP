@@ -322,7 +322,7 @@ public:
     return (i>=0 && i<GetNIVDeform()) ? fIVFGScattering[i] : G4String("f");
   }
   G4String GetIVPhononMode(G4int i) const {
-    return (i>=0 && i<GetNIVDeform()) ? fIVFGScattering[i] : G4String("TA");
+    return (i>=0 && i<GetNIVDeform()) ? fIVPhononMode[i] : G4String("TA");
   }
 
 private:
