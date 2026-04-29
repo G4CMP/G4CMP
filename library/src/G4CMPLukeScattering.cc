@@ -146,9 +146,7 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
     mass = sqrt(theLattice->GetElectronMass()*theLattice->GetElectronDOSMass());
     vsound = theLattice->GetAverageSoundSpeed();
     Etrk = lat->MapPtoEkin(iValley, ptrk);
-
     kSound = vsound*mass/hbar_Planck*theLattice->GetNonParabolicity(Etrk);
-
   } else if (IsHole()) {
     ktrk = GetLocalWaveVector(aTrack);
     mass = lat->GetHoleMass();
@@ -211,7 +209,8 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
     q = 2*(kmag*cos(theta_phonon)-kSound);
 
     if (IsElectron()) {
-q*=1/(1-2*theLattice->GetAlpha()*theLattice->GetElectronDOSMass()*vsound*vsound);
+      q*=1/(1-2*theLattice->GetAlpha()*theLattice->GetElectronDOSMass()*
+          vsound*vsound);
     }
 
     if (verboseLevel > 1) {

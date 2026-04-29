@@ -1082,7 +1082,9 @@ void G4LatticeLogical::ComputeAverageSoundSpeed() {
 // Compute Luke Scattering rate scale
 
 void G4LatticeLogical::ComputeLukeScatteringRateScale_e() {
-  fLukeRateScale_e = fAcDeform_e*fAcDeform_e*GetElectronDOSMass()*GetElectronDOSMass()/GetElectronMass()/12/pi/hbar_Planck/hbar_Planck/fDensity/GetAverageSoundSpeed();
+  fLukeRateScale_e = fAcDeform_e*fAcDeform_e*GetElectronDOSMass()*
+      GetElectronDOSMass()/GetElectronMass()/12/pi/hbar_Planck/
+      hbar_Planck/fDensity/GetAverageSoundSpeed();
 }
 
 

@@ -111,6 +111,12 @@ void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
     return;
   }
 
+  // Get kinematics into more usable form
+  pos.set(y[0],y[1],y[2]);			// Position
+  mom.set(y[3],y[4],y[5]);			// Momentum
+  Efield.set(field[3],field[4],field[5]);	// Electric field
+
+  force = Efield;	// Apply transforms here so Efield stays original
 
 #ifdef G4CMP_DEBUG
   if (verboseLevel>2) {
@@ -122,13 +128,7 @@ void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
   }
 #endif
 
-  // Get kinematics into more usable form
-  pos.set(y[0],y[1],y[2]);			// Position
-  mom.set(y[3],y[4],y[5]);			// Momentum
-  Efield.set(field[3],field[4],field[5]);	// Electric field
   momdir = mom.unit();
-
-  force = Efield;	// Apply transforms here so Efield stays original
 
   fGlobalToLocal.ApplyAxisTransform(mom);
   vel = theLattice->MapPtoV_el(valleyIndex,mom);
@@ -210,7 +210,7 @@ void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
     forceCorrection = -2*theLattice->GetAlpha()*fCharge*vinv*c_light
       *Efield*vel*vel*theLattice->GetElectronMass()/nonParE;
 
-    force =force/nonParE;
+    force = force/nonParE;
     force = force + forceCorrection;
   }
 

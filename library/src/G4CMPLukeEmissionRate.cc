@@ -46,16 +46,17 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
     ktrk = theLattice->EllipsoidalToSphericalTranformation(iValley, ktrk);
     mass = sqrt(theLattice->GetElectronMass()*theLattice->GetElectronDOSMass());
     vsound = theLattice->GetAverageSoundSpeed();
-
     kmag = ktrk.mag();
     G4double Etrk = theLattice->MapPtoEkin(iValley,ptrk);
     kSound = vsound*mass/hbar_Planck*theLattice->GetNonParabolicity(Etrk);
-    G4double qmax = 2/(1-2*theLattice->GetAlpha()*theLattice->GetElectronDOSMass()*vsound*vsound)*(kmag-kSound);
-    //G4double ratetest = theLattice->GetElectronAcousticDeform()*theLattice->GetElectronAcousticDeform()*theLattice->GetElectronDOSMass()*theLattice->GetElectronDOSMass()/theLattice->GetElectronMass()/12/pi/hbar_Planck/hbar_Planck/kmag/theLattice->GetDensity()/vsound*qmax*qmax*qmax*(1+2*theLattice->GetAlpha()*Etrk-3/2*theLattice->GetAlpha()*hbar_Planck*vsound*qmax*sqrt(theLattice->GetElectronDOSMass()/theLattice->GetElectronMass()));
+    G4double qmax = 2/(1-2*theLattice->GetAlpha()*theLattice->GetElectronDOSMass()*
+      vsound*vsound)*(kmag-kSound);
+   G4double rate = theLattice->GetElectronLukeRateScale()/kmag*qmax*qmax*qmax*
+      (theLattice->GetNonParabolicity(Etrk)-3/2*theLattice->GetAlpha()*
+      hbar_Planck*vsound*qmax*sqrt(theLattice->GetElectronDOSMass()
+      /theLattice->GetElectronMass()));
 
-   G4double ratetest = theLattice->GetElectronLukeRateScale()/kmag*qmax*qmax*qmax*(theLattice->GetNonParabolicity(Etrk)-3/2*theLattice->GetAlpha()*hbar_Planck*vsound*qmax*sqrt(theLattice->GetElectronDOSMass()/theLattice->GetElectronMass()));
-
-  return (kmag > kSound) ? ratetest : 0.;
+  return (kmag > kSound) ? rate : 0.;
 
     // The l0 in configuration file is calculated using the density of states mass
     // l0 = l0*pow(theLattice->GetElectronMass(),3)/(pow(mass,3));
