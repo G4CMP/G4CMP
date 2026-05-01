@@ -7,7 +7,7 @@ Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 Development Project for G4CMP-515
-2026-03-27  G4CMP-515 : Expand charge reflection for both specular and diffuse.
+2026-04-30  G4CMP-515 : Expand charge reflection for both specular and diffuse.
 2026-03-27  G4CMP-595 : Add preprocessor flag for use of charge reflection.
 2026-03-25  G4CMP-513 : Provide specular and diffuse reflection for charges.
 2026-02-05  G4CMP-582 : Make the frequency param of RefProb functions optional.

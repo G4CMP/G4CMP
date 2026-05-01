@@ -23,6 +23,7 @@
 // 20251204  G4CMP-511 -- Create parallel Lambertian reflection code for charges.
 // 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
 // 20250219  G4CMP-513 : Provide separate specular and diffuse reflection for charges.
+// 20260430  W. Lamberson -- Update debugging printouts.
 
 #include "G4CMPDriftBoundaryProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -171,8 +172,8 @@ void G4CMPDriftBoundaryProcess::DoAbsorption(const G4Track& aTrack,
 void G4CMPDriftBoundaryProcess::
 DoReflection(const G4Track& aTrack, const G4Step& aStep,
 	     G4ParticleChange& /*aParticleChange*/) {
-  if (verboseLevel>1)
-    G4cout << GetProcessName() << ": Track reflected" << G4endl;
+  if (verboseLevel > 1)
+    G4cout << GetProcessName() << ": Charge reflected" << G4endl;
 
   G4double specProb = surfProp->SpecularReflProb();
   G4double diffuseProb = surfProp->DiffuseReflProb();
@@ -189,17 +190,20 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
   if (random < specProb) {
     reflP = DoSpecularReflection(aTrack, aStep);
   } else { // Do diffuse reflection (electrons & holes)
+    if (verboseLevel > 1) {
+      G4cout << " DoDiffuse " << G4endl;
+    }
     reflP = LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep), GetCurrentValley());
     reflP *= GetGlobalMomentum(aTrack).mag();
   }
 
   FillParticleChange(GetCurrentValley(), reflP);
-}
+}\
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
 DoSpecularReflection(const G4Track& aTrack, const G4Step& aStep) {
-  if (verboseLevel>1)
-    G4cout << GetProcessName() << ": Electron reflected" << G4endl;
+  if (verboseLevel > 1)
+    G4cout << " DoSpecular" << G4endl;
 
   G4ThreeVector reflP;
   
@@ -219,11 +223,11 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   RotateToGlobalDirection(k);
   G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(aStep);
 
-  if (verboseLevel>1) {
+  if (verboseLevel > 1) {
     G4cout << " DoSpecularElectron " << G4endl;
   }
 
-  if (verboseLevel>2) {
+  if (verboseLevel > 2) {
     G4cout << " surfNorm " << surfNorm << G4endl;
     G4cout << " Old wavevector direction " << k.unit() << G4endl;
   }
@@ -238,7 +242,7 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
     return GetGlobalMomentum(aTrack).mag() * LambertianReflection(theLattice, surfNorm, GetCurrentValley());
   }
   
-  if (verboseLevel>2) {
+  if (verboseLevel > 2) {
     G4cout << " New wavevector direction " << k.unit() << G4endl;
   }
   
@@ -246,7 +250,7 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   G4ThreeVector p = theLattice->MapV_elToP(GetCurrentValley(), GetLocalDirection(k));
   RotateToGlobalDirection(p);
   
-  if (verboseLevel>2) {
+  if (verboseLevel > 2) {
     G4cout << " New momentum direction " << p.unit() << G4endl;
     
     // SANITY CHECK:  Does new momentum get back to new velocity?
@@ -261,14 +265,14 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
 DoSpecularHole(const G4Track& aTrack, const G4Step& aStep) {
-  if (verboseLevel>1) {
+  if (verboseLevel > 1) {
     G4cout << GetProcessName() << "DoSpecularHole " << G4endl;
   }
 
   G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(aStep);
 
   G4ThreeVector momDir = aStep.GetPostStepPoint()->GetMomentumDirection();
-  if (verboseLevel>2) {
+  if (verboseLevel > 2) {
     G4cout << " Old momentum direction " << momDir << G4endl;
   }
   
