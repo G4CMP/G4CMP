@@ -190,9 +190,10 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
   if (random < specProb) {
     reflP = DoSpecularReflection(aTrack, aStep);
   } else { // Do diffuse reflection (electrons & holes)
-    if (verboseLevel > 1) {
+    if (verboseLevel > 1)
       G4cout << " DoDiffuse " << G4endl;
-    }
+    if (verboseLevel > 3)
+      G4cout << " surfNorm " << G4CMP::GetSurfaceNormal(aStep) << G4endl;
     reflP = LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep), GetCurrentValley());
     if (verboseLevel > 2)
       G4cout << " p " << reflP/eV << " ";
