@@ -203,7 +203,7 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
 
   FillParticleChange(GetCurrentValley(), reflP);
   if (verboseLevel > 3)
-    particleChange.DumpInfo();
+    aParticleChange.DumpInfo();
 }
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
