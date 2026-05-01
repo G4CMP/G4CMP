@@ -172,7 +172,7 @@ void G4CMPDriftBoundaryProcess::DoAbsorption(const G4Track& aTrack,
 void G4CMPDriftBoundaryProcess::
 DoReflection(const G4Track& aTrack, const G4Step& aStep,
 	     G4ParticleChange& /*aParticleChange*/) {
-  if (verboseLevel > 1)
+  if (verboseLevel)
     G4cout << GetProcessName() << ": Charge reflected" << G4endl;
 
   G4double specProb = surfProp->SpecularReflProb();
@@ -194,11 +194,17 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
       G4cout << " DoDiffuse " << G4endl;
     }
     reflP = LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep), GetCurrentValley());
+    if (verboseLevel > 2)
+      G4cout << " p " << reflP/eV << " ";
     reflP *= GetGlobalMomentum(aTrack).mag();
+    if (verboseLevel > 2)
+      G4cout << reflP/eV << " eV" << G4endl;
   }
 
   FillParticleChange(GetCurrentValley(), reflP);
-}\
+  if (verboseLevel > 3)
+    particleChange.DumpInfo();
+}
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
 DoSpecularReflection(const G4Track& aTrack, const G4Step& aStep) {
