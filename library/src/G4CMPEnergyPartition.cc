@@ -495,7 +495,10 @@ void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
 
   // Compute number of pairs to generate, adjust sampling scale to match
   nPairsGen = std::round(scale*nPairsTrue);
-  if (nPairsTrue > 0 && nPairsGen <= 0) nPairsGen = (size_t)nParticlesMinimum;
+  if (nPairsTrue > 0 && nPairsGen < nParticlesMinimum)
+  {
+    if (energy >= G4CMPConfigManager::GetSamplingEnergy()) nPairsGen = (size_t)nParticlesMinimum;
+  }
   scale = nPairsTrue>0 ? double(nPairsGen)/nPairsTrue : 1.;
 
   G4double nPairsWeighted = nPairsGen>0 ? nPairsGen/scale : 0.;
@@ -573,7 +576,10 @@ void G4CMPEnergyPartition::GeneratePhonons(G4double energy) {
 
   // Compute number of phonons to generate, adjust sampling scale to match
   nPhononsGen = std::round(scale*nPhononsTrue);
-  if (nPhononsTrue > 0 && nPhononsGen <= 0) nPhononsGen = (size_t)nParticlesMinimum;
+  if (nPhononsTrue > 0 && nPhononsGen < nParticlesMinimum)
+  {
+    if (energy >= G4CMPConfigManager::GetSamplingEnergy()) nPhononsGen = (size_t)nParticlesMinimum;
+  }
   scale = nPhononsTrue>0 ? double(nPhononsGen)/nPhononsTrue : 1.;
 
   // Create requested number of phonons with scaling factor
