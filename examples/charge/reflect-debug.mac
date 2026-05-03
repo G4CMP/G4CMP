@@ -1,5 +1,5 @@
 # Production example:  Twenty at-rest e/h pairs per event, 100 events
-/tracking/verbose 1
+### /tracking/verbose 1
 /gun/number 1
 
 /g4cmp/voltage -70 V
@@ -13,10 +13,10 @@
 /run/initialize
 
 /process/setVerbose 0 G4CMPTimeStepper
-/process/setVerbose 1 G4CMPLukeScattering
-/process/setVerbose 1 G4CMPInterValleyScattering
+/process/setVerbose 0 G4CMPLukeScattering
+/process/setVerbose 0 G4CMPInterValleyScattering
 /process/setVerbose 4 G4CMPChargeBoundary
-/process/setVerbose 1 G4CMPChargeRecombine
-/process/setVerbose 1 TrackLimiter
+/process/setVerbose 0 G4CMPChargeRecombine
+/process/setVerbose 0 TrackLimiter
 
-/run/beamOn 1
+/run/beamOn 100
