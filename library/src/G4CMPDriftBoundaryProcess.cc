@@ -179,38 +179,48 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
   G4double diffuseProb = surfProp->DiffuseReflProb();
 
   G4double norm = specProb + diffuseProb;
-
   specProb /= norm;
   diffuseProb /= norm;
 
-  G4double random = G4UniformRand();
+  G4ThreeVector reflP;		// Acquire reflected direction below
 
-  G4ThreeVector reflP;
-
-  if (random < specProb) {
+  if (G4UniformRand() < specProb) {
     reflP = DoSpecularReflection(aTrack, aStep);
+
+    if (verboseLevel>2)
+      G4cout << " reflP " << reflP << " " << reflP.mag() << G4endl;
   } else { // Do diffuse reflection (electrons & holes)
-    if (verboseLevel > 1)
-      G4cout << " DoDiffuse " << G4endl;
-    if (verboseLevel > 3)
+    if (verboseLevel>1) G4cout << " DoDiffuse" << G4endl;
+    if (verboseLevel>3)
       G4cout << " surfNorm " << G4CMP::GetSurfaceNormal(aStep) << G4endl;
-    reflP = LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep), GetCurrentValley());
-    if (verboseLevel > 2)
-      G4cout << " p " << reflP/eV << " ";
+
+    reflP = LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep),
+				 GetCurrentValley());
+    if (verboseLevel>2)
+      G4cout << " reflP " << reflP << " " << reflP.mag() << G4endl;
+
+    // Rescale direction to match incident momentum
     reflP *= GetGlobalMomentum(aTrack).mag();
-    if (verboseLevel > 2)
-      G4cout << reflP/eV << " eV" << G4endl;
+    if (verboseLevel>2)
+      G4cout << " reflected momentum " << reflP << " " << reflP.mag() << G4endl;
   }
 
   FillParticleChange(GetCurrentValley(), reflP);
-  if (verboseLevel > 3)
+
+  if (verboseLevel>3) {
     aParticleChange.DumpInfo();
+    G4ThreeVector pcp =
+      aParticleChange.CalcMomentum(aParticleChange.GetEnergy(),
+				   *aParticleChange.GetMomentumDirection(),
+				   aParticleChange.GetMass());
+
+    G4cout << " particleChange momentum " << pcp << G4endl;
+  }
 }
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
 DoSpecularReflection(const G4Track& aTrack, const G4Step& aStep) {
-  if (verboseLevel > 1)
-    G4cout << " DoSpecular" << G4endl;
+  if (verboseLevel > 1) G4cout << " DoSpecular" << G4endl;
 
   G4ThreeVector reflP;
   
@@ -244,9 +254,10 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   k -= 2.*dirNorm*surfNorm;
 
   // If reflected velocity is outward facing, fall back to diffuse reflection
-  G4int mode = GetPolarization(aStep.GetTrack());
-  if (!G4CMP::VelocityIsInward(theLattice, mode, k, surfNorm)) {
-    return GetGlobalMomentum(aTrack).mag() * LambertianReflection(theLattice, surfNorm, GetCurrentValley());
+  G4int ivalley = GetCurrentValley();
+  if (!G4CMP::VelocityIsInward(theLattice, ivalley, k, surfNorm)) {
+    return (GetGlobalMomentum(aTrack).mag()
+	    * LambertianReflection(theLattice, surfNorm, ivalley));
   }
   
   if (verboseLevel > 2) {
@@ -254,7 +265,8 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   }
   
   // Convert wavevector back to momentum and update direction
-  G4ThreeVector p = theLattice->MapV_elToP(GetCurrentValley(), GetLocalDirection(k));
+  G4ThreeVector p = theLattice->MapV_elToP(GetCurrentValley(),
+					   GetLocalDirection(k));
   RotateToGlobalDirection(p);
   
   if (verboseLevel > 2) {
