@@ -131,6 +131,7 @@ G4CMPConfigMessenger::G4CMPConfigMessenger(G4CMPConfigManager* mgr)
   comboStepCmd = CreateCommand<G4UIcmdWithADoubleAndUnit>("combiningStepLength",
 	  "Maximum track step-length to merge energy deposit for partitioning");
   comboStepCmd->SetUnitCategory("Length");
+  comboStepCmd->SetDefaultUnit("mm");
 
   ehBounceCmd = CreateCommand<G4UIcmdWithAnInteger>("chargeBounces",
 		  "Maximum number of reflections allowed for charge carriers");
