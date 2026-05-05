@@ -1082,7 +1082,7 @@ G4ThreeVector G4CMP::ApplySurfaceClearance(const G4VTouchable* touch,
     return pos;
   }
   while (solid->Inside(pos) != kInside || near_surf_dist < clearance) {
-    if (G4CMPConfigManager::GetVerboseLevel()>=0) {
+    if (G4CMPConfigManager::GetVerboseLevel()>2) {
       G4String position[3] = { "outside", "surface", "inside" };
       G4cout << " local pos not inside or too close to surface. " << position[solid->Inside(pos)] << G4endl
 	     << " Shifting by " << clearance << " along " << -norm
