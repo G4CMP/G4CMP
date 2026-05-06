@@ -944,42 +944,6 @@ G4CMPBoundaryUtils::DoTransmission(const G4Track& aTrack,
   DoSimpleKill(aTrack, aStep, aParticleChange);
 }
 
-G4ThreeVector
-G4CMPBoundaryUtils::LambertianReflection(const G4LatticePhysical* theLattice,
-			   const G4ThreeVector& surfNorm, G4int mode) {
-  return G4CMP::LambertianReflection(theLattice, surfNorm, mode);
-}
-
-G4ThreeVector
-G4CMPBoundaryUtils::LambertianReflection(const G4LatticePhysical* theLattice,
-			   const G4ThreeVector& surfNorm, G4int mode,
-			   const G4ThreeVector& surfPoint) {
-  return G4CMP::LambertianReflection(theLattice, surfNorm, mode, surfPoint);
-}
-
-G4ThreeVector G4CMPBoundaryUtils::GetLambertianVector(const G4ThreeVector& surfNorm) const {
-  return G4CMP::GetLambertianVector(surfNorm);
-}
-
-
-// Check that phonon is properly directed from the volume surface
-// waveVector and surfNorm need to be in global coordinates
-
-G4bool G4CMPBoundaryUtils::VelocityIsInward(const G4LatticePhysical* lattice,
-                                     G4int mode,
-                                     const G4ThreeVector& waveVector,
-                                     const G4ThreeVector& surfNorm) {
-  return G4CMP::VelocityIsInward(lattice, mode, waveVector, surfNorm);
-}
-
-G4bool G4CMPBoundaryUtils::VelocityIsInward(const G4LatticePhysical* lattice,
-                                     G4int mode,
-                                     const G4ThreeVector& waveVector,
-                                     const G4ThreeVector& surfNorm,
-                                     const G4ThreeVector& surfacePos) {
-  return G4CMP::VelocityIsInward(lattice, mode, waveVector, surfNorm, surfacePos);
-}
-
 
 // Access information from materials table even when const
 

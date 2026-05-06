@@ -316,10 +316,10 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
     G4int mode1 = G4PhononPolarization::Get(sec1->GetParticleDefinition());
     G4int mode2 = G4PhononPolarization::Get(sec2->GetParticleDefinition());
 
-    G4ThreeVector vec1 = LambertianReflection(theLattice, surfNorm, mode,
-                                                    surfacePoint);
-    G4ThreeVector vec2 = LambertianReflection(theLattice, surfNorm, mode,
-                                                    surfacePoint);
+    G4ThreeVector vec1 = G4CMP::LambertianReflection(theLattice, surfNorm,
+						     mode1,  surfacePoint);
+    G4ThreeVector vec2 = G4CMP::LambertianReflection(theLattice, surfNorm,
+						     mode2, surfacePoint);
 
     UpdatePhononWavevector(*sec1, vec1);
     UpdatePhononWavevector(*sec2, vec2);
@@ -351,8 +351,8 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
 	     << G4endl;
     }
 
-    reflectedKDir = LambertianReflection(theLattice, surfNorm, mode,
-                                               surfacePoint);
+    reflectedKDir = G4CMP::LambertianReflection(theLattice, surfNorm, mode,
+						surfacePoint);
     refltype = "diffuse";
   }
 
@@ -610,8 +610,8 @@ GetSpecularVector(const G4ThreeVector& waveVector,
     // Get reflectedKDir from initial point and restore original values
     stepLocalPos = surfPoint;
     newNorm = surfNorm;
-    reflectedKDir = LambertianReflection(theLattice, surfNorm, mode,
-                                               surfacePoint);
+    reflectedKDir = G4CMP::LambertianReflection(theLattice, surfNorm, mode,
+						surfacePoint);
   }
 
   if (verboseLevel>3) {

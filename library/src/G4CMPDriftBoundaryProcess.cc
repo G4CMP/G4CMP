@@ -182,28 +182,16 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
   specProb /= norm;
   diffuseProb /= norm;
 
-  G4ThreeVector reflP;		// Acquire reflected direction below
+  G4ThreeVector reflP;		// Acquire reflected momentum below
 
   if (G4UniformRand() < specProb) {
     reflP = DoSpecularReflection(aTrack, aStep);
-
-    if (verboseLevel>2)
-      G4cout << " reflP " << reflP << " " << reflP.mag() << G4endl;
-  } else { // Do diffuse reflection (electrons & holes)
-    if (verboseLevel>1) G4cout << " DoDiffuse" << G4endl;
-    if (verboseLevel>3)
-      G4cout << " surfNorm " << G4CMP::GetSurfaceNormal(aStep) << G4endl;
-
-    reflP = LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep),
-				 GetCurrentValley());
-    if (verboseLevel>2)
-      G4cout << " reflP " << reflP << " " << reflP.mag() << G4endl;
-
-    // Rescale direction to match incident momentum
-    reflP *= GetGlobalMomentum(aTrack).mag();
-    if (verboseLevel>2)
-      G4cout << " reflected momentum " << reflP << " " << reflP.mag() << G4endl;
+  } else {			// Do diffuse reflection (electrons & holes)
+    reflP = DoDiffuseReflection(aTrack, aStep);
   }
+
+  if (verboseLevel>2)
+    G4cout << " reflected momentum " << reflP << " " << reflP.mag() << G4endl;
 
   FillParticleChange(GetCurrentValley(), reflP);
 
@@ -216,6 +204,27 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
 
     G4cout << " particleChange momentum " << pcp << G4endl;
   }
+}
+
+// NOTE:  These functions return a full momentum vector, not a unit vector
+
+G4ThreeVector G4CMPDriftBoundaryProcess::
+DoDiffuseReflection(const G4Track& aTrack, const G4Step& aStep) {
+  if (verboseLevel > 1) G4cout << " DoDiffuse" << G4endl;
+
+  if (verboseLevel>3)
+    G4cout << " surfNorm " << G4CMP::GetSurfaceNormal(aStep) << G4endl;
+  
+  G4ThreeVector reflP =
+    G4CMP::LambertianReflection(theLattice, G4CMP::GetSurfaceNormal(aStep),
+				GetCurrentValley());
+  if (verboseLevel>2)
+    G4cout << " reflP " << reflP << " " << reflP.mag() << G4endl;
+
+  // Rescale direction to match incident momentum
+  reflP *= GetGlobalMomentum(aTrack).mag();
+  
+  return reflP;
 }
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
@@ -236,17 +245,15 @@ DoSpecularReflection(const G4Track& aTrack, const G4Step& aStep) {
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
 DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
+  if (verboseLevel > 1) G4cout << " DoSpecularElectron" << G4endl;
+
   G4ThreeVector k = GetLocalWaveVector(aTrack);
   RotateToGlobalDirection(k);
   G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(aStep);
 
-  if (verboseLevel > 1) {
-    G4cout << " DoSpecularElectron " << G4endl;
-  }
-
   if (verboseLevel > 2) {
-    G4cout << " surfNorm " << surfNorm << G4endl;
-    G4cout << " Old wavevector direction " << k.unit() << G4endl;
+    G4cout << " surfNorm " << surfNorm << G4endl
+	   << " Old wavevector direction " << k.unit() << G4endl;
   }
 
   // Specular reflection reverses wavevector along normal
@@ -256,8 +263,8 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   // If reflected velocity is outward facing, fall back to diffuse reflection
   G4int ivalley = GetCurrentValley();
   if (!G4CMP::VelocityIsInward(theLattice, ivalley, k, surfNorm)) {
-    return (GetGlobalMomentum(aTrack).mag()
-	    * LambertianReflection(theLattice, surfNorm, ivalley));
+    if (verboseLevel>2) G4cout << " specular reflection failed" << G4endl;
+    return DoDiffuseReflection(aTrack, aStep);
   }
   
   if (verboseLevel > 2) {
@@ -284,9 +291,7 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
 DoSpecularHole(const G4Track& aTrack, const G4Step& aStep) {
-  if (verboseLevel > 1) {
-    G4cout << GetProcessName() << "DoSpecularHole " << G4endl;
-  }
+  if (verboseLevel>1) G4cout << " DoSpecularHole" << G4endl;
 
   G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(aStep);
 

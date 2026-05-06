@@ -90,24 +90,6 @@ public:
   virtual void DoTransmission(const G4Track& aTrack, const G4Step& aStep,
 			      G4ParticleChange& aParticleChange);
 
-  // Phonons reflect difusively from surfaces.
-  virtual G4ThreeVector LambertianReflection(const G4LatticePhysical* theLattice,
-                                    const G4ThreeVector& surfNorm, G4int mode);
-  virtual G4ThreeVector LambertianReflection(const G4LatticePhysical* theLattice,
-                                    const G4ThreeVector& surfNorm, G4int mode,
-                                    const G4ThreeVector& surfPoint);
-  virtual G4ThreeVector GetLambertianVector(const G4ThreeVector& surfNorm) const;
-
-  // Test that a phonon's wave vector relates to an inward velocity.
-  // waveVector, surfNorm, and surfacePos need to be in global coordinates
-  virtual G4bool VelocityIsInward(const G4LatticePhysical* lattice, G4int mode,
-                                const G4ThreeVector& waveVector,
-                                const G4ThreeVector& surfNorm);
-  virtual G4bool VelocityIsInward(const G4LatticePhysical* lattice, G4int mode,
-                                const G4ThreeVector& waveVector,
-                                const G4ThreeVector& surfNorm,
-                                const G4ThreeVector& surfacePos);
-
 protected:
   G4bool IsBounaryStep(const G4Step& aStep);
   G4bool GetBoundingVolumes(const G4Step& aStep);
