@@ -796,7 +796,9 @@ G4VParticleChange* G4CMPQPDiffusion::AlongStepDoIt(const G4Track& track,
               << " All tries exhausted, which suggests this is perhaps a more "
               << "fundamental issue with G4CMP, or maybe your geometry is just "
               << "not following the recommended rules for tracked film "
-              << "response. Killing Track.";
+              << "response. Killing Track. fOldPosition: "
+              << fOldPosition << ", fNewPosition: " << fNewPosition
+              << " after nsteps: " << track.GetCurrentStepNumber();
           G4Exception("G4CMPQPDiffusion::AlongStepDoIt", "QPDiffusion006",
                       JustWarning, amg);
 

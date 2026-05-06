@@ -44,7 +44,6 @@ UpdateStepForAlongStep(G4Step* pStep) {
 
   //  Update the G4Step specific attributes
   pStep->SetStepLength(theTrueStepLength);
-  theStatusChange = pStep->GetTrack()->GetTrackStatus();
 
   //Debugging
   if (verboseLevel > 2) {
