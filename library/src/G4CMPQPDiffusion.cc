@@ -452,11 +452,7 @@ G4VParticleChange* G4CMPQPDiffusion::AlongStepDoIt(const G4Track& track,
 
   //Kill event if we have a bad outgoing surface tangent -- think this should
   //actually go up after calling the outgoingsurfacetangent finding
-  if (fPreemptivelyKillTrack) {
-    fParticleChange.ProposeTrackStatus(fStopAndKill);
-    return &fParticleChange;
-  }
-
+  if (fPreemptivelyKillTrack) return DoSimpleQPKill();
   
   //Get the initial and final times -- since Transport runs first in the
   //alongStepDoIt processes, we should have the "transport-limited" times
@@ -803,9 +799,7 @@ G4VParticleChange* G4CMPQPDiffusion::AlongStepDoIt(const G4Track& track,
                       JustWarning, amg);
 
           //Rather than killing the whole program, kill the track
-          fPreemptivelyKillTrack = true;
-          fParticleChange.ProposeTrackStatus(fStopAndKill);
-          return &fParticleChange;
+          return DoSimpleQPKill();
         }		
       } else {
 
@@ -922,10 +916,7 @@ G4CMPQPDiffusion::PostStepDoIt(const G4Track& track, const G4Step&) {
 
   //Kill event if we have a bad outgoing surface tangent -- think this should
   //actually go up after calling the outgoingsurfacetangent finding
-  if (fPreemptivelyKillTrack) {
-    fParticleChange.ProposeTrackStatus(fStopAndKill);
-    return &fParticleChange;
-  }
+  if (fPreemptivelyKillTrack) return DoSimpleQPKill();
   
   //Determine if we're on a boundary. A few scenarios:
   //1. This shouldn't run if we are landing on a boundary in the step (where
@@ -974,11 +965,7 @@ G4CMPQPDiffusion::PostStepDoIt(const G4Track& track, const G4Step&) {
                        false);
 
   //Cross-check for deliberately negative safeties -- need to kill these tracks)
-  if (the2DSafety < 0.0) {
-    fPreemptivelyKillTrack = true;
-    fParticleChange.ProposeTrackStatus(fStopAndKill);
-    return &fParticleChange;
-  }
+  if (the2DSafety < 0.0) return DoSimpleQPKill();
   
   //Debugging
   if (verboseLevel > 5) {
@@ -1028,9 +1015,7 @@ G4CMPQPDiffusion::PostStepDoIt(const G4Track& track, const G4Step&) {
                     JustWarning, msg);
 
         //Kill the track.
-        fPreemptivelyKillTrack = true;
-        fParticleChange.ProposeTrackStatus(fStopAndKill);
-        return &fParticleChange;
+        return DoSimpleQPKill();
       }
             
       G4ThreeVector nudgeDir = G4RandomDirection();
@@ -1067,11 +1052,7 @@ G4CMPQPDiffusion::PostStepDoIt(const G4Track& track, const G4Step&) {
                            false);
 
       //Cross-check for deliberately negative safeties -- need to kill these tracks)
-      if (testSafety < 0.0) {
-        fPreemptivelyKillTrack = true;
-        fParticleChange.ProposeTrackStatus(fStopAndKill);
-        return &fParticleChange;
-      }
+      if (testSafety < 0.0) return DoSimpleQPKill();
       if (testSafety < fHardFloorBoundaryScale) continue;
 
       //Debugging
@@ -1156,11 +1137,7 @@ G4CMPQPDiffusion::PostStepDoIt(const G4Track& track, const G4Step&) {
       G4ThreeVector safetyDir = the2DSafetyAndDir.second;
 
       //Cross-check for deliberately negative safeties -- need to kill these tracks
-      if (the2DSafety < 0.0) {
-        fPreemptivelyKillTrack = true;
-        fParticleChange.ProposeTrackStatus(fStopAndKill);
-        return &fParticleChange;
-      }
+      if (the2DSafety < 0.0) return DoSimpleQPKill();        
 
       //Do a second check, moving along the direction of the safety
       G4ThreeVector shiftedPosForTest = trackPosition+safetyDir*the2DSafety*0.5;
@@ -1170,11 +1147,7 @@ G4CMPQPDiffusion::PostStepDoIt(const G4Track& track, const G4Step&) {
                                         track.GetMomentumDirection(),false);
 
       //Cross-check for deliberately negative safeties -- need to kill these tracks
-      if (the2DSafetyAndDir_Shifted.first < 0.0) {
-        fPreemptivelyKillTrack = true;
-        fParticleChange.ProposeTrackStatus(fStopAndKill);
-        return &fParticleChange;
-      }
+      if (the2DSafetyAndDir_Shifted.first < 0.0) return DoSimpleQPKill();
 
       //Another sanity check -- if we've repeated and STILL fail to pick a
       //direction that gives an expected change in the safety when we
@@ -1340,11 +1313,7 @@ FindDirectionToNearbyBoundary(const G4Track& track,
                        useSweepForDaughterSafety);
 
   //Cross-check for deliberately negative safeties -- need to kill these tracks
-  if (shiftedPoint2DSafety < 0.0) {
-    fPreemptivelyKillTrack = true;
-    G4ThreeVector theDummyVect(0,0,0);
-    return theDummyVect;
-  }
+  if (shiftedPoint2DSafety < 0.0) return PrepSimpleQPKillWithNullReturnVect();
 
   //Debugging
   if (verboseLevel > 5) {
@@ -1455,11 +1424,7 @@ FindDirectionToNearbyBoundary(const G4Track& track,
                        useSweepForDaughterSafety);
 
   //Cross-check for deliberately negative safeties -- need to kill these tracks
-  if (option1Safety < 0.0) {
-    fPreemptivelyKillTrack = true;
-    G4ThreeVector theDummyVect(0,0,0);
-    return theDummyVect;
-  }
+  if (option1Safety < 0.0) return PrepSimpleQPKillWithNullReturnVect();
 
   //Debugging
   if (verboseLevel > 5) {
@@ -1475,11 +1440,7 @@ FindDirectionToNearbyBoundary(const G4Track& track,
                        useSweepForDaughterSafety);
 
   //Cross-check for deliberately negative safeties -- need to kill these tracks
-  if (option2Safety < 0.0) {
-    fPreemptivelyKillTrack = true;
-    G4ThreeVector theDummyVect(0,0,0);
-    return theDummyVect;
-  }
+  if (option2Safety < 0.0) return PrepSimpleQPKillWithNullReturnVect();
 
   //Debugging
   if (verboseLevel > 5) {
@@ -1533,9 +1494,7 @@ FindDirectionToNearbyBoundary(const G4Track& track,
 
     //Cross-check for deliberately negative safeties -- need to kill these tracks
     if (option1Safety < 0.0 || option2Safety < 0.0) {
-      fPreemptivelyKillTrack = true;
-      G4ThreeVector theDummyVect(0,0,0);
-      return theDummyVect;
+      return PrepSimpleQPKillWithNullReturnVect();
     }
   }
 
@@ -1596,11 +1555,7 @@ FindDirectionToNearbyBoundary(const G4Track& track,
                        useSweepForDaughterSafety);
 
   //Cross-check for deliberately negative safeties -- need to kill these tracks
-  if (checkedSafety < 0.0) {
-    fPreemptivelyKillTrack = true;
-    G4ThreeVector theDummyVect(0,0,0);
-    return theDummyVect;
-  }
+  if (checkedSafety < 0.0) return PrepSimpleQPKillWithNullReturnVect();
   
   if (fabs((checkedSafety/the2DSafety) - 0.5) >
       fractionalSafetyDifferenceThreshold) {
@@ -2927,4 +2882,17 @@ FindSurfaceTangentsForStuckQPEjection(G4ThreeVector norm1,
   return output;
 }
 
+//Function for killing just a track, rather than the whole function, if
+//certain conditions are met
+G4CMPParticleChangeForQPDiffusion* G4CMPQPDiffusion::DoSimpleQPKill() {
+  fPreemptivelyKillTrack = true;
+  fParticleChange.ProposeTrackStatus(fStopAndKill);
+  return &fParticleChange;
+}
 
+//Function for prepping a track kill if certain conditions are met.
+G4ThreeVector G4CMPQPDiffusion::PrepSimpleQPKillWithNullReturnVect() {
+  fPreemptivelyKillTrack = true;
+  G4ThreeVector theDummyVect(0,0,0);
+  return theDummyVect;
+}

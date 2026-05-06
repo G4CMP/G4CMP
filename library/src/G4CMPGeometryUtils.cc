@@ -167,7 +167,7 @@ G4CMP::Get2DSafetyWithDirection(const G4VTouchable* motherTouch,
     G4ExceptionDescription msg;
     msg << "G4CMP::Get2DSafetyWithDirection is returning a null direction. "
         << "Something is not running correctly.";
-    G4Exception("G4CMP::Get2DSafetyWithDirection()", "Geometry00X",
+    G4Exception("G4CMP::Get2DSafetyWithDirection()", "Geometry001",
                 FatalException, msg);
   }
 
@@ -379,9 +379,9 @@ G4CMP::Compute2DSafetyToDaughterVolume(const G4ThreeVector& pos,
     msg << "G4CMP::Compute2DSafetyToDaughterVolume seems to think we're "
         << "already inside the daughter volume. Returning negative safety "
         << " to kill track." << G4endl;
-    G4Exception("G4CMP::Compute2DSafetyToDaughterVolume()", "Geometry00X",
+    G4Exception("G4CMP::Compute2DSafetyToDaughterVolume()", "Geometry002",
                 JustWarning, msg);
-    return -1.0*CLHEP::um;
+    return -1.0*um;
   }
   
   //Compute the safety. Since we should be *outside* the daughter volume
@@ -450,7 +450,7 @@ G4CMP::Compute2DSafetyToDaughterVolume(const G4ThreeVector& pos,
             << "volDaughter safety is not zero when the current boundary "
             << "belongs to this daughter. This is contrary to what should "
             << "happen." << G4endl;
-        G4Exception("G4CMP::Compute2DSafetyToDaughterVolume()", "Geometry00X",
+        G4Exception("G4CMP::Compute2DSafetyToDaughterVolume()", "Geometry003",
                     FatalException, msg);
       }
       returnDir = G4ThreeVector(0,0,0);
@@ -525,7 +525,7 @@ Compute2DSafetyInMotherVolume(G4VSolid * motherSolid,
     G4ExceptionDescription msg;
     msg << "G4CMP::Compute2DSafetyInMotherVolume seems to think we're outside "
         << "the mother volume." << G4endl;
-    G4Exception("G4CMP::Compute2DSafetyInMotherVolume()", "Geometry00X",
+    G4Exception("G4CMP::Compute2DSafetyInMotherVolume()", "Geometry004",
                 FatalException, msg);
   }
   
@@ -555,11 +555,11 @@ Compute2DSafetyInMotherVolume(G4VSolid * motherSolid,
     msg << "G4CMP::Compute2DSafetyInMotherVolume has a returnDir whose "
         << "magnitude is zero. Given that this is swept, this should not be "
         << "the case. Throwing negative safety so track gets killed" << G4endl;
-    G4Exception("G4CMP::Compute2DSafetyInMotherVolume()", "Geometry00X",
+    G4Exception("G4CMP::Compute2DSafetyInMotherVolume()", "Geometry005",
                 JustWarning, msg);
 
     //Set the safety negative, so we can pick it up with our kill-the-track flag
-    motherSafety = -1.0*CLHEP::um;
+    motherSafety = -1.0*um;
   }
   
   return motherSafety;
@@ -979,7 +979,7 @@ G4ThreeVector G4CMP::GetSurfaceNormal(const G4Step& step, const G4ThreeVector& i
     msg << "G4CMP::GetSurfaceNormal() seems to think we're not on a surface. "
         << "Volumes are: "
         << preSolid->GetName() << " and " << postSolid->GetName() << G4endl;
-    G4Exception("G4CMP::GetSurfaceNormal()", "Geometry00X",
+    G4Exception("G4CMP::GetSurfaceNormal()", "Geometry006",
                 FatalException, msg);
     G4ThreeVector dummy(0,0,0);
     output = dummy;
@@ -1101,7 +1101,7 @@ G4double G4CMP::ComputeDotProductThreshold_Norm(int full_circle_nV) {
     G4ExceptionDescription msg;
     msg << "G4CMP::ComputeDotProductThreshold_Norm seems to see that "
         << "half_circle_nV is not divisible by two. Please fix." << G4endl;
-    G4Exception("G4CMP::ComputeDotProductThreshold_Norm()", "Geometry00X",
+    G4Exception("G4CMP::ComputeDotProductThreshold_Norm()", "Geometry009",
                 FatalException, msg);
   }
     
@@ -1123,7 +1123,7 @@ G4double G4CMP::ComputeDotProductThreshold_Tang(int full_circle_nV) {
     G4ExceptionDescription msg;
     msg << "G4CMP::ComputeDotProductThreshold_Tang seems to see that "
         << "half_circle_nV is not divisible by two. Please fix." << G4endl;
-    G4Exception("G4CMP::ComputeDotProductThreshold_Tang()", "Geometry00X",
+    G4Exception("G4CMP::ComputeDotProductThreshold_Tang()", "Geometry010",
                 FatalException, msg);
   }
   
