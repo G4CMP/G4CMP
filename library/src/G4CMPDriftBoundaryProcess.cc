@@ -265,8 +265,10 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
     G4cout << " Trying reflected wavevector " << k.unit() << G4endl;
 
   // If reflected velocity is outward facing, fall back to diffuse reflection
+  // NOTE: VelocityIsInward() expects to receive _global_ wavevector
   G4int ivalley = GetCurrentValley();
-  if (!G4CMP::VelocityIsInward(theLattice, ivalley, k, surfNorm)) {
+  if (!G4CMP::VelocityIsInward(theLattice, ivalley, GetGlobalDirection(k),
+			       surfNorm)) {
     if (verboseLevel>2) G4cout << " specular reflection failed" << G4endl;
     return DoDiffuseReflection(aTrack, aStep);
   }
