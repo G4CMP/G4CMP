@@ -621,21 +621,20 @@ G4LatticeLogical::MapPtoEkin(G4int iv, const G4ThreeVector& p) const {
   if (verboseLevel>1) G4cout << " p (valley) " << tempvec() << G4endl;
 #endif
 
-  G4double bandP = tempvec().x()*tempvec().x()*fMassTensor.xx() +
-      tempvec().y()*tempvec().y()*fMassTensor.yy() +
-      tempvec().z()*tempvec().z()*fMassTensor.zz();
+  G4double bandP2 = ((tempvec().x()*tempvec().x()*fMassTensor.xx() +
+		      tempvec().y()*tempvec().y()*fMassTensor.yy() +
+		      tempvec().z()*tempvec().z()*fMassTensor.zz())
+		     / GetElectronMass());
+  G4double mc2 = GetElectronMass()*c_squared;
 
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) {
-    G4cout << " <P|M/m0|P> " << bandP/mElectron << G4endl
-	   << G4endl << " returning Ekin "
-	   << sqrt(bandP/mElectron + electron_mass_c2*electron_mass_c2) - electron_mass_c2
-	   << G4endl;
+    G4cout << " <P|M/m0|P> " << bandP2 << G4endl
+	   << " returning Ekin " << sqrt(bandP2 + mc2*mc2) - mc2 << G4endl;
   }
 #endif
 
-  return sqrt(bandP/GetElectronMass() + GetElectronMass()*c_squared*GetElectronMass()*c_squared) - GetElectronMass()*c_squared;
-
+  return sqrt(bandP2 + mc2*mc2) - mc2;
 }
 
 G4double
