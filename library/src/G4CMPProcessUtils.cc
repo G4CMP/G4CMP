@@ -554,12 +554,12 @@ G4double G4CMPProcessUtils::MakePhononTheta(G4double k, G4double ks) const {
 // Compute energy of phonon in Luke Scattering
 
 G4double G4CMPProcessUtils::MakePhononEnergy(G4double k, G4double ks,
-					     G4double th_phonon) const {
-  return MakePhononEnergy(2.*(k*cos(th_phonon)-ks));
+					     G4double th_phonon, G4double vsound) const {
+  return MakePhononEnergy(2.*(k*cos(th_phonon)-ks), vsound);
 }
 
-G4double G4CMPProcessUtils::MakePhononEnergy(G4double q) const {
-  return q * theLattice->GetSoundSpeed() * hbar_Planck;
+G4double G4CMPProcessUtils::MakePhononEnergy(G4double q, G4double vsound) const {
+  return q * vsound * hbar_Planck;
 }
 
 // Compute direction angle for recoiling charge carrier

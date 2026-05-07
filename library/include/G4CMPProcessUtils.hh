@@ -251,8 +251,9 @@ public:
 
   // Generate direction angle for phonon generated in Luke scattering
   G4double MakePhononTheta(G4double k, G4double ks) const;
-  G4double MakePhononEnergy(G4double k, G4double ks, G4double th_phonon) const;
-  G4double MakePhononEnergy(G4double q) const;
+  G4double MakePhononEnergy(G4double k, G4double ks, G4double th_phonon, 
+                            G4double vsound) const;
+  G4double MakePhononEnergy(G4double q, G4double vsound) const;
     
   // Generate direction angle for phonon generated in IV scattering
   G4double MakePhononThetaIV0Order(G4double E, G4double Ephonon) const;
