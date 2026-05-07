@@ -193,7 +193,8 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
   if (verboseLevel>2)
     G4cout << " reflected momentum " << reflP << " " << reflP.mag() << G4endl;
 
-  FillParticleChange(GetCurrentValley(), reflP);
+  // Ensure that energy (not momentum!) is conserved
+  FillParticleChange(GetCurrentValley(), GetKineticEnergy(aTrack), reflP);
 
   if (verboseLevel>3) {
     aParticleChange.DumpInfo();
