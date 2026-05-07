@@ -24,6 +24,7 @@
 // 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
 // 20250219  G4CMP-513 : Provide separate specular and diffuse reflection for charges.
 // 20260430  W. Lamberson -- Update debugging printouts.
+// 20260507  G4CMP-603 : Use specular reflection material property.
 
 #include "G4CMPDriftBoundaryProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -175,12 +176,11 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
   if (verboseLevel)
     G4cout << GetProcessName() << ": Charge reflected" << G4endl;
 
-  G4double specProb = surfProp->SpecularReflProb();
-  G4double diffuseProb = surfProp->DiffuseReflProb();
-
-  G4double norm = specProb + diffuseProb;
-  specProb /= norm;
-  diffuseProb /= norm;
+  G4double specProb = GetMaterialProperty("specProb");
+  if (verboseLevel>2) {
+    G4cout << " using " << specProb << " specular " << 1.-specProb
+	   << " diffuse" << G4endl;
+  }
 
   G4ThreeVector reflP;		// Acquire reflected momentum below
 
@@ -260,6 +260,9 @@ DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   // Specular reflection reverses wavevector along normal
   G4double dirNorm = k * surfNorm;
   k -= 2.*dirNorm*surfNorm;
+
+  if (verboseLevel > 2)
+    G4cout << " Trying reflected wavevector " << k.unit() << G4endl;
 
   // If reflected velocity is outward facing, fall back to diffuse reflection
   G4int ivalley = GetCurrentValley();
