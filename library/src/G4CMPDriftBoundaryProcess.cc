@@ -248,51 +248,42 @@ G4ThreeVector G4CMPDriftBoundaryProcess::
 DoSpecularElectron(const G4Track& aTrack, const G4Step& aStep) {
   if (verboseLevel > 1) G4cout << " DoSpecularElectron" << G4endl;
 
-  G4ThreeVector k = GetLocalWaveVector(aTrack);
-  RotateToGlobalDirection(k);
+  G4ThreeVector kDir = GetLocalWaveVector(aTrack).unit();
+  RotateToGlobalDirection(kDir);
   G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(aStep);
 
   if (verboseLevel > 2) {
     G4cout << " surfNorm " << surfNorm << G4endl
-	   << " Old wavevector direction " << k.unit() << G4endl;
+	   << " Old wavevector direction " << kDir << G4endl;
   }
 
   // Specular reflection reverses wavevector along normal
-  G4double dirNorm = k * surfNorm;
-  k -= 2.*dirNorm*surfNorm;
+  G4double dirNorm = kDir * surfNorm;
+  kDir -= 2.*dirNorm*surfNorm;
 
   if (verboseLevel > 2)
-    G4cout << " Trying reflected wavevector " << k.unit() << G4endl;
+    G4cout << " Trying reflected wavevector " << kDir << G4endl;
 
   // If reflected velocity is outward facing, fall back to diffuse reflection
   // NOTE: VelocityIsInward() expects to receive _global_ wavevector
   G4int ivalley = GetCurrentValley();
-  if (!G4CMP::VelocityIsInward(theLattice, ivalley, GetGlobalDirection(k),
+  if (!G4CMP::VelocityIsInward(theLattice, ivalley, GetGlobalDirection(kDir),
 			       surfNorm)) {
     if (verboseLevel>2) G4cout << " specular reflection failed" << G4endl;
     return DoDiffuseReflection(aTrack, aStep);
   }
   
   if (verboseLevel > 2) {
-    G4cout << " New wavevector direction " << k.unit() << G4endl;
+    G4cout << " New wavevector direction " << kDir << G4endl;
   }
   
   // Convert wavevector back to momentum and update direction
-  G4ThreeVector p = theLattice->MapV_elToP(GetCurrentValley(),
-					   GetLocalDirection(k));
-  RotateToGlobalDirection(p);
-  
-  if (verboseLevel > 2) {
-    G4cout << " New momentum direction " << p.unit() << G4endl;
-    
-    // SANITY CHECK:  Does new momentum get back to new velocity?
-    G4ThreeVector kNew = theLattice->MapPtoK(GetCurrentValley(),
-						GetLocalDirection(p));
-    RotateToGlobalDirection(kNew);
-    G4cout << " Cross-check new wavevector direction " << kNew.unit() << G4endl;
-  }
+  G4ThreeVector pDir = theLattice->MapV_elToP(GetCurrentValley(),
+					      GetLocalDirection(kDir)).unit();
+  RotateToGlobalDirection(pDir);
+  pDir *= GetLocalMomentum(aTrack).mag();
 
-  return p;
+  return pDir;
 }
 
 G4ThreeVector G4CMPDriftBoundaryProcess::
