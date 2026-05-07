@@ -8,6 +8,7 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 Development Project for G4CMP-515
 2026-05-06  G4CMP-515 : Expand charge reflection for both specular and diffuse.
+2026-05-07  G4CMP-603 : Use correct probability for charge specular reflection.
 2026-05-02  G4CMP-602 : Fix parentheses in MapV_elToP, to avoid NaNs.
 2026-03-27  G4CMP-595 : Add preprocessor flag for use of charge reflection.
 2026-03-25  G4CMP-513 : Provide specular and diffuse reflection for charges.
