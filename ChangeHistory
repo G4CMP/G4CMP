@@ -6,6 +6,7 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-05-08  G4CMP-593 : Add diffusion time stepper tau for individual plattices
 2026-05-06  G4CMP-592 : Replace FatalExceptions in QPDiffusion with warnings
 2026-04-28  G4CMP-496 : Test for zero energy before generating charge pairs.
 2026-04-28  G4CMP-599 : Add track ID and name to G4CMPTrackLimiter output.
