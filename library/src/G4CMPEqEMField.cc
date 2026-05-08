@@ -33,6 +33,7 @@
 //		method of each process separately.
 // 20240703 I. Ataee -- Cleaning up the code and using MapPtoV_el instea of redoing
 //		what it does in the EvaluateRhsGivenB method.
+// 20260520 Add a check for G4CMP particle.
 
 #include "G4CMPEqEMField.hh"
 #include "G4CMPConfigManager.hh"
@@ -45,7 +46,7 @@ G4CMPEqEMField::G4CMPEqEMField(G4ElectroMagneticField *emField,
 			       const G4LatticePhysical* lattice)
   : G4EqMagElectricField(emField), theLattice(lattice), 
     verboseLevel(G4CMPConfigManager::GetVerboseLevel()),
-    fCharge(0.), fMass(0.), valleyIndex(-1) {;}
+    fCharge(0.), fMass(0.), valleyIndex(-1), isG4CMPChargeCarrier(false) {;}
 
 
 // Replace physical lattice if track has changed volumes
@@ -103,8 +104,15 @@ void G4CMPEqEMField::SetChargeMomentumMass(G4ChargeState particleCharge,
 void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
 				       const G4double field[],
 				       G4double dydx[]) const {
+    
+  // if not a G4CMP particle, just use base class
+  if (!isG4CMPChargeCarrier) {
+    G4EqMagElectricField::EvaluateRhsGivenB(y, field, dydx);
+    return;
+}
+
   // No lattice behaviour, just use base class
-  if (valleyIndex == -1) {
+  else if (fCharge == -1) {
     G4EqMagElectricField::EvaluateRhsGivenB(y, field, dydx);
     return;
   }

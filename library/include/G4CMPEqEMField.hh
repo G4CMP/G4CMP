@@ -18,6 +18,7 @@
 // 20140404  Drop unnecessary data members, using functions in G4LatticePhysical
 // 20170525  Add default "rule of five" copy/move operators
 // 20210920  Add verbosity with access to be used by G4CMPFieldManager
+// 20260520 Add a check for G4CMP particle.
 
 #ifndef G4CMPEqEMField_hh
 #define G4CMPEqEMField_hh
@@ -66,6 +67,10 @@ public:
 			 G4double dydx[]) const;
   // Given the value of the electromagnetic field, this function 
   // calculates the value of the derivative dydx.
+
+  // Is a G4CMP particle (hole or electron)?
+  void SetG4CMPChargeCarrier(G4bool val) { isG4CMPChargeCarrier = val; }
+  G4bool IsG4CMPChargeCarrier() const { return isG4CMPChargeCarrier; }
   
 private:
   const G4LatticePhysical* theLattice;
@@ -74,6 +79,10 @@ private:
   G4double fCharge;	       		// Same as base class fElectrMagCof
   G4double fMass;	       		// Same as base class fElectrMagCof
   G4int valleyIndex;			// Index of current valley (-1 if none)
+
+  G4bool isG4CMPChargeCarrier;  // Is a G4CMP particle (hole or electron)?
+  mutable G4double nonParE;     // non-parabolic expression 1+2*alpha*E
+
 
   G4AffineTransform fLocalToGlobal;	// Local vs. global coordinates
   G4AffineTransform fGlobalToLocal;
