@@ -6,11 +6,11 @@
 /g4cmp/producePhonons 0.
 /g4cmp/sampleLuke 0.
 
-/g4cmp/chargeBounces 500 # This command allows you to set the max charge bounces
-
-/run/printProgress 1
+/g4cmp/chargeBounces 30 # This command allows you to set the max charge bounces
 
 ###/tracking/verbose 1
+
+/run/printProgress 1
 
 /run/initialize
 /process/setVerbose 0 G4CMPTimeStepper
