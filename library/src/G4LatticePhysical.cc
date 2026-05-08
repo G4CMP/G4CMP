@@ -53,7 +53,7 @@ G4LatticePhysical::G4LatticePhysical()
   : verboseLevel(0), fLattice(0), hMiller(0), kMiller(0), lMiller(0),
     fRot(0.), fTemperature(-1.), fPolycrystalElasticScatteringMFP(DBL_MAX),
     fSCDelta0(0.), fSCTcrit(0.), fSCTeff(0.), fSCDn(0.),
-    fSCQPLocalTrappingTau(DBL_MAX) {;}
+    fSCQPLocalTrappingTau(DBL_MAX), fSCQPDiffusionStepTau(DBL_MAX) {;}
 
 // Set lattice orientation (relative to G4VSolid) with Miller indices
 
@@ -61,7 +61,8 @@ G4LatticePhysical::G4LatticePhysical(const G4LatticeLogical* Lat,
 				     G4int h, G4int k, G4int l, G4double rot)
   : verboseLevel(0), fLattice(Lat), fTemperature(-1.),
     fPolycrystalElasticScatteringMFP(DBL_MAX), fSCDelta0(0.), fSCTcrit(0.),
-    fSCTeff(0.), fSCDn(0.), fSCQPLocalTrappingTau(DBL_MAX) {
+    fSCTeff(0.), fSCDn(0.), fSCQPLocalTrappingTau(DBL_MAX),
+    fSCQPDiffusionStepTau(DBL_MAX) {
 
   //Use the set delta0 to set a Tcrit via BCS
   
@@ -73,15 +74,17 @@ G4LatticePhysical::G4LatticePhysical(const G4LatticeLogical* Lat,
 // of the lattice without requiring the h, k, l, and rot parameters
 
 G4LatticePhysical::G4LatticePhysical(const G4LatticeLogical* Lat,
-				     G4double polycrystalElasticScatteringMFP,
-				     G4double scDelta0, G4double scTeff,
-				     G4double scDn,
-				     G4double scQPLocalTrappingTau,
-				     G4int h, G4int k, G4int l, G4double rot)
+                                     G4double polycrystalElasticScatteringMFP,
+                                     G4double scDelta0, G4double scTeff,
+                                     G4double scDn,
+                                     G4double scQPLocalTrappingTau,
+                                     G4double scQPDiffusionStepTau,
+                                     G4int h, G4int k, G4int l, G4double rot)
   : verboseLevel(0), fLattice(Lat), fTemperature(-1.),
     fPolycrystalElasticScatteringMFP(polycrystalElasticScatteringMFP),
     fSCDelta0(scDelta0), fSCTcrit(scDelta0 / CLHEP::k_Boltzmann / 1.764),    
-    fSCTeff(scTeff), fSCDn(scDn), fSCQPLocalTrappingTau(scQPLocalTrappingTau) {
+    fSCTeff(scTeff), fSCDn(scDn), fSCQPLocalTrappingTau(scQPLocalTrappingTau),
+    fSCQPDiffusionStepTau(scQPDiffusionStepTau){
 
   //Use the set delta0 to set a Tcrit via BCS
   
