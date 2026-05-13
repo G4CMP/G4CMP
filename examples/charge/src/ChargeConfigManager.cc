@@ -12,6 +12,7 @@
 //		changed via macro commands (see ChargeConfigMessenger).
 //
 // 20170816  M. Kelsey -- Extract hit filename from G4CMPConfigManager.
+// 20260513  G4CMP-604 -- Add surface property UI commands to charge example.
 
 #include "ChargeConfigManager.hh"
 #include "ChargeConfigMessenger.hh"
@@ -35,6 +36,8 @@ ChargeConfigManager::ChargeConfigManager()
     EPot_file(getenv("G4CMP_EPOT_FILE")?getenv("G4CMP_EPOT_FILE"):""),
     Hit_file(getenv("G4CMP_HIT_FILE")?getenv("G4CMP_HIT_FILE"):"charge_hits.txt"),
     millerH(0), millerK(0), millerL(0),
+    chargeAbsorbProb(getenv("G4CMP_CHARGE_ABSORB")?strtod(getenv("G4CMP_CHARGE_ABSORB"),0):1e-5),
+    specularReflectProb(getenv("G4CMP_SPECULAR_REFLECT")?strtod(getenv("G4CMP_SPECULAR_REFLECT"),0):0.5),
     messenger(new ChargeConfigMessenger(this)) {;}
 
 ChargeConfigManager::~ChargeConfigManager() {
@@ -46,4 +49,26 @@ ChargeConfigManager::~ChargeConfigManager() {
 
 void ChargeConfigManager::UpdateGeometry() {
   G4RunManager::GetRunManager()->ReinitializeGeometry(true);
+}
+
+// Getters (static access for convenience, like other params)
+
+G4double ChargeConfigManager::GetChargeAbsorbProb() {
+  return Instance()->chargeAbsorbProb;
+}
+
+G4double ChargeConfigManager::GetSpecularReflectProb() {
+  return Instance()->specularReflectProb;
+}
+
+// Setters (update geometry so changes take effect on re-initialization)
+
+void ChargeConfigManager::SetChargeAbsorbProb(G4double val) {
+  chargeAbsorbProb = val;
+  UpdateGeometry();
+}
+
+void ChargeConfigManager::SetSpecularReflectProb(G4double val) {
+  specularReflectProb = val;
+  UpdateGeometry();
 }
