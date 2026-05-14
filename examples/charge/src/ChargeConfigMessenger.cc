@@ -89,4 +89,3 @@ void ChargeConfigMessenger::SetNewValue(G4UIcommand* cmd, G4String value) {
   if (cmd == specularCmd)
     theManager->SetSpecularReflectProb(specularCmd->GetNewDoubleValue(value));
 }
-}
