@@ -50,25 +50,3 @@ ChargeConfigManager::~ChargeConfigManager() {
 void ChargeConfigManager::UpdateGeometry() {
   G4RunManager::GetRunManager()->ReinitializeGeometry(true);
 }
-
-// Getters (static access for convenience, like other params)
-
-G4double ChargeConfigManager::GetChargeAbsorbProb() {
-  return Instance()->chargeAbsorbProb;
-}
-
-G4double ChargeConfigManager::GetSpecularReflectProb() {
-  return Instance()->specularReflectProb;
-}
-
-// Setters (update geometry so changes take effect on re-initialization)
-
-void ChargeConfigManager::SetChargeAbsorbProb(G4double val) {
-  chargeAbsorbProb = val;
-  UpdateGeometry();
-}
-
-void ChargeConfigManager::SetSpecularReflectProb(G4double val) {
-  specularReflectProb = val;
-  UpdateGeometry();
-}

@@ -49,9 +49,9 @@ ChargeDetectorConstruction::ChargeDetectorConstruction() :
   latManager(G4LatticeManager::GetLatticeManager()),
   fEMField(nullptr), liquidHelium(nullptr), germanium(nullptr),
   aluminum(nullptr), tungsten(nullptr), worldPhys(nullptr),
-  zipThickness(2.54*cm), epotScale(0.), voltage(0.), constructed(false),
-  epotFileName(""), outputFileName(""),
-  chargeAbsorbProb(0.), specularReflectProb(0.)
+  zipThickness(2.54*cm), epotScale(0.), voltage(0.),
+  chargeAbsorbProb(0.), specularReflectProb(0.),
+  constructed(false), epotFileName(""), outputFileName("")
 {
   /* Default initialization does not leave object in usable state.
    * Doesn't matter because run initialization will call Construct() and all
