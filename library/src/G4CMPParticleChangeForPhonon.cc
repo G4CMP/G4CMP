@@ -13,6 +13,8 @@
 // 20251116 For G4 11, explicitly remove the copy operators to match base.
 // 20251128 Discard touchable contents after updating.
 // 20260212 G4CMP-585 Only discard touchable if it was modified (fix mem leak)
+// 20260212 G4CMP-560 Reset touchable handle regardless of
+// updateVol value in UpdateStepForPostStep
 
 #include "G4CMPParticleChangeForPhonon.hh"
 #include "G4VTouchable.hh"
@@ -48,6 +50,7 @@ G4Step* G4CMPParticleChangeForPhonon::UpdateStepForPostStep(G4Step* pStep) {
     theTouchableHandle = 0;
     updateVol = false;
   }
+  else theTouchableHandle = 0;
 
   // Call base class function
   return G4ParticleChange::UpdateStepForPostStep(pStep);
