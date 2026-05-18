@@ -48,6 +48,7 @@ G4Step* G4CMPParticleChangeForPhonon::UpdateStepForPostStep(G4Step* pStep) {
     theTouchableHandle = 0;
     updateVol = false;
   }
+  else theTouchableHandle = 0;
 
   // Call base class function
   return G4ParticleChange::UpdateStepForPostStep(pStep);
