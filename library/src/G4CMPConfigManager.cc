@@ -174,7 +174,8 @@ G4CMPConfigManager::G4CMPConfigManager(const G4CMPConfigManager& master)
     recordMinE(master.recordMinE), nielPartition(master.nielPartition),
     Empklow(master.Empklow), Empkhigh(master.Empkhigh),
     EmpElow(master.EmpElow), EmpEhigh(master.EmpEhigh),
-    EmpEDepK(master.EmpEDepK), EmpkFixed(master.EmpkFixed), minGenParticles(master.minGenParticles),
+    EmpEDepK(master.EmpEDepK), EmpkFixed(master.EmpkFixed),
+    minGenParticles(master.minGenParticles),
     messenger(new G4CMPConfigMessenger(this)) {;}
 
 
