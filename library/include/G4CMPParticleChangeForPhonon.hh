@@ -14,6 +14,7 @@
 //		missing copy operations, may be needed
 // 20251116 For G4 11, explicitly remove the copy operators to match base.
 // 20251128 Implement empty destructor to avoid deleting G4TouchableHandle.
+// 20260520 Explicitly initialize the G4TouchableHandle to zero in ctor.
 
 #ifndef G4CMPParticleChangeForPhonon_hh
 #define G4CMPParticleChangeForPhonon_hh 1
@@ -24,8 +25,11 @@
 
 class G4CMPParticleChangeForPhonon final : public G4ParticleChange {
 public:
-  G4CMPParticleChangeForPhonon() : G4ParticleChange() {;}
-  virtual ~G4CMPParticleChangeForPhonon() override = default;
+  G4CMPParticleChangeForPhonon() : G4ParticleChange() {
+    theTouchableHandle=0;
+  }
+  
+  virtual ~G4CMPParticleChangeForPhonon() {;}
 
   // ParticleChange cannot be copied
   G4CMPParticleChangeForPhonon(const G4CMPParticleChangeForPhonon& right) = delete;
