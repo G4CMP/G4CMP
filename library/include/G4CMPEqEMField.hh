@@ -81,8 +81,6 @@ private:
   G4int valleyIndex;			// Index of current valley (-1 if none)
 
   G4bool isG4CMPChargeCarrier;  // Is a G4CMP particle (hole or electron)?
-  mutable G4double nonParE;     // non-parabolic expression 1+2*alpha*E
-
 
   G4AffineTransform fLocalToGlobal;	// Local vs. global coordinates
   G4AffineTransform fGlobalToLocal;
