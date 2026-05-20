@@ -46,6 +46,7 @@
 // 20250523  Add MakePhononThetaIV for IV phonon emission angle.
 // 20250814  Add UpdatePhononWavevector() to update phonon wavevector and Vg.
 // 20251116  For G4 11, use #include "G4VTouchable.hh"
+// 20260520  Add speed of sound as argument for MakePhononEnergy.
 
 #ifndef G4CMPProcessUtils_hh
 #define G4CMPProcessUtils_hh 1

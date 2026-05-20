@@ -12,6 +12,7 @@
 // 20170913  Check for electric field; compute "rate" to get up to Vsound
 // 20170917  Add interface for threshold identification
 // 20240207  Replacing wave vector with speed to Emission calculations
+// 20260520  Make Luke scattering rate non-parabolic. 
 
 #include "G4CMPLukeEmissionRate.hh"
 #include "G4CMPGeometryUtils.hh"

@@ -46,6 +46,7 @@
 // 20250223  G4CMP-462 -- Restore use of G4CMP_DEBUG flag to hide changes to
 //		lattice verbosity, which causes a data race.
 // 20250508  G4CMP-480 -- Pass global phonon wavevector to CreatePhonon.
+// 20260520  Make Luke scattering PostStepDoIt non-parabolic. 
 
 #include "G4CMPLukeScattering.hh"
 #include "G4CMPConfigManager.hh"
