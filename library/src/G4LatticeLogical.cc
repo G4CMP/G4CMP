@@ -523,7 +523,6 @@ G4LatticeLogical::MapV_elToP(G4int ivalley, const G4ThreeVector& v_e) const {
     else {
         return GetElectronMass()*c_light*v_e;
     }
-    
 }
 
 G4ThreeVector 
@@ -552,7 +551,6 @@ G4LatticeLogical::MapPToP_Q(G4int ivalley, const G4ThreeVector& P) const {
         G4double nonParE = GetNonParabolicity(MapPtoEkin(ivalley,P));
         return nToV*(GetMassTensor()*(vToN*P*nonParE/GetElectronMass()));
     }
-
 }
 
 G4ThreeVector 
@@ -589,7 +587,6 @@ G4LatticeLogical::MapP_QToP(G4int ivalley, const G4ThreeVector& P_Q) const {
     else {
         return nToV*(GetMInvTensor()*(vToN*P_Q/nonParE*GetElectronMass()));
     }
-
 }
 
 G4ThreeVector
@@ -702,7 +699,6 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
             *(1-1/nonParE/nonParE ) )/(bandP));
       return pdir.unit()*PMag;
     }
-  
 }
 
 G4double  
@@ -742,8 +738,6 @@ G4LatticeLogical::MapPtoEkin(G4int iv, const G4ThreeVector& p) const {
         G4double nonParE = bandP*2*GetAlpha()/GetElectronMass()/GetElectronMass()/c_squared;
         return (sqrt(1/(1-nonParE)) -1)/2/GetAlpha();
     }
-
-
 }
 
 G4double
@@ -766,7 +760,6 @@ G4LatticeLogical::GetElectronEffectiveMass(G4int iv,
     G4cout << "G4LatticeLogical::GetElectronEffectiveMass " << iv
 	   << " " << p << " p2 = " << p.mag2() << G4endl;
 #endif
-
   G4double Ekin = MapPtoEkin(iv, p);
   // return p.mag2()/(2*c_squared*Ekin);		// Non-relativistic
   return (p.mag2()-Ekin*Ekin)/(2.*Ekin*c_squared);	// Relativistic

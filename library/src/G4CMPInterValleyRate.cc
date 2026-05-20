@@ -103,7 +103,6 @@ G4double G4CMPInterValleyRate::Rate(const G4Track& aTrack) const {
          }
 
         Efunc = energyFunc1st(qmax,qmin);
-
     }
 
     ivrate = scale * Efunc;
