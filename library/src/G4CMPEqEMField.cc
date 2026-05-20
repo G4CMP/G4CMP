@@ -112,7 +112,7 @@ void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
 }
 
   // No lattice behaviour, just use base class
-  else if (fCharge == -1) {
+  else if (fCharge == 1) {
     G4EqMagElectricField::EvaluateRhsGivenB(y, field, dydx);
     return;
   }
