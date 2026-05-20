@@ -482,15 +482,15 @@ G4LatticeLogical::MapPtoV_el(G4int ivalley, const G4ThreeVector& p_e) const {
     G4cout << "G4LatticeLogical::MapPtoV_el " << ivalley << " " << p_e << G4endl;
 #endif
 
-    // parabolic
-    if (fAlpha*eV == 0) {
-        return p_e*c_light/(MapPtoEkin(ivalley,p_e) + GetElectronMass()*c_squared);
-    }
+  // parabolic
+  if (fAlpha*eV == 0) {
+    return p_e*c_light/(MapPtoEkin(ivalley,p_e) + GetElectronMass()*c_squared);
+  }
 
-     // non-parabolic
-    else {
-        return p_e/ (GetElectronMass()*c_light);
-    }    
+  // non-parabolic
+  else {
+    return p_e/ (GetElectronMass()*c_light);
+  }    
 }
 
 G4ThreeVector 
@@ -514,15 +514,15 @@ G4LatticeLogical::MapV_elToP(G4int ivalley, const G4ThreeVector& v_e) const {
   }
 #endif
 
-    // parabolic
-    if (fAlpha*eV == 0) {
-        return gamma*GetElectronMass()*c_light*v_e;
-    }
+  // parabolic
+  if (fAlpha*eV == 0) {
+    return gamma*GetElectronMass()*c_light*v_e;
+  }
 
-     // non-parabolic
-    else {
-        return GetElectronMass()*c_light*v_e;
-    }
+  // non-parabolic
+  else {
+    return GetElectronMass()*c_light*v_e;
+  }
 }
 
 G4ThreeVector 
@@ -541,16 +541,16 @@ G4LatticeLogical::MapPToP_Q(G4int ivalley, const G4ThreeVector& P) const {
     G4cout << " P_Q " << nToV*(GetMassTensor()*(vToN*P*c_squared/electron_mass_c2)) << G4endl;
 #endif
 
-    // parabolic
-    if (fAlpha*eV == 0) {
-        return nToV*(GetMassTensor()*(vToN*P/GetElectronMass()));
-    }
+  // parabolic
+  if (fAlpha*eV == 0) {
+    return nToV*(GetMassTensor()*(vToN*P/GetElectronMass()));
+  }
 
-     // non-parabolic
-    else {
-        G4double nonParE = GetNonParabolicity(MapPtoEkin(ivalley,P));
-        return nToV*(GetMassTensor()*(vToN*P*nonParE/GetElectronMass()));
-    }
+  // non-parabolic
+  else {
+    G4double nonParE = GetNonParabolicity(MapPtoEkin(ivalley,P));
+    return nToV*(GetMassTensor()*(vToN*P*nonParE/GetElectronMass()));
+  }
 }
 
 G4ThreeVector 
@@ -578,15 +578,15 @@ G4LatticeLogical::MapP_QToP(G4int ivalley, const G4ThreeVector& P_Q) const {
 
   G4double nonParE = sqrt(GetNonParabolicity(bandP));
 
-    // parabolic
-    if (fAlpha*eV == 0) {
-        return nToV*(GetMInvTensor()*(vToN*P_Q*GetElectronMass()));
-    }
+  // parabolic
+  if (fAlpha*eV == 0) {
+   return nToV*(GetMInvTensor()*(vToN*P_Q*GetElectronMass()));
+  }
 
-     // non-parabolic
-    else {
-        return nToV*(GetMInvTensor()*(vToN*P_Q/nonParE*GetElectronMass()));
-    }
+  // non-parabolic
+  else {
+    return nToV*(GetMInvTensor()*(vToN*P_Q/nonParE*GetElectronMass()));
+  }
 }
 
 G4ThreeVector
@@ -675,30 +675,30 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
   }
 #endif
 
-    // parabolic
-    if (fAlpha*eV == 0) {
-      tempvec() = pdir;
-      tempvec().transform(GetValley(iv));
-      bandP = (fMassTensor.xx()*tempvec().x()*tempvec().x() +
-        fMassTensor.yy()*tempvec().y()*tempvec().y() +
-        fMassTensor.zz()*tempvec().z()*tempvec().z());
-      PMag = sqrt(GetElectronMass()
-        *(Ekin*Ekin+2.*Ekin*GetElectronMass()*c_squared)/(bandP));
-      return pdir*PMag;
-    }
+  // parabolic
+  if (fAlpha*eV == 0) {
+    tempvec() = pdir;
+    tempvec().transform(GetValley(iv));
+    bandP = (fMassTensor.xx()*tempvec().x()*tempvec().x() +
+      fMassTensor.yy()*tempvec().y()*tempvec().y() +
+      fMassTensor.zz()*tempvec().z()*tempvec().z());
+    PMag = sqrt(GetElectronMass()
+      *(Ekin*Ekin+2.*Ekin*GetElectronMass()*c_squared)/(bandP));
+    return pdir*PMag;
+  }
 
-     // non-parabolic
-    else {
-      tempvec() = pdir.unit();
-      tempvec().transform(GetValley(iv));
-      bandP = (fMassTensor.xx()*tempvec().x()*tempvec().x() +
-       fMassTensor.yy()*tempvec().y()*tempvec().y() +
-       fMassTensor.zz()*tempvec().z()*tempvec().z());
-      G4double nonParE = GetNonParabolicity(Ekin);
-      PMag = sqrt((GetElectronMass()*GetElectronMass()/2/GetAlpha()*c_squared
-            *(1-1/nonParE/nonParE ) )/(bandP));
-      return pdir.unit()*PMag;
-    }
+  // non-parabolic
+  else {
+    tempvec() = pdir.unit();
+    tempvec().transform(GetValley(iv));
+    bandP = (fMassTensor.xx()*tempvec().x()*tempvec().x() +
+      fMassTensor.yy()*tempvec().y()*tempvec().y() +
+      fMassTensor.zz()*tempvec().z()*tempvec().z());
+    G4double nonParE = GetNonParabolicity(Ekin);
+    PMag = sqrt((GetElectronMass()*GetElectronMass()/2/GetAlpha()*c_squared
+      *(1-1/nonParE/nonParE ) )/(bandP));
+    return pdir.unit()*PMag;
+  }
 }
 
 G4double  
@@ -727,17 +727,17 @@ G4LatticeLogical::MapPtoEkin(G4int iv, const G4ThreeVector& p) const {
   }
 #endif
 
-    // parabolic
-    if (fAlpha*eV == 0) {
-        G4double Kin = sqrt(bandP/GetElectronMass() + GetElectronMass()*c_squared*GetElectronMass()*c_squared) - GetElectronMass()*c_squared;
-        return Kin;
-    }
+  // parabolic
+  if (fAlpha*eV == 0) {
+    G4double Kin = sqrt(bandP/GetElectronMass() + GetElectronMass()*c_squared*GetElectronMass()*c_squared) - GetElectronMass()*c_squared;
+    return Kin;
+  }
 
-     // non-parabolic
-    else {
-        G4double nonParE = bandP*2*GetAlpha()/GetElectronMass()/GetElectronMass()/c_squared;
-        return (sqrt(1/(1-nonParE)) -1)/2/GetAlpha();
-    }
+  // non-parabolic
+  else {
+    G4double nonParE = bandP*2*GetAlpha()/GetElectronMass()/GetElectronMass()/c_squared;
+    return (sqrt(1/(1-nonParE)) -1)/2/GetAlpha();
+  }
 }
 
 G4double

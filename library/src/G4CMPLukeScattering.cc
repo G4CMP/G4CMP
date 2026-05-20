@@ -211,7 +211,7 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
 
     if (IsElectron()) {
       q*=1/(1-2*theLattice->GetAlpha()*theLattice->GetElectronDOSMass()*
-          vsound*vsound);
+        vsound*vsound);
     }
 
     if (verboseLevel > 1) {
