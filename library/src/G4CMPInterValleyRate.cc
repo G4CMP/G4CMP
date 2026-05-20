@@ -110,8 +110,10 @@ G4double G4CMPInterValleyRate::Rate(const G4Track& aTrack) const {
     totalIVRate += ivrate;
   }
 
-  if (verboseLevel>2) G4cout << "IV scattering rate :  " 
-    << totalIVRate/hertz << " Hz" << G4endl;
+  if (verboseLevel>2) {
+    G4cout << "IV scattering rate :  " 
+           << totalIVRate/hertz << " Hz" << G4endl;
+  }
     
   return totalIVRate;
 }

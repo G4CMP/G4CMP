@@ -505,7 +505,8 @@ G4LatticeLogical::MapV_elToP(G4int ivalley, const G4ThreeVector& v_e) const {
   G4double bandV = (fMassTensor.xx()*tempvec().x()*tempvec().x() +
   fMassTensor.yy()*tempvec().y()*tempvec().y() +
   fMassTensor.zz()*tempvec().z()*tempvec().z());
-  G4double gamma = 1/sqrt(1-bandV/(GetElectronMass()*c_squared));
+  // Check for parabolic or non parabolic case
+  G4double gamma = (fAlpha != 0) ? 1 : 1/sqrt(1-bandV/(GetElectronMass()*c_squared));
 
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) {
@@ -514,15 +515,8 @@ G4LatticeLogical::MapV_elToP(G4int ivalley, const G4ThreeVector& v_e) const {
   }
 #endif
 
-  // parabolic
-  if (fAlpha*eV == 0) {
-    return gamma*GetElectronMass()*c_light*v_e;
-  }
+  return gamma*GetElectronMass()*c_light*v_e;
 
-  // non-parabolic
-  else {
-    return GetElectronMass()*c_light*v_e;
-  }
 }
 
 G4ThreeVector 
@@ -541,16 +535,9 @@ G4LatticeLogical::MapPToP_Q(G4int ivalley, const G4ThreeVector& P) const {
     G4cout << " P_Q " << nToV*(GetMassTensor()*(vToN*P*c_squared/electron_mass_c2)) << G4endl;
 #endif
 
-  // parabolic
-  if (fAlpha*eV == 0) {
-    return nToV*(GetMassTensor()*(vToN*P/GetElectronMass()));
-  }
-
-  // non-parabolic
-  else {
-    G4double nonParE = GetNonParabolicity(MapPtoEkin(ivalley,P));
-    return nToV*(GetMassTensor()*(vToN*P*nonParE/GetElectronMass()));
-  }
+  // Check for parabolic or non parabolic case
+  G4double nonParE = (fAlpha != 0) ? GetNonParabolicity(MapPtoEkin(ivalley,P)) : 1.;
+  return nToV*(GetMassTensor()*(vToN*P*nonParE/GetElectronMass()));
 }
 
 G4ThreeVector 
@@ -576,17 +563,9 @@ G4LatticeLogical::MapP_QToP(G4int ivalley, const G4ThreeVector& P_Q) const {
     fMassInverse.yy()*tempvec2.y()*tempvec2.y() +
     fMassInverse.zz()*tempvec2.z()*tempvec2.z());
 
-  G4double nonParE = sqrt(GetNonParabolicity(bandP));
-
-  // parabolic
-  if (fAlpha*eV == 0) {
-   return nToV*(GetMInvTensor()*(vToN*P_Q*GetElectronMass()));
-  }
-
-  // non-parabolic
-  else {
-    return nToV*(GetMInvTensor()*(vToN*P_Q/nonParE*GetElectronMass()));
-  }
+  // Check for parabolic or non parabolic case
+  G4double nonParE = (fAlpha != 0) ? sqrt(GetNonParabolicity(bandP)) : 1.;
+  return nToV*(GetMInvTensor()*(vToN*P_Q/nonParE*GetElectronMass()));
 }
 
 G4ThreeVector
@@ -674,14 +653,15 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
     << " returning P " << pdir*PMag << G4endl;
   }
 #endif
+  // Check for parabolic or non parabolic case
+  tempvec() = (fAlpha != 0) ? pdir.unit() : pdir;
+  tempvec().transform(GetValley(iv));
+  bandP = (fMassTensor.xx()*tempvec().x()*tempvec().x() +
+    fMassTensor.yy()*tempvec().y()*tempvec().y() +
+    fMassTensor.zz()*tempvec().z()*tempvec().z());
 
   // parabolic
   if (fAlpha*eV == 0) {
-    tempvec() = pdir;
-    tempvec().transform(GetValley(iv));
-    bandP = (fMassTensor.xx()*tempvec().x()*tempvec().x() +
-      fMassTensor.yy()*tempvec().y()*tempvec().y() +
-      fMassTensor.zz()*tempvec().z()*tempvec().z());
     PMag = sqrt(GetElectronMass()
       *(Ekin*Ekin+2.*Ekin*GetElectronMass()*c_squared)/(bandP));
     return pdir*PMag;
@@ -689,11 +669,6 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
 
   // non-parabolic
   else {
-    tempvec() = pdir.unit();
-    tempvec().transform(GetValley(iv));
-    bandP = (fMassTensor.xx()*tempvec().x()*tempvec().x() +
-      fMassTensor.yy()*tempvec().y()*tempvec().y() +
-      fMassTensor.zz()*tempvec().z()*tempvec().z());
     G4double nonParE = GetNonParabolicity(Ekin);
     PMag = sqrt((GetElectronMass()*GetElectronMass()/2/GetAlpha()*c_squared
       *(1-1/nonParE/nonParE ) )/(bandP));
@@ -726,18 +701,19 @@ G4LatticeLogical::MapPtoEkin(G4int iv, const G4ThreeVector& p) const {
 	   << G4endl;
   }
 #endif
+  G4double emc2 = GetElectronMass()*c_squared;
+  G4double esq = emc2*emc2;
+  G4double Kin = 0.;
 
-  // parabolic
-  if (fAlpha*eV == 0) {
-    G4double Kin = sqrt(bandP/GetElectronMass() + GetElectronMass()*c_squared*GetElectronMass()*c_squared) - GetElectronMass()*c_squared;
-    return Kin;
-  }
+  // Check for parabolic or non parabolic case
+  if (fAlpha > 0) {
+    G4double nonParE = bandP*2*fAlpha/esq*c_squared;
+    Kin = (sqrt(1/(1-nonParE)) - 1.) / (2*fAlpha);
+  } else {
+    Kin = sqrt(bandP/GetElectronMass() + esq) - emc2; 
+   }
 
-  // non-parabolic
-  else {
-    G4double nonParE = bandP*2*GetAlpha()/GetElectronMass()/GetElectronMass()/c_squared;
-    return (sqrt(1/(1-nonParE)) -1)/2/GetAlpha();
-  }
+  return Kin;
 }
 
 G4double
@@ -1074,6 +1050,10 @@ void G4LatticeLogical::ComputeAverageSoundSpeed() {
 // Compute Luke Scattering rate scale
 
 void G4LatticeLogical::ComputeLukeScatteringRateScale_e() {
+
+  // Merging the physical parameters in front of the rate expression 
+  // for electrons in LukeScatteringRate into one constant so we 
+  // reduce the number of multiplication/division
   fLukeRateScale_e = fAcDeform_e*fAcDeform_e*GetElectronDOSMass()*
       GetElectronDOSMass()/GetElectronMass()/12/pi/hbar_Planck/
       hbar_Planck/fDensity/GetAverageSoundSpeed();

@@ -210,8 +210,8 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
     q = 2*(kmag*cos(theta_phonon)-kSound);
 
     if (IsElectron()) {
-      q*=1/(1-2*theLattice->GetAlpha()*theLattice->GetElectronDOSMass()*
-        vsound*vsound);
+      G4double alpham = theLattice->GetAlpha()*theLattice->GetElectronDOSMass();
+      q /=1-2*alpham*vsound*vsound;
     }
 
     if (verboseLevel > 1) {

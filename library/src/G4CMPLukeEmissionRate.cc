@@ -35,7 +35,8 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
     return 0.;
   }
 
-  G4double kSound = 0.; G4double mass = 0.; G4double l0 = 0.; G4double vsound = 0.; G4double kmag = 0.;
+  G4double kSound = 0.; G4double mass = 0.; G4double l0 = 0.; 
+  G4double vsound = 0.; G4double kmag = 0.;
   G4ThreeVector ktrk(0.);
   G4ThreeVector ptrk = GetLocalMomentum(aTrack);
   G4int iValley = GetValleyIndex(aTrack);
