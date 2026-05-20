@@ -104,7 +104,6 @@ void G4CMPEqEMField::SetChargeMomentumMass(G4ChargeState particleCharge,
 void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
 				       const G4double field[],
 				       G4double dydx[]) const {
-
   // No lattice behaviour, just use base class
   if (valleyIndex == -1) {
     G4EqMagElectricField::EvaluateRhsGivenB(y, field, dydx);
