@@ -647,12 +647,6 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
   G4double bandP = 0;
   G4double PMag = 0;
 
-#ifdef G4CMP_DEBUG
-  if (verboseLevel>1) {
-    G4cout << " <pdir|M|pdir> " << bandP << G4endl << " PMag " << PMag << G4endl 
-    << " returning P " << pdir*PMag << G4endl;
-  }
-#endif
   // Check for parabolic or non parabolic case
   tempvec() = (fAlpha != 0) ? pdir.unit() : pdir;
   tempvec().transform(GetValley(iv));
@@ -674,6 +668,18 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
       *(1-1/nonParE/nonParE ) )/(bandP));
     return pdir.unit()*PMag;
   }
+
+#ifdef G4CMP_DEBUG
+  if (verboseLevel > 1) {
+    G4cout << " <pdir|M|pdir> " << bandP << G4endl
+           << " PMag " << PMag << G4endl
+           << " returning P "
+           << ((fAlpha * eV == 0) ? pdir * PMag : pdir.unit() * PMag)
+           << G4endl;
+  }
+#endif
+ 
+  return (fAlpha * eV == 0) ? pdir * PMag : pdir.unit() * PMag;
 }
 
 G4double  
