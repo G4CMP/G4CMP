@@ -65,10 +65,10 @@ G4double G4CMPInterValleyRate::Rate(const G4Track& aTrack) const {
 
     // Is electron energy above IV Threshold?
     if (eTrk <= Emin_iv) {
-        IVprob.push_back(0.);
-        if (verboseLevel>2) {G4cout << "IV scattering rate :  "
+      IVprob.push_back(0.);
+      if (verboseLevel>2) {G4cout << "IV scattering rate :  " 
         << 0. << " Hz" << G4endl;}
-        continue;
+      continue;
     }
       
     G4double scale = 0.;		// IV rate constants
@@ -81,28 +81,28 @@ G4double G4CMPInterValleyRate::Rate(const G4Track& aTrack) const {
       
     // 0th order IV rate
     if (ivorder==0) {  
-        scale = m_DOS3half * nVal * D_iv*D_iv/ 
-            (sqrt(2)*pi*hbar_sq*density*Emin_iv);
-        Efunc = energyFunc0th(eTrk-Emin_iv);
+      scale = m_DOS3half * nVal * D_iv*D_iv/ 
+        (sqrt(2)*pi*hbar_sq*density*Emin_iv);
+      Efunc = energyFunc0th(eTrk-Emin_iv);
     }
       
     // 1st order IV rate
-    if (ivorder==1) {  
-        G4double qmax = kmag*(1+sqrt(1-alpha*Emin_iv*Emin_iv/eTrk-Emin_iv/eTrk*
-        (theLattice->GetNonParabolicity(eTrk))));		// max phonon momentum
-        G4double qmin = kmag*(1-sqrt(1- alpha*Emin_iv*Emin_iv/eTrk-Emin_iv/eTrk*
-        (theLattice->GetNonParabolicity(eTrk))));		// min phonon momentum
-        scale = m_DOS3half*m_DOS * nVal * D_iv*D_iv
+    if (ivorder==1) {
+      G4double qmax = kmag*(1+sqrt(1-alpha*Emin_iv*Emin_iv/eTrk-Emin_iv/eTrk*
+      (theLattice->GetNonParabolicity(eTrk))));		// max phonon momentum
+      G4double qmin = kmag*(1-sqrt(1- alpha*Emin_iv*Emin_iv/eTrk-Emin_iv/eTrk*
+      (theLattice->GetNonParabolicity(eTrk))));		// min phonon momentum
+      scale = m_DOS3half*m_DOS * nVal * D_iv*D_iv
         /(16*pi*hbar_Planck*density*theLattice->GetElectronMass()*
-            sqrt(theLattice->GetElectronMass())*Emin_iv*kmag)*
-            (theLattice->GetNonParabolicity(eTrk)-2*alpha*Emin_iv);
+        sqrt(theLattice->GetElectronMass())*Emin_iv*kmag)*
+        (theLattice->GetNonParabolicity(eTrk)-2*alpha*Emin_iv);
 
-        if (std::isnan(qmax)) {
-          qmax=0;
-          qmin=0;
-         }
+      if (std::isnan(qmax)) {
+        qmax=0;
+        qmin=0;
+      }
 
-        Efunc = energyFunc1st(qmax,qmin);
+      Efunc = energyFunc1st(qmax,qmin);
     }
 
     ivrate = scale * Efunc;
@@ -111,7 +111,7 @@ G4double G4CMPInterValleyRate::Rate(const G4Track& aTrack) const {
   }
 
   if (verboseLevel>2) G4cout << "IV scattering rate :  " 
-      << totalIVRate/hertz << " Hz" << G4endl;
+    << totalIVRate/hertz << " Hz" << G4endl;
     
   return totalIVRate;
 }
