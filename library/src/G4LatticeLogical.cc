@@ -482,15 +482,12 @@ G4LatticeLogical::MapPtoV_el(G4int ivalley, const G4ThreeVector& p_e) const {
     G4cout << "G4LatticeLogical::MapPtoV_el " << ivalley << " " << p_e << G4endl;
 #endif
 
-  // non-parabolic (alpha > 0)
+  // Check for parabolic or non parabolic case
   if (fAlpha > 0) {
     return p_e / (GetElectronMass() * c_light);
-  }
-  // parabolic (alpha == 0)
-  else {
+  } else {
     return p_e*c_light/(MapPtoEkin(ivalley, p_e) + GetElectronMass()*c_squared);
-  }
-
+   }
 
 }
 
@@ -653,30 +650,24 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
   G4double bandP = (fMassTensor.xx()*tempvec().x()*tempvec().x() +
     fMassTensor.yy()*tempvec().y()*tempvec().y() +
     fMassTensor.zz()*tempvec().z()*tempvec().z());
-
-  // non-parabolic
+    
+  // Check for parabolic or non parabolic case
   if (fAlpha > 0) {
     G4double nonParE = GetNonParabolicity(Ekin);
     PMag = sqrt((GetElectronMass()*GetElectronMass()/2/GetAlpha()*c_squared
       *(1-1/nonParE/nonParE ) )/(bandP));
-  }
-
-  // parabolic
-  else {
+  } else {
     PMag = sqrt(GetElectronMass()
       *(Ekin*Ekin+2.*Ekin*GetElectronMass()*c_squared)/(bandP));
-  }
+   }
 
 #ifdef G4CMP_DEBUG
-  if (verboseLevel > 1) {
-    G4cout << " <pdir|M|pdir> " << bandP << G4endl
-           << " PMag " << PMag << G4endl
-           << " returning P "
-           << pdir * PMag 
-           << G4endl;
+    if (verboseLevel>1) {
+    G4cout << " <pdir|M|pdir> " << bandP << G4endl << " PMag " << PMag << G4endl 
+    << " returning P " << pdir*PMag << G4endl;
   }
 #endif
- 
+
   return pdir*PMag;
 }
 
@@ -686,17 +677,17 @@ G4LatticeLogical::MapPtoEkin(G4int iv, const G4ThreeVector& p) const {
   if (verboseLevel>1)
     G4cout << "G4LatticeLogical::MapPtoEkin " << iv << " " << p << G4endl;
 #endif
-    
+
   tempvec() = p;
   tempvec().transform(GetValley(iv));		// Rotate to valley frame
-   
+
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) G4cout << " p (valley) " << tempvec() << G4endl;
 #endif
 
   G4double bandP = tempvec().x()*tempvec().x()*fMassTensor.xx() +
-      tempvec().y()*tempvec().y()*fMassTensor.yy() +
-      tempvec().z()*tempvec().z()*fMassTensor.zz();
+    tempvec().y()*tempvec().y()*fMassTensor.yy() +
+    tempvec().z()*tempvec().z()*fMassTensor.zz();
     
   G4double emc2 = GetElectronMass()*c_squared;
   G4double esq = emc2*emc2;
