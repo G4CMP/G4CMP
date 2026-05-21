@@ -54,7 +54,7 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
     G4double qmax = 2/(1-2*theLattice->GetAlpha()*theLattice->GetElectronDOSMass()*
       vsound*vsound)*(kmag-kSound);
     G4double rate = theLattice->GetElectronLukeRateScale()/kmag*qmax*qmax*qmax*
-      (theLattice->GetNonParabolicity(Etrk)-3/2*theLattice->GetAlpha()*
+      (theLattice->GetNonParabolicity(Etrk)-1.5*theLattice->GetAlpha()*
       hbar_Planck*vsound*qmax*sqrt(theLattice->GetElectronDOSMass()
       /theLattice->GetElectronMass()));
   return (kmag > kSound) ? rate : 0.;

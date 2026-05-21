@@ -27,7 +27,7 @@ valleyDir -1 1 1
 valleyDir -1 -1 1
 valleyDir 1 -1 1
 # Intervalley scattering (matrix elements) from Jacoboni & Reggiani
-alpha 0.3 /eV
+alpha 0 /eV
 acDeform_e 11 eV		# Cabrera et al., arxiv(1004.1233), 2010
 acDeform_h 3.4 eV
 ivPhononMode LA TA			# IV scattering phonon mode

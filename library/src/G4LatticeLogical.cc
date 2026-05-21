@@ -475,6 +475,31 @@ G4LatticeLogical::FindLookupBins(const G4ThreeVector& k,
 
 // Convert electron momentum to valley velocity, wavevector, and HV vector
 
+// Map functions must remain mutually consistent:
+// e.g. k -> E(k) -> v -> P -> k should recover
+// physically equivalent quantities at each step.
+//
+// This consistency requires deriving all quantities
+// directly from the full dispersion relation E(k):
+//
+//   parabolic / relativist :
+//   E(k*) = sqrt(ħ²k*² + m²c⁴) - mc²
+//   k* = sqrt(m/M] Tᵢ k
+//   v = (1/ħ) ∇ₖE(k*)
+//   P = γmc v
+//   PQ = ħk
+//   F = dP/dt
+//
+//   Non parabolic / non-relativist :
+//   E(k*) = (-1 + sqrt(1 - 4αK)) / (2α)
+//   K = ħ²k*² / (2mc)
+//   k* = sqrt(m/M] Tᵢ k
+//   v = (1/ħ) ∇ₖE(k*)
+//   P = mc v
+//     = (mc/ħ) ∇ₖE(k*)
+//   PQ = ħk
+//   F = dP/dt
+
 G4ThreeVector 
 G4LatticeLogical::MapPtoV_el(G4int ivalley, const G4ThreeVector& p_e) const {
 #ifdef G4CMP_DEBUG
@@ -482,7 +507,8 @@ G4LatticeLogical::MapPtoV_el(G4int ivalley, const G4ThreeVector& p_e) const {
     G4cout << "G4LatticeLogical::MapPtoV_el " << ivalley << " " << p_e << G4endl;
 #endif
 
-  // Check for parabolic or non parabolic case
+  // see comment at the beginning of Map functions section for
+  // the difference between parabolic and non parabolic case
   if (fAlpha > 0) {
     return p_e / (GetElectronMass() * c_light);
   } else {
@@ -502,7 +528,8 @@ G4LatticeLogical::MapV_elToP(G4int ivalley, const G4ThreeVector& v_e) const {
   G4double bandV = (fMassTensor.xx()*tempvec().x()*tempvec().x() +
   fMassTensor.yy()*tempvec().y()*tempvec().y() +
   fMassTensor.zz()*tempvec().z()*tempvec().z());
-  // Check for parabolic or non parabolic case
+  // see comment at the beginning of Map functions section for
+  // the difference between parabolic and non parabolic case
   G4double gamma = (fAlpha > 0) ? 1 : 1/sqrt(1-bandV/(GetElectronMass()*c_squared));
 
 #ifdef G4CMP_DEBUG
@@ -525,8 +552,8 @@ G4LatticeLogical::MapPToP_Q(G4int ivalley, const G4ThreeVector& P) const {
 
   const G4RotationMatrix& vToN = GetValley(ivalley);
   const G4RotationMatrix& nToV = GetValleyInv(ivalley);
-  // Check for parabolic or non parabolic case
-  G4double nonParE = (fAlpha > 0) ? GetNonParabolicity(MapPtoEkin(ivalley,P)) : 1.;
+
+  G4double nonParE = GetNonParabolicity(MapPtoEkin(ivalley,P));
     
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) 
@@ -554,8 +581,7 @@ G4LatticeLogical::MapP_QToP(G4int ivalley, const G4ThreeVector& P_Q) const {
     fMassInverse.yy()*tempvec2.y()*tempvec2.y() +
     fMassInverse.zz()*tempvec2.z()*tempvec2.z());
 
-  // Check for parabolic or non parabolic case
-  G4double nonParE = (fAlpha > 0) ? sqrt(GetNonParabolicity(bandP)) : 1.;
+  G4double nonParE = sqrt(GetNonParabolicity(bandP));
 
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) 
@@ -649,7 +675,8 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
     fMassTensor.yy()*tempvec().y()*tempvec().y() +
     fMassTensor.zz()*tempvec().z()*tempvec().z());
     
-  // Check for parabolic or non parabolic case
+  // see comment at the beginning of Map functions section for
+  // the difference between parabolic and non parabolic case
   if (fAlpha > 0) {
     G4double nonParE = GetNonParabolicity(Ekin);
     PMag = sqrt((GetElectronMass()*GetElectronMass()/2/GetAlpha()*c_squared
@@ -691,7 +718,8 @@ G4LatticeLogical::MapPtoEkin(G4int iv, const G4ThreeVector& p) const {
   G4double esq = emc2*emc2;
   G4double Kin = 0.;
 
-  // Check for parabolic or non parabolic case
+  // see comment at the beginning of Map functions section for 
+  // the difference between parabolic and non parabolic case
   if (fAlpha > 0) {
     G4double nonParE = bandP*2*fAlpha/esq*c_squared;
     Kin = (sqrt(1/(1-nonParE)) - 1.) / (2*fAlpha);
