@@ -57,7 +57,6 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
       (theLattice->GetNonParabolicity(Etrk)-3/2*theLattice->GetAlpha()*
       hbar_Planck*vsound*qmax*sqrt(theLattice->GetElectronDOSMass()
       /theLattice->GetElectronMass()));
-
   return (kmag > kSound) ? rate : 0.;
 
     // The l0 in configuration file is calculated using the density of states mass
