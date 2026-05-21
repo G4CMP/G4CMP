@@ -488,7 +488,6 @@ G4LatticeLogical::MapPtoV_el(G4int ivalley, const G4ThreeVector& p_e) const {
   } else {
     return p_e*c_light/(MapPtoEkin(ivalley, p_e) + GetElectronMass()*c_squared);
    }
-
 }
 
 G4ThreeVector 
@@ -514,7 +513,6 @@ G4LatticeLogical::MapV_elToP(G4int ivalley, const G4ThreeVector& v_e) const {
 #endif
 
   return gamma*GetElectronMass()*c_light*v_e;
-
 }
 
 G4ThreeVector 

@@ -254,6 +254,7 @@ public:
   G4double MakePhononTheta(G4double k, G4double ks) const;
   G4double MakePhononEnergy(G4double k, G4double ks, G4double th_phonon, 
                             G4double vsound) const;
+  //vsound should be average of all modes for electrons, longitudinal only for holes
   G4double MakePhononEnergy(G4double q, G4double vsound) const;
     
   // Generate direction angle for phonon generated in IV scattering
