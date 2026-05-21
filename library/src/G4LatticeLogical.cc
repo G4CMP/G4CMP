@@ -687,7 +687,7 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
    }
 
 #ifdef G4CMP_DEBUG
-    if (verboseLevel>1) {
+  if (verboseLevel>1) {
     G4cout << " <pdir|M|pdir> " << bandP << G4endl << " PMag " << PMag << G4endl 
     << " returning P " << pdir*PMag << G4endl;
   }
