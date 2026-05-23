@@ -69,6 +69,7 @@
 // 20260428  G4CMP-596 -- Avoid generating charge pairs when energy is zero.
 // 20260428  G4CMP-598 -- Use nParticlesMinimum as floor value for
 //	       nPairsGen/nPhononsGen in GenerateCharges()/GeneratePhonons().
+// 20260523  G4CMP-608 -- Address compiler warnings with nParticlesMinimum.
 
 #include "G4CMPEnergyPartition.hh"
 #include "G4CMPChargeCloud.hh"
@@ -122,8 +123,8 @@ G4CMPEnergyPartition::G4CMPEnergyPartition(G4Material* mat,
 					   G4LatticePhysical* lat)
   : G4CMPProcessUtils(), verboseLevel(G4CMPConfigManager::GetVerboseLevel()),
     fillSummaryData(false), material(mat), biasVoltage(0.), 
-    holeFraction(0.5), nParticlesMinimum(G4CMPConfigManager::GetMinGenParticles()),
-    applyDownsampling(true), cloud(new G4CMPChargeCloud),
+    holeFraction(0.5), applyDownsampling(true), cloud(new G4CMPChargeCloud),
+    nParticlesMinimum(G4CMPConfigManager::GetMinGenParticles()),
     nPairsTrue(0), nPairsGen(0), chargeEnergyLeft(0.),
     nPhononsTrue(0), nPhononsGen(0), phononEnergyLeft(0.),
     summary(0) {
@@ -489,7 +490,7 @@ void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
 
   // Only apply downsampling to sufficiently large statistics
   G4double scale = G4CMPConfigManager::GetGenCharges();
-  if (scale>0. && (G4int)nPairsTrue <= nParticlesMinimum) scale = 1.;
+  if (scale>0. && nPairsTrue <= nParticlesMinimum) scale = 1.;
 
   if (verboseLevel>1) {
     G4cout << " nPairs " << nPairsTrue << " ==> ePair " << ePair/eV << " eV"
@@ -570,7 +571,7 @@ void G4CMPEnergyPartition::GeneratePhonons(G4double energy) {
   // Only apply downsampling to sufficiently large statistics
   G4double scale = G4CMPConfigManager::GetGenPhonons();
 
-  if (scale>0. && (G4int)nPhononsTrue <= nParticlesMinimum) scale = 1.;
+  if (scale>0. && nPhononsTrue <= nParticlesMinimum) scale = 1.;
 
   if (verboseLevel>1) {
     G4cout << " ePhon " << ePhon/eV << " eV => " << nPhononsTrue << " phonons"

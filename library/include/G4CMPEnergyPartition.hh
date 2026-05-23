@@ -163,11 +163,11 @@ protected:
   G4Material* material;		// To get (Z,A) for Lindhard scaling
   G4double biasVoltage;		// Bias across volume for Luke downsampling
   G4double holeFraction;	// Energy from e/h pair taken by hole (50%)
-  G4int nParticlesMinimum;	// Minimum production when downsampling
   G4bool applyDownsampling;	// Flag whether to do downsampling calcualtions
 
   G4CMPChargeCloud* cloud;	// Distribute e/h around central position
 
+  size_t nParticlesMinimum;	// Minimum production when downsampling
   size_t nPairsTrue;		// True number of pairs (no downsampling)
   size_t nPairsGen;		// Number of pairs after downsampling
   G4double chargeEnergyLeft;	// Energy to partition into e/h pairs
