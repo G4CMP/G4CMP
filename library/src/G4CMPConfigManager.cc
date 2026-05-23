@@ -117,6 +117,7 @@ G4CMPConfigManager::G4CMPConfigManager()
     sampleEnergy(getenv("G4CMP_SAMPLE_ENERGY")?strtod(getenv("G4CMP_SAMPLE_ENERGY"),0):-1.),
     genPhonons(getenv("G4CMP_MAKE_PHONONS")?strtod(getenv("G4CMP_MAKE_PHONONS"),0):1.),
     genCharges(getenv("G4CMP_MAKE_CHARGES")?strtod(getenv("G4CMP_MAKE_CHARGES"),0):1.),
+    minGenParticles(getenv("G4CMP_MIN_GENPARTICLES")?atoi(getenv("G4CMP_MIN_GENPARTICLES")):10),
     lukeSample(getenv("G4CMP_LUKE_SAMPLE")?strtod(getenv("G4CMP_LUKE_SAMPLE"),0):1.),
     combineSteps(getenv("G4CMP_COMBINE_STEPLEN")?strtod(getenv("G4CMP_COMBINE_STEPLEN"),0):0.),
     EminPhonons(getenv("G4CMP_EMIN_PHONONS")?strtod(getenv("G4CMP_EMIN_PHONONS"),0)*eV:0.),
@@ -134,7 +135,6 @@ G4CMPConfigManager::G4CMPConfigManager()
     EmpEhigh(getenv("G4CMP_EMPIRICAL_EHIGH")?strtod(getenv("G4CMP_EMPIRICAL_EHIGH"),0)*keV:7.0*keV),
     EmpEDepK(getenv("G4CMP_EMPIRICAL_EDEPK")?(atoi(getenv("G4CMP_EMPIRICAL_EDEPK"))!=0):true),
     EmpkFixed(getenv("G4CMP_EMPIRICAL_KFIXED")?strtod(getenv("G4CMP_EMPIRICAL_KFIXED"),0):0.158),
-    minGenParticles(getenv("G4CMP_MIN_GENPARTICLES")?atoi(getenv("G4CMP_MIN_GENPARTICLES")):10),
     messenger(new G4CMPConfigMessenger(this)) {
   fPhysicsModelID = setPhysicsModelID();
   setVersion();
@@ -165,7 +165,8 @@ G4CMPConfigManager::G4CMPConfigManager(const G4CMPConfigManager& master)
     hDTrapIonMFP(master.hDTrapIonMFP), hATrapIonMFP(master.hATrapIonMFP),
     temperature(master.temperature), clearance(master.clearance), 
     stepScale(master.stepScale), sampleEnergy(master.sampleEnergy), 
-    genPhonons(master.genPhonons), genCharges(master.genCharges), 
+    genPhonons(master.genPhonons), genCharges(master.genCharges),
+    minGenParticles(master.minGenParticles),
     lukeSample(master.lukeSample), combineSteps(master.combineSteps),
     EminPhonons(master.EminPhonons), EminCharges(master.EminCharges),
     pSurfStepSize(master.pSurfStepSize), useKVsolver(master.useKVsolver),
@@ -175,7 +176,6 @@ G4CMPConfigManager::G4CMPConfigManager(const G4CMPConfigManager& master)
     Empklow(master.Empklow), Empkhigh(master.Empkhigh),
     EmpElow(master.EmpElow), EmpEhigh(master.EmpEhigh),
     EmpEDepK(master.EmpEDepK), EmpkFixed(master.EmpkFixed),
-    minGenParticles(master.minGenParticles),
     messenger(new G4CMPConfigMessenger(this)) {;}
 
 
