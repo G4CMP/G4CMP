@@ -8,7 +8,7 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 [ Modifications included on branch G4CMP-77, put subtask tags below it: ]
 
-2026-05-20  G4CMP-77 : Implement proper hole propagation including multiple states.
+2026-05-25  G4CMP-77 : Implement proper hole propagation including multiple states.
 
 [ Main line "develop" ChangeHistory; when merging, put develop updates here: ]
 
