@@ -144,6 +144,7 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
     // Turning wavevector to spherical frame where electrons act like holes
     // as the mass is isotropic
     ktrk = lat->EllipsoidalToSphericalTranformation(iValley, ktrk);
+    // Mass expression comes from our approximation q = sqrt(md/mc) q*
     mass = sqrt(theLattice->GetElectronMass()*theLattice->GetElectronDOSMass());
     vsound = theLattice->GetAverageSoundSpeed();
     Etrk = lat->MapPtoEkin(iValley, ptrk);

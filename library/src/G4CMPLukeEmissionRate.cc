@@ -46,6 +46,7 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
     // Turning wavevector to spherical frame where electrons act like holes
     // as the mass is isotropic
     ktrk = theLattice->EllipsoidalToSphericalTranformation(iValley, ktrk);
+    // Mass expression comes from our approximation q = sqrt(md/mc) q*
     mass = sqrt(theLattice->GetElectronMass()*theLattice->GetElectronDOSMass());
     vsound = theLattice->GetAverageSoundSpeed();
     kmag = ktrk.mag();
