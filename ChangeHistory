@@ -20,6 +20,21 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 [ Main line "develop" ChangeHistory; when merging, put develop updates here: ]
 
+2026-05-23  G4CMP-608 : Address initializer compiler warnings from G4CMP-598.
+2026-05-20  G4CMP-576 : First step of G4CMPEqEMField uses base EqOfMotion for 
+                        non G4CMP carrier and holes.
+2026-05-18  G4CMP-598 : Make G4CMPEnergyPartition respect nParticlesMinimum
+2026-05-06  G4CMP-592 : Replace FatalExceptions in QPDiffusion with warnings
+2026-04-28  G4CMP-496 : Test for zero energy before generating charge pairs.
+2026-04-28  G4CMP-599 : Add track ID and name to G4CMPTrackLimiter output.
+2026-04-22  G4CMP-597 : Make fileCmd optional and provide default value.
+
+2026-02-24  g4cmp-V10-01-01 Multiple bug fixes for G4v11 and new TFR/QP code
+2026-02-20  G4CMP-585 : Fix memory leak from G4CMP-547 ParticleChange mod.
+2026-02-18  G4CMP-588 : Must present NumberOfSecondaries before filling.
+2026-02-12  G4CMP-581 : CreateXXX() should use warnings, check null pointers.
+2026-02-09  G4CMP-580 : Include magnitude with reflected charge momentum.
+2026-02-07  G4CMP-583 : Improve detection, killing of 'escaped tracks'.
 2026-02-02  G4CMP-572 : Fix errors in computing lattice orientation matrix.
 2026-01-28  G4CMP-558 : Address compiler warnings from array arguments.
 

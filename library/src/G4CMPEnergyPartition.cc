@@ -66,6 +66,10 @@
 // 20250127  G4CMP-449 -- Conslidate LukeSampling() function, allow -1.
 // 20251001  G4CMP-503 -- Avoid reporting 'NaN' in phonon energy summary.
 // 20251116  G4CMP-524 -- Replace std::random_shuffle with std::shuffle.
+// 20260428  G4CMP-596 -- Avoid generating charge pairs when energy is zero.
+// 20260428  G4CMP-598 -- Use nParticlesMinimum as floor value for
+//	       nPairsGen/nPhononsGen in GenerateCharges()/GeneratePhonons().
+// 20260523  G4CMP-608 -- Address compiler warnings with nParticlesMinimum.
 
 #include "G4CMPEnergyPartition.hh"
 #include "G4CMPChargeCloud.hh"
@@ -119,8 +123,8 @@ G4CMPEnergyPartition::G4CMPEnergyPartition(G4Material* mat,
 					   G4LatticePhysical* lat)
   : G4CMPProcessUtils(), verboseLevel(G4CMPConfigManager::GetVerboseLevel()),
     fillSummaryData(false), material(mat), biasVoltage(0.), 
-    holeFraction(0.5), nParticlesMinimum(10),
-    applyDownsampling(true), cloud(new G4CMPChargeCloud),
+    holeFraction(0.5), applyDownsampling(true), cloud(new G4CMPChargeCloud),
+    nParticlesMinimum(G4CMPConfigManager::GetMinGenParticles()),
     nPairsTrue(0), nPairsGen(0), chargeEnergyLeft(0.),
     nPhononsTrue(0), nPhononsGen(0), phononEnergyLeft(0.),
     summary(0) {
@@ -468,6 +472,8 @@ void G4CMPEnergyPartition::ComputeLukeSampling(G4double eIon) {
 // Divide ionization energy into electron/hole pairs, with Fano fluctuations
 
 void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
+  if (energy <= 0.) return;			// Avoid unnecessary work
+
   if (verboseLevel)
     G4cout << " GenerateCharges " << energy/MeV << " MeV" << G4endl;
 
@@ -484,7 +490,7 @@ void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
 
   // Only apply downsampling to sufficiently large statistics
   G4double scale = G4CMPConfigManager::GetGenCharges();
-  if (scale>0. && (G4int)nPairsTrue <= nParticlesMinimum) scale = 1.;
+  if (scale>0. && nPairsTrue <= nParticlesMinimum) scale = 1.;
 
   if (verboseLevel>1) {
     G4cout << " nPairs " << nPairsTrue << " ==> ePair " << ePair/eV << " eV"
@@ -493,6 +499,10 @@ void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
 
   // Compute number of pairs to generate, adjust sampling scale to match
   nPairsGen = std::round(scale*nPairsTrue);
+  if (nPairsTrue > 0 && nPairsGen < nParticlesMinimum)
+  {
+    if (energy >= G4CMPConfigManager::GetSamplingEnergy()) nPairsGen = (size_t)nParticlesMinimum;
+  }
   scale = nPairsTrue>0 ? double(nPairsGen)/nPairsTrue : 1.;
 
   G4double nPairsWeighted = nPairsGen>0 ? nPairsGen/scale : 0.;
@@ -561,7 +571,7 @@ void G4CMPEnergyPartition::GeneratePhonons(G4double energy) {
   // Only apply downsampling to sufficiently large statistics
   G4double scale = G4CMPConfigManager::GetGenPhonons();
 
-  if (scale>0. && (G4int)nPhononsTrue <= nParticlesMinimum) scale = 1.;
+  if (scale>0. && nPhononsTrue <= nParticlesMinimum) scale = 1.;
 
   if (verboseLevel>1) {
     G4cout << " ePhon " << ePhon/eV << " eV => " << nPhononsTrue << " phonons"
@@ -570,6 +580,10 @@ void G4CMPEnergyPartition::GeneratePhonons(G4double energy) {
 
   // Compute number of phonons to generate, adjust sampling scale to match
   nPhononsGen = std::round(scale*nPhononsTrue);
+  if (nPhononsTrue > 0 && nPhononsGen < nParticlesMinimum)
+  {
+    if (energy >= G4CMPConfigManager::GetSamplingEnergy()) nPhononsGen = (size_t)nParticlesMinimum;
+  }
   scale = nPhononsTrue>0 ? double(nPhononsGen)/nPhononsTrue : 1.;
 
   // Create requested number of phonons with scaling factor

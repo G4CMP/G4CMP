@@ -46,7 +46,8 @@
 // 20250223  G4CMP-462 -- Restore use of G4CMP_DEBUG flag to hide changes to
 //		lattice verbosity, which causes a data race.
 // 20250508  G4CMP-480 -- Pass global phonon wavevector to CreatePhonon.
-// 20260520  Make Luke scattering PostStepDoIt non-parabolic. 
+// 20260212  G4CMP-581 -- Check for valid secondary, use Edep if null.
+// 20260520  Make Luke scattering PostStepDoIt non-parabolic.
 
 #include "G4CMPLukeScattering.hh"
 #include "G4CMPConfigManager.hh"
@@ -358,13 +359,16 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
   // If phonon is not created, register the energy as deposited
   G4double weight =
     G4CMP::ChoosePhononWeight(G4CMPConfigManager::GetLukeSampling());
+  G4Track* phonon=0;
   if (weight > 0.) {
-    G4Track* phonon = G4CMP::CreatePhonon(aTrack,
-                                          G4PhononPolarization::UNKNOWN,
-                                          GetGlobalDirection(qvec), Ephonon,
-                                          aTrack.GetGlobalTime(),
-                                          aTrack.GetPosition());
-    // Secondary's weight has to be multiplicative with its parent's
+    phonon = G4CMP::CreatePhonon(aTrack, G4PhononPolarization::UNKNOWN,
+				 GetGlobalDirection(qvec), Ephonon,
+				 aTrack.GetGlobalTime(),
+				 aTrack.GetPosition());
+  }
+
+  // Secondary's weight has to be multiplicative with its parent's
+  if (phonon) {
     phonon->SetWeight(aTrack.GetWeight() * weight);
     if (verboseLevel>1) {
       G4cout << "phonon wt " << phonon->GetWeight()

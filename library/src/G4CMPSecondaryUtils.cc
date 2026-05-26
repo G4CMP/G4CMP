@@ -15,6 +15,8 @@
 // 20220907 G4CMP-316 -- Pass track into CreateXYZ() functions; do valley
 //		selection for electrons in CreateChargeCarrier().
 // 20250508 G4CMP-480 -- Apply correct transforms for k->Vg mapping.
+// 20250212 G4CMP-581 -- Change CreatePhonon error to JustWarning(); add
+//		missing CreateQP() call in CreateSecondary.
 
 #include "G4CMPSecondaryUtils.hh"
 #include "G4CMPDriftHole.hh"
@@ -36,6 +38,7 @@
 #include "G4Track.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4VTouchable.hh"
+#include <sstream>
 
 
 // Generic function to create both phonon and charge carrier secondaries
@@ -53,6 +56,11 @@ G4Track* G4CMP::CreateSecondary(const G4Track& track, G4ParticleDefinition* pd,
                                waveVec, track.GetPosition());
   }
 
+  if (G4CMP::IsQP(pd)) {
+    return CreateQP(track, energy, waveVec, track.GetGlobalTime(),
+		    track.GetPosition());
+  }
+    
   G4Exception("G4CMP::CreateSecondary", "Secondary001", EventMustBeAborted,
               ("Particle Definition "+pd->GetParticleName()
 	       +" does not match a G4CMP particle.").c_str());
@@ -64,8 +72,12 @@ G4Track* G4CMP::CreatePhonon(const G4Track& track, G4int mode,
 			     G4double time, const G4ThreeVector& pos) {
   G4LatticePhysical* lat = G4CMP::GetLattice(track);
   if (!lat) {
-    G4Exception("G4CMP::CreatePhonon", "Secondary002", EventMustBeAborted,
-                ("No lattice for volume "+track.GetVolume()->GetName()).c_str());
+    std::stringstream msg;
+    msg << "No lattice for volume " << track.GetVolume()->GetName()
+	<< " @ " << pos;
+
+    G4Exception("G4CMP::CreatePhonon", "Secondary002", JustWarning,
+                msg.str().c_str());
     return nullptr;
   }
 
@@ -109,8 +121,11 @@ G4Track* G4CMP::CreatePhonon(const G4VTouchable* touch, G4int mode,
   G4ThreadLocalStatic auto latMan = G4LatticeManager::GetLatticeManager();
   G4LatticePhysical* lat = latMan->GetLattice(vol);
   if (!lat) {
-    G4Exception("G4CMP::CreatePhonon", "Secondary002", EventMustBeAborted,
-                ("No lattice for volume "+vol->GetName()).c_str());
+    std::stringstream msg;
+    msg << "No lattice for volume " << vol->GetName() << " @ " << pos;
+
+    G4Exception("G4CMP::CreatePhonon", "Secondary002", JustWarning,
+                msg.str().c_str());
     return nullptr;
   }
 
@@ -151,8 +166,12 @@ G4Track* G4CMP::CreateChargeCarrier(const G4Track& track, G4int charge,
 
   G4LatticePhysical* lat = G4CMP::GetLattice(track);
   if (!lat) {
-    G4Exception("G4CMP::CreateChargeCarrier", "Secondary003", EventMustBeAborted,
-                ("No lattice for volume "+track.GetVolume()->GetName()).c_str());
+    std::stringstream msg;
+    msg << "No lattice for volume " << track.GetVolume()->GetName()
+	<< " @ " << pos;
+
+    G4Exception("G4CMP::CreateChargeCarrier", "Secondary003", JustWarning,
+                msg.str().c_str());
     return nullptr;
   }
 

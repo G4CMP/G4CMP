@@ -12,6 +12,7 @@
 // 20250413 Add Initialize() implementation to reset updateVol flag
 // 20251116 For G4 11, explicitly remove the copy operators to match base.
 // 20251128 Discard touchable contents after updating.
+// 20260212 G4CMP-585 Only discard touchable if it was modified (fix mem leak)
 
 #include "G4CMPParticleChangeForPhonon.hh"
 #include "G4VTouchable.hh"
@@ -42,11 +43,12 @@ G4Step* G4CMPParticleChangeForPhonon::UpdateStepForPostStep(G4Step* pStep) {
     pPostStepPoint->SetMaterial(LV->GetMaterial());
     pPostStepPoint->SetMaterialCutsCouple(LV->GetMaterialCutsCouple());
     pPostStepPoint->SetSensitiveDetector(LV->GetSensitiveDetector());
-  }
 
-  // Discard used touchable and reset updateVol
-  theTouchableHandle=0;
-  updateVol = false;
+    // Reset updateVol
+    theTouchableHandle = 0;
+    updateVol = false;
+  }
+  else theTouchableHandle = 0;
 
   // Call base class function
   return G4ParticleChange::UpdateStepForPostStep(pStep);
