@@ -28,8 +28,8 @@ valleyDir -1 -1 1
 valleyDir 1 -1 1
 # Intervalley scattering (matrix elements)
 alpha 0.3 /eV
-acDeform_e 11 eV		# Cabrera et al., arxiv(1004.1233), 2010
-acDeform_h 3.4 eV
+acDeform_e 10.56 eV		# Cabrera et al., arxiv(1004.1233), 2010
+acDeform_h 3.196 eV
 ivDeform 3e8 0.2e8 eV/cm		# Jacoboni & Reggiani
 ivEnergy 27.3e-3 10.3e-3 eV
 neutDens 1e11 /cm3
