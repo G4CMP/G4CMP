@@ -166,6 +166,7 @@ public:
   G4double GetAverageSoundSpeed() const { return fLattice->GetAverageSoundSpeed(); }
   G4double GetElectronScatter() const { return fLattice->GetElectronScatter(); }
   G4double GetHoleScatter() const     { return fLattice->GetHoleScatter(); }
+  G4double GetElectronLukeRateScale() const { return fLattice->GetElectronLukeRateScale(); }
 
   // Superconducting properties
   G4double GetSCDelta0() const { return fSCDelta0; }
@@ -211,6 +212,7 @@ public:
   G4double GetIVLinExponent() const { return fLattice->GetIVLinExponent(); }
 
   G4double GetAlpha() const          { return fLattice->GetAlpha(); }
+  G4double GetNonParabolicity(G4double Kin) const { return fLattice->GetNonParabolicity(Kin); }
   G4double GetElectronAcousticDeform() const { return fLattice->GetElectronAcousticDeform(); }
   G4double GetHoleAcousticDeform() const { return fLattice->GetHoleAcousticDeform(); }
 

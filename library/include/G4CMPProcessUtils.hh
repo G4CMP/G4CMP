@@ -46,6 +46,7 @@
 // 20250523  Add MakePhononThetaIV for IV phonon emission angle.
 // 20250814  Add UpdatePhononWavevector() to update phonon wavevector and Vg.
 // 20251116  For G4 11, use #include "G4VTouchable.hh"
+// 20260520  Add speed of sound as argument for MakePhononEnergy.
 
 #ifndef G4CMPProcessUtils_hh
 #define G4CMPProcessUtils_hh 1
@@ -251,8 +252,10 @@ public:
 
   // Generate direction angle for phonon generated in Luke scattering
   G4double MakePhononTheta(G4double k, G4double ks) const;
-  G4double MakePhononEnergy(G4double k, G4double ks, G4double th_phonon) const;
-  G4double MakePhononEnergy(G4double q) const;
+  G4double MakePhononEnergy(G4double k, G4double ks, G4double th_phonon, 
+                            G4double vsound) const;
+  //vsound should be average of all modes for electrons, longitudinal only for holes
+  G4double MakePhononEnergy(G4double q, G4double vsound) const;
     
   // Generate direction angle for phonon generated in IV scattering
   G4double MakePhononThetaIV0Order(G4double E, G4double Ephonon) const;

@@ -74,6 +74,7 @@ private:
   G4double fCharge;	       		// Same as base class fElectrMagCof
   G4double fMass;	       		// Same as base class fElectrMagCof
   G4int valleyIndex;			// Index of current valley (-1 if none)
+  mutable G4double nonParE;     // non-parabolic expression 1+2*alpha*E
 
   G4AffineTransform fLocalToGlobal;	// Local vs. global coordinates
   G4AffineTransform fGlobalToLocal;
@@ -84,6 +85,7 @@ private:
   mutable G4ThreeVector vel;
   mutable G4ThreeVector Efield;		// True field as three vector
   mutable G4ThreeVector force;		// force = qE/beta in H-V coordinates
+  mutable G4ThreeVector forceCorrection;   // non-parabolic correction to force
 };
 
 #endif

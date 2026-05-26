@@ -65,6 +65,7 @@
 // 20251007  Bug fix for G4CMP-497 fix just above.
 // 20260110  G4CMP-567:  Add missing else-IsHole() block in GetKineticEnergy.
 // 20260120  G4CMP-558: Add array dimension in Get*VelocityVector().
+// 20260520  Add speed of sound as argument for MakePhononEnergy.
 
 #include "G4CMPProcessUtils.hh"
 #include "G4CMPDriftElectron.hh"
@@ -554,12 +555,12 @@ G4double G4CMPProcessUtils::MakePhononTheta(G4double k, G4double ks) const {
 // Compute energy of phonon in Luke Scattering
 
 G4double G4CMPProcessUtils::MakePhononEnergy(G4double k, G4double ks,
-					     G4double th_phonon) const {
-  return MakePhononEnergy(2.*(k*cos(th_phonon)-ks));
+					     G4double th_phonon, G4double vsound) const {
+  return MakePhononEnergy(2.*(k*cos(th_phonon)-ks), vsound);
 }
 
-G4double G4CMPProcessUtils::MakePhononEnergy(G4double q) const {
-  return q * theLattice->GetSoundSpeed() * hbar_Planck;
+G4double G4CMPProcessUtils::MakePhononEnergy(G4double q, G4double vsound) const {
+  return q * vsound * hbar_Planck;
 }
 
 // Compute direction angle for recoiling charge carrier

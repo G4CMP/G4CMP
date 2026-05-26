@@ -12,6 +12,7 @@
 // 20170913  Check for electric field; compute "rate" to get up to Vsound
 // 20170917  Add interface for threshold identification
 // 20240207  Replacing wave vector with speed to Emission calculations
+// 20260520  Make Luke scattering rate non-parabolic. 
 
 #include "G4CMPLukeEmissionRate.hh"
 #include "G4CMPGeometryUtils.hh"
@@ -34,7 +35,8 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
     return 0.;
   }
 
-  G4double kSound = 0.; G4double mass = 0.; G4double l0 = 0.; G4double vsound = 0.;
+  G4double kSound = 0.; G4double mass = 0.; G4double l0 = 0.; 
+  G4double vsound = 0.; G4double kmag = 0.;
   G4ThreeVector ktrk(0.);
   G4ThreeVector ptrk = GetLocalMomentum(aTrack);
   G4int iValley = GetValleyIndex(aTrack);
@@ -44,8 +46,20 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
     // Turning wavevector to spherical frame where electrons act like holes
     // as the mass is isotropic
     ktrk = theLattice->EllipsoidalToSphericalTranformation(iValley, ktrk);
+    // Mass expression comes from our approximation q = sqrt(md/mc) q*
     mass = sqrt(theLattice->GetElectronMass()*theLattice->GetElectronDOSMass());
     vsound = theLattice->GetAverageSoundSpeed();
+    kmag = ktrk.mag();
+    G4double Etrk = theLattice->MapPtoEkin(iValley,ptrk);
+    kSound = vsound*mass/hbar_Planck*theLattice->GetNonParabolicity(Etrk);
+    G4double qmax = 2/(1-2*theLattice->GetAlpha()*theLattice->GetElectronDOSMass()*
+      vsound*vsound)*(kmag-kSound);
+    G4double rate = theLattice->GetElectronLukeRateScale()/kmag*qmax*qmax*qmax*
+      (theLattice->GetNonParabolicity(Etrk)-1.5*theLattice->GetAlpha()*
+      hbar_Planck*vsound*qmax*sqrt(theLattice->GetElectronDOSMass()
+      /theLattice->GetElectronMass()));
+  return (kmag > kSound) ? rate : 0.;
+
     // The l0 in configuration file is calculated using the density of states mass
     // l0 = l0*pow(theLattice->GetElectronMass(),3)/(pow(mass,3));
   } else if (G4CMP::IsHole(aTrack)) {
@@ -54,8 +68,8 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
     mass = theLattice->GetHoleMass();
     vsound = theLattice->GetSoundSpeed();
   }
-  G4double kmag = ktrk.mag();
 
+  kmag = ktrk.mag();
   G4double gammaSound = 1/sqrt(1.-vsound*vsound/c_squared);
   kSound = gammaSound*vsound*mass/hbar_Planck;
 

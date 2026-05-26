@@ -46,6 +46,7 @@
 // 20250223  G4CMP-462 -- Restore use of G4CMP_DEBUG flag to hide changes to
 //		lattice verbosity, which causes a data race.
 // 20250508  G4CMP-480 -- Pass global phonon wavevector to CreatePhonon.
+// 20260520  Make Luke scattering PostStepDoIt non-parabolic. 
 
 #include "G4CMPLukeScattering.hh"
 #include "G4CMPConfigManager.hh"
@@ -137,19 +138,25 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
   G4double mass = 0.;
   G4double Etrk = 0.;
   G4double vsound = 0.;
+  G4double kSound = 0.;
   if (IsElectron()) {
     ktrk = lat->MapPtoK(iValley, ptrk);
     // Turning wavevector to spherical frame where electrons act like holes
     // as the mass is isotropic
     ktrk = lat->EllipsoidalToSphericalTranformation(iValley, ktrk);
+    // Mass expression comes from our approximation q = sqrt(md/mc) q*
     mass = sqrt(theLattice->GetElectronMass()*theLattice->GetElectronDOSMass());
-    vsound = 0.1*theLattice->GetSoundSpeed() +0.9*theLattice->GetTransverseSoundSpeed();
+    vsound = theLattice->GetAverageSoundSpeed();
     Etrk = lat->MapPtoEkin(iValley, ptrk);
+    kSound = vsound*mass/hbar_Planck*theLattice->GetNonParabolicity(Etrk);
   } else if (IsHole()) {
     ktrk = GetLocalWaveVector(aTrack);
     mass = lat->GetHoleMass();
     Etrk = GetKineticEnergy(aTrack);
     vsound = theLattice->GetSoundSpeed();
+    G4double gammaSound = 1/sqrt(1.-vsound*vsound/c_squared);
+    kSound = gammaSound * vsound * mass / hbar_Planck;
+
   } else {
     G4Exception("G4CMPLukeScattering::PostStepDoIt", "Luke002",
                 EventMustBeAborted, "Unknown charge carrier");
@@ -158,8 +165,6 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
 
   G4ThreeVector kdir = ktrk.unit();
   G4double kmag = ktrk.mag();
-  G4double gammaSound = 1/sqrt(1.-vsound*vsound/c_squared);
-  G4double kSound = gammaSound * vsound * mass / hbar_Planck;
 
   // Sanity check: this should have been done in MFP already
   if (kmag <= kSound) return &aParticleChange;
@@ -205,6 +210,11 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
     phi_phonon   = G4UniformRand()*twopi;
     q = 2*(kmag*cos(theta_phonon)-kSound);
 
+    if (IsElectron()) {
+      G4double alpham = theLattice->GetAlpha()*theLattice->GetElectronDOSMass();
+      q /=1-2*alpham*vsound*vsound;
+    }
+
     if (verboseLevel > 1) {
       G4cout << " theta_phonon = " << theta_phonon
 	     << " phi_phonon = " << phi_phonon << " q = " << q << G4endl;
@@ -235,11 +245,13 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
     
     // Get recoil wavevector (in HV frame), convert to new local momentum
     k_recoil = ktrk - qvec;
+      
     if (IsElectron()) {
       qvec = lat->SphericalToEllipsoidalTranformation(iValley, qvec);
     }
+      
     qmag = qvec.mag();
-    Ephonon = MakePhononEnergy(qmag);
+    Ephonon = MakePhononEnergy(qmag, vsound);
     // Make sure energy is conserved
     Erecoil = Etrk - Ephonon;
 

@@ -278,7 +278,7 @@ G4bool G4LatticeReader::ProcessList(const G4String& unitcat) {
           
           // If list of strings
           if (unitcat=="String") { 
-             if (token == "#") {break;} 
+             if (token == "#") { break; }
              fStrList.push_back(token);
           }
            

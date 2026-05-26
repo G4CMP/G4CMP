@@ -8,7 +8,8 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 [ Modifications included on branch G4CMP-404, put subtask tags below it: ]
 
-2025-08-12  G4CMP-404 : Improve charge carriers-phonons scattering.
+2026-05-26  G4CMP-404 : Improve charge carriers-phonons scattering.
+2026-05-26  G4CMP-495 : Non-parabolic kinematics for electrons.
 2025-08-12  G4CMP-493 : Add average speed of sound.
 2025-07-28  G4CMP-490 : Ephonon in G4CMPLukeScattering should use q (phonon momentum)
                         in the lattice frame and not the HV frame.
