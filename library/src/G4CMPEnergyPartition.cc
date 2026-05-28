@@ -480,13 +480,16 @@ void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
   G4double eBand = 1.01*theLattice->GetBandGapEnergy(); // Force visible energy
   G4double ePair = theLattice->GetPairProductionEnergy();
 
-  // Use Fano factor to determine generated number of charge pairs
-  if (energy > eBand) {
-    nPairsTrue = MeasuredChargePairs(energy);	// Apply fluctuations
-    ePair = energy/nPairsTrue;			// Split energy evenly to all
-  } else {
-    nPairsTrue = 0;
+  // If energy is below band gap, electron-hole pairs can't be created
+  if (energy < eBand) {
+    nPairsTrue = nPairsGen = 0;
+    chargeEnergyLeft = energy;
+    return;
   }
+
+  // Use Fano factor to determine generated number of charge pairs
+  nPairsTrue = MeasuredChargePairs(energy);	// Apply fluctuations
+  ePair = energy/nPairsTrue;			// Split energy evenly to all
 
   // Only apply downsampling to sufficiently large statistics
   G4double scale = G4CMPConfigManager::GetGenCharges();
@@ -499,9 +502,8 @@ void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
 
   // Compute number of pairs to generate, adjust sampling scale to match
   nPairsGen = std::round(scale*nPairsTrue);
-  if (nPairsTrue > 0 && nPairsGen < nParticlesMinimum)
-  {
-    if (energy >= G4CMPConfigManager::GetSamplingEnergy()) nPairsGen = (size_t)nParticlesMinimum;
+  if (nPairsGen<nParticlesMinimum && 0.<scale && scale<1.) {
+    nPairsGen = (size_t)nParticlesMinimum;
   }
   scale = nPairsTrue>0 ? double(nPairsGen)/nPairsTrue : 1.;
 
@@ -580,11 +582,10 @@ void G4CMPEnergyPartition::GeneratePhonons(G4double energy) {
 
   // Compute number of phonons to generate, adjust sampling scale to match
   nPhononsGen = std::round(scale*nPhononsTrue);
-  if (nPhononsTrue > 0 && nPhononsGen < nParticlesMinimum)
-  {
-    if (energy >= G4CMPConfigManager::GetSamplingEnergy()) nPhononsGen = (size_t)nParticlesMinimum;
+  if (nPhononsGen<nParticlesMinimum && 0.<scale && scale<1.) {
+    nPhononsGen = (size_t)nParticlesMinimum;
   }
-  scale = nPhononsTrue>0 ? double(nPhononsGen)/nPhononsTrue : 1.;
+  scale = double(nPhononsGen)/nPhononsTrue;
 
   // Create requested number of phonons with scaling factor
   if (nPhononsGen > 0) {
