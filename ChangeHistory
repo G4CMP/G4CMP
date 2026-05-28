@@ -6,6 +6,17 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-05-28  g4cmp-V10-02-00 Several bug fixes and EnergyPartition improvements
+2026-05-28  G4CMP-617 : Simplify nParticlesMinimum tests in EnergyPartition
+2026-05-23  G4CMP-608 : Address initializer compiler warnings from G4CMP-598.
+2026-05-20  G4CMP-576 : First step of G4CMPEqEMField uses base EqOfMotion for 
+                        non G4CMP carrier and holes.
+2026-05-18  G4CMP-598 : Make G4CMPEnergyPartition respect nParticlesMinimum
+2026-05-06  G4CMP-592 : Replace FatalExceptions in QPDiffusion with warnings
+2026-04-28  G4CMP-496 : Test for zero energy before generating charge pairs.
+2026-04-28  G4CMP-599 : Add track ID and name to G4CMPTrackLimiter output.
+2026-04-22  G4CMP-597 : Make fileCmd optional and provide default value.
+
 2026-02-24  g4cmp-V10-01-01 Multiple bug fixes for G4v11 and new TFR/QP code
 2026-02-20  G4CMP-585 : Fix memory leak from G4CMP-547 ParticleChange mod.
 2026-02-18  G4CMP-588 : Must present NumberOfSecondaries before filling.
@@ -19,7 +30,7 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 2026-01-28  G4CMP-494 : Migrate code to be compatible with G4 v11 and v10.
 2026-01-07  G4CMP-565 : Apply G4 v11 migrations to new quasiparticle code.
 2026-01-07  G4CMP-563 : Remove copy operators from G4CMPParticleChangeForQP.
-2025-12-11  G4CMP-553 : Update vis export in examples, complete hyperN daughters.
+2025-12-11  G4CMP-553 : Update vis export in examples, complete hyperN daughters
 2025-12-03  G4CMP-552 : To silence DecayChannel warnings, add hyperN daughters.
 2025-12-03  G4CMP-551 : Fix compatibility implementation of G4StrUtil::*strip()
 2025-11-28  G4CMP-547 : Ensure that ParticleChange touchable is always cleared.
@@ -55,7 +66,7 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 2025-10-30  g4cmp-V09-09-02 Final bug fix for chargeBounces errors.
 2025-11-08  G4CMP-533 : Fix long-standing typo in README: neutron -> neutral.
-2025-11-08  G4CMP-527 : Adjust post-step "surface" point for all boundary actions.
+2025-11-08  G4CMP-527 : Adjust post-step surface point for all boundary actions.
 
 2025-10-30  g4cmp-V09-09-01 Bug fixes following V09-09-00 release.
 2025-10-25  G4CMP-520 : Fix incorrect local transform in TrackLimiter.
