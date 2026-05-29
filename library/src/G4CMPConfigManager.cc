@@ -51,6 +51,7 @@
 // 20251116  M. Kelsey -- Replace G4String functions with G4StrUtil, for G4 v11
 // 20251116  G4CMP-526: Add function to encapsulate physics ID extraction.
 // 20260121  G4CMP-567: Change charge bounces default to zero.
+// 20260429  G4CMP-598: Add minGenParticles parameter.
 
 #include "G4CMPConfigManager.hh"
 #include "G4CMPConfigMessenger.hh"
@@ -116,6 +117,7 @@ G4CMPConfigManager::G4CMPConfigManager()
     sampleEnergy(getenv("G4CMP_SAMPLE_ENERGY")?strtod(getenv("G4CMP_SAMPLE_ENERGY"),0):-1.),
     genPhonons(getenv("G4CMP_MAKE_PHONONS")?strtod(getenv("G4CMP_MAKE_PHONONS"),0):1.),
     genCharges(getenv("G4CMP_MAKE_CHARGES")?strtod(getenv("G4CMP_MAKE_CHARGES"),0):1.),
+    minGenParticles(getenv("G4CMP_MIN_GENPARTICLES")?atoi(getenv("G4CMP_MIN_GENPARTICLES")):10),
     lukeSample(getenv("G4CMP_LUKE_SAMPLE")?strtod(getenv("G4CMP_LUKE_SAMPLE"),0):1.),
     combineSteps(getenv("G4CMP_COMBINE_STEPLEN")?strtod(getenv("G4CMP_COMBINE_STEPLEN"),0):0.),
     EminPhonons(getenv("G4CMP_EMIN_PHONONS")?strtod(getenv("G4CMP_EMIN_PHONONS"),0)*eV:0.),
@@ -163,7 +165,8 @@ G4CMPConfigManager::G4CMPConfigManager(const G4CMPConfigManager& master)
     hDTrapIonMFP(master.hDTrapIonMFP), hATrapIonMFP(master.hATrapIonMFP),
     temperature(master.temperature), clearance(master.clearance), 
     stepScale(master.stepScale), sampleEnergy(master.sampleEnergy), 
-    genPhonons(master.genPhonons), genCharges(master.genCharges), 
+    genPhonons(master.genPhonons), genCharges(master.genCharges),
+    minGenParticles(master.minGenParticles),
     lukeSample(master.lukeSample), combineSteps(master.combineSteps),
     EminPhonons(master.EminPhonons), EminCharges(master.EminCharges),
     pSurfStepSize(master.pSurfStepSize), useKVsolver(master.useKVsolver),
@@ -250,6 +253,7 @@ void G4CMPConfigManager::printConfig(std::ostream& os) const {
      << "\n/g4cmp/samplingEnergy " << sampleEnergy << "\t\t\t# G4CMP_SAMPLE_ENERGY"
      << "\n/g4cmp/producePhonons " << genPhonons << "\t\t\t\t# G4CMP_MAKE_PHONONS"
      << "\n/g4cmp/produceCharges " << genCharges << "\t\t\t\t# G4CMP_MAKE_CHARGES"
+     << "\n/g4cmp/minParticles " << minGenParticles << "\t\t\t\t# G4CMP_MIN_GENPARTICLES"
      << "\n/g4cmp/sampleLuke " << lukeSample << "\t\t\t\t# G4CMP_LUKE_SAMPLE"
      << "\n/g4cmp/maxLukePhonons " << maxLukePhonons << "\t\t\t# G4CMP_MAX_LUKE"
      << "\n/g4cmp/combiningStepLength " << combineSteps/mm << " mm\t\t\t# G4CMP_COMBINE_STEPLEN"
