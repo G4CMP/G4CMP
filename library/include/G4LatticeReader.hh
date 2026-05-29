@@ -26,8 +26,6 @@
 // 20250423  Add ProcessIVNValleys(), ProcessIVOrder(), 
 //       ProcessIVFGScattering() and ProcessIVPhononMode().
 
-
-
 #ifndef G4LatticeReader_h
 #define G4LatticeReader_h 1
 
