@@ -31,6 +31,8 @@
 //	       overloadable function to kill track when max-reflections.
 // 20251028  G4CMP-527:  Use CheckStepBoundary() in ApplyBoundaryAction(),
 //	       add warning (G4cerr) message for points that need adjustment.
+// 20251204  G4CMP-511 -- Create parallel Lambertian reflection code for charges.
+// 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
 // 20251220  G4CMP-219:  IncrementReflectionCount() added to if-ReflectTrack
 //	       block, should be removed from MaximumReflections().  This will
 //	       change random number sequence (due to additional step(s) after
@@ -941,6 +943,7 @@ G4CMPBoundaryUtils::DoTransmission(const G4Track& aTrack,
 
   DoSimpleKill(aTrack, aStep, aParticleChange);
 }
+
 
 // Access information from materials table even when const
 

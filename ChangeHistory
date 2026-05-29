@@ -6,6 +6,17 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-05-29  G4CMP-515 : Expand charge reflection for both specular and diffuse.
+2026-05-08  G4CMP-604 : Add surface property UI commands to charge example.
+2026-05-07  G4CMP-603 : Use correct probability for charge specular reflection.
+2026-05-02  G4CMP-602 : Fix parentheses in MapV_elToP, to avoid NaNs.
+2026-03-27  G4CMP-595 : Add preprocessor flag for use of charge reflection.
+2026-03-25  G4CMP-513 : Provide specular and diffuse reflection for charges.
+2026-02-05  G4CMP-582 : Make the frequency param of RefProb functions optional.
+2026-01-19  G4CMP-514 : Modify G4CMPSurfaceProperty for specular reflection.
+2025-12-15  G4CMP-518 : Make PhononVelocityIsInward() generic.
+2025-12-09  G4CMP-511 : Create parallel Lambertian reflection code for charges.
+
 2026-05-28  g4cmp-V10-02-00 Several bug fixes and EnergyPartition improvements
 2026-05-28  G4CMP-617 : Simplify nParticlesMinimum tests in EnergyPartition
 2026-05-23  G4CMP-608 : Address initializer compiler warnings from G4CMP-598.
