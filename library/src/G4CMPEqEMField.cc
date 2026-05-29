@@ -207,11 +207,6 @@ void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
 #endif
 
   // dp/ds = (dF/dt)*(dt/ds) = qE/beta
-  if (fCharge>0) { // Temporary solution until we fix (soon) G4CMP-576.
-    force = fCharge*vinv*c_light*Efield;
-  }
-
-  if (fCharge<0) {
     force *= fCharge*vinv*c_light;
     nonParE = theLattice->GetNonParabolicity(theLattice->MapPtoEkin(valleyIndex,mom));
     forceCorrection = -2*theLattice->GetAlpha()*fCharge*vinv*c_light
@@ -219,8 +214,6 @@ void G4CMPEqEMField::EvaluateRhsGivenB(const G4double y[],
 
     force = force/nonParE;
     force = force + forceCorrection;
-  }
-
 
 #ifdef G4CMP_DEBUG
   if (verboseLevel>2) {

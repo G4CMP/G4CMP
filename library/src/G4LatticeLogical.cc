@@ -1083,7 +1083,7 @@ void G4LatticeLogical::ComputeLukeScatteringRateScale_e() {
   G4double hbar2_12pi = 12*pi*hbar_Planck*hbar_Planck;
   G4double mscale = fElectronMDOS*fElectronMDOS/fElectronMass;
 
-  fLukeRateScale_e = acDef2*mscale/(fDensity*fVSoundAverage);
+  fLukeRateScale_e = acDef2*mscale/(hbar2_12pi*fDensity*fVSoundAverage);
 }
 
 
