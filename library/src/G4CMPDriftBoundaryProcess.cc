@@ -238,7 +238,7 @@ DoSpecularReflection(const G4Track& aTrack, const G4Step& aStep) {
   else if (IsHole()) reflP = DoSpecularHole(aTrack, aStep);
   else {
     G4ExceptionDescription ed;
-  ed << "Unexpected particle type reaching charge drift boundary reflection: "
+  ed << "\nUnexpected particle type reaching charge drift boundary reflection: "
      << aTrack.GetParticleDefinition()->GetParticleName()
      << " (only electrons and holes are supported)";
   G4Exception("G4CMPDriftBoundaryProcess::DoReflection", "Boundary004",
