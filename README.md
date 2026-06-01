@@ -96,6 +96,7 @@ developers should check the source code in
 | G4CMP\_EH\_MAX\_STEPS [N] | /g4mp/maximumSteps [N]      | Maximum allowed charged track steps     |
 | G4CMP\_MAKE\_PHONONS [R] | /g4cmp/producePhonons [R]     | Fraction of phonons from energy deposit   |
 | G4CMP\_MAKE\_CHARGES [R] | /g4cmp/produceCharges [R]     | Fraction of charge pairs from energy deposit |
+| G4CMP\_MIN\_GENPARTICLES [N] | /g4cmp/minParticles [N]     | Minimum particles from energy deposit   |
 | G4CMP\_LUKE\_SAMPLE [R] | /g4cmp/sampleLuke [R]         | Fraction of generated Luke phonons |
 | G4CMP\_MAX\_LUKE [N] | /g4cmp/maxLukePhonons [N] | Soft maximum Luke phonons per event |
 | G4CMP\_SAMPLE\_ENERGY [E] | /g4cmp/samplingEnergy [E] eV  | Energy above which to downsample |
@@ -166,7 +167,9 @@ track weight set to 1/R:
   setenv G4CMP_MAKE_PHONONS 0.001 # Generate phonon 1:1000 occurrences
 ```
 When primary phonons are not produced, the equivalent energy is recorded as
-non-ionizing energy loss (NIEL) on the track.  
+non-ionizing energy loss (NIEL) on the track. 
+
+The environment variable `$G4CMP_MIN_GENPARTICLES` (default value: 10) controls the minimum number of particles produced due to energy partitioning. This ensures that very low values for `$G4CMP_MAKE_PHONONS`/`$G4CMP_MAKE_CHARGES` will not result in zero secondary production.
 
 Secondary phonons may be produced either by downconversion of higher energy
 phonons, or by emission of Luke-Neganov phonons from charge carriers.
