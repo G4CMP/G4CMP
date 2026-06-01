@@ -91,12 +91,15 @@ G4VPhysicalVolume* ChargeDetectorConstruction::Construct()
       if (sensitivity) sensitivity->SetOutputFile(outputFileName);
     }
 
-    // Check for changes in surface probabilities (new)
-    if (chargeAbsorbProb != ChargeConfigManager::GetChargeAbsorbProb() ||
-        specularReflectProb != ChargeConfigManager::GetSpecularReflectProb()) {
-      delete topSurfProp; topSurfProp = nullptr;
-      delete botSurfProp; botSurfProp = nullptr;
-      delete wallSurfProp; wallSurfProp = nullptr;
+    // Update surface properties in place if they already exist
+    if (topSurfProp) {
+        G4double absProb   = ChargeConfigManager::GetChargeAbsorbProb();
+        G4double specProb  = ChargeConfigManager::GetSpecularReflectProb();
+
+        // Update all three surfaces (they share the same charge parameters)
+        topSurfProp->FillChargeMaterialPropertiesTable(absProb, 1., specProb, 0., 0.);
+        botSurfProp->FillChargeMaterialPropertiesTable(absProb, 1., specProb, 0., 0.);
+        wallSurfProp->FillChargeMaterialPropertiesTable(absProb, 1., specProb, 0., 0.);
     }
 
     // Have to completely remove all lattices to avoid warning on reconstruction
@@ -195,7 +198,7 @@ void ChargeDetectorConstruction::SetupGeometry()
                                                1);
 
   // Define surface properties. Only should be done once
-  if (!constructed) {
+  if (!topSurfProp) {
     topSurfProp = new G4CMPSurfaceProperty("topSurfProp",
                                            chargeAbsorbProb,      // Prob. to absorb charge
                                            1.,                    // If not absorbed, prob to reflect charge
