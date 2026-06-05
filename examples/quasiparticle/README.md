@@ -108,7 +108,7 @@ There are a set of "superconducting" parameters needed to describe the behavior 
 
 ### When should you tailor your simulation to use these processes?
 
-An important question to ask about building or running _any_ simulation is, "what advantage do I get from running it?" On one hand, undermodeling a system may make it challenging to fit important features of experimental spectra or time series. On the other hand, it is also possible to overmodel a system by providing more parameters than needed, sweeping over an excessively large parameter space, and wasting computational resources in doing so. So how do you strike a balance? 
+An important question to ask about building or running _any_ simulation is, "what advantage do I get from running it?" On one hand, undermodeling a system may make it challenging to fit important features of experimental spectra or time series. On the other hand, it is also possible to overmodel a system by providing more parameters than needed, sweeping over an excessively large parameter space, overfitting, and wasting computational resources in doing so. So how do you strike a balance? 
 
 Rather than being prescriptive about what applications can make best use of this new addition, we propose flavors of problem that this new version can now model better. These include devices whose signal or performance is reasonably dependent on:
 * The locations and energy distribution of quasiparticles produced in an interaction
@@ -119,6 +119,27 @@ Some examples of these include superconducting qubit devices, where diffusion pl
 However, if your application does not need to model these effects, a more limited superconducting response is still handled by the KaplanQP class within G4CMP, and executes significantly faster. This works relatively well for spatially limited devices, but currently ignores QP recombination.
 
 ## Tutorial Example 1: Geometry Construction
+
+The goal of this section is to introduce advanced users to new elements of geometry construction that are needed for adopting the new features of G4CMP-V10. We're going to start in the approximately the same place as the original RISQ Tutorial example: by inspecting a moderately complicated superconducting qubit geometry, once again based on the "candlestick" Xmon qubits designed by the McDermott Group at UW-Madison. The following features are on this chip:
+* Silicon chip substrate
+* Aluminum ground plane
+* Aluminum CPW transmission line and wirebond pads
+* Aluminum CPW quarter-wave resonators (x6)
+* Aluminum Xmon qubits (no junction leads included)
+* Copper mounts for thermalization
+To see these features, we'll run our first macro, `quasiparticle_geometry_vis.mac`, from our `quasiparticle-build` directory. First, we'll navigate there and boot up G4CMP:
+```
+cd /path/to/quasiparticle-build
+./quasiparticle
+```
+This will start an interactive session, and now we can run our macro. If you've followed the installation instructions above and kept `quasiparticle` and `quasiparticle-build` separate at the same level of the filetree, then you can just run
+```
+/control/execute ../quasiparticle/G4Macros/quasiparticle_geometry_vis.mac
+```
+which should give you the following result:
+
+PICTURE OF VISUALIZATION
+
 
 
 ## Tutorial Example 2: Scanning Energy Depositions in a Planar Resonator
