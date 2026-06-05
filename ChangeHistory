@@ -6,8 +6,9 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-06-05  g4cmp-V10-03-00  Avoid FatalExceptions, add QPDiffusion setting.
 2026-06-03  G4CMP-619 : Softened some exception types in Boundary/GeometryUtils
-2026-06-01  G4CMP-593 : Add diffusion time stepper tau for individual plattices
+2026-06-01  G4CMP-593 : Add diffusion time stepper tau for individual lattices
 
 2026-05-28  g4cmp-V10-02-00 Several bug fixes and EnergyPartition improvements
 2026-05-28  G4CMP-617 : Simplify nParticlesMinimum tests in EnergyPartition
