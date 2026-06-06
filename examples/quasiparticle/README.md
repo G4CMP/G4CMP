@@ -20,7 +20,7 @@ We'll start with a reminder that in order to run this example, you'll need to in
 Assuming you've built these directories and you're opening up a new terminal, you'll need to source the environmental setup scripts for these:
 ```
 source /path/to/geant4.10.07.p04-install/bin/geant4.sh
-source /path/to/G4CMP-install/share/G4CMP/g4cmp_env.sh
+source /path/to/G4CMP_quasiparticle-install/share/G4CMP/g4cmp_env.sh
 ```
 Now we can make our example. Copy this tutorial's source directory into a new directory -- I like to copy it outside of the whole G4CMP source directory just to avoid confusion and remember that this is its own executable that needs to be made. Moreover, make build and install directories to accompany it:
 ```
