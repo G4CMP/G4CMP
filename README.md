@@ -100,6 +100,7 @@ developers should check the source code in
 | G4CMP\_LUKE\_SAMPLE [R] | /g4cmp/sampleLuke [R]         | Fraction of generated Luke phonons |
 | G4CMP\_MAX\_LUKE [N] | /g4cmp/maxLukePhonons [N] | Soft maximum Luke phonons per event |
 | G4CMP\_SAMPLE\_ENERGY [E] | /g4cmp/samplingEnergy [E] eV  | Energy above which to downsample |
+| G4CMP\_EPRIM\_PHOBNONS [E] | /g4cmp/primaryPhononEnergy [E] eV | Energy to assign to primary phonons |
 | G4CMP\_COMBINE\_STEPLEN [L] | /g4cmp/combiningStepLength [L] mm | Combine hits below step length |
 | G4CMP\_EMIN\_PHONONS [E] | /g4cmp/minEPhonons [E] eV     | Minimum energy to track phonons         |
 | G4CMP\_EMIN\_CHARGES [E] | /g4cmp/minECharges [E] eV     | Minimum energy to track charges         |
@@ -143,6 +144,12 @@ the set of models provided in G4CMP:
     Empirical        # Energy dependent (or variable) k Lindhard NIEL       
     Impact@TUNL      # IMPACT@TUNL Si NIEL measurements
     Sarkis           # Lindhard NIEL modified by Sarkis 2022     
+
+"Primary" phonons, either from non-ionizing energy loss or from
+electron-hole recombination, are produced all at the same energy, the Debye
+energy set in the material's config.txt file.  The environment variable
+`$G4CMP_EPRIM_PHONONS` may be set (in eV) to override the material value,
+typically to something much lower, just a few eV.
 
 The environment variable `$G4CMP_MAKE_CHARGES` controls the rate (R) as a
 fraction of total interactions, at which electron-hole pairs are produced
