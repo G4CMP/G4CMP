@@ -130,7 +130,7 @@ ReadyToRecombine(const G4Track& aTrack) const {
   G4double Egain = EnergyGainToSurface(aTrack);
 
   if (verboseLevel>2) {
-    G4cout << " Egain to surface " << Egain/eV << " eV: Egain+Etrack "
+    G4cout << " Egain " << Egain/eV << " eV: Egain+Etrack "
 	   << (Etrack+Egain<Eluke ? "does not exceeed" : "exceeds")
 	   << " Eluke" << G4endl;
   }
@@ -156,22 +156,23 @@ EnergyGainToSurface(const G4Track& aTrack) const {
   G4CMPSolidUtils sutil(aTrack.GetTouchable(),verboseLevel,"Recombination");
 
   // Get distance to nearest surface along current trajectory
-  G4double tDist = sutil.GetDistanceToSolid(aTrack.GetPosition(),
-					    GetGlobalMomentum(aTrack).unit());
-  G4double Vtrack = tDist*Efield.mag();		// Energy gain along track
+  G4ThreeVector tDir = GetGlobalMomentum(aTrack).unit();
+  G4double tDist = sutil.GetDistanceToSolid(aTrack.GetPosition(), tDir);
+  G4double Vtrack = tDist*tDir*Efield;		// Energy gain along track
 
-  if (verboseLevel>3) {
+  if (verboseLevel>2) {
     G4cout << " EnergyGainToSurface: tDist " << tDist/mm << " mm"
 	   << " Vtrack " << Vtrack/eV << " eV" << G4endl;
   }
 
   // Get distance to volume surface along direction field accelerates
+  // TODO:  Apply H-V transform here for electrons (see EqEMField)
   RotateToLocalDirection(Efield);
   G4double fDist = sutil.GetDistanceToSolid(aTrack.GetPosition(),
 					    Efield.unit());
   G4double Vfield = fDist*Efield.mag();		// Energy gain induced by field
 
-  if (verboseLevel>3) {
+  if (verboseLevel>2) {
     G4cout << " EnergyGainToSurface: fDist " << fDist/mm << " mm"
 	   << " Vfield " << Vfield/eV << " eV" << G4endl;
   }
