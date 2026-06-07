@@ -130,15 +130,88 @@ The goal of this section is to introduce advanced users to new elements of geome
 To see these features, we'll run our first macro, `quasiparticle_geometry_vis.mac`, from our `quasiparticle-build` directory. First, we'll navigate there and boot up G4CMP:
 ```
 cd /path/to/quasiparticle-build
-./quasiparticle
+./g4cmpQuasiparticle
 ```
 This will start an interactive session, and now we can run our macro. If you've followed the installation instructions above and kept `quasiparticle` and `quasiparticle-build` separate at the same level of the filetree, then you can just run
 ```
 /control/execute ../quasiparticle/G4Macros/quasiparticle_geometry_vis.mac
 ```
-which should give you the following result:
+which should give you the following result, which we'll reference in the several following sections on geometry construction:
 
-PICTURE OF VISUALIZATION
+<img width="591" height="597" alt="image" src="https://github.com/user-attachments/assets/31d1928d-6ab5-4852-9afc-9ba29648e8b8" />
+
+The overall structure of the geometry construction, created in `quasiparticle/src/QuasiparticleDetectorConstruction.cc`, is very similar to that made for the 2024 RISQTutorial, and we refer readers to that tutorial for more thorough guidance on that overall structure. However, it is worth reminding readers that:
+* The silicon chip and superconducting ground plane are siblings in the geometry heirarchy
+* The transmission line and resonators are defined in dedicated classes...
+* ...and are daughters of the ground plane but are siblings to each other in the geometry heirarchy.
+* The dedicated class objects (transmission line, resonators) pass volume information up to the main detector construction file when defining boundaries between these objects' subvolumes and the immediate daughters of the world (like the silicon chip).
+
+### Geometry Heirarchy and Boundary Requirements in G4CMP-V10
+
+The fundamental improvements brought by G4CMP-V10 are that phonons can transmit between volumes and create trackable QPs in those volumes (if applicable). This implies that full use of these features requires a tweak to how volumes and boundaries are defined in G4CMP.  
+
+First, since phonons now may pairbreak over a characteristic mean free path in a superconducting material, we need to properly define the thicknesses of the superconducting films directly in the geometry, as opposed to via the `filmThickness` parameter of the KaplanQP class. In prior examples such as the 2024 RISQTutorial, the detector construction was _defined_ with a thickness, but this thickness effectively did nothing: all microphysics in the superconducting plane was handled either by KaplanQP or through a simple absorption. Now, thickness directly impacts the number of quasiparticles produced. This thickness is defined as `dp_groundPlaneDimZ` in `quasiparticle/include/QuasiparticleDetectorParameters.hh`. Technically, one can establish films of varying thickness, but for reasons related to quasiparticle transport (described below), we currently recommend defining all superconducting thin films with the same thickness.
+
+> [!TIP]
+> Use of the `QuasiparticleDetectorParameters.hh` file to co-locate all of your geometry parameters for organization is good practice! Note also that hardcoding the fewest number of parameters that you can while maintaining the flexibility you need is also good practice. The thicknesses of all of the superconducting structures in this example are all given different names for clarity and readability, but all use the singular value of 90nm given to `dp_groundPlaneDimZ`.
+
+In creating this geometry, we liberally make use of parent-daughter definitions to improve accuracy and cleanliness of our geometry code. To see an example of this, let's run the following command to zoom in on a particular part of the geometry, from where we left off in our interactive session:
+```
+/vis/viewer/zoom 16
+```
+This should bring you to the following visualization (without the arrows/text)
+<img width="650" height="650" alt="image" src="https://github.com/user-attachments/assets/f773920b-14c7-41cc-ae5d-e92fc93feae3" />
+
+Even within our resonator assembly, we have a triply-nested heirarchy for the CPW resonator structure. The top level mother is the Al base layer in which all of our structures within a single resonator live. The half-circle of vacuum defined for the CPW "trenches" in the sixth turn of the meander is a daughter of this base layer, and the half-circle of Al defined as the central conductor of the CPW is a daughter of this vacuum volume.
+
+
+
+
+
+Caution about doing it exactly as we have
+
+Though not explored here, tesselated geometries
+
+Caution about certain objects being the base in G4Union
+
+### Boundary definitions
+
+In addition to defining a proper third dimension for our films, we need to define additional boundaries so that phonons can reflect off of the vacuum-facing surfaces of the superconducting film. This is in contrast to old versions of this code, which only required interfaces of our superconducting (or vacuum) volumes with the silicon chip:
+
+<img width="1138" height="361" alt="Screenshot 2026-06-07 at 3 34 11 AM" src="https://github.com/user-attachments/assets/bf2ad680-0c78-4b77-8f5a-ae1b2d530837" />
+
+
+
+
+
+
+In G4CMP-V10, phonons continue to exist and travel in three dimensions. To make use of this transport within the superconducting film in our geometry, we have to properly define the third dimension of our film geometry. In this example, we define a film thickness of 
+
+
+Now that transmission between volumes is possible, we need to define boundaries for  
+
+For Phonons, which travel in 3 dimensions...
+
+Phonons of all three polarizations travel in three dimensions, and now that transmission between volumes is possible, we need to ensure that 
+
+
+For QPs, which...
+- Mention the "keep all heights the same" here
+
+Bilayers?
+
+
+### Lattice Definitions
+
+
+
+
+
+This requires a refinement of how we define detector volumes. While in G4CMP-V9 code, we were able to get away with just defining the interface behavior of phonons at 
+
+This requires a change in how we view volume definitions. In older, G4CMP-V9 code, the only thing that mattered in a simulation was surface coverage and deini
+
+
 
 
 
