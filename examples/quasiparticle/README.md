@@ -150,7 +150,11 @@ The overall structure of the geometry construction, created in `quasiparticle/sr
 
 The fundamental improvements brought by G4CMP-V10 are that phonons can transmit between volumes and create trackable QPs in those volumes (if applicable). This implies that full use of these features requires a tweak to how volumes and boundaries are defined in G4CMP.  
 
-First, since phonons now may pairbreak over a characteristic mean free path in a superconducting material, we need to properly define the thicknesses of the superconducting films directly in the geometry, as opposed to via the `filmThickness` parameter of the KaplanQP class. In prior examples such as the 2024 RISQTutorial, the detector construction was _defined_ with a thickness, but this thickness effectively did nothing: all microphysics in the superconducting plane was handled either by KaplanQP or through a simple absorption. Now, thickness directly impacts the number of quasiparticles produced. This thickness is defined as `dp_groundPlaneDimZ` in `quasiparticle/include/QuasiparticleDetectorParameters.hh`. Technically, one can establish films of varying thickness, but for reasons related to quasiparticle transport (described below), we currently recommend defining all superconducting thin films with the same thickness.
+First, since phonons now may pairbreak over a characteristic mean free path in a superconducting material, we need to properly define the thicknesses of the superconducting films directly in the geometry, as opposed to via the `filmThickness` parameter of the KaplanQP class. In prior examples such as the 2024 RISQTutorial, the detector construction was _defined_ with a thickness, but this thickness effectively did nothing: all microphysics in the superconducting plane was handled either by KaplanQP or through a simple absorption. Now, thickness directly impacts the number of quasiparticles produced. This thickness is defined as `dp_groundPlaneDimZ` in `quasiparticle/include/QuasiparticleDetectorParameters.hh`. 
+
+DESCRIBE QP TRANSPORT HERE AND PUNT DISCUSSION OF BILAYERS TO LATER
+
+Technically, one can establish films of varying thickness, but for reasons related to quasiparticle transport (described below), we currently recommend defining all superconducting thin films with the same thickness.
 
 > [!TIP]
 > Use of the `QuasiparticleDetectorParameters.hh` file to co-locate all of your geometry parameters for organization is good practice! Note also that hardcoding the fewest number of parameters that you can while maintaining the flexibility you need is also good practice. The thicknesses of all of the superconducting structures in this example are all given different names for clarity and readability, but all use the singular value of 90nm given to `dp_groundPlaneDimZ`.
@@ -162,17 +166,30 @@ In creating this geometry, we liberally make use of parent-daughter definitions 
 This should bring you to the following visualization (without the arrows/text)
 <img width="650" height="650" alt="image" src="https://github.com/user-attachments/assets/f773920b-14c7-41cc-ae5d-e92fc93feae3" />
 
-Even within our resonator assembly, we have a triply-nested heirarchy for the CPW resonator structure. The top level mother is the Al base layer in which all of our structures within a single resonator live. The half-circle of vacuum defined for the CPW "trenches" in the sixth turn of the meander is a daughter of this base layer, and the half-circle of Al defined as the central conductor of the CPW is a daughter of this vacuum volume.
+Even within our resonator assembly, we have a triply-nested heirarchy for the CPW resonator structure. The top level mother is the Al base layer in which all of our structures within a single resonator live. The half-circle of vacuum defined for the CPW "trenches" in the sixth turn of the meander is a daughter of this base layer, and the half-circle of Al defined as the central conductor of the CPW is a daughter of this vacuum volume. Especially for coplanar structures like these resonators and qubits, we recommend following this nesting technique. 
+
+Even though this geometry uses reasonably good nesting practices and class-based templates for the various superconducting structures, the piecewise construction of the resonator (as an example) has a couple of disadvantages.
+1. Defining lots of different volumes for the various geometries is somewhat tedious, and each volume will need a complete set of boundaries to its neighbors for proper phonon and quasiparticle physics, so the required effort may balloon quickly with lots of sub-volumes.
+2. "Invisible" boundaries (those with no physical distinction between the volumes on either side) like that between the ground plane and the base Al layer of the resonator structure are fine for phonon transport, but overuse of these can complicate the interpretation of the quasiparticle transport.
+
+These disadvantages aside, lots of sub-volumes allows for finer tagging of where our physics is happening, so for this tutorial we keep this.
+
+Sometimes, it may be useful to define geometrical volumes using boolean additions or subtractions of basic Geant4 objects. For example, the Xmon cross volumes (both vacuum and conductor) and the c-shaped coupler on the end of the λ/4 resonator are either single or nested `G4UnionSolids`: 
+
+<img width="650" height="650" alt="image" src="https://github.com/user-attachments/assets/4fd70eed-055c-496b-9522-01b0046ece9c" />
+
+These boolean solids should work reasonably well with the quasiparticle and phonon physics in G4CMP, but...
+1. ...deep nestings of G4UnionSolids to build comnplicated structures is not wise on performance grounds, and in my experience has occasionally made visualization choke as well. While functionally a triply- or quadruply-nested G4UnionSolid will work okay, consider using a G4MultiUnion if you're going to going to be attempting to link more than a couple basic `G4VSolid` objects (`G4Tubs`, `G4Box`, `G4Trd`, etc.). QP and phonon transport in `G4MultiUnion` objects has been lightly tested and anecdotal evidence points to it giving the correct film response, but this also needs further rigorous exploration, so proceed with caution and skepticism.
+2. ...due to the current lack of generality of superconducting plane orientation currently available to the `qpDiffusion` process, one will find best results aligning their superconducting thin film's plane with _both_ the global XY plane _and_ the local XY coordinate systems of the constituent base solids (G4Box, G4Tubs, etc.). For most base solid geometries, this is what one might most naturally do anyway -- for example, a `G4Tubs`' local XY plane is the one described by ρ and φ, which is the plane that one would naturally keep coplanar with a film if one is attempting to build a curved structure into a thin film. However, solids like `G4Trd`, which one may use for a taper in a pad, set the local z direction to be in the direction of the taper, which requires a 90 degree rotation to embed them into the plane of a film. This may cause issues with QP propagation, but for now these issues can be temporarily circumvented by embedding these structures into a `G4UnionSolid` whose base element _does_ follow the coplanarity guidance given above. 
+
+> [!TIP]
+> It is possible to define complicated geometries with other construction techniques, which may be more efficient than what we do here. Challenge question: Can you think of a way to define portions of this geometry using the G4ExtrudedSolid class?
 
 
 
+Though not explored here, tesselated geometries...?
 
 
-Caution about doing it exactly as we have
-
-Though not explored here, tesselated geometries
-
-Caution about certain objects being the base in G4Union
 
 ### Boundary definitions
 
@@ -205,7 +222,7 @@ Bilayers?
 
 
 
-
+### Bilayers
 
 This requires a refinement of how we define detector volumes. While in G4CMP-V9 code, we were able to get away with just defining the interface behavior of phonons at 
 
