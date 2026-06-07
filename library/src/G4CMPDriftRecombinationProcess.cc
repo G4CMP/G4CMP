@@ -60,13 +60,16 @@ G4CMPDriftRecombinationProcess::PostStepDoIt(const G4Track& aTrack,
 					     const G4Step& aStep) {
   InitializeParticleChange(aTrack);
 
-  // If the particle has not come to rest, do nothing
-  if (!ReadyToRecombine(aTrack)) {
+  // SPECIAL: We use fStopAndKill to destroy tracks without recombining
+  if (aTrack.GetTrackStatus() == fStopAndKill)
     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
-  }
+    
+  // If the particle has not come to rest, do nothing
+  if (!ReadyToRecombine(aTrack))
+    return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
 
   if (verboseLevel) {
-    G4cout << "G4CMPDriftRecombinationProcess::PostStepDoIt: " << G4endl
+    G4cout << GetProcessName() << "::PostStepDoIt: " << G4endl
            << aTrack.GetDefinition()->GetParticleName()
            << " reabsorbed by the lattice " << G4endl
 	   << " @ " << aTrack.GetPosition()
@@ -106,15 +109,33 @@ G4bool G4CMPDriftRecombinationProcess::
 ReadyToRecombine(const G4Track& aTrack) const {
   if (aTrack.GetStepLength() <= 0.) return false;	// Avoid reflections
 
-  if (aTrack.GetTrackStatus() == fStopButAlive) return true;
+  if (verboseLevel>1)
+    G4cout << GetProcessName() << "::ReadyToRecombine?" << G4endl;
+
+  if (aTrack.GetTrackStatus() == fStopButAlive) {
+    if (verboseLevel>2) G4cout << " track stopped." << G4endl;
+    return true;
+  }
 
   // Minimum energy for NTL emission is kinetic energy at Vsound
-  G4double Esound = GetRateModel()->Threshold(1e-9*eV);
+  G4double Eluke = GetRateModel()->Threshold(1e-9*eV);
   G4double Etrack = GetKineticEnergy(aTrack);
+
+  if (verboseLevel>2) {
+    G4cout << " Eluke " << Eluke/eV << " eV Etrack " << Etrack/eV << " eV"
+	   << G4endl;
+  }
 
   // In field, track can "regain" energy even if below threshold now
   G4double Egain = EnergyGainToSurface(aTrack);
-  if (Etrack+Egain < Esound) return true;
+
+  if (verboseLevel>2) {
+    G4cout << " Egain to surface " << Egain/eV << " eV: Egain+Etrack "
+	   << (Etrack+Egain<Eluke ? "does not exceeed" : "exceeds")
+	   << " Eluke" << G4endl;
+  }
+
+  if (Etrack+Egain < Eluke) return true;
 
   // If none of the conditions were satisfied, let the track keep going
   return false;
@@ -139,11 +160,21 @@ EnergyGainToSurface(const G4Track& aTrack) const {
 					    GetGlobalMomentum(aTrack).unit());
   G4double Vtrack = tDist*Efield.mag();		// Energy gain along track
 
+  if (verboseLevel>3) {
+    G4cout << " EnergyGainToSurface: tDist " << tDist/mm << " mm"
+	   << " Vtrack " << Vtrack/eV << " eV" << G4endl;
+  }
+
   // Get distance to volume surface along direction field accelerates
   RotateToLocalDirection(Efield);
   G4double fDist = sutil.GetDistanceToSolid(aTrack.GetPosition(),
 					    Efield.unit());
   G4double Vfield = fDist*Efield.mag();		// Energy gain induced by field
+
+  if (verboseLevel>3) {
+    G4cout << " EnergyGainToSurface: fDist " << fDist/mm << " mm"
+	   << " Vfield " << Vfield/eV << " eV" << G4endl;
+  }
 
   return std::max(Vtrack,Vfield);
 }
