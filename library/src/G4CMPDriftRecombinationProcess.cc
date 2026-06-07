@@ -162,21 +162,49 @@ EnergyGainToSurface(const G4Track& aTrack) const {
 
   if (verboseLevel>2) {
     G4cout << " EnergyGainToSurface: tDist " << tDist/mm << " mm"
-	   << " Vtrack " << Vtrack/eV << " eV" << G4endl;
+	   << " along " << tDir << " Vtrack " << Vtrack/eV << " eV" << G4endl;
   }
 
   // Get distance to volume surface along direction field accelerates
-  // TODO:  Apply H-V transform here for electrons (see EqEMField)
-  RotateToLocalDirection(Efield);
-  G4double fDist = sutil.GetDistanceToSolid(aTrack.GetPosition(),
-					    Efield.unit());
-  G4double Vfield = fDist*Efield.mag();		// Energy gain induced by field
+  G4ThreeVector aDir = GetAcceleration(Efield).unit();
+
+  G4double aDist = sutil.GetDistanceToSolid(aTrack.GetPosition(), aDir);
+  G4double Vfield = aDist*aDir*Efield;		// Energy gain induced by field
 
   if (verboseLevel>2) {
-    G4cout << " EnergyGainToSurface: fDist " << fDist/mm << " mm"
-	   << " Vfield " << Vfield/eV << " eV" << G4endl;
+    G4cout << " EnergyGainToSurface: aDist " << aDist/mm << " mm"
+	   << " along " << aDir << " Vfield " << Vfield/eV << " eV" << G4endl;
   }
 
   return std::max(Vtrack,Vfield);
 }
 
+
+// Compute acceleration direction from Efield
+// Apply H-V transform here for electrons
+
+G4ThreeVector G4CMPDriftRecombinationProcess::
+GetAcceleration(const G4ThreeVector& Efield) const {
+  if (verboseLevel>3)
+    G4cout << GetProcessName() << "::GetAcceleration" << G4endl;
+
+  G4ThreeVector accel = Efield;
+
+  if (IsHole()) return accel;			// Holes are simple particles
+
+  // Rotate force into and out of valley frame, applying Herring-Vogt transform
+  G4int valleyIndex = GetCurrentValley();
+  const G4RotationMatrix& nToV = theLattice->GetValley(valleyIndex);
+  const G4RotationMatrix& vToN = theLattice->GetValleyInv(valleyIndex);
+
+  RotateToLocalDirection(accel);
+  theLattice->RotateToLattice(accel);
+  accel.transform(nToV);			// Rotate to valley frame
+  accel *= theLattice->GetMInvTensor();
+  accel *= theLattice->GetElectronMass();
+  accel.transform(vToN);			// Back to lattice
+  theLattice->RotateToSolid(accel);		// Back to crystal frame
+  RotateToGlobalDirection(accel);
+
+  return accel;
+}

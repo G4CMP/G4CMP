@@ -8,6 +8,8 @@
 //
 // 20170802  Add EnergyPartition to handle phonon production
 // 20260514  Add line breaks at 80 columns, for readability
+// 20260514  G4CMP-517 -- Support recombination in flight with energy gain
+//	       calculations.
 
 #ifndef G4CMPDriftRecombinationProcess_h
 #define G4CMPDriftRecombinationProcess_h 1
@@ -47,6 +49,9 @@ protected:
   // Compute maximum energy gain along current trajectory toward surface
   // NOTE: Will include "turn around" if electric field is in use
   G4double EnergyGainToSurface(const G4Track&) const;
+
+  // Compute acceleration direction from E-field, accounting for valleys
+  G4ThreeVector GetAcceleration(const G4ThreeVector& Efield) const;
 
 private:
   G4CMPEnergyPartition* partitioner;
