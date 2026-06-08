@@ -85,7 +85,7 @@ G4CMP-v10 adds a particle definition for a BogoliubovQP (Bogoliubov Quasiparticl
 	* This is a generic linear loss term that kills QPs after they exist for some characteristic lifetime. Notionally this is from trapping on shallow trapping sites, and does not generate phonons.
    	* The rate of this is dependent on a dedicated singular superconductor parameter.
 
-> [!TIP]
+> [!NOTE]
 > For those interested in a look under the hood, you can take a look at which processes are implemented for which particles in G4CMPPhysics.cc
 
 ### Table of New Processes' Parameters
@@ -127,6 +127,7 @@ The goal of this section is to introduce advanced users to new elements of geome
 * Aluminum CPW quarter-wave resonators (x6) (daughters of the ground plane)
 * Aluminum Xmon qubits (no junction leads included) (also daughters of the ground plane)
 * Copper mounts for thermalization (sibling to the silicon chip in the geometry heirarchy)
+  
 To see these features, we'll run our first macro, `quasiparticle_geometry_vis.mac`, from our `quasiparticle-build` directory. First, we'll navigate there and boot up G4CMP:
 ```
 cd /path/to/quasiparticle-build
@@ -140,7 +141,7 @@ which should give you the following result, which we'll reference in the several
 
 <img width="591" height="597" alt="image" src="https://github.com/user-attachments/assets/31d1928d-6ab5-4852-9afc-9ba29648e8b8" />
 
-To understand what about this geometry is actually new, let's explore some of the new physics. You can go ahead and close the session with `exit` and then let's open the macro with our favorite text editor
+To understand what about this geometry is actually new, let's explore some of the new physics. We're going to simulate a low-energy acoustic phonon and watch it bounce around the device a bit. You can go ahead and close the session with `exit` and then let's open the macro with (y)our favorite text editor
 ```
 emacs ../quasiparticle/G4Macros/quasiparticle_geometry_vis.mac
 ```
@@ -150,7 +151,7 @@ Let's first look at phonon propagation. We'll make three changes to this macro. 
 /vis/filtering/trajectories/particleFilter-0/add phononTF
 /vis/filtering/trajectories/particleFilter-0/add phononL
 ```
-to allow the visualization to no longer filter out phonons when displaying tracks. Second, let's turn off Cooper-pair breaking so that when we allow phonons to enter our superconducting film, they just pass straight through without confusion. Let's put this right after
+to allow the visualization to no longer filter out phonons when displaying tracks. Second, let's turn off Cooper-pair breaking so that when we allow phonons to enter our superconducting film, they just pass straight through without creating QPs, which may visually confuse the view:
 ```
 #/process/inactivate phononScattering
 #/process/inactivate phononDownconversion
@@ -339,19 +340,37 @@ The rest of Tutorial Example 1 will be dedicated to discussing how we do these t
 
 ### Volumes in G4CMP-V10
 
-This thickness is defined as `dp_groundPlaneDimZ` in `quasiparticle/include/QuasiparticleDetectorParameters.hh`. 
+Let's discuss how to define volumes in G4CMP-V10 using an example volume which we will find within the source file `quasiparticle/src/QuasiparticleResonatorAssembly.cc`. We'll look at the center conducting part of the CPW resonator's final curve before the c-shaped coupler to the Xmon qubit. The relevant block of code in the source file is:
+```
+//------------------------------------------------------
+//Curve 3 (conductor)
+G4String curve3ConductorName = pName + "_curve3Conductor";
+G4String curve3ConductorNameSolid = curve3ConductorName + "_solid";
+G4String curve3ConductorNameLog = curve3ConductorName + "_log";
+G4Tubs * solid_curve3Conductor =
+	new G4Tubs(curve3ConductorNameSolid,dp_resonatorAssemblyCurveCentralRadius
+               - dp_tlCouplingConductorDimY/2.0,
+               dp_resonatorAssemblyCurveCentralRadius
+               + dp_tlCouplingConductorDimY/2.0,dp_curveEmptyDimZ/2.0,
+               180.*deg,90.*deg);
+G4LogicalVolume * log_curve3Conductor =
+    new G4LogicalVolume(solid_curve3Conductor,aluminum_mat,
+                        curve3ConductorNameLog);
+G4VPhysicalVolume * curve3Conductor =
+    new G4PVPlacement(0,G4ThreeVector(0,0,0),log_curve3Conductor,
+                      curve3ConductorName,log_curve3Empty,false,0,true);
+log_curve3Conductor->SetVisAttributes(aluminum_vis);
+fFundamentalVolumeList.push_back(std::tuple<std::string,G4String,G4VPhysicalVolume*>("Aluminum",curve3ConductorName,curve3Conductor));
+```
+We first look at the solid volume: a `G4Tubs` object defined as a quarter-circular annulus. There are two main points we want to make about this. First, most of the parameters here are defined with a moniker `dp_` in front, indicating by convention that these parameters are defined in `quasiparticle/include/QuasiparticleDetectorParameters.hh`. Use of this parameters file, which contains not only geometrical values but also some volume-by-volume superconductor parameters, is generally a good idea for code organization. Second, the half-thickness is set to `dp_curveEmptyDimZ/2.0`, which, if you look in the detector parameters file, is set to be the same as `dp_groundPlaneDimZ`. This reuse of the same thickness for the ground plane and the resonator underscores an important point about thin-film geometry construction: all thin-film superconductor volumes should take on the same thickness.
 
-As a result of this constraint, such quasiparticles may not exhibit proper diffusion characteristics in Z if films of varying thickness are used in the same device geometry (also shown below). As a result, we currently encourage the use of as _uniform_ of a thin-film thickness profile as possible for first users of this new code, at least prior to further exploration or QP physics upgrades.
+Why do we recommend this? The reason gets back to the fact that QPs are only simulated in 2D and cannot currently diffuse in Z: if films vary in Z thickness, a QP may not be able to access superconducting areas if they do not extend to exactly the same Z at which it is diffusing. A couple of example failure modes are diagrammed below.
 
 <img width="1239" height="267" alt="image" src="https://github.com/user-attachments/assets/8dc71869-0af6-4845-ab53-8ab02da9d136" />
 
-> [!TIP]
-> Use of the `QuasiparticleDetectorParameters.hh` file to co-locate all of your geometry parameters for organization is good practice! Note also that hardcoding the fewest number of parameters that you can while maintaining the flexibility you need is also good practice. The thicknesses of all of the superconducting structures in this example are all given different names for clarity and readability, but all use the singular value of 90nm given to `dp_groundPlaneDimZ`.
+To both help us achieve this uniformity in thickness and to improve the accuracy and cleanliness of our code, we also liberally nest volumes within other volumes in our code (as Geant4 encourages). In the code above, the physical volume construction shows that this volume is a daughter of the `log_curve3Empty` volume, which has the same height but just slightly wider radial bounds. In our zoomed-in image, `curve3Empty` is the volume with the gray bounds, and the `curve3Conductor` created here is the thin cyan annulus. We also note that `curve3Empty` itself is a daughter of the larger base aluminum layer of this resonator assembly, and that base aluminum layer is a daughter of the ground plane. 
 
-
-In creating this geometry, we liberally make use of parent-daughter definitions to improve accuracy and cleanliness of our geometry code.
-
-Even within our resonator assembly, we have a triply-nested heirarchy for the CPW resonator structure. The top level mother is the Al base layer in which all of our structures within a single resonator live. The half-circle of vacuum defined for the CPW "trenches" in the sixth turn of the meander is a daughter of this base layer, and the half-circle of Al defined as the central conductor of the CPW is a daughter of this vacuum volume. Especially for coplanar structures like these resonators and qubits, we recommend following this nesting technique. 
+<img width="733" height="735" alt="image" src="https://github.com/user-attachments/assets/538e1a49-7349-461b-bfa9-57120df8c351" />
 
 Even though this geometry uses reasonably good nesting practices and class-based templates for the various superconducting structures, the piecewise construction of the resonator (as an example) has a couple of disadvantages.
 1. Defining lots of different volumes for the various geometries is somewhat tedious, and each volume will need a complete set of boundaries to its neighbors for proper phonon and quasiparticle physics, so the required effort may balloon quickly with lots of sub-volumes.
@@ -364,79 +383,85 @@ Sometimes, it may be useful to define geometrical volumes using boolean addition
 <img width="650" height="650" alt="image" src="https://github.com/user-attachments/assets/4fd70eed-055c-496b-9522-01b0046ece9c" />
 
 These boolean solids should work reasonably well with the quasiparticle and phonon physics in G4CMP, but...
-1. ...deep nestings of G4UnionSolids to build comnplicated structures is not wise on performance grounds, and in my experience has occasionally made visualization choke as well. While functionally a triply- or quadruply-nested G4UnionSolid will work okay, consider using a G4MultiUnion if you're going to going to be attempting to link more than a couple basic `G4VSolid` objects (`G4Tubs`, `G4Box`, `G4Trd`, etc.). QP and phonon transport in `G4MultiUnion` objects has been lightly tested and anecdotal evidence points to it giving the correct film response, but this also needs further rigorous exploration, so proceed with caution and skepticism.
+1. ...deep nestings of G4UnionSolids to build complicated structures is not wise on performance grounds, and in my experience has occasionally made visualization choke as well. While functionally a triply- or quadruply-nested G4UnionSolid will work okay, consider using a G4MultiUnion if you're going to going to be attempting to link more than a couple basic `G4VSolid` objects (`G4Tubs`, `G4Box`, `G4Trd`, etc.). QP and phonon transport in `G4MultiUnion` objects has been lightly tested and anecdotal evidence points to it giving the correct film response, but this also needs further rigorous exploration, so proceed with caution and skepticism.
 2. ...due to the current lack of generality of superconducting plane orientation currently available to the `qpDiffusion` process, one will find best results aligning their superconducting thin film's plane with _both_ the global XY plane _and_ the local XY coordinate systems of the constituent base solids (G4Box, G4Tubs, etc.). For most base solid geometries, this is what one might most naturally do anyway -- for example, a `G4Tubs`' local XY plane is the one described by ρ and φ, which is the plane that one would naturally keep coplanar with a film if one is attempting to build a curved structure into a thin film. However, solids like `G4Trd`, which one may use for a taper in a pad, set the local z direction to be in the direction of the taper, which requires a 90 degree rotation to embed them into the plane of a film. This may cause issues with QP propagation, but for now these issues can be temporarily circumvented by embedding these structures into a `G4UnionSolid` whose base element _does_ follow the coplanarity guidance given above. 
 
 > [!TIP]
-> It is possible to define complicated geometries with other construction techniques, which may be more efficient than what we do here. Challenge question: Can you think of a way to define portions of this geometry using the G4ExtrudedSolid class?
-
-
-
-Though not explored here, tesselated geometries...?
-
+> Challenge question: It is possible to define complicated geometries with other construction techniques, which may be more efficient than what we do here. Can you think of a way to define portions of this geometry using the G4ExtrudedSolid class?
 
 
 ### Lattices in G4CMP-V10
 
+\With the shapes, materials, and positioning of our superconducting volume placed, we now need to ascribe to it a lattice. While most superconducting films don’t end up as single-crystal lattices without concerted effort during fabrication, we nonetheless ascribe to each superconducting volume a `G4LatticePhysical` object. Let’s look at the lines in `QuasiparticleResonatorAssembly.cc` that do this for `curve3Conductor`:
+
+```
+//Need to construct lattice...                                                                             
+G4LatticePhysical* AlPhysical_curve3Conductor =
+	new G4LatticePhysical(AlLogical,dp_polycryElScatMFP_Al,
+                          dp_scDelta0_Al,dp_scTeff_Al,dp_scDn_Al,
+                          dp_scTauQPTrap_Al);
+AlPhysical_curve3Conductor->SetMillerOrientation(1,0,0);
+LM->RegisterLattice(curve3Conductor,AlPhysical_curve3Conductor);
+```
+
+There are six arguments to this constructor, the last five of which are meant to provide flexibility of the superconducting response as a function of physical location.
+1. First argument, value `AlLogical`: this is the logical lattice associated with the physical lattice, and the argument `AlLogical` is defined at the beginning of the `QuasiparticleDetectorConstruction.cc` file. This is a package of information from the aluminum CrystalMaps file. 
+2. Second argument, value `dp_polycryElScatMFP_Al`: This is the length scale for energy-independent, elastic phonon scattering off of polycrystalline grains in this thin film volume. 
+3. Third argument, value `dp_scDelta0_Al`: This is the zero-temperature gap value of this thin-film volume.
+4. Fourth argument, value `dp_scTeff_Al`: This is the effective temperature of this thin-film volume. Together with `dp_scDelta0_Al`, this governs the rates of pairbreaking, phonon radiation by QPs, and QP recombination via the calculations/formalism set out in [CITE KAPLAN]
+5. Fifth argument, value `dp_scDn_Al`: This is the normal-state diffusion constant for electrons in the material — this is combined with an energy dependent term via the formalism in [CITE ULLOM] to capture the dependence of a QP’s transport on its energy.
+6. Sixth argument, value `dp_scTauQPTrap_Al`: This is the characteristic “local” trapping time of quasiparticles on impurities. The larger this number is, the slower QPs die due to trapping.
+7. A hidden (default-valued) seventh argument is present, which will allow fine-tuned control over the diffusion process to compensate for biases in places where the cost-efficient walk-on-spheres algorithm is unable to properly capture the correct physics. We do not use this here, but will comment more on this in the Tutorial Example 2.
+
+You will need to define a unique physical lattice for each superconducting volume. If you desire, you can keep parameters common across all of them by defining (as we do) those parameters in the `QuasiparticleDetectorParameters.hh` file. 
+
 ### Boundaries in G4CMP-V10
 
+With our volume and its lattice defined, let's talk about boundaries. We drop down to the last bit of the `curve3Conductor` construction block in the source file, and see
+```
+//...and set boundaries with the existing empty (parent) AND the previous                                                         
+//conductor (sibling volume);                                                                             
+G4String curve3Conductor_boundaryName1 = curve3ConductorName + "_AlVac";
+G4String curve3Conductor_boundaryName2 = curve3ConductorName + "_VacAl";
+G4String curve3Conductor_boundaryName3 = curve3ConductorName + "_AlAl1";
+G4String curve3Conductor_boundaryName4 = curve3ConductorName + "_AlAl2";
+new G4CMPLogicalBorderSurface(curve3Conductor_boundaryName1, curve3Conductor,
+                              curve3Empty,AlVacBoundary);
+new G4CMPLogicalBorderSurface(curve3Conductor_boundaryName2, curve3Empty,
+                              curve3Conductor,AlVacBoundary);
+new G4CMPLogicalBorderSurface(curve3Conductor_boundaryName3, curve3Conductor,
+                              shl7Conductor, AlAlBoundary);
+new G4CMPLogicalBorderSurface(curve3Conductor_boundaryName4, shl7Conductor,
+                             curve3Conductor, AlAlBoundary);
+```
+We see that in this block we've defined four boundaries for this volume: two establishing the Al/vacuum boundary between `curve3Conductor` and `curve3Empty` (i.e. the "sidewall" boundaries to the CPW center conductor), and two establishing the boundaries between `curve3Conductor` and the straight horizontal line 7 conductor object, `shl7Conductor`. 
+
+How should I think about why there should be two? Critically, because both phonons and QPs can now _traverse_ boundaries, we have both the opportunity and oblication to provide information about how those particles should see or behave when impinging upon boundaries from either side. This is required for the Al/Al and Al/Si boundaries used in this work, and while not strictly required for the Al/Vacuum boundaries (since phonons or QPs can't exist in vacuum and aren't expected to impinge on the boundary from the vacuum side), we include the "extra" volume for symmetry and overcaution (and in case we wanted to, for example, turn all vacuum into something like LHe, where phonons could propagate.)
+
+If you're paying close attention, you may be asking yourself, "wait, but by this logic there should be _six additional_ boundaries created with other volumes: boundaries with the silicon chip, boundaries with the world vacuum above the CPW, and boundaries with the vertical piece in between `curve3Conductor` and the Xmon coupler, right?" And indeed this is correct. The last of those pairs is actually defined when I define the straight vertical line (`svl1Conductor`) just below this in the file. The other two pairs are created one layer up, in the `QuasiparticleDetectorConstruction.cc` file. 
+
+To conclude this tutorial example, let's take one final look at the boundary definitions themselves, specifically looking at AlAlBoundary to demonstrate how to define boundary parameters.
+
+```
+fAlAlInterface = new G4CMPSurfaceProperty("AlAlSurf",
+                                          0.0, 1.0, 0.0, 0.0,
+                                          0.0, 0.0, 0.0, 0.0,
+                                          0.0, 0.0);
+```
+Here we notice two things: first, the phonon absorption parameter (the sixth argument) and the phonon reflection parameter (the seventh argument) are both zero. If this is true, then we expect 100% transmission of phonons through Al-Al interfaces. Second, there are two extra parameters governing user-tunable interfacial properties of `BogoliubovQP` particles: an absorption and a reflection parameter. Since both of these are _also_ zero, it implies that we get full QP transmission through this interface, as long as the QP has sufficient energy to be above the gap of the post-step volume. (If not, then it will reflect with 100% probability). 
+
+We refer readers who have forgotten about how these parameters are applied to achieve absorption, reflection, and transmission with various probabilities back to our favorite lines of code in all of G4CMP: `G4CMPBoundaryUtils::ApplyBoundaryAction()` (as also shown in the original RISQTutorial).
 
 
+### Extra topics: Gap Engineering, Bilayers, and "How Small Can I Make Things?"
 
+While we will not demonstrate geometries with varying gaps in this demo, it’s worth commenting on some of the slightly more complicated geometrical cases for which we ultimately intend to hone this new G4CMP capability.
 
+First, we consider a low-gap region for quasiparticle trapping connected to a much larger higher-gap collection fin, as in the design of the SQUAT-type device. These connections usually take the form of a small region in which the materials of different gaps overlap in XY, forming a stack in Z. The physics of QP diffusion then gives QPs in this overlap region several “attempts” to trap, i.e. fall below the gap energy of the collection fin and be unable to return. Since our purely horizontal QP diffusion cannot by definition successfully model this effect, it is useful to point out another knob which may emulate it. While G4CMP-V10’s BogoliubovQP physics lists natively manage the ability or inability of a QP at a given energy to enter into a nearby region of higher or lower gap, the reflection parameter at the boundary results in an additional artificially tunable reflection at this purely vertical boundary. If one tunes this parameter (perhaps with another intermediate volume defined to assist with QPs remaining “close” to the trap), this may provide enough parameters to successfully model a trap with an overlap region. Ultimately, a dedicated validation of such a system and an appropriate map of a strategy onto this architecture is needed.
 
+Another example that is also tricky given the current architecture are bilayers. Since QPs cannot diffuse vertically, much of the real physics present in a bilayer may not be accessible with the current simulation architecture. However, in some cases, where bilayers are in highly localized regions in XY, it may be possible to roughly model these as side-by-side volumes and capture some of the physics. This claim, too, is unexplored and needs further demonstration.
 
-
-
-
-
-
-
-
-
-
-
-
-
-### Boundary definitions
-
-In addition to defining a proper third dimension for our films, we need to define additional boundaries so that phonons can reflect off of the vacuum-facing surfaces of the superconducting film. This is in contrast to old versions of this code, which only required interfaces of our superconducting (or vacuum) volumes with the silicon chip:
-
-<img width="1138" height="361" alt="Screenshot 2026-06-07 at 3 34 11 AM" src="https://github.com/user-attachments/assets/bf2ad680-0c78-4b77-8f5a-ae1b2d530837" />
-
-
-
-
-
-
-In G4CMP-V10, phonons continue to exist and travel in three dimensions. To make use of this transport within the superconducting film in our geometry, we have to properly define the third dimension of our film geometry. In this example, we define a film thickness of 
-
-
-Now that transmission between volumes is possible, we need to define boundaries for  
-
-For Phonons, which travel in 3 dimensions...
-
-Phonons of all three polarizations travel in three dimensions, and now that transmission between volumes is possible, we need to ensure that 
-
-
-For QPs, which...
-- Mention the "keep all heights the same" here
-
-Bilayers?
-
-
-### Lattice Definitions
-
-
-
-### Bilayers
-
-This requires a refinement of how we define detector volumes. While in G4CMP-V9 code, we were able to get away with just defining the interface behavior of phonons at 
-
-This requires a change in how we view volume definitions. In older, G4CMP-V9 code, the only thing that mattered in a simulation was surface coverage and deini
-
-
-
+Lastly, given that the superconducting device field often uses small device/sensor geometries, it's useful to comment a bit on "how small is too small" to expect realistic microphysical evolution of phonons and QPs. First, Geant4 has tolerances on the scale of a picometer, so certainly devices need to be much larger than this scale for accurate modeling of anything. However, the `qpDiffusion` process also has longer length scales embedded that help it achieve computational efficiency, and those are currently set such that the shortest length scale (e.g. trace width, junction width, hole radii, etc.) we recommend is of order 100 nm. If your devices have significantly finer features than this, we may be able to still model them, but shoot an email to linehan3@fnal.gov to ask the best way to do this.
 
 
 ## Tutorial Example 2: Scanning Energy Depositions in a Planar Resonator
@@ -453,30 +478,6 @@ This requires a change in how we view volume definitions. In older, G4CMP-V9 cod
 
 
 
-
-In the G4 macro used to run events, these processes can be turned on and off (mostly) at your discretion. An example code block looks like so:
-
-
-```
-#-------------------------------------
-# Turn on/off new processes
-#/process/inactivate phononScattering
-#/process/inactivate phononDownconversion
-/process/inactivate phononPolycrystalElasticScattering
-#/process/inactivate qpRecombination
-#/process/inactivate qpRadiatesPhonon
-#/process/inactivate scPairBreaking
-#/process/inactivate qpDiffusion #If QPs can exist, diffusion needs to be active
-#/process/inactivate qpLocalTrapping
-/process/inactivate qpDiffusionTimeStepper
-```
-
-In this example, phononScattering and phononDownconversion are the ``old,'' i.e. already-existing phonon processes, and the rest are part of the TrackedFilmResponse branch. 
-
-> [!CAUTION]
-> Most combinations of these processes being on/off work, but QP transport will be UNDEFINED if the qpDiffusion process is turned off. In other words, if you want to do ANY quasiparticle dynamics (say, by looking at "just" phonon pairbreaking), QP diffusion will need to be on. If you want to look at "just" QP phonon radiation, QP diffusion will need to be on as well, etc. The only scenario in which qpDiffusion can be inactive is one in which no tracked QPs are expected to be produced in the simulation.
-
-Final note: for completeness, `qpDiffusionTimeStepper` is a "second" way of doing diffusion, but also requires the qpDiffusion process to be on. It's more of a diagnostic tool and actively slows the code down relative to just using `qpDiffusion`, so most people shouldn't need or want to use it. If you're considering this, may be good to check in with Ryan (linehan3@fnal.gov) to see if it's something you're actually wanting to do.
 
 
 
