@@ -21,3 +21,6 @@ epositions.txt
 # Ignore IDE stuff
 *__pycache__*
 .vscode
+build/
+install/
+
