@@ -122,11 +122,11 @@ However, if your application does not need to model these effects, a more limite
 
 The goal of this section is to introduce advanced users to new elements of geometry construction that are needed for adopting the new features of G4CMP-V10. We're going to start in the approximately the same place as the original RISQ Tutorial example: by inspecting a moderately complicated superconducting qubit geometry, once again based on the "candlestick" Xmon qubits designed by the McDermott Group at UW-Madison. The following features are on this chip:
 * Silicon chip substrate
-* Aluminum ground plane
-* Aluminum CPW transmission line and wirebond pads
-* Aluminum CPW quarter-wave resonators (x6)
-* Aluminum Xmon qubits (no junction leads included)
-* Copper mounts for thermalization
+* Aluminum ground plane (sibling to the silicon chip in the geometry heirarchy)
+* Aluminum CPW transmission line with wirebond pads (daughter of the ground plane)
+* Aluminum CPW quarter-wave resonators (x6) (daughters of the ground plane)
+* Aluminum Xmon qubits (no junction leads included) (also daughters of the ground plane)
+* Copper mounts for thermalization (sibling to the silicon chip in the geometry heirarchy)
 To see these features, we'll run our first macro, `quasiparticle_geometry_vis.mac`, from our `quasiparticle-build` directory. First, we'll navigate there and boot up G4CMP:
 ```
 cd /path/to/quasiparticle-build
@@ -140,31 +140,216 @@ which should give you the following result, which we'll reference in the several
 
 <img width="591" height="597" alt="image" src="https://github.com/user-attachments/assets/31d1928d-6ab5-4852-9afc-9ba29648e8b8" />
 
-The overall structure of the geometry construction, created in `quasiparticle/src/QuasiparticleDetectorConstruction.cc`, is very similar to that made for the 2024 RISQTutorial, and we refer readers to that tutorial for more thorough guidance on that overall structure. However, it is worth reminding readers that:
-* The silicon chip and superconducting ground plane are siblings in the geometry heirarchy
-* The transmission line and resonators are defined in dedicated classes...
-* ...and are daughters of the ground plane but are siblings to each other in the geometry heirarchy.
-* The dedicated class objects (transmission line, resonators) pass volume information up to the main detector construction file when defining boundaries between these objects' subvolumes and the immediate daughters of the world (like the silicon chip).
+To understand what about this geometry is actually new, let's explore some of the new physics. You can go ahead and close the session with `exit` and then let's open the macro with our favorite text editor
+```
+emacs ../quasiparticle/G4Macros/quasiparticle_geometry_vis.mac
+```
+Let's first look at phonon propagation. We'll make three changes to this macro. First, uncomment these three lines:
+```
+/vis/filtering/trajectories/particleFilter-0/add phononTS
+/vis/filtering/trajectories/particleFilter-0/add phononTF
+/vis/filtering/trajectories/particleFilter-0/add phononL
+```
+to allow the visualization to no longer filter out phonons when displaying tracks. Second, let's turn off Cooper-pair breaking so that when we allow phonons to enter our superconducting film, they just pass straight through without confusion. Let's put this right after
+```
+#/process/inactivate phononScattering
+#/process/inactivate phononDownconversion
+/process/inactivate phononPolycrystalElasticScattering
+#/process/inactivate qpRecombination
+#/process/inactivate qpRadiatesPhonon
+/process/inactivate scPairBreaking
+#/process/inactivate qpDiffusion
+#/process/inactivate qpLocalTrapping
+#/process/inactivate qpDiffusionTimeStepper
+```
+Third, let's set the phonon bounces to 100, so that we have ample chance of watching the phonons do interesting things in the film and substrate.
+```
+/g4cmp/phononBounces 100
+```
+Okay with that, let's rerun. 
+```
+./g4cmpQuasiparticle
+/control/execute ../quasiparticle/G4Macros/quasiparticle_geometry_vis.mac
+```
+You should see this frame:
 
-### Geometry Heirarchy and Boundary Requirements in G4CMP-V10
+<img width="589" height="591" alt="image" src="https://github.com/user-attachments/assets/7a70ae9a-d6b5-4307-b634-9a1990209628" />
 
-The fundamental improvements brought by G4CMP-V10 are that phonons can transmit between volumes and create trackable QPs in those volumes (if applicable). This implies that full use of these features requires a tweak to how volumes and boundaries are defined in G4CMP.  
+Showing a single phonon (here, all polarizations are green for simplicity) bouncing around our device. To see how this is different from prior versions of G4CMP, let's take a look at the verbose tracking output, which should have also been printed by this macro:
 
-First, since phonons now may pairbreak over a characteristic mean free path in a superconducting material, we need to properly define the thicknesses of the superconducting films directly in the geometry, as opposed to via the `filmThickness` parameter of the KaplanQP class. In prior examples such as the 2024 RISQTutorial, the detector construction was _defined_ with a thickness, but this thickness effectively did nothing: all microphysics in the superconducting plane was handled either by KaplanQP or through a simple absorption. Now, thickness directly impacts the number of quasiparticles produced. This thickness is defined as `dp_groundPlaneDimZ` in `quasiparticle/include/QuasiparticleDetectorParameters.hh`. 
+```
+*********************************************************************************************************
+* G4Track Information:   Particle = phononTF,   Track ID = 1,   Parent ID = 0
+*********************************************************************************************************
 
-DESCRIBE QP TRANSPORT HERE AND PUNT DISCUSSION OF BILAYERS TO LATER
+Step#    X(mm)    Y(mm)    Z(mm) KinE(MeV)  dE(MeV) StepLeng TrackLeng  NextVolume ProcName
+    0    -2.09        1      4.9     4e-09        0        0         0 SiliconChip initStep
+    1    -2.04     0.93     4.62     4e-09        0    0.294     0.294       World Transportation
+    2    -2.04     0.93     4.62     4e-09        0        0     0.294 SiliconChip Transportation
+    3    -2.39    0.926        5     4e-09        0    0.516      0.81 GroundPlane Transportation
+    4    -2.39    0.926        5     4e-09        0 0.000122      0.81       World Transportation
+    5    -2.39    0.926        5     4e-09        0        0      0.81 GroundPlane Transportation
+    6    -2.39    0.926        5     4e-09        0 0.000553     0.811 SiliconChip Transportation
+    7    0.703   -0.544     4.81     4e-09        0     3.43      4.24 SiliconChip phononScattering
+    8    0.671    -0.25     4.62     4e-09        0     0.35      4.59       World Transportation
+    9    0.671    -0.25     4.62     4e-09        0        0      4.59 SiliconChip Transportation
+   10    0.668   -0.277     4.66     4e-09        0   0.0509      4.64 SiliconChip phononScattering
+   11    0.615   -0.327     4.62     4e-09        0   0.0847      4.73       World Transportation
+   12    0.615   -0.327     4.62     4e-09        0        0      4.73 SiliconChip Transportation
+   13     0.52   -0.269        5     4e-09        0    0.397      5.12 GroundPlane Transportation
+   14     0.52   -0.269        5     4e-09        0 9.77e-05      5.12       World Transportation
+   15     0.52   -0.269        5     4e-09        0        0      5.12 GroundPlane Transportation
+   16     0.52   -0.269        5     4e-09        0 0.000185      5.12 SiliconChip Transportation
+   17    0.361    -1.22     4.62     4e-09        0     1.03      6.16       World Transportation
+   18    0.361    -1.22     4.62     4e-09        0        0      6.16 SiliconChip Transportation
+   19     1.06    -1.15     4.94     4e-09        0     0.77      6.93 SiliconChip phononScattering
+   20     1.06    -1.14     4.95     4e-09        0   0.0126      6.94 SiliconChip phononScattering
+```
+Only the first twenty steps are shown, and show a quasi-periodic behavior in which the phonon's volume follows a trajectory like SiliconChip-->World-->SiliconChip-->GroundPlane-->World-->GroundPlane-->SiliconChip. This cadence demonstrates a phonon reflecting off of the vacuum boundaries with the world (the steps after "World" are zero-length turnaround steps) and then transmitting through the SiliconChip-to-Groundplane interface. Here the StepLeng (step length) column for the steps like Step 4, in which in which the last step's NextVolume was the GroundPlane and the current step's NextVolume is World, shows that the phonon is propagating around 0.000122 mm (about 122 nm), which is comparable to the thickness of the ground plane. Together, these things demonstrate that _the ground plane is a physically realized volume in which the phonons can propagate_, which is a new feature of this version of G4CMP.
 
-Technically, one can establish films of varying thickness, but for reasons related to quasiparticle transport (described below), we currently recommend defining all superconducting thin films with the same thickness.
+With that simple phonon example under our belt, let's make things a bit more complicated and see what happens when we turn on quasiparticle physics. Go ahead and exit (`exit`), and let's re-enter our macro, reactivate cooper pair breaking:
+
+```
+#/process/inactivate phononScattering
+#/process/inactivate phononDownconversion
+/process/inactivate phononPolycrystalElasticScattering
+#/process/inactivate qpRecombination
+#/process/inactivate qpRadiatesPhonon
+#/process/inactivate scPairBreaking
+#/process/inactivate qpDiffusion
+#/process/inactivate qpLocalTrapping
+#/process/inactivate qpDiffusionTimeStepper
+```
+and set the trajectory visualization to ignore phonons but now no longer ignore quasiparticles:
+```
+# Trajectory filtering by particle type
+/vis/filtering/trajectories/create/particleFilter
+#/vis/filtering/trajectories/particleFilter-0/add phononTS
+#/vis/filtering/trajectories/particleFilter-0/add phononTF
+#/vis/filtering/trajectories/particleFilter-0/add phononL
+/vis/filtering/trajectories/particleFilter-0/add BogoliubovQP
+```
+After this we can go ahead and rerun, which should give us the following image:
+
+<img width="595" height="600" alt="image" src="https://github.com/user-attachments/assets/6450590e-5baf-433a-9bfa-2d010c4f3121" />
+
+Now shown in white are tracks of BogoliubovQP objects. To understand what's going on here, le'ts zoom in a bit:
+```
+/vis/viewer/zoom 16
+```
+which should give us this: 
+
+<img width="593" height="593" alt="image" src="https://github.com/user-attachments/assets/0ba92549-cbff-4e5a-bddb-608353c8cd2c" />
+
+Here, we see QPs, in white, diffusing around a bit and seemingly being impeded by the gray outlines of our resonator and qubit coupler. Since it's hard to get a full sense of what's going on without seeing the phonons (which simultaneously confuse the field of view) and because we're looking at this only in 2D, let's take a look at a QP track's verbose output. Here, I'm inspecting the full track of the final QP spit out in the verbose tracking output:
+```
+*********************************************************************************************************
+* G4Track Information:   Particle = BogoliubovQP,   Track ID = 44,   Parent ID = 42
+*********************************************************************************************************
+
+Step#    X(mm)    Y(mm)    Z(mm) KinE(MeV)  dE(MeV) StepLeng TrackLeng  NextVolume ProcName
+    0    -2.04     1.45        5   5.5e-10        0        0         0 ResonatorAssembly_0 initStep
+    1    -2.07     1.42        5  2.78e-10        0     25.6      25.6 ResonatorAssembly_0 qpRadiatesPhonon
+    :----- List of 2ndaries - #SpawnInStep=  1(Rest= 0,Along= 0,Post= 1), #SpawnTotal=  1 ---------------
+    :     -2.07      1.42         5  2.71e-10           phononTS
+    :----------------------------------------------------------------- EndOf2ndaries Info ---------------
+    2    -2.03     1.47        5  1.75e-10        0      179       204 ResonatorAssembly_0 qpRadiatesPhonon
+    :----- List of 2ndaries - #SpawnInStep=  1(Rest= 0,Along= 0,Post= 1), #SpawnTotal=  2 ---------------
+    :     -2.03      1.47         5  1.03e-10           phononTS
+    :----------------------------------------------------------------- EndOf2ndaries Info ---------------
+    3    -1.95     1.54        5  1.75e-10        0 5.14e+03  5.35e+03 ResonatorAssembly_0 qpDiffusion
+    4    -1.96     1.57        5  1.75e-10        0      574  5.92e+03 ResonatorAssembly_0 qpDiffusion
+    5    -1.96     1.57        5  1.75e-10        0     1.06  5.92e+03 ResonatorAssembly_0 qpDiffusion
+    6    -1.95     1.57        5  1.75e-10        0     1.06  5.92e+03 ResonatorAssembly_0 qpDiffusion
+    7    -1.96     1.57        5  1.75e-10        0    0.716  5.92e+03 ResonatorAssembly_0 qpDiffusion
+    8    -1.95     1.57        5  1.75e-10        0    0.407  5.92e+03 ResonatorAssembly_0 qpDiffusion
+    9    -1.95     1.57        5  1.75e-10        0     1.06  5.92e+03 ResonatorAssembly_0 qpDiffusion
+   10    -1.95     1.57        5  1.75e-10        0   0.0155  5.92e+03 ResonatorAssembly_0 qpDiffusion
+   11    -1.95     1.57        5  1.75e-10        0   0.0489  5.92e+03 ResonatorAssembly_0 qpDiffusion
+   12    -1.95     1.57        5  1.75e-10        0    0.106  5.92e+03 ResonatorAssembly_0 qpDiffusion
+   13    -1.95     1.57        5  1.75e-10        0    0.225  5.92e+03 ResonatorAssembly_0 qpDiffusion
+   14    -1.96     1.57        5  1.75e-10        0     3.44  5.93e+03 ResonatorAssembly_0 qpDiffusion
+   15    -1.95     1.57        5  1.75e-10        0     1.91  5.93e+03 ResonatorAssembly_0 qpDiffusion
+   16    -1.95     1.57        5  1.75e-10        0  0.00958  5.93e+03 ResonatorAssembly_0 qpDiffusion
+   17    -1.95     1.57        5  1.75e-10        0   0.0121  5.93e+03 ResonatorAssembly_0 qpDiffusion
+   18    -1.96     1.57        5  1.75e-10        0    0.148  5.93e+03 ResonatorAssembly_0 qpDiffusion
+   19    -1.96     1.57        5  1.75e-10        0    0.956  5.93e+03 ResonatorAssembly_0 qpDiffusion
+   20    -1.96     1.57        5  1.75e-10        0     5.47  5.94e+03 ResonatorAssembly_0 qpDiffusion
+   21    -1.96     1.57        5  1.75e-10        0     10.1  5.95e+03 ResonatorAssembly_0 qpDiffusion
+   22    -1.96     1.57        5  1.75e-10        0     7.31  5.95e+03 ResonatorAssembly_0 qpDiffusion
+   23    -1.96     1.56        5  1.75e-10        0     27.2  5.98e+03 ResonatorAssembly_0 qpDiffusion
+   24    -1.97     1.56        5  1.75e-10        0     73.1  6.05e+03 ResonatorAssembly_0 qpDiffusion
+   25    -1.96     1.58        5  1.75e-10        0     76.5  6.13e+03 ResonatorAssembly_0 qpDiffusion
+   26    -1.97     1.58        5  1.75e-10        0     42.6  6.17e+03 ResonatorAssembly_0 qpDiffusion
+   27    -1.98     1.59        5  1.75e-10        0     89.5  6.26e+03 ResonatorAssembly_0 qpDiffusion
+   28    -1.97     1.62        5  1.75e-10        0      167  6.43e+03 ResonatorAssembly_0 qpDiffusion
+   29    -1.95     1.62        5  1.75e-10        0     59.1  6.49e+03 ResonatorAssembly_0 qpDiffusion
+   30    -1.95     1.62        5  1.75e-10        0 2.86e-05  6.49e+03 ResonatorAssembly_0_shuntCouplerEmpty Transportation
+   31    -1.95     1.62        5  1.75e-10        0        0  6.49e+03 ResonatorAssembly_0 Transportation
+   32       -2     1.58        5  1.75e-10        0 1.43e+03  7.92e+03 ResonatorAssembly_0 qpDiffusion
+   33    -2.02     1.53        5  1.75e-10        0      926  8.85e+03 ResonatorAssembly_0 qpDiffusion
+   34    -2.05      1.6        5  1.75e-10        0    2e+03  1.08e+04 ResonatorAssembly_0 qpDiffusion
+   35    -1.96     1.64        5  1.75e-10        0 5.24e+03  1.61e+04 ResonatorAssembly_0 qpDiffusion
+   36    -1.97     1.64        5  1.75e-10        0     56.3  1.61e+04 ResonatorAssembly_0 qpDiffusion
+   37    -1.97     1.66        5  1.75e-10        0     85.8  1.62e+04 ResonatorAssembly_0 qpDiffusion
+   38    -1.97     1.67        5  1.75e-10        0     90.9  1.63e+04 ResonatorAssembly_0 qpDiffusion
+   39    -1.97     1.66        5  1.75e-10        0     47.3  1.64e+04 ResonatorAssembly_0 qpDiffusion
+   40    -1.97     1.64        5  1.75e-10        0      280  1.66e+04 ResonatorAssembly_0 qpDiffusion
+   41    -1.99     1.66        5  1.75e-10        0      259  1.69e+04 ResonatorAssembly_0 qpDiffusion
+   42       -2     1.63        5  1.75e-10        0      197  1.71e+04 ResonatorAssembly_0 qpDiffusion
+   43    -2.04     1.61        5  1.75e-10        0 1.31e+03  1.84e+04 ResonatorAssembly_0 qpDiffusion
+   44     -2.1     1.55        5  1.75e-10        0 1.02e+03  1.94e+04 ResonatorAssembly_0 qpDiffusion
+   45    -2.19     1.59        5  1.75e-10        0 3.54e+03   2.3e+04 ResonatorAssembly_0 qpDiffusion
+   46    -2.18     1.59        5  1.75e-10        0     3.67   2.3e+04 ResonatorAssembly_0 qpDiffusion
+   47    -2.19     1.58        5  1.75e-10        0     76.9  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   48    -2.19     1.58        5  1.75e-10        0     2.46  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   49    -2.19     1.58        5  1.75e-10        0    0.877  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   50    -2.19     1.58        5  1.75e-10        0    0.584  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   51    -2.19     1.58        5  1.75e-10        0     1.41  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   52    -2.19     1.58        5  1.75e-10        0    0.259  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   53    -2.19     1.59        5  1.75e-10        0     1.32  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   54    -2.19     1.58        5  1.75e-10        0     1.97  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   55    -2.19     1.58        5  1.75e-10        0   0.0164  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   56    -2.19     1.58        5  1.75e-10        0   0.0366  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   57    -2.19     1.58        5  1.75e-10        0    0.121  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   58    -2.19     1.58        5  1.75e-10        0 0.000691  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   59    -2.19     1.59        5  1.75e-10        0  0.00344  2.31e+04 ResonatorAssembly_0 qpDiffusion
+   60    -2.19     1.59        5  1.75e-10        0 7.13e-05  2.31e+04 GroundPlane Transportation
+   61    -2.39     1.73        5  1.75e-10        0 5.46e+04  7.76e+04 GroundPlane qpLocalTrapping
+```
+Let's talk about what's happening here. First, the first few steps feature a `qpRadiatesPhonon` process -- this is doing exactly what it sounds like: lowering the energy of the QP and spitting out a phonon with that deltaE. Most of the rest of the steps are using `qpDiffusion`, and then in step 284 there is a Transportation step where the NextVolume is `ResonatorAssembly_0_shuntCouplerEmpty`. This, coupled with the subsequent step, is a `BogoliubovQP` reflecting off of a boundary with a vacuum volume I've defined to be `ResonatorAssembly_0_shuntCouplerEmpty`. Finally, the `BogoliubovQP` leaves the `ResonatorAssembly_0` in Step 59 into the `GroundPlane` and then dies without fanfare via `qpLocalTrapping` process.
+
+In this process, there are a few things worth noting. First, the quasiparticle only actually moves in two dimensions, and doesn't change Z position at all. While this is hard to see due to precision involved in these printouts, this is actually exact, and is fundamental to QP propagation in G4CMP. This is true _even for_ the steps that involve inelastic scatters that, say, produce phonons that then travel vertically. As a result, `BogoliubovQP` objects _do not conserve momentum in G4CMP_, though they do (largely) conserve energy. Second, it is pretty clear from both the picture and the printout that QP reflections are happening on vertical interfaces within the thin films, which also implies that there are additional vertical boundaries that must be defined for QPs (and phonons) to properly follow the physics needed in these volumes. 
+
+In summary, we've used this example as a way to get our foot in the door regarding geometry construction, and it's told us a few things:
+1. We need to create dedicated volumes for the thin films in which QPs and phonons can physically propagate in 2 and 3 dimensions, respectively.
+2. A corollary of point 1 is that for phonons (and QPs) to propagate, we need to define _lattices_ for all of these thin film volumes.
+3. We need to create appropriate boundaries for our phonons and QPs to be able to do their physics successfully, including both film/substrate and intra-film boundaries.
+
+The rest of Tutorial Example 1 will be dedicated to discussing how we do these three things, and some good rules of thumb when building them in your own geometry.
+
+> [!TIP]
+> Homework question: can you write a new macro to generate a single QP at, say, 200μeV energy, activate both the phonon and QP visualization, and map out which vertices/kinks of the QP track correspond to phonon emission and QP death?
+
+> [!TIP]
+> Homework question: what may be the motivation for limiting our QP propagation to only a 2-dimensional plane?
+
+> [!TIP]
+> Challenge question: in this verbose output you can see that the X and Y locations of the `BogoliubovQP` do not change much (maybe 0.1 mm or so) between Steps 2 and 3, but the step length changes by about 5 meters (!?). This is not a bug. How/why might this be true?
+
+### Volumes in G4CMP-V10
+
+This thickness is defined as `dp_groundPlaneDimZ` in `quasiparticle/include/QuasiparticleDetectorParameters.hh`. 
+
+As a result of this constraint, such quasiparticles may not exhibit proper diffusion characteristics in Z if films of varying thickness are used in the same device geometry (also shown below). As a result, we currently encourage the use of as _uniform_ of a thin-film thickness profile as possible for first users of this new code, at least prior to further exploration or QP physics upgrades.
+
+<img width="1239" height="267" alt="image" src="https://github.com/user-attachments/assets/8dc71869-0af6-4845-ab53-8ab02da9d136" />
 
 > [!TIP]
 > Use of the `QuasiparticleDetectorParameters.hh` file to co-locate all of your geometry parameters for organization is good practice! Note also that hardcoding the fewest number of parameters that you can while maintaining the flexibility you need is also good practice. The thicknesses of all of the superconducting structures in this example are all given different names for clarity and readability, but all use the singular value of 90nm given to `dp_groundPlaneDimZ`.
 
-In creating this geometry, we liberally make use of parent-daughter definitions to improve accuracy and cleanliness of our geometry code. To see an example of this, let's run the following command to zoom in on a particular part of the geometry, from where we left off in our interactive session:
-```
-/vis/viewer/zoom 16
-```
-This should bring you to the following visualization (without the arrows/text)
-<img width="650" height="650" alt="image" src="https://github.com/user-attachments/assets/f773920b-14c7-41cc-ae5d-e92fc93feae3" />
+
+In creating this geometry, we liberally make use of parent-daughter definitions to improve accuracy and cleanliness of our geometry code.
 
 Even within our resonator assembly, we have a triply-nested heirarchy for the CPW resonator structure. The top level mother is the Al base layer in which all of our structures within a single resonator live. The half-circle of vacuum defined for the CPW "trenches" in the sixth turn of the meander is a daughter of this base layer, and the half-circle of Al defined as the central conductor of the CPW is a daughter of this vacuum volume. Especially for coplanar structures like these resonators and qubits, we recommend following this nesting technique. 
 
@@ -188,6 +373,28 @@ These boolean solids should work reasonably well with the quasiparticle and phon
 
 
 Though not explored here, tesselated geometries...?
+
+
+
+### Lattices in G4CMP-V10
+
+### Boundaries in G4CMP-V10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
