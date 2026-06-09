@@ -466,12 +466,102 @@ Lastly, given that the superconducting device field often uses small device/sens
 
 ## Tutorial Example 2: Scanning Energy Depositions in a Planar Resonator
 
+We now present a tutorial based on the same geometry that is intended to showcase some of the power of G4CMP-V10's new QP tracking. In this, we will study the time evolution of the quasiparticle density in one of the superconducting resonators on the chip, for energy depositions at two different points: one in the ground plane (Point 1) and one directly within the coplanar waveguide's inner conductor (Point 1).
+
+<img width="690" height="686" alt="image" src="https://github.com/user-attachments/assets/df48c971-5ca2-44c5-81cb-a79a00425dd6" />
+
+
+We'll use a new macro this time, `quasiparticle_resonator_targeted.mac`. In this macro, we will simulate high-energy (Debye-energy) phonons in the superconductor as a way of mimicking a fraction of an energy deposition from, say, an optical calibration source, and will store quasiparticle step information for analysis. As we proceed, we'll split this work up into three parts: running the simulation, analyzing the data, and tuning parameters. 
+
+
+### Running the Simulation and Generating Quasiparticle Step Info
+
+Let's go ahead and just run our new macro out of the box:
+```
+./g4cmpQuasiparticle
+/control/execute ../quasiparticle/G4Macros/quasiparticle_resonator_targeted.mac
+```
+It's first set up to launch three events, each with a single 36.9 meV phonon (Al Debye energy, a la [CITE KOZOREZOV]) in the ground plane at Point 1 in the above diagram. This run for about 3 minutes, and should produce a visualization that looks like this:
+
+<img width="598" height="597" alt="image" src="https://github.com/user-attachments/assets/f368ccbc-d313-4b85-a819-387cc5da55fd" />
+
+You may also observe a few exceptions thrown, including but not limited to messages such as
+```
+-------- WWWW ------- G4Exception-START -------- WWWW -------
+*** G4Exception : QPDiffusion025
+      issued by : G4CMPQPDiffusion::GetMeanFreePath
+When calculating safety from a boundary, the2DSafety is below one picometer, and we find a triple junction. Safety: 7.24732e-10. If small enough this may cause issues with surface norm finding. Killing track.
+*** This is just a warning message. ***
+-------- WWWW -------- G4Exception-END --------- WWWW -------
+```
+These exceptions kill individual quasiparticle tracks that have been produced and which have wandered into locations that are challenging to properly handle using the diffusion code embedded into a Geant4-esque Monte Carlo with as complicated of a planar geometry as we're using. We can also estimate roughly the level at which these errors artificially kill tracks: on average, during the simulation we just did, we deposit about 111 meV of energy into the film, of which about 57% is expected to be converted into QPs. Divide that energy into the Al gap energy (~178 μeV), and we get about 250 QPs created. While running, I got about 6 exceptions, which means that about 1.3% of our QPs were artificially killed. This is higher than what we ideally want, but is also heavily geometry dependent, and these errors will be a future focus of refining the diffusion code.
+
+The main output from this is a file called `QuasiparticleStepInformationFile.txt`. We'll open that in a sec, but for now let's rename it and rerun, since our next sim will actually take about 15 minutes to run, and it will overwrite this output file if we keep it the same name. After exiting G4CMP's interactive session, we can run
+```
+mv QuasiparticleStepInformationFile.txt QuasiparticleStepInformationFile_Point1_3evts.txt
+```
+so that we name the file with some useful labels that we can use to remember what went into it. Once we do this, let's go into our macro and edit it to simulate interactions at Point 2, by changing the position definition lines to:
+```
+#/gps/pos/centre -2.65 1.221 5.0001 mm # Point 1, in film
+/gps/pos/centre -1.85 1.221 5.0001 mm # Point 2, in film
+```
+Now rerun the simulation with this amended interaction point, which is dumping our Debye-energy phonon into the central conductor of our CPW resonator at Point 2. 
+```
+./g4cmpQuasiparticle
+/control/execute ../quasiparticle/G4Macros/quasiparticle_resonator_targeted.mac
+```
+This process should take much longer, about 15 minutes, and will give an output as shown below. (In the meantime, we'll move on and talk about analysis of the output file we've already collected.)
+
+<img width="598" height="594" alt="image" src="https://github.com/user-attachments/assets/c7430877-c4f5-46f4-bed8-d07c21876d3f" />
+
+Once this finishes, let's go ahead and rename this as well:
+```
+mv QuasiparticleStepInformationFile.txt QuasiparticleStepInformationFile_Point2_3evts.txt
+```
+
+> [!TIP]
+> Homework question: why does it make sense that this simulation taking longer? Given the walk-on-spheres technique, can you estimate a naive scaling for how much longer this simulation should take than the simulation for Point 2? Does it agree with the observed difference in execution time?
+
+Once we
+
+
+### Analyzing the Simulation Output
+
+To begin analyzing our output, we first need to understand what our output is. Unlike the original RISQ 2024 tutorial example, we're no longer thinking about "hits" -- here, the analysis we're going to do will be entirely based on track stepping information. Notably, hits may still be used and defined as they were in the 2024 RISQ tutorial, which opens up space for analysis with both stepping and hits. However, we focus primarily on the stepping analysis here. 
+
+We've provided an analysis macro that can read the output of the simulations we've just run, but it's perhaps useful to first look at what we're _trying_ to save. This takes us to the source file `QuasiparticleSteppingAction.cc`, which has two critical blocks of code. The first is the location where we determine what to do during every step (i.e. a user-defined action to do per-step):
+
+```
+//Alternative constructor                                                                      
+void QuasiparticleSteppingAction::UserSteppingAction(const G4Step* step) {
+  //First up: do generic exporting of step information (no cuts made here)                     
+  ExportStepInformation(step);
+  return;
+}
+```
+Here, during every step, we simply just run a function that exports step information to file. This is kept as a separate function so that in case we want to do other non-export-related calculations within the stepping action, we can also put those in the `UserSteppingAction` function without mixing them into the exporting functions. Within the `ExportStepInformation()` function, defined below this one, the critical block of code is
+```
+//Only fill stepping output with QP information                
+if( particleName.find("BogoliubovQP") != std::string::npos ){
+
+	//Fill the output file with the step info                                
+    fOutputFile << runNo << " " << eventNo << " " << trackNo << " "
+                << particleName << " " << std::setprecision(14) << preStepX_mm
+                << " " << preStepY_mm << " " << preStepZ_mm << " "
+                << preStepT_ns << " " << preStepEnergy_eV << " "
+                << preStepKinEnergy_eV << " " << postStepX_mm << " "
+                << postStepY_mm << " " << postStepZ_mm << " " << postStepT_ns
+                << " " << postStepEnergy_eV << " " << postStepKinEnergy_eV
+                << " " << nReflections << " " << stepProcess << " "
+                << preStepVolume << " " << postStepVolume << std::endl;
+}
+```
+In this block (which runs after gathering all of the step info that is exported here) we write information to our stepping output file if the particle taking the step is a `BogoliubovQP`. For that QP, we write pre- and post-step information including X, Y, Z, T, E, KE, and volume name variables, as well as the total number of reflections at this step and the process that determines the step.
 
 
 
 
-
-
+### Parameter Tuning
 
 
 
