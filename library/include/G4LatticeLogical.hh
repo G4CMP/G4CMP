@@ -358,6 +358,9 @@ private:
 
   const G4double mElectron;	 // Free electron mass (without G4's c^2)
   G4double fHoleMass;		 // Effective mass of +ve carrier
+  G4double fHoleA;       // Hole Anisotropy Param A
+  G4double fHoleB;       // Hole Anisotropy Param B
+  G4double fHoleC;       // Hole Anisotropy Param C
   G4double fElectronMass;	 // Effective mass (scalar) of -ve carrier
   G4double fElectronMDOS;	 // Density of states weighed -ve carrier mass
 
