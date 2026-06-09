@@ -234,7 +234,6 @@ void G4LatticeLogical::SetCrystal(G4CMPCrystalGroup::Bravais group, G4double a,
   fBasis[0] = a*fCrystal.axis[0];	// Basis vectors include spacing
   fBasis[1] = b*fCrystal.axis[1];
   fBasis[2] = c*fCrystal.axis[2];
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
