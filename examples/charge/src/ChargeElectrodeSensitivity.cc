@@ -68,7 +68,7 @@ void ChargeElectrodeSensitivity::SetOutputFile(const G4String &fn) {
   if (fileName != fn) {
     if (output.is_open()) output.close();
     fileName = fn;
-    output.open(fileName, std::ios_base::app);
+    output.open(fileName);
     if (!output.good()) {
       G4ExceptionDescription msg;
       msg << "Error opening output file, " << fileName << ".\n";

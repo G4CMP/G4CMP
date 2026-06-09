@@ -1,0 +1,3 @@
+Run ID,Event ID,Track ID,Particle Name,Start Energy [eV],Start X [m],Start Y [m],Start Z [m],Start Time [ns],Energy Deposited [eV],Track Weight,End X [m],End Y [m],End Z [m],Final Time [ns]
+0,0,2,G4CMPDriftElectron,1e-06,0,0,0,0,0.398224,1,-0.000173149,-0.000694628,0.0127,395.574
+0,0,1,G4CMPDriftHole,1e-06,0,0,0,0,0.380946,1,0.00162574,0.00042679,-0.0127,583.744
