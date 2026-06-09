@@ -44,11 +44,15 @@ protected:
     override;
 
   // Flag if track is eligible for recombination: stopped or below threshold
-  G4bool ReadyToRecombine(const G4Track&) const;
+  G4bool ReadyToRecombine(const G4Track& aTrack) const;
 
-  // Compute maximum energy gain along current trajectory toward surface
+  // Decide if track gains enough energy for NTL emission before surface
   // NOTE: Will include "turn around" if electric field is in use
-  G4double EnergyGainToSurface(const G4Track&) const;
+  G4bool EnergyGainToSurface(const G4Track& aTrack) const;
+  G4bool LukeBeforeSurface(const G4Track& aTrack) const;
+
+  // Compute distance and direction to surface, using field acceleration
+  G4ThreeVector VectorToSurface(const G4Track& aTrack) const;
 
   // Compute acceleration direction from E-field, accounting for valleys
   G4ThreeVector GetAcceleration(const G4ThreeVector& Efield) const;

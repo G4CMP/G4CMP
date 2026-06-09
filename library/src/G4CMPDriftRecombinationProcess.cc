@@ -60,21 +60,23 @@ G4CMPDriftRecombinationProcess::PostStepDoIt(const G4Track& aTrack,
 					     const G4Step& aStep) {
   InitializeParticleChange(aTrack);
 
-  // SPECIAL: We use fStopAndKill to destroy tracks without recombining
-  if (aTrack.GetTrackStatus() == fStopAndKill)
-    return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
-    
-  // If the particle has not come to rest, do nothing
-  if (!ReadyToRecombine(aTrack))
-    return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+  G4bool doRecomb = ReadyToRecombine(aTrack);
 
   if (verboseLevel) {
     G4cout << GetProcessName() << "::PostStepDoIt: " << G4endl
-           << aTrack.GetDefinition()->GetParticleName()
-           << " reabsorbed by the lattice " << G4endl
-	   << " @ " << aTrack.GetPosition()
-           << G4endl;
+           << aTrack.GetDefinition()->GetParticleName() << " "
+	   << aTrack.GetKineticEnergy()/eV << " eV ";
+
+    if (doRecomb) {
+      G4cout << "reabsorbed by lattice @ " << aTrack.GetPosition()<< G4endl;
+    } else {
+      G4cout << "not ready to recombine." << G4endl;
+    }
   }
+  
+  // If the particle has not come to rest, do nothing
+  if (!doRecomb) return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+
 
   *(G4CMPProcessUtils*)partitioner = *(G4CMPProcessUtils*)this;
   partitioner->SetVerboseLevel(verboseLevel);
@@ -107,6 +109,9 @@ G4CMPDriftRecombinationProcess::PostStepDoIt(const G4Track& aTrack,
 
 G4bool G4CMPDriftRecombinationProcess::
 ReadyToRecombine(const G4Track& aTrack) const {
+  // SPECIAL: We use fStopAndKill to destroy tracks without recombining
+  if (aTrack.GetTrackStatus() == fStopAndKill) return false;
+    
   if (aTrack.GetStepLength() <= 0.) return false;	// Avoid reflections
 
   if (verboseLevel>1)
@@ -117,66 +122,93 @@ ReadyToRecombine(const G4Track& aTrack) const {
     return true;
   }
 
-  // Minimum energy for NTL emission is kinetic energy at Vsound
-  G4double Eluke = GetRateModel()->Threshold(1e-9*eV);
-  G4double Etrack = GetKineticEnergy(aTrack);
-
-  if (verboseLevel>2) {
-    G4cout << " Eluke " << Eluke/eV << " eV Etrack " << Etrack/eV << " eV"
+  // Recombine now if no NTL emission expected before hitting surface
+  G4bool noNTL = !LukeBeforeSurface(aTrack);
+  if (verboseLevel>1) {
+    G4cout << " " << (noNTL?"No ":"") << "NTL emission before surface."
 	   << G4endl;
   }
 
-  // In field, track can "regain" energy even if below threshold now
-  G4double Egain = EnergyGainToSurface(aTrack);
-
-  if (verboseLevel>2) {
-    G4cout << " Egain " << Egain/eV << " eV: Egain+Etrack "
-	   << (Etrack+Egain<Eluke ? "does not exceeed" : "exceeds")
-	   << " Eluke" << G4endl;
+  // Recombine now if no energy gain expected before hitting surface
+  G4bool noGain = !EnergyGainToSurface(aTrack);
+  if (verboseLevel>1) {
+    G4cout << " " << (noGain?"No ":"") << "energy gained before surface."
+	   << " IGNORED" << G4endl;
   }
 
-  if (Etrack+Egain < Eluke) return true;
+  return noNTL;		// Use only MFP, not energy gain
+}
 
-  // If none of the conditions were satisfied, let the track keep going
-  return false;
+
+// Distance and direction to surface, along track or along field
+// NOTE: Assumes "turn around" if electric field can redirect track
+
+G4ThreeVector G4CMPDriftRecombinationProcess::
+VectorToSurface(const G4Track& aTrack) const {
+  // Use track touchable to create wrapper for G4VSolid interface
+  G4CMPSolidUtils sutil(aTrack.GetTouchable(),verboseLevel,"Recombination");
+
+  G4ThreeVector vSurf = GetGlobalMomentum(aTrack).unit();
+
+  G4ThreeVector Efield = G4CMP::GetFieldAtPosition(aTrack);
+  if (Efield.mag() > 0.) vSurf = GetAcceleration(Efield).unit();
+
+  G4double vDist = sutil.GetDistanceToSolid(aTrack.GetPosition(), vSurf);
+
+  if (verboseLevel>2) {
+    G4cout << " VectorToSurface: vDist " << vDist/mm << " mm along "
+	   << vSurf << G4endl;
+  }
+
+  return vDist*vSurf;
 }
 
 
 // Compute maximum energy gain along current trajectory toward surface
 // NOTE: Will include "turn around" if electric field is in use
 
-G4double G4CMPDriftRecombinationProcess::
+G4bool G4CMPDriftRecombinationProcess::
 EnergyGainToSurface(const G4Track& aTrack) const {
   G4ThreeVector Efield = G4CMP::GetFieldAtPosition(aTrack);
   Efield *= aTrack.GetDynamicParticle()->GetCharge();
 
-  if (Efield.mag() <= 0.) return 0.;	// No field, no energy gain
+  // Energy gained from current position due to voltage bias
+  G4ThreeVector vSurf = VectorToSurface(aTrack);
+  G4double Egain = vSurf*Efield;
 
-  // Use track touchable to create wrapper for G4VSolid interface
-  G4CMPSolidUtils sutil(aTrack.GetTouchable(),verboseLevel,"Recombination");
+  // Minimum energy for NTL emission is kinetic energy at Vsound
+  G4double Eluke = GetRateModel()->Threshold(1e-9*eV);
+  G4double Etrack = GetKineticEnergy(aTrack);
 
-  // Get distance to nearest surface along current trajectory
-  G4ThreeVector tDir = GetGlobalMomentum(aTrack).unit();
-  G4double tDist = sutil.GetDistanceToSolid(aTrack.GetPosition(), tDir);
-  G4double Vtrack = tDist*tDir*Efield;		// Energy gain along track
-
-  if (verboseLevel>2) {
-    G4cout << " EnergyGainToSurface: tDist " << tDist/mm << " mm"
-	   << " along " << tDir << " Vtrack " << Vtrack/eV << " eV" << G4endl;
-  }
-
-  // Get distance to volume surface along direction field accelerates
-  G4ThreeVector aDir = GetAcceleration(Efield).unit();
-
-  G4double aDist = sutil.GetDistanceToSolid(aTrack.GetPosition(), aDir);
-  G4double Vfield = aDist*aDir*Efield;		// Energy gain induced by field
+  // Could track exceed NTL threshold before reaching surface?
+  G4bool hasGain = (Etrack+Egain > Eluke);
 
   if (verboseLevel>2) {
-    G4cout << " EnergyGainToSurface: aDist " << aDist/mm << " mm"
-	   << " along " << aDir << " Vfield " << Vfield/eV << " eV" << G4endl;
+    G4cout << " Egain " << Egain/eV << " eV: Egain+Etrack "
+	   << (hasGain ? "exceeds" : "does not exceeed")
+	   << " Eluke " << Eluke/eV << " eV" << G4endl;
   }
 
-  return std::max(Vtrack,Vfield);
+  return hasGain;
+}
+
+
+// Compare MFP for next NTL emission with distance to surface
+
+G4bool G4CMPDriftRecombinationProcess::
+LukeBeforeSurface(const G4Track& aTrack) const {
+  G4double lukeMFP = GetMFPfromRate(aTrack);	  // Registered NTL RateModel
+  G4ThreeVector vSurf = VectorToSurface(aTrack);  // Distance to track end
+  G4bool couldNTL = (lukeMFP < vSurf.mag());	  // Rough guess at another NTL
+
+  if (verboseLevel>2) {
+    G4cout << " LukeBeforeSurface dist " << vSurf.mag()/mm << " mm"
+	   << " NTL MFP " << lukeMFP/mm << " mm "
+	   << (couldNTL?"could":"probably won't")
+	   << " emit NTL phonon" << G4endl;
+  } 
+
+  return couldNTL;
 }
 
 
@@ -205,6 +237,11 @@ GetAcceleration(const G4ThreeVector& Efield) const {
   accel.transform(vToN);			// Back to lattice
   theLattice->RotateToSolid(accel);		// Back to crystal frame
   RotateToGlobalDirection(accel);
+
+  if (verboseLevel>2) {
+    G4cout << " Efield along " << Efield.unit() << " has acceleration"
+	   << " along " << accel.unit() << G4endl;
+  }
 
   return accel;
 }
