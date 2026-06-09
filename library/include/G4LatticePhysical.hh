@@ -38,6 +38,7 @@
 //		Also, add long missing accessors for Miller orientation
 // 20250905  G4CMP-500 -- Removing non-fundamental superconductor parameters
 //              from logical lattice and making them physical lattice members
+// 20260609  G4CMP-78 -- Add Hole Anisotropy Parameters  
 
 #ifndef G4LatticePhysical_h
 #define G4LatticePhysical_h 1
@@ -173,6 +174,9 @@ public:
   
   // Charge carriers have effective mass
   G4double GetHoleMass() const { return fLattice->GetHoleMass(); }
+  G4double GetHoleA() const { return fLattice->GetHoleA(); } 
+  G4double GetHoleB() const { return fLattice->GetHoleB(); } 
+  G4double GetHoleC() const { return fLattice->GetHoleC(); } 
   G4double GetElectronMass() const { return fLattice->GetElectronMass(); }
   G4double GetElectronDOSMass() const { return fLattice->GetElectronDOSMass(); }
   G4double GetElectronEffectiveMass(G4int iv, const G4ThreeVector& p) const;

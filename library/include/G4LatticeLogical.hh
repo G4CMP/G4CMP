@@ -45,6 +45,7 @@
 // 20250904  R. Linehan -- Linked Tcrit to Delta0 for superconductors
 // 20250905  G4CMP-500  -- Removed non-fundamental superconductor params from
 //              lattice info
+// 20260609  G4CMP-78 -- Add Hole Anisotropy Parameters 
 
 #ifndef G4LatticeLogical_h
 #define G4LatticeLogical_h
@@ -193,6 +194,9 @@ public:
   void SetTransverseSoundSpeed(G4double v) { fVTrans = v; }
   void SetHoleScatter(G4double l0) { fL0_h = l0; }
   void SetHoleMass(G4double hmass) { fHoleMass = hmass; }
+  void SetHoleA(G4double val) { fHoleA = val; } 
+  void SetHoleB(G4double val) { fHoleB = val; } 
+  void SetHoleC(G4double val) { fHoleC = val; }
   void SetElectronScatter(G4double l0) { fL0_e = l0; }
   void SetMassTensor(const G4RotationMatrix& etens);
   void SetMassTensor(G4double mXX, G4double mYY, G4double mZZ);
@@ -204,6 +208,9 @@ public:
   G4double GetTransverseSoundSpeed() const      { return fVTrans; }
   G4double GetHoleScatter() const               { return fL0_h; }
   G4double GetHoleMass() const                  { return fHoleMass; }
+  G4double GetHoleA() const                     { return fHoleA; }
+  G4double GetHoleB() const                     { return fHoleB; }
+  G4double GetHoleC() const                     { return fHoleC; } 
   G4double GetElectronScatter() const           { return fL0_e; }
   G4double GetElectronMass() const 		{ return fElectronMass; }
   G4double GetElectronDOSMass() const 		{ return fElectronMDOS; }

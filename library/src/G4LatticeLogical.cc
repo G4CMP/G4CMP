@@ -60,6 +60,7 @@
 // 20240510  E. Michhaud -- Add function to compute L0 from other parameters
 // 20250904  R. Linehan -- Linking Tcrit to Delta0 for superconductors
 // 20250905  G4CMP-500 -- Removing non-fundamental superconductor parameters
+// 20260609  G4CMP-78 -- Add Hole Anisotropy Parameters
 
 #include "G4LatticeLogical.hh"
 #include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****
@@ -84,7 +85,8 @@ G4LatticeLogical::G4LatticeLogical(const G4String& name)
     fSC_Tau0_qp(DBL_MAX), fSC_Tau0_ph(DBL_MAX),
     fVSound(0.), fVTrans(0.), fL0_e(0.), fL0_h(0.), 
     mElectron(electron_mass_c2/c_squared),
-    fHoleMass(mElectron), fElectronMass(mElectron), fElectronMDOS(mElectron),
+    fHoleMass(mElectron), fHoleMass(mElectron), fHoleA(mElectron), fHoleB(mElectron),
+    fHoleC(mElectron), fElectronMass(mElectron), fElectronMDOS(mElectron), 
     fBandGap(0.), fPairEnergy(0.), fFanoFactor(1.),
     fMassTensor(G4Rep3x3(mElectron,0.,0.,0.,mElectron,0.,0.,0.,mElectron)),
     fMassInverse(G4Rep3x3(1/mElectron,0.,0.,0.,1/mElectron,0.,0.,0.,1/mElectron)),
@@ -143,6 +145,9 @@ G4LatticeLogical& G4LatticeLogical::operator=(const G4LatticeLogical& rhs) {
   fL0_e = rhs.fL0_e;
   fL0_h = rhs.fL0_h;
   fHoleMass = rhs.fHoleMass;
+  fHoleA = rhs.fHoleA;
+  fHoleB = rhs.fHoleB;
+  fHoleC = rhs.fHoleC;
   fElectronMass = rhs.fElectronMass;
   fElectronMDOS = rhs.fElectronMDOS;
   fBandGap = rhs.fBandGap;
@@ -977,6 +982,12 @@ void G4LatticeLogical::Dump(std::ostream& os) const {
      << "\nl0_e " << fL0_e/um << " um"
      << "\nl0_h " << fL0_h/um << " um"
      << std::endl;
+
+ os << "# Hole anisotropy parameters [m(electron) units]"
+   << "\nholeA " << fHoleA/mElectron 
+   << "\nholeB " << fHoleB/mElectron 
+   << "\nholeC " << fHoleC/mElectron  
+   << std::endl;
 
   os << "# Charge carrier masses [m(electron) units]"
      << "\nhmass " << fHoleMass/mElectron

@@ -38,6 +38,7 @@
 // 20250904  R. Linehan -- Removed direct read of Tcrit from CrystalMap file
 // 20250905  G4CMP-500 -- Removed non-fundamental superconductor parameters
 // 20251116  M. Kelsey -- Replace G4String functions with G4StrUtil, for G4 v11
+// 20260609  E. Wang -- Add Hole Anisotropy Parameters   
 
 #include "G4LatticeReader.hh"
 #include "G4CMPConfigManager.hh"
@@ -213,6 +214,9 @@ G4bool G4LatticeReader::ProcessValue(const G4String& name) {
   else if (name == "hscat")         pLattice->SetHoleScatter(fValue*ProcessUnits("Length"));
   else if (name == "l0_h")          pLattice->SetHoleScatter(fValue*ProcessUnits("Length"));
   else if (name == "hmass")         pLattice->SetHoleMass(fValue*mElectron);
+  else if (name == "holeA")         pLattice->SetHoleA(fValue*mElectron); 
+  else if (name == "holeB")         pLattice->SetHoleB(fValue*mElectron); 
+  else if (name == "holeC")         pLattice->SetHoleC(fValue*mElectron); 
   else if (name == "acdeform_e") pLattice->SetElectronAcousticDeform(fValue*ProcessUnits("Energy"));
   else if (name == "acdeform_h") pLattice->SetHoleAcousticDeform(fValue*ProcessUnits("Energy"));
   else if (name == "ivquadfield")   pLattice->SetIVQuadField(fValue*ProcessUnits("Electric field"));
