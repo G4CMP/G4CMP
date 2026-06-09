@@ -207,7 +207,7 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
   G4bool goodThrow = false;
   G4int iThrow = 0;
   while (!goodThrow && iThrow++ < maxThrows) {
-    theta_phonon = MakePhononTheta(kmag, kSound);
+    theta_phonon = MakePhononThetaLuke(kmag, kSound);
     phi_phonon   = G4UniformRand()*twopi;
     q = 2*(kmag*cos(theta_phonon)-kSound);
 

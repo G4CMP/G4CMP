@@ -128,10 +128,6 @@ public:
     static const G4ThreeVector nullVec(0.,0.,0.);
     return (i>=0 && i<3 ? fBasis[i] : nullVec);
   }
-    
-  // Assign lattice constants
-  //void SetLatConst(G4double a, G4double b, G4double c);
-  const G4ThreeVector& GetLatConst() const { return fLatConst; }
 
   // Physical parameters of lattice (density, elasticity)
   void SetDensity(G4double val) { fDensity = val; }
@@ -276,12 +272,31 @@ public:
   void SetAlpha(G4double v)	     { fAlpha = v; }
   void SetElectronAcousticDeform(G4double v) { fAcDeform_e = v; }
   void SetHoleAcousticDeform(G4double v) { fAcDeform_h = v; }
-  void SetIVDeform(const std::vector<G4double>& vlist) { fIVDeform = vlist; }
-  void SetIVEnergy(const std::vector<G4double>& vlist) { fIVEnergy = vlist; }
-  void SetIVNValleys(const std::vector<G4double>& vlist) { fIVNValleys = vlist; }
-  void SetIVOrder(const std::vector<G4double>& vlist) { fIVOrder = vlist; }
-  void SetIVFGScattering(const std::vector<G4String>& vlist) { fIVFGScattering = vlist; }
-  void SetIVPhononMode(const std::vector<G4String>& vlist) { fIVPhononMode = vlist; }
+  void SetIVDeform(const std::vector<G4double>& vlist) {
+    fIVDeform = vlist;
+    CheckIVConsistency();
+  }
+  void SetIVEnergy(const std::vector<G4double>& vlist) {
+    fIVEnergy = vlist;
+    CheckIVConsistency();
+  }
+  void SetIVNValleys(const std::vector<G4double>& vlist) {
+    fIVNValleys = vlist;
+    CheckIVConsistency();
+  }
+  void SetIVOrder(const std::vector<G4double>& vlist) {
+    fIVOrder = vlist;
+    CheckIVConsistency();
+  }
+  void SetIVFGScattering(const std::vector<G4String>& vlist) {
+    fIVFGScattering = vlist;
+    CheckIVConsistency();
+  }
+  void SetIVPhononMode(const std::vector<G4String>& vlist) {
+    fIVPhononMode = vlist;
+    CheckIVConsistency();
+  }
+  void CheckIVConsistency() const;
 
   //Set functions for superconductor properties
   void SetSCTau0qp(G4double v)              { fSC_Tau0_qp = v; }
@@ -298,7 +313,7 @@ public:
   G4double GetIVLinExponent() const  { return fIVLinExponent; }
 
   G4double GetAlpha() const	     { return fAlpha; }
-  G4double GetNonParabolicity(const G4double Kino) const ;
+  G4double GetNonParabolicity(const G4double Kin) const ;
   G4double GetElectronAcousticDeform() const { return fAcDeform_e; }
   G4double GetHoleAcousticDeform() const { return fAcDeform_h; }
   G4int    GetNIVDeform() const { return (G4int)fIVDeform.size(); }
@@ -363,12 +378,17 @@ private:
     return *v;
   }
 
+  inline G4ThreeVector& tempvec2() const {
+    static G4ThreadLocal G4ThreeVector* v2=0;
+    if (!v2) v2 = new G4ThreeVector;
+    return *v2;
+  }
+
 private:
   mutable G4int verboseLevel;		    // Enable diagnostic output
   G4String fName;			    // Name of lattice for messages
   G4CMPCrystalGroup fCrystal;		    // Symmetry group, axis unit vectors
   G4ThreeVector fBasis[3];		    // Basis vectors for Miller indices
-  G4ThreeVector fLatConst;		    // Lattice constant
   G4double fDensity;			    // Material density (natural units)
   G4double fNImpurity;			    // Neutral impurity number density
   G4double fPermittivity;		    // Material epsilon/epsilon0 

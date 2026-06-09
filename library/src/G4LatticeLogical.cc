@@ -137,7 +137,6 @@ G4LatticeLogical& G4LatticeLogical::operator=(const G4LatticeLogical& rhs) {
   fBeta = rhs.fBeta;
   fGamma = rhs.fGamma;
   fLambda = rhs.fLambda;
-  fLatConst = rhs.fLatConst;
   fMu = rhs.fMu;
   fDebye = rhs.fDebye;
   fSC_Tau0_qp = rhs.fSC_Tau0_qp;
@@ -236,16 +235,10 @@ void G4LatticeLogical::SetCrystal(G4CMPCrystalGroup::Bravais group, G4double a,
   fBasis[1] = b*fCrystal.axis[1];
   fBasis[2] = c*fCrystal.axis[2];
 
-  fLatConst = fCrystal.unitCell;
+G4cout << "a : " << a << G4endl;
+    G4cout << "crystal axis : " << fCrystal.axis[2] << G4endl;
 
 }
-
-
-// void G4LatticeLogical::SetLatConst(G4double a, G4double b, G4double c) {
-//   fCrystal.SetLatConst(a,b,c);	// Define unit cell lattice parameters
-
-//   fLatConst = fCrystal.LatticeConstant;
-// }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
@@ -573,22 +566,22 @@ G4LatticeLogical::MapP_QToP(G4int ivalley, const G4ThreeVector& P_Q) const {
   const G4RotationMatrix& vToN = GetValley(ivalley);
   const G4RotationMatrix& nToV = GetValleyInv(ivalley);
 
-  G4ThreeVector tempvec2 = P_Q;
-  tempvec2.transform(GetValley(ivalley));
-  tempvec2 /= c_light;
+  tempvec2() = P_Q;
+  tempvec2().transform(GetValley(ivalley));
+  tempvec2() /= c_light;
 
-  G4double bandP = (fMassInverse.xx()*tempvec2.x()*tempvec2.x() +
-    fMassInverse.yy()*tempvec2.y()*tempvec2.y() +
-    fMassInverse.zz()*tempvec2.z()*tempvec2.z());
+  G4double bandP = (fMassInverse.xx()*tempvec2().x()*tempvec2().x() +
+    fMassInverse.yy()*tempvec2().y()*tempvec2().y() +
+    fMassInverse.zz()*tempvec2().z()*tempvec2().z());
 
   G4double nonParE = sqrt(GetNonParabolicity(bandP));
 
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) 
-    G4cout << " P " << nToV*(GetMInvTensor()*(vToN*P_Q/nonParE*GetElectronMass())) << G4endl;
+    G4cout << " P " << nToV*(GetMInvTensor()*(vToN*P_Q*GetElectronMass()/nonParE)) << G4endl;
 #endif
 
-  return nToV*(GetMInvTensor()*(vToN*P_Q/nonParE*GetElectronMass()));
+  return nToV*(GetMInvTensor()*(vToN*P_Q*GetElectronMass()/nonParE));
 }
 
 G4ThreeVector
@@ -882,7 +875,7 @@ void G4LatticeLogical::SetMassTensor(const G4RotationMatrix& etens) {
 void G4LatticeLogical::FillMassInfo() {
   // Effective mass for conductivity calculations
   fElectronMass = 3. / ( 1./fMassTensor.xx() + 1./fMassTensor.yy()
-			 + 1./fMassTensor.zz() ); 
+			 + 1./fMassTensor.zz() );
 
   // Density of states effective mass, used for intervalley scattering
   fElectronMDOS = cbrt(fMassTensor.xx()*fMassTensor.yy()*fMassTensor.zz());
@@ -980,15 +973,33 @@ void G4LatticeLogical::AddValley(const G4RotationMatrix& valley) {
 void G4LatticeLogical::ConverteVcmToeV(const std::vector<G4double>& ivrateorder) {
 
 std::vector<G4double> ivdeformtest = GetIVDeform();
-G4ThreeVector latticeconstant = GetLatConst();
 
 for (size_t i = 0; i < ivrateorder.size(); i++) {
-    if (ivrateorder[i] == 1) {
-    ivdeformtest[i]=ivdeformtest[i]*latticeconstant.x();
-    }    
+  if (ivrateorder[i] == 1) {
+    ivdeformtest[i]=ivdeformtest[i]*fCrystal.unitCell.x();
+  }
 }
 SetIVDeform(ivdeformtest);
 
+}
+
+// Check if IV parameters are the same size
+
+void G4LatticeLogical::CheckIVConsistency() const
+{
+  const size_t n = fIVDeform.size();
+
+  if (fIVEnergy.size() != n ||
+      fIVNValleys.size() != n ||
+      fIVOrder.size() != n ||
+      fIVFGScattering.size() != n ||
+      fIVPhononMode.size() != n)
+  {
+    G4Exception("G4LatticeLogical::CheckIVConsistency",
+                "IV_SIZE_MISMATCH",
+                EventMustBeAborted,
+                "IV parameter vectors have inconsistent sizes");
+  }
 }
 
 // Transform for drifting-electron valleys in momentum space

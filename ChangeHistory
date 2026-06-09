@@ -110,7 +110,6 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 2025-05-05  G4CMP-479 : Update phonon time to account for surface displacement.
 2025-04-30  G4CMP-461 : Add ability to skip over flats in specular reflections.
 2025-04-28  G4CMP-465 : Implement G4CMPSolidUtils for custom solid functions.
-
 2025-04-28  G4CMP-475 : Added .clang-format file.
 2025-04-23  G4CMP-468 : Create custom phonon particle change to assign correct
                         volume after a displacement reflection.

@@ -540,7 +540,7 @@ void G4CMPProcessUtils::MakeGlobalRecoil(G4ThreeVector& krecoil) const {
 
 // Generate direction angle for phonons in Luke scattering
 
-G4double G4CMPProcessUtils::MakePhononTheta(G4double k, G4double ks) const {
+G4double G4CMPProcessUtils::MakePhononThetaLuke(G4double k, G4double ks) const {
   G4double u = G4UniformRand();
   G4double v = ks/k;
   G4double base = (1-u) * (1 - 3*v + 3*v*v - v*v*v); 	// (1-u)*(1-v)^3
@@ -654,7 +654,9 @@ G4int G4CMPProcessUtils::FindNearestValley(const G4ThreeVector& dir) const {
 
 G4double 
 G4CMPProcessUtils::ChargeCarrierTimeStep(G4double mach, G4double l0, G4double vsound) const {
-
+ if (vsound < 0.) {
+    vsound = theLattice->GetSoundSpeed();
+  }
   const G4double tstep = 3.*l0/vsound;
   return (mach<1.) ? tstep : tstep*mach/((mach-1)*(mach-1)*(mach-1));
   // NOTE: Above numerator should be tstep*mach*mach, but causes problems

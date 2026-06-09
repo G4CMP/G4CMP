@@ -251,7 +251,7 @@ public:
   }
 
   // Generate direction angle for phonon generated in Luke scattering
-  G4double MakePhononTheta(G4double k, G4double ks) const;
+  G4double MakePhononThetaLuke(G4double k, G4double ks) const;
   G4double MakePhononEnergy(G4double k, G4double ks, G4double th_phonon, 
                             G4double vsound) const;
   //vsound should be average of all modes for electrons, longitudinal only for holes
@@ -269,7 +269,9 @@ public:
 
   // Compute time between scatters/emissions for moving charge carrier
   // Parameters are "Mach number" (ratio to sound speed) and scattering length
-  G4double ChargeCarrierTimeStep(G4double mach, G4double l0, G4double vsound) const;
+  // vsound depends on which phonon mode is involved. For holes, only longitudinal
+  // can be emitted due to symmetry (group-theoretical) selection rules.
+  G4double ChargeCarrierTimeStep(G4double mach, G4double l0, G4double vsound = -1.) const;
 
 protected:
   const G4LatticePhysical* theLattice;	// For convenient access by processes
