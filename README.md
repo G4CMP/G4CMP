@@ -391,6 +391,9 @@ emission of phonons and intervalley scattering.
 record phonon energy by absorption on superconducting TES-style surface
 sensors.
 
+* The `g4beginner` example shows how to adapt a basic Geant4 example simulation
+into a G4CMP-compatible simulation.
+
 Users may copy any of the individual example directories to their own work
 area and adapt them as necessary, or use them as inspiration in developing a
 more complex experimental model application.
