@@ -236,4 +236,4 @@ else if (config->IsPhononMode()) {
 
 if (!acceptTrack) return;
 ```
-<img src="figures/interface_hits_summary_phonons.png" width="50%">
+<img src="figures/interface_hits_summary_phonons_100um.png" width="50%">
