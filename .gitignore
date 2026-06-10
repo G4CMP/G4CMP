@@ -17,7 +17,7 @@ doxygen/
 .g4cmp-version
 CMakeLists.txt.user*
 epositions.txt
-*.png
+# *.png
 # Ignore IDE stuff
 *__pycache__*
 .vscode
