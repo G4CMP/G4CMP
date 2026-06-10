@@ -85,7 +85,7 @@ G4LatticeLogical::G4LatticeLogical(const G4String& name)
     fSC_Tau0_qp(DBL_MAX), fSC_Tau0_ph(DBL_MAX),
     fVSound(0.), fVTrans(0.), fL0_e(0.), fL0_h(0.), 
     mElectron(electron_mass_c2/c_squared),
-    fHoleMass(mElectron), fHoleA(mElectron), fHoleB(mElectron), 
+    fHoleMass(mElectron), fHoleA(mElectron), fHoleB(mElectron),
     fHoleC(mElectron), fElectronMass(mElectron), fElectronMDOS(mElectron), 
     fBandGap(0.), fPairEnergy(0.), fFanoFactor(1.),
     fMassTensor(G4Rep3x3(mElectron,0.,0.,0.,mElectron,0.,0.,0.,mElectron)),
