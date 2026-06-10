@@ -31,7 +31,6 @@
 #define B1RunAction_h 1
 
 #include "G4UserRunAction.hh"
-#include "G4Accumulable.hh"
 #include "globals.hh"
 
 class G4Run;
@@ -55,8 +54,7 @@ class B1RunAction : public G4UserRunAction
     void AddEdep (G4double edep); 
 
   private:
-    G4Accumulable<G4double> fEdep;
-    G4Accumulable<G4double> fEdep2;
+    G4double fEdep;
 };
 
 #endif

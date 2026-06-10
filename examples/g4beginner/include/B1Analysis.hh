@@ -24,52 +24,14 @@
 // ********************************************************************
 //
 //
-/// \file B1DetectorConstruction.hh
-/// \brief Definition of the B1DetectorConstruction class
+/// \file B4Analysis.hh
+/// \brief Selection of the analysis technology
 
-#ifndef B1DetectorConstruction_h
-#define B1DetectorConstruction_h 1
+#ifndef B4Analysis_h
+#define B4Analysis_h 1
 
-#include "G4VUserDetectorConstruction.hh"
-#include "globals.hh"
-#include "G4LatticeManager.hh"
-#include "G4Material.hh"
-
-class G4VPhysicalVolume;
-class G4LogicalVolume;
-
-/// Detector construction class to define materials and geometry.
-
-class B1DetectorConstruction : public G4VUserDetectorConstruction
-{
-  public:
-    B1DetectorConstruction();
-    virtual ~B1DetectorConstruction();
-
-    virtual G4VPhysicalVolume* Construct();
-    
-    G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
-// Begin logical volume declarations
-    G4LogicalVolume* GetSiLogicalVolume () const { return fSiLogical; }
-    G4LogicalVolume* GetAlLogicalVolume () const { return fAlLogical; }
-// End scoring-related declarations
-
-// Begin lattice-related declarations
-  private:
-    void AttachLattice(G4VPhysicalVolume* pv);
-    G4LatticeManager* latManager;
-    G4LatticePhysical* latticePhysical;
-    G4Material* Silicon; // Declare Silicon as a member variable
-    G4LogicalVolume*  fScoringVolume;
-// End latticeP-related declarations
-
-// Begin logical volume declarations
-    G4LogicalVolume* fSiLogical;
-    G4LogicalVolume* fAlLogical;
-// End logical volume declarations
-};
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//#include "g4root.hh"
+#include "g4csv.hh"
+//#include "g4xml.hh"
 
 #endif
-

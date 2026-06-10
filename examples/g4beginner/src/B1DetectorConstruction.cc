@@ -44,7 +44,7 @@
 #include "G4Tubs.hh"
 
 // Begin import G4CMP-related header files
-#include "G4MaterialPropertiesTable.hh"
+#include "G4MaterialPropertiestable.hh"
 #include "G4LatticeManager.hh"
 #include "G4LatticePhysical.hh"
 // End import G4CMP-related header files
@@ -58,7 +58,11 @@ B1DetectorConstruction::B1DetectorConstruction()
   latticePhysical(nullptr),
   Silicon(nullptr),
 // End construction of lattice-related variables
-  fScoringVolume(0)
+  fScoringVolume(0),
+// Begin initialzation of logical volumes
+  fSiLogical(0),
+  fAlLogical(0) 
+// End initialzation of logical volumes
 { 
 }
 
@@ -276,7 +280,6 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   G4Box* solidSi =
     new G4Box("Si_box",                     //its name
         2.5*mm, 2.5*mm, 0.19*mm);           //its size  .25 3mm 3mm
-      
   G4LogicalVolume* logicSi =
     new G4LogicalVolume(solidSi,            //its solid
                         Si_mat,             //its material
@@ -312,7 +315,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
 
     // Begin attach a physical lattice to the Si physical volume
     G4LatticePhysical* latticeSi = new G4LatticePhysical(latManager->GetLattice(Silicon));
-    latticeSi->SetMillerOrientation(1, 0, 0, 45.*deg);
+    latticeSi->SetMillerOrientation(1, 0, 0, 0.*deg);
     latManager->RegisterLattice(physSi, latticeSi);
     // Begin attach a physical lattice to the Si physical volume
     
@@ -323,7 +326,6 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
     G4Box* solidAl =
     new G4Box("Al_box",                    //its name
               2.5*mm, 2.5*mm, 100*nm); //its size  .25 3mm 3mm
-    
     G4LogicalVolume* logicAl =
     new G4LogicalVolume(solidAl,            //its solid
                         Al_mat,             //its material
@@ -331,7 +333,7 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
     
     new G4PVPlacement(0,                       //no rotation
                       G4ThreeVector(0,0,-3.5499*mm),         //at (0,0,0)  should be mm XXXXXXXXX
-                      logicAl,                //its logical volume
+		      logicAl,                //its logical volume
                       "Al_box",              //its name
                       logicWorld,              //its mother  volume
                       false,                   //no boolean operation
@@ -343,6 +345,9 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   // Set a shape as scoring volume
   //
     fScoringVolume = logicAl;
+  // Set scoring volumes
+    fAlLogical = logicAl;
+    fSiLogical = logicSi;
 
   //Visualization
   G4VisAttributes* boxVisAtt1= new G4VisAttributes(G4Colour(0.2,1,0.2,.3)); //Ar Box (Solid green)

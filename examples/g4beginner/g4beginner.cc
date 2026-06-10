@@ -48,6 +48,7 @@
 #include "G4VModularPhysicsList.hh"
 #include "G4CMPPhysics.hh"
 #include "B1ActionInitialization.hh"
+#include "B1AnalysisConfig.hh"
 // End import G4CMP-related headers
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -69,6 +70,8 @@ int main(int argc,char** argv)
   auto* runManager =
     G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 
+  B1AnalysisConfig::Instance();
+  
   // Set mandatory initialization classes
   //
   // Detector construction

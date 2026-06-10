@@ -39,6 +39,8 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
+#include "G4AnalysisManager.hh"
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4int B1EventAction::fShotNumber = 0; // Initialize static variable
@@ -60,22 +62,140 @@ void B1EventAction::BeginOfEventAction(const G4Event*)
 {    
   fEdep = 0.;
   fShotNumber++; // Increment the shot number
+  
+  //Start G4CMP application
+  // Clear per-event electron bookkeeping
+  fElectronTracksInSi.clear();
+  fElectronTracksReachedInterface.clear();
+  fElectronTracksTrappedInSi.clear();
+
+  fElectronInterfaceKE.clear();
+  fElectronInterfaceVperp.clear();
+  fElectronInterfaceTime.clear();
+  fElectronInterfacePos.clear();
+  //End G4CMP application
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void B1EventAction::EndOfEventAction(const G4Event*)
-{   
-  // accumulate statistics in run action
-    fRunAction->AddEdep(fEdep);
-//    G4double edep  = fEdep.GetValue();
-//    if (fEdep>0) {   G4cout << G4endl << "E dep this event " << fEdep;}
-//    if (fEdep>0){ G4cout << "Edepinthisevent";}
-    //Get analysis Manager
-    //G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-    //analysisManager->FillNtupleDColumn(0, fEdep);
-    //analysisManager->AddNtupleRow();
-  
+void B1EventAction::EndOfEventAction(const G4Event* event)
+{
+  fRunAction->AddEdep(fEdep);
+
+  G4int nInSi      = GetNElectronsInSi();
+  G4int nReached   = GetNElectronsReachedInterface();
+  G4int nTrapped   = GetNElectronsTrappedInSi();
+  G4double fracHit = GetElectronReachFraction();
+  G4int eventID    = event->GetEventID();
+
+  auto analysisManager = G4AnalysisManager::Instance();
+  analysisManager->FillNtupleIColumn(1, 0, eventID);
+  analysisManager->FillNtupleIColumn(1, 1, nInSi);
+  analysisManager->FillNtupleIColumn(1, 2, nReached);
+  analysisManager->FillNtupleIColumn(1, 3, nTrapped);
+  analysisManager->FillNtupleDColumn(1, 4, fracHit);
+  analysisManager->AddNtupleRow(1);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void B1EventAction::CountElectronInSi(G4int trackID, G4double weight)
+{
+  if (fElectronTracksInSi.find(trackID) == fElectronTracksInSi.end()) {
+    fElectronTracksInSi[trackID] = weight;
+  }
+}
+
+void B1EventAction::CountElectronReachedInterface(G4int trackID, G4double weight)
+{
+  if (fElectronTracksReachedInterface.find(trackID) == fElectronTracksReachedInterface.end()) {
+    fElectronTracksReachedInterface[trackID] = weight;
+  }
+
+  auto it = fElectronTracksTrappedInSi.find(trackID);
+  if (it != fElectronTracksTrappedInSi.end()) {
+    fElectronTracksTrappedInSi.erase(it);
+  }
+}
+
+void B1EventAction::CountElectronTrappedInSi(G4int trackID, G4double weight)
+{
+  if (fElectronTracksReachedInterface.find(trackID) == fElectronTracksReachedInterface.end()) {
+    if (fElectronTracksTrappedInSi.find(trackID) == fElectronTracksTrappedInSi.end()) {
+      fElectronTracksTrappedInSi[trackID] = weight;
+    }
+  }
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4double B1EventAction::GetWeightedElectronsInSi() const
+{
+  G4double sum = 0.0;
+  for (const auto& kv : fElectronTracksInSi) sum += kv.second;
+  return sum;
+}
+
+G4double B1EventAction::GetWeightedElectronsReachedInterface() const
+{
+  G4double sum = 0.0;
+  for (const auto& kv : fElectronTracksReachedInterface) sum += kv.second;
+  return sum;
+}
+
+G4double B1EventAction::GetWeightedElectronsTrappedInSi() const
+{
+  G4double sum = 0.0;
+  for (const auto& kv : fElectronTracksTrappedInSi) sum += kv.second;
+  return sum;
+}
+
+G4double B1EventAction::GetWeightedElectronReachFraction() const
+{
+  G4double nInSi = GetWeightedElectronsInSi();
+  if (nInSi <= 0.0) return 0.0;
+  return GetWeightedElectronsReachedInterface() / nInSi;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void B1EventAction::AddInterfaceElectronKE(G4double ke)
+{
+  fElectronInterfaceKE.push_back(ke);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void B1EventAction::AddInterfaceElectronVperp(G4double vperp)
+{
+  fElectronInterfaceVperp.push_back(vperp);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void B1EventAction::AddInterfaceElectronTime(G4double time)
+{
+  fElectronInterfaceTime.push_back(time);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void B1EventAction::AddInterfaceElectronPosition(const G4ThreeVector& pos)
+{
+  fElectronInterfacePos.push_back(pos);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4double B1EventAction::GetElectronReachFraction() const
+{
+  G4int nInSi = static_cast<G4int>(fElectronTracksInSi.size());
+  if (nInSi <= 0) return 0.0;
+
+  return static_cast<G4double>(fElectronTracksReachedInterface.size()) /
+         static_cast<G4double>(nInSi);
+
+  //End G4CMP application  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
