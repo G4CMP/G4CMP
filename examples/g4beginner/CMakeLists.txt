@@ -4,7 +4,8 @@ cmake_minimum_required(VERSION 3.8...3.18)
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
-project(B1)
+set(PROJ_NAME g4beginner)
+project(g4beginner)
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
@@ -47,29 +48,27 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(exampleB1 exampleB1.cc ${sources} ${headers})
-target_link_libraries(exampleB1 ${Geant4_LIBRARIES} ${G4CMP_LIBRARIES})
+add_executable(${PROJ_NAME} ${PROJ_NAME}.cc ${sources} ${headers})
+target_link_libraries(${PROJ_NAME} ${Geant4_LIBRARIES} ${G4CMP_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
-# build B1. This is so that we can run the executable directly because it
+# build g4beginner. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-set(EXAMPLEB1_MACROS
-  g4cmp_electrons.mac
+set(G4BEGINNER_MACROS
   g4cmp_electrons_100um.mac
   g4cmp_electrons_300um.mac
-  g4cmp_phonons.mac
   g4cmp_phonons_100um.mac
   g4cmp_phonons_300um.mac
   init_vis.mac
 )
-set(EXAMPLEB1_SCRIPTS
+set(G4BEGINNER_SCRIPTS
   g4cmp_electrons_interface_hits.C
   g4cmp_phonons_interface_hits.C
 )
 
-foreach(_script ${EXAMPLEB1_SCRIPTS})
+foreach(_script ${G4BEGINNER_SCRIPTS})
   configure_file(
     ${PROJECT_SOURCE_DIR}/scripts/${_script}
     ${PROJECT_BINARY_DIR}/${_script}
@@ -77,7 +76,7 @@ foreach(_script ${EXAMPLEB1_SCRIPTS})
     )
 endforeach()
 
-foreach(_macro ${EXAMPLEB1_MACROS})
+foreach(_macro ${G4BEGINNER_MACROS})
   configure_file(
     ${PROJECT_SOURCE_DIR}/G4Macros/${_macro}
     ${PROJECT_BINARY_DIR}/${_macro}
@@ -89,9 +88,9 @@ endforeach()
 # For internal Geant4 use - but has no effect if you build this
 # example standalone
 #
-add_custom_target(B1 DEPENDS exampleB1)
+# add_custom_target(g4beginner DEPENDS ${PROJ_NAME})
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS exampleB1 DESTINATION bin)
+install(TARGETS ${PROJ_NAME} DESTINATION bin)
