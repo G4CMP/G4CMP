@@ -17,6 +17,8 @@ doxygen/
 .g4cmp-version
 CMakeLists.txt.user*
 epositions.txt
+LukePhononEnergies
+charge_hits.txt
 *.png
 # Ignore IDE stuff
 *__pycache__*
