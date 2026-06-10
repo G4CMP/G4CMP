@@ -1,10 +1,10 @@
 <h1 align="center">RISQ2 G4CMP Introductory Tutorial</h1>
 
-Assembled by Jesse Lutz, jjlutz@sandia.gov
+### Assembled by Jesse Lutz ([jjlutz@sandia.gov](jjlutz@sandia.gov))
 
 This tutorial is meant to guide the user through their first steps of using G4CMP. We focus here on a geometry representing the experimental setup used by Vepsäläinen et al. in their 2020 Nature paper entitled ["Impact of ionizing radiation on superconducting qubit coherence"](https://doi.org/10.1038/s41586-020-2619-8) (as developed from the basic Geant4 example B1 by Adam Hect and I).
 
-As a disclaimer, it is expected that you have already installed Geant4 and G4CMP and know how to compile an application (if not, see the instructions in the main `README` or click the following [YouTube video](https://www.youtube.com/watch?v=D1ZfUewM8-E). Please note that later parts of this tutorial also require that is ROOT installed, which is available free for download from [CERN](root.cern). Also, don't forget to initialize your environment (if you haven't done so already):
+As a disclaimer, it is expected that you have already installed Geant4 and G4CMP and know how to compile an application (if not, see the instructions in their respective READMEs or click the following [YouTube video](https://www.youtube.com/watch?v=D1ZfUewM8-E). Please note that later parts of this tutorial also require that is ROOT installed, which is available free for download from [CERN](root.cern). Also, don't forget to initialize your environment (if you haven't done so already):
 ```bash
 source $G4INSTALL/../../bin/geant4.sh
 source $G4CMPINSTALL/g4cmp_env.sh
