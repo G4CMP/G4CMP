@@ -25,6 +25,7 @@ namespace QuasiparticleDetectorParameters
   //Misc
   //----------------------------------------------------------------
   constexpr double dp_eps = 0.0001*CLHEP::mm;
+  constexpr double dp_largeEpsilon = 1.0 * CLHEP::um;
   constexpr double pi = 3.141592654;
 
   //----------------------------------------------------------------

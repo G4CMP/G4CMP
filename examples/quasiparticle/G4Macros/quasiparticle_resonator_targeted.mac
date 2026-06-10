@@ -1,0 +1,85 @@
+#-----------------------------------------------
+# quasiparticle_resonator_targeted.mac
+#
+# This mimics a targeted single photon pulse in
+# the top-left superconducting resonator in our
+# geometry. We mimic the resonator pulse with a
+# set of Debye-energy phonons that sum to our
+# initial photon energy. For a 1.1 eV (red)
+# photon, and Debye energy phonons of 36.9 meV
+# (ref: Kozorezov et al, '99), we launch off
+# 30 Debye energy phonons from this point.
+#------------------------------------------
+
+# Initialize the run
+/run/initialize
+
+# We'll use an OpenGL viewer here, and load
+# a specific angle and zoom
+/vis/open OGL
+/vis/viewer/set/upVector 0 1 0
+/vis/viewer/set/viewpointThetaPhi 0 180
+/vis/viewer/zoom 270
+/vis/viewer/pan -2.0 1.0 mm
+/vis/drawVolume
+
+/run/printProgress 1
+
+# for drawing the tracks
+/tracking/verbose 0
+/tracking/storeTrajectory 1
+/vis/scene/endOfEventAction accumulate
+/vis/scene/add/trajectories
+
+# Trajectory coloring by particle type
+/vis/modeling/trajectories/create/drawByParticleID
+/vis/modeling/trajectories/drawByParticleID-0/set phononTS Green 
+/vis/modeling/trajectories/drawByParticleID-0/set phononTF Green
+/vis/modeling/trajectories/drawByParticleID-0/set phononL Green
+/vis/modeling/trajectories/drawByParticleID-0/set BogoliubovQP White
+
+# Trajectory filtering by particle type
+/vis/filtering/trajectories/create/particleFilter
+#/vis/filtering/trajectories/particleFilter-0/add phononTS
+#/vis/filtering/trajectories/particleFilter-0/add phononTF
+#/vis/filtering/trajectories/particleFilter-0/add phononL
+/vis/filtering/trajectories/particleFilter-0/add BogoliubovQP
+
+# Toggle phononBounces depending on whether
+# you want to see a full event or not.
+/g4cmp/phononBounces 1000000
+/g4cmp/qpBounces 1000000000
+
+#/process/inactivate phononScattering
+#/process/inactivate phononDownconversion
+/process/inactivate phononPolycrystalElasticScattering
+#/process/inactivate qpRecombination
+#/process/inactivate qpRadiatesPhonon
+#/process/inactivate scPairBreaking
+#/process/inactivate qpDiffusion 
+#/process/inactivate qpLocalTrapping
+#/process/inactivate qpDiffusionTimeStepper
+
+# Generate 1 phonon per event. Place right under the Nb film
+/gps/number 1
+/gps/particle phononTF
+/gps/pos/type Volume
+/gps/pos/shape Para
+/gps/pos/centre -2.65 1.221 5.0001 mm # Point 1, in film
+#/gps/pos/centre -1.85 1.221 5.0001 mm # Point 2, in film
+
+#These spawn phonons from a parallelepiped with the following
+#half-dimensions (i.e. very small, 10nm box)
+/gps/pos/halfx 0.00001 mm
+/gps/pos/halfy 0.00001 mm
+/gps/pos/halfz 0.00001 mm
+
+/random/setSeeds 123456 567890
+
+#Spawn 1 phonon per event with 36.9 meV, in random
+#directions (isotropically)
+/gps/ang/type iso
+/gps/ene/type Mono
+/gps/energy 0.0369 eV
+/gps/number 1
+/run/beamOn 3
