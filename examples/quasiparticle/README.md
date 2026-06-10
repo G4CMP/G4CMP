@@ -466,7 +466,7 @@ Lastly, given that the superconducting device field often uses small device/sens
 
 ## Tutorial Example 2: Scanning Energy Depositions in a Planar Resonator
 
-We now present a tutorial based on the same geometry that is intended to showcase some of the power of G4CMP-V10's new QP tracking. In this, we will study the time evolution of the quasiparticle density in one of the superconducting resonators on the chip, for energy depositions at two different points: one in the ground plane (Point 1) and one directly within the coplanar waveguide's inner conductor (Point 1).
+We now present a tutorial based on the same geometry that is intended to showcase some of the power of G4CMP-V10's new QP tracking. In this, we will study the time evolution of the quasiparticle density in the top left superconducting resonator on the chip, for energy depositions at two different points: one in the ground plane (Point 1) and one directly within the coplanar waveguide's inner conductor (Point 1).
 
 <img width="690" height="686" alt="image" src="https://github.com/user-attachments/assets/df48c971-5ca2-44c5-81cb-a79a00425dd6" />
 
@@ -481,9 +481,11 @@ Let's go ahead and just run our new macro out of the box:
 ./g4cmpQuasiparticle
 /control/execute ../quasiparticle/G4Macros/quasiparticle_resonator_targeted.mac
 ```
-It's first set up to launch three events, each with a single 36.9 meV phonon (Al Debye energy, a la [CITE KOZOREZOV]) in the ground plane at Point 1 in the above diagram. This run for about 3 minutes, and should produce a visualization that looks like this:
+It's first set up to launch three events, each with a single 36.9 meV phonon (Al Debye energy, a la [CITE KOZOREZOV]) in the ground plane at Point 1 in the above diagram. This should run for about 3 minutes, and should produce a visualization that looks like the left image below:
 
-<img width="598" height="597" alt="image" src="https://github.com/user-attachments/assets/f368ccbc-d313-4b85-a819-387cc5da55fd" />
+
+<img width="1002" height="495" alt="image" src="https://github.com/user-attachments/assets/57c4bd2d-127b-458a-8693-4b7f380e68d0" />
+
 
 You may also observe a few exceptions thrown, including but not limited to messages such as
 ```
@@ -510,11 +512,7 @@ Now rerun the simulation with this amended interaction point, which is dumping o
 ./g4cmpQuasiparticle
 /control/execute ../quasiparticle/G4Macros/quasiparticle_resonator_targeted.mac
 ```
-This process should take much longer, about 15 minutes, and will give an output as shown below. (In the meantime, we'll move on and talk about analysis of the output file we've already collected.)
-
-<img width="598" height="594" alt="image" src="https://github.com/user-attachments/assets/c7430877-c4f5-46f4-bed8-d07c21876d3f" />
-
-Once this finishes, let's go ahead and rename this as well:
+This process should take much longer, about 15 minutes, and will give an output as shown on the right half of the above image. (In the meantime, we'll move on and talk about analysis of the output file we've already collected.) Once this finishes, let's go ahead and rename this as well:
 ```
 mv QuasiparticleStepInformationFile.txt QuasiparticleStepInformationFile_Point2_3evts.txt
 ```
@@ -522,14 +520,16 @@ mv QuasiparticleStepInformationFile.txt QuasiparticleStepInformationFile_Point2_
 > [!TIP]
 > Homework question: why does it make sense that this simulation taking longer? Given the walk-on-spheres technique, can you estimate a naive scaling for how much longer this simulation should take than the simulation for Point 2? Does it agree with the observed difference in execution time?
 
-Once we
-
 
 ### Analyzing the Simulation Output
 
-To begin analyzing our output, we first need to understand what our output is. Unlike the original RISQ 2024 tutorial example, we're no longer thinking about "hits" -- here, the analysis we're going to do will be entirely based on track stepping information. Notably, hits may still be used and defined as they were in the 2024 RISQ tutorial, which opens up space for analysis with both stepping and hits. However, we focus primarily on the stepping analysis here. 
+In this analysis, our goal will be to plot the time evolution of the quasiparticle density within two regions of our CPW. This kind of analysis could be relevant for understanding the response of CPW resonators' response to QP poisoning at different points along their length, which may vary due to the spatially varying current and voltage along the resonator. For simplicity, we'll look specifically at the quasiparticle population in two half-circles at the ends of the meander: half-circle 6 and half-circle 1:
 
-We've provided an analysis macro that can read the output of the simulations we've just run, but it's perhaps useful to first look at what we're _trying_ to save. This takes us to the source file `QuasiparticleSteppingAction.cc`, which has two critical blocks of code. The first is the location where we determine what to do during every step (i.e. a user-defined action to do per-step):
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/7633dab8-2ec8-4c23-80ab-680ae2facdef" />
+
+To begin analyzing our output, we first need to understand the structure of our output. Unlike the original RISQ 2024 tutorial example, we're no longer thinking primarily about "hits" -- here, the analysis we're going to do will be entirely based on track stepping information. (Notably, hits may still be used and defined as they were in the 2024 RISQ tutorial, which opens up space for analysis with both stepping and hits. However, we focus primarily on the stepping analysis here.) 
+
+We've provided an analysis macro that can read the output of the simulations we've just run, but it's useful to first look at what we're _trying_ to save. This takes us to the source file `quasiparticle/src/QuasiparticleSteppingAction.cc`, which has two critical blocks of code. The first is the location where we determine what to do during every step (i.e. a user-defined action to do per-step):
 
 ```
 //Alternative constructor                                                                      
@@ -556,19 +556,121 @@ if( particleName.find("BogoliubovQP") != std::string::npos ){
                 << preStepVolume << " " << postStepVolume << std::endl;
 }
 ```
-In this block (which runs after gathering all of the step info that is exported here) we write information to our stepping output file if the particle taking the step is a `BogoliubovQP`. For that QP, we write pre- and post-step information including X, Y, Z, T, E, KE, and volume name variables, as well as the total number of reflections at this step and the process that determines the step.
+In this block (which runs after gathering all of the step info that is exported here) we write information to our stepping output file if the particle taking the step is a `BogoliubovQP`. For that QP, we write pre- and post-step information including X, Y, Z, T, E, KE, and volume name variables, as well as the total number of reflections at this step and the process that determines the step. Notably, we do this for _all_ QP steps, without discrimination. As you may have already noticed looking at your output files from the last section, this can produce reasonably large output files even for small numbers of events. For now, we'll accept this, with the recognition that it we can trim these files using additional conditionals in the above block of code to request that the simulation only saves the steps we care about.
+
+> [!CAUTION]
+> Running far more events in our `quasiparticle_resonator_targeted.mac` than what we've already set up without further conditionals on what is saved may quickly fill up your disk. Proceed with caution.
+
+With this information, let's go ahead and run our analysis macro using ROOT. We'll start up an interactive ROOT session and run
+```
+root -l
+.L ../quasiparticle/AnalysisTools/quasiparticle_analysis.cc
+run_quasiparticle_analysis("/path/to/QuasiparticleStepInformationFile_Point1_3evts.txt","/path/to/QuasiparticleStepInformationFile_Point2_3evts.txt")
+```
+This will take some time to run -- it reads the step files, which are between a few hundred MB and a few GB, and builds simple event structures out of them. It then analyzes those events, plotting basic information like quasiparticle creation/destruction times and locations, all step locations, and finally the time-averaged quasiparticle occupations of our resonator structures. We'll first explore some basic cross-check plots, which is an important step in any analysis to make sure that our desired results make sense.
+
+Let's go ahead and open up a TBrowser, where we can start poking around the plots that are made:
+```
+TBrowser a
+```
+Within our output file, we have two directories, one for each analyzed file, so that we can compare "apples to apples" plots but keep the various plots separated under different conditions. First up as a cross check, let's plot the starting locations of quasiparticles produced in our simulation with phonons spawned at Point 1: for this we'll open up the `qp_startXY`, `qp_startXZ`, and `qpStartYZ` histograms:
+
+<img width="1226" height="392" alt="image" src="https://github.com/user-attachments/assets/4b1d7e46-e574-4fbc-bab1-6b53e10b14dc" />
+
+_Do these make sense?_ Given the physics of the initial, high-energy downconversion cascade, we might expect a lot of quasiparticles produced at the point very near where our original Debye-energy phonons were spawned. We do see this in XY (see inset), but we also see lots of quasiparticle starting points far (100's of μm to mm) from this initial point. Why might this be? This could reasonably be due to a handful of effects:
+1. As QPs radiate off phonons, those phonons may leave the superconducting film, bounce around the chip to different, more distant locations in the chip and re-break pairs in the film there.
+2. QPs that recombine in the vicinity of the initial Debye-energy phonon may produce near 2Δ phonons that can then go pairbreak elsewhere as well.
+
+So okay, this seems sensible. For XZ and YZ, we do see that all of our QP creation points occur in the thin film on the top of the 400μm chip, and there are no other QP steps taken elsewhere (as expected).
+
+Let's move on to looking cross-checking our plots of _all_ QP steps. Here, now focusing entirely on XY because our XZ and YZ plots all (thankfully) look the same, we find the following plot for Point 1.
+
+<img width="615" height="571" alt="image" src="https://github.com/user-attachments/assets/1dfd47d2-5721-4d8f-930d-b7b2a779ed93" />
+
+_Does this make sense?_ Once we create our QPs, they are free to diffuse according to the mechanics of the `qpDiffusion` G4CMP process. Coarseley, we do see that there are lots of steps that are occurring in the top left of the chip where we are launching our Debye phonons, which makes sense given that most of our QPs are being generated in this region. However, there are a handful of other features that are worth pointing out.
+* Some features seem a bit artificial, such as the rectangular "doorway" surrounding the resonator. This "doorway" is as a result of the fact that I've defined a base layer of aluminum into which all of the resonator features are embedded as daughter volumes. QPs impinging upon this base layer will end their step and transport across the boundary here if they encounter it, implying an artificial overdensity of points here.
+* Overdensities of steps in between the meanders of the resonator: here, it seems like the quasiparticle is spending more steps inside the regions bounded by the resonator turns, which seems aphysical. Why should the quasiparticles spend longer in this region than anywhere else in the ground plane? A key resolution to this question is that _steps undergone are not necessarily proportional to time elapsed_. This is a critical point to digest while using this new quasiparticle tracking bit of the code: diffusion steps are largely meaningless without a clear ability to monitor the _time_ over which those steps are occurring. Here, the overdensity of steps in the meander is occurring because the diffusion algorithm is more constrained by geometry, which forces it to take shorter steps. Out in the bulk ground plane, QPs can take single steps over which much more physical time elapses, thanks to the lack of nearby boundaries.
+* Overdensities of steps near the corners of the chip: again, we're in a place where the stepping algorithm is relatively constrained by boundaries. If a QP is in a corner, then it's constrained in multiple dimensions, and will take shorter steps.
+
+> [!IMPORTANT]
+> A critical takeaway: since quasiparticle diffusion steps are geometry-driven (Walk-on-Spheres technique), step information is mostly meaningless unless coupled with the time over which a step occurs as well.
+
+To get a more physically accurate picture of where QPs diffuse, we can look at a physical observable, something driven by a process other than diffusion. We'll look at the _endpoints_ of the QP tracks, which are dictated by the times at which QPs either trap or recombine, but which diffuse in XY from their creation to this time. Since we're now limiting ourselves to the small-ish, O(1000) number of QPs, we'll actually coarse-bin our histograms a bit to help display this. On the left below we re-show `h_qpAllStepsXY` for Point 1, and on the right we show `h_qpLastStepPostXY` for Point 1, with an additional re-binning of 4 on both axes.
+
+<img width="1193" height="523" alt="image" src="https://github.com/user-attachments/assets/766a502f-30ba-4aaf-a787-6c1a12d3e78e" />
+
+We now see that even though there is a massive nonuniformity in the locations of all steps (left), the locations at which the QPs end up dying look a bit more uniformly distributed around the creation point, while still being constrained by the CPW structures, as we expect.
+
+One last thing we can do for a cross check is to look at the lifetimes of the quasiparticles, by just taking their final step post-step time and subtracting it from their initial step pre-step time. From our 724 quasiparticles created in this event, we get the following distribution:
+
+<img width="675" height="563" alt="image" src="https://github.com/user-attachments/assets/80c52793-6b0e-436b-9871-9e5c4e0adced" />
+
+From the mean in the stat block on the top right, we can get a rough sense of the QP lifetime: around 450 μs. Does _this_ make sense? There are two contributors that will non-artificially kill a quasiparticle: trapping and recombination. To understand what parameters we're using for this, let's take a look in our favorite parameters file: `quasiparticle/include/QuasiparticleDetectorParameters.hh`. At the top of this file we have:
+
+```
+constexpr double dp_polycryElScatMFP_Al = 10 * CLHEP::nm;
+constexpr double dp_scDelta0_Al = 0.000176 * CLHEP::eV;
+constexpr double dp_scTeff_Al = 0.2 * CLHEP::kelvin;
+constexpr double dp_scDn_Al = 6 * CLHEP::um*CLHEP::um / CLHEP::ns;
+constexpr double dp_scTauQPTrap_Al = 1 * CLHEP::ms;
+```
+which says that our local trapping time is set to 1 ms, and that our effective temperature, which governs recombination, is set to 200 mK. This effective temperature produces a QP recombination lifetime in Al (from [CITE KAPLAN]) of around 1 ms at energies just above the gap. With these two separate processes giving QP decay timescales of order 1 ms, the joint decay time should be about half that, or around 500 μs. This is indeed what we see.
 
 
+> [!TIP]
+> Homework problem: What is a plot you can make that will allow you to check if there are any additional biases that may be contributing to an artificially deflated quasiparticle lifetime? Are there any already in the ROOT file that you might be able to study to ascertain whether there's a bias?
 
+> [!TIP]
+> Homework problem: The reader is encouraged to run through the same set of cross-checks for the analogous Point 2 plots.
+
+Ok, so now let's look at the plots we stated in our goal: the time-averaged QP occupation of various resonator structures. The three plots of interest are the three `h_fullResQPTimesXXXXX` histograms, which show the time-averaged QP presence in:
+* Any chunk of the resonator central conductor, from the transmission line coupler to the c-shaped qubit coupler
+* Just half-circle 1
+* Just half-circle 6
+
+For Point 1, these three plots are shown below:
+
+<img width="1021" height="708" alt="image" src="https://github.com/user-attachments/assets/610dc069-8a3a-44c1-8dea-e67b5f163ea4" />
+
+From these we can gain a bit of direct insight into QP dynamics directly within the central conductor. First, on average, for this set of simulation parameters, there aren't that many QPs that are created and exist anywhere within the central conductor in response to our initial phonons: the left plot shows that on average, only either 1 or 2 QPs is really present anywhere. Moreover, looking at the middle plot, we see it entirely empty: this is consistent with the simulation rendering above -- we see no QP tracks in that chunk of the resonator. Finally, we see the evolution in half-circle 6 in the top right: there are QPs that appear, but they do so only briefly, diffusing into that section before either diffusing back out or trapping/recombining.
+
+Let's now compare this to our Point 2 simulations, which are shown below:
+
+<img width="1228" height="856" alt="image" src="https://github.com/user-attachments/assets/4ca594ac-ee4d-473d-bf3b-4ddac3dbc380" />
+
+Here, we have a very different story. The left plot, again showing the QP presence in the entire CPW, shows a distinct exponential falloff in QP occupancy (with our aforementioned decay time) until reaching the few-QP regime, at which point statistical fluctuations determine the shape of the plot. The QP occupancy in half-circle 1 (center plot) is now nonzero, and notably shows a QP arising not at zero but around 0.5 ms to 1 ms or so. This timescale most likely comes about due to diffusion of initially-produced quasiparticles, but let's confirm this intuition to see if it makes sense. The rough distance that this QP needs to travel to get to half-circle 1 is, based on the geometry of the meander, about 2.4 mm. The diffusion constant for QPs is given by this expression:
+
+<img width="400" height="142" alt="image" src="https://github.com/user-attachments/assets/8430e220-d72a-49cb-8411-fac6e59a384b" />
+
+Where D_n is the normal-state diffusion coefficient just above the transition temperature. In G4CMP, our value for this is about 6 um^2/ns. The dependence on the QP energy means that for most QPs that have cooled, the diffusion coefficient will be a factor of a few lower than this D_n out front, so we'll guess for now that the diffusion coefficient is about 2 um^2/ns. Then, we can calculate what average Δt we may expect for a given diffused Δx using (Δx)^2/2D. For our numbers here, using Δx=2400 um and D=2 um^2/ns, we find an expected time to diffuse of about 1.1 ms. For a back of the envelope, this is reasonably close to what we see, which is a nice confirmation. 
+
+The final plot on the right, showing the QP occupancy of half-circle 6, is much more populated with QPs, but also displays a pattern of QPs "hopping in and out" of that section at late times, once many of the initial QPs have decayed away. Overall, this scenario shows a significantly different outcome compared to the Debye phonons launched into the ground plane: here, we don't have to "get lucky" and have a QP produced in the CPW from a phonon that happens to enter it after being produced far away.
 
 ### Parameter Tuning
 
+Carefully considering what parameters to tune for your application is tricky business. While we won't exhaustively walk you through a tutorial on how to tune these, we can give a few pointers on parameters that are likely to be most dominant for looking at typical devices that monitor quasiparticle populations. We again return to our favorite set of parameters in the `QuasiparticleDetectorParameters.hh` file:
+```
+constexpr double dp_polycryElScatMFP_Al = 10 * CLHEP::nm;
+constexpr double dp_scDelta0_Al = 0.000176 * CLHEP::eV;
+constexpr double dp_scTeff_Al = 0.2 * CLHEP::kelvin;
+constexpr double dp_scDn_Al = 6 * CLHEP::um*CLHEP::um / CLHEP::ns;
+constexpr double dp_scTauQPTrap_Al = 1 * CLHEP::ms;
+```
+Arguably, the three most important parameters here are the zero-temperature gap, `dp_scDelta0_Al`, the effective temperature of the superconductor, `dp_scTeff_Al`, and the trapping lifetime, `dp_scTauQPTrap_Al`. Since the zero-temperature gap should be fixed in principle, this largely is a "set and forget" parameter. The other two are less obvious _a priori_, and are parameters you can tune to match simulations to your data.
+1. `dp_scTeff_Al`: This effective temperature dictates the recombination, phonon radiation, and pairbreaking lifetimes via the formalism in the Kaplan paper [CITE KAPLAN]. While phonon radiation and pairbreaking lifetimes do vary with this, the recombination lifetime is _strongly_ dependent on this, and diverges at low values of (T_eff/T_c). As a result, if you do not have other mechanisms for quasiparticles to die (i.e. local trapping), then setting T_eff below about 15% of T_c will make your code run for a VERY long time. We'll note that when QPs die via this mechanism, they release a near-2Δ phonon with a 50% probability, to conserve energy globally. This permits "QP recycling," in which subsequent cycles of pairbreaking, recombination, and re-pairbreaking keep a QP's influence in the chip around for longer than the time between its initial creation and (initial) death.
+3. `dp_scTauQPTrap_Al`: This local trapping lifetime is set directly, and will kill quasiparticles without fanfare, i.e. without any phonon emission.
 
+> [!CAUTION]
+> We suggest you explicitly acknowledge what loss channels you have baked into your simulation before running it. Do you have phonon absorption set to a nonzero number at any thermal mounts? Are you using a finite (i.e. non-infinite) value of `dp_scTauQPTrap_Al`? If the answer is "no" to all of these questions, **you may find yourself in a situation where your code never stops running.** While `phononBounces` and `qpBounces` may still kill your phonons and QPs, respectively, phonon recycling "resets" this number: if a QP recombines into a phonon which produces 2 more QPs, both of those QPs start with a zero bounce count.
 
+One last thing to mention are some subtleties with the diffusion code that advanced users may notice:
+1. There are obviously still some bugs needing working-out, which are rare, and become rarer for simpler geometries. Stay tuned as we fix these over the next several months.
+2. The walk-on-spheres algorithm itself is actually not fully bias-free, and in particular has a very challenging time "looking around corners." This adds a bit of additional bias if you are trying to model systems where a broad area funnels into a thinner area, such as the geometry shown below. Unfortunately, these kinds of systems are commonplace in the QIS environment. (Ex. the locations where Josephson Junctions meet the superconducting pads, and the locations where . Fortunately, there _is_ a way to mitigate this bias, though this technique is still under investigation and is a bit beyond this tutorial. If you're curious about applying this, please talk with Ryan.
 
+<img width="600" height="420" alt="image" src="https://github.com/user-attachments/assets/b13dfcad-b86c-4b8b-857e-173c60448acf" />
 
+And with that, we'll conclude with a handful of homework problems for particularly motivated readers.
 
-
-
-
+> [!TIP]
+> Homework problem: repeat the analysis in the above section, but after having turned off recombination and set the trapping timescale to 100 μs. What do you observe in terms of execution time? Output filesize? In-resonator QP occupations?
 
