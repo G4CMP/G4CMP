@@ -7,8 +7,10 @@
 # 20221104  G4CMP-340 -- Move phononKinematics to tools/ directory
 # 20250102  G4CMP-436 -- Add testNRyield to exercise Lindhard (NIEL) functions
 # 20250428  G4CMP-465 -- Add testSolidUtils for validating transforms in class.
+# 20260607  G4CMP-623 -- Add dumpLattice to read and report new config.txt.
 
-TESTS := electron_Epv latticeVecs luke_dist testBlockData testCrystalGroup \
+TESTS := electron_Epv dumpLattice latticeVecs luke_dist \
+	testBlockData testCrystalGroup \
 	g4cmpEFieldTest testChargeCloud testPartition testNRyield \
 	testHVtransform testFanoFactor testTemperature testSolidUtils
 
@@ -19,6 +21,7 @@ help :			# First target, in case user just types "make"
 	@echo "G4CMP/tests : This directory contains standalone unit tests"
 	@echo
 	@echo "luke_dist        : Generate tab-delimited file of NTL phonons"
+	@echo "dumpLattice      : Read and print out G4LatticeLogical"
 	@echo "electron_Epv     : Generate tab-delimited file of e- kinematics"
 	@echo "latticeVecs      : Apply lattice and valley rotations to vectors"
 	@echo "testBlockData    : Demonstrate use of data container"

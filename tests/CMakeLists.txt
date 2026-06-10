@@ -17,8 +17,8 @@ include(${Geant4_USE_FILE})
 # Executables are single-file builds, with no associated local library
 # NOTE: Add names of binaries to list
 #
-make_binaries("electron_Epv" "latticeVecs" "luke_dist" "testBlockData"
-              "testCrystalGroup" "g4cmpEFieldTest"
+make_binaries("electron_Epv" "dumpLattice" "latticeVecs" "luke_dist"
+              "testBlockData" "testCrystalGroup" "g4cmpEFieldTest"
               "testChargeCloud" "testPartition" "testHVtransform"
       	      "testFanoFactor" "testTemperature" "testNRyield"
               "testSolidUtils")

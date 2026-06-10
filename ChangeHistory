@@ -7,10 +7,8 @@ Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 [ Modifications included on branch G4CMP-77, put subtask tags below it: ]
-
-2026-05-25 	G4CMP-78: Added hole anisotropy parameters to GE and SI config txt.
-2026-06-09 	G4CMP-78: Added Set and Get functions for hole Anisotropy params.
-
+2026-06-09  G4CMP-77  : Implement anisotropic hole transport
+2026-06-09  G4CMP-78  : Added hole anisotropy parameters to Ge and Si lattices
 [ Main line "develop" ChangeHistory; when merging, put develop updates here: ]
 
 2026-05-20  G4CMP-576 : First step of G4CMPEqEMField uses base EqOfMotion for 
