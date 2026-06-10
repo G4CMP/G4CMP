@@ -231,3 +231,4 @@ root -l 'g4cmp_phonons_interface_hits.C("e-",100)'
 Notably, the phonon distributions are not too different for electron trapping MFP values of 100 vs 300 𝜇m.
 
 <img src="figures/interface_hits_summary_phonons_300um.png" width="50%">
+End.
