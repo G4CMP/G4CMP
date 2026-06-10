@@ -19,6 +19,16 @@ else()
 endif()
 find_package(G4CMP REQUIRED)
 
+# Geant4 11+ requires C++17 or greater
+if (Geant4_VERSION_MAJOR GREATER_EQUAL 11)
+  if (NOT DEFINED CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 17)
+  endif()
+  if (CMAKE_CXX_STANDARD LESS 17)
+    set(CMAKE_CXX_STANDARD 17)
+  endif()
+endif()
+
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
 # Setup include directory for this project
@@ -45,19 +55,32 @@ target_link_libraries(exampleB1 ${Geant4_LIBRARIES} ${G4CMP_LIBRARIES})
 # build B1. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-set(EXAMPLEB1_SCRIPTS
-  exampleB1.in
-  exampleB1.out
+set(EXAMPLEB1_MACROS
+  g4cmp_electrons.mac
+  g4cmp_electrons_100um.mac
+  g4cmp_electrons_300um.mac
+  g4cmp_phonons.mac
+  g4cmp_phonons_100um.mac
+  g4cmp_phonons_300um.mac
   init_vis.mac
-  run1.mac
-  run2.mac
-  vis.mac
-  )
+)
+set(EXAMPLEB1_SCRIPTS
+  g4cmp_electrons_interface_hits.C
+  g4cmp_phonons_interface_hits.C
+)
 
 foreach(_script ${EXAMPLEB1_SCRIPTS})
   configure_file(
-    ${PROJECT_SOURCE_DIR}/${_script}
+    ${PROJECT_SOURCE_DIR}/scripts/${_script}
     ${PROJECT_BINARY_DIR}/${_script}
+    COPYONLY
+    )
+endforeach()
+
+foreach(_macro ${EXAMPLEB1_MACROS})
+  configure_file(
+    ${PROJECT_SOURCE_DIR}/G4Macros/${_macro}
+    ${PROJECT_BINARY_DIR}/${_macro}
     COPYONLY
     )
 endforeach()

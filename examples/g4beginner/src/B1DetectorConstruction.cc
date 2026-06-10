@@ -44,7 +44,7 @@
 #include "G4Tubs.hh"
 
 // Begin import G4CMP-related header files
-#include "G4MaterialPropertiestable.hh"
+#include "G4MaterialPropertiesTable.hh"
 #include "G4LatticeManager.hh"
 #include "G4LatticePhysical.hh"
 // End import G4CMP-related header files

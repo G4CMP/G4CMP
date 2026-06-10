@@ -30,8 +30,6 @@
 #include "B1RunAction.hh"
 #include "B1PrimaryGeneratorAction.hh"
 #include "B1DetectorConstruction.hh"
-//#include "B1Analysis.hh"
-// #include "B1Run.hh"
 
 #include "G4RunManager.hh"
 #include "G4Run.hh"
@@ -40,6 +38,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4Version.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -62,8 +61,13 @@ B1RunAction::B1RunAction()
 
   // Register accumulable to the accumulable manager
   G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
+#if G4VERSION_NUMBER >= 1100
+  accumulableManager->Register(fEdep);
+  accumulableManager->Register(fEdep2);
+#else // G4VERSION_NUMBER >= 1100
   accumulableManager->RegisterAccumulable(fEdep);
   accumulableManager->RegisterAccumulable(fEdep2); 
+#endif
  // accumulableManager->RegisterAccumulable(fNdep);
 
     //Create/get analysis manager

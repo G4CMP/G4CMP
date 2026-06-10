@@ -1,0 +1,18 @@
+/run/initialize
+/control/verbose 2
+/run/verbose 2
+/event/verbose 0
+/tracking/verbose 1
+
+/analysis/setSpecies electrons
+/g4cmp/samplingEnergy 100 eV
+
+/g4cmp/producePhonons 0.
+/g4cmp/produceCharges 1.
+/g4cmp/sampleLuke 0.
+/g4cmp/minEPhonons 1 MeV
+
+/g4cmp/eTrappingMFP 100 um
+/g4cmp/hTrappingMFP 100 um
+
+/run/beamOn 100

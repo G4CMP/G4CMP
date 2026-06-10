@@ -30,7 +30,6 @@
 #include "B1SteppingAction.hh"
 #include "B1EventAction.hh"
 #include "B1DetectorConstruction.hh"
-//#include "B1Analysis.hh"
 
 #include "G4Step.hh"
 #include "G4Event.hh"
@@ -73,24 +72,24 @@ void B1SteppingAction::UserSteppingAction(const G4Step* step)
   
     
     
-//  G4double edepStep = step->GetTotalEnergyDeposit();
-//  fEventAction->AddEdep(edepStep);
-//      if (edepStep>0){ G4cout << G4endl << G4endl << G4endl << G4endl << "EdepSTEP " << edepStep << G4endl << G4endl << G4endl ;}
+  //  G4double edepStep = step->GetTotalEnergyDeposit();
+  //  fEventAction->AddEdep(edepStep);
+  //      if (edepStep>0){ G4cout << G4endl << G4endl << G4endl << G4endl << "EdepSTEP " << edepStep << G4endl << G4endl << G4endl ;}
 
-// collect energy deposited in this step
-G4double edepStep = step->GetTotalEnergyDeposit();
-fEventAction->AddEdep(edepStep);
+  // collect energy deposited in this step
+  G4double edepStep = step->GetTotalEnergyDeposit();
+  fEventAction->AddEdep(edepStep);
 
-// Get the track associated with this step
-G4Track* track = step->GetTrack();
+  // Get the track associated with this step
+  G4Track* track = step->GetTrack();
 
-// Get the particle type and ID
-G4String particleName = track->GetDefinition()->GetParticleName();
-G4int particleID = track->GetTrackID();
-G4int parentID = track->GetParentID();
+  // Get the particle type and ID
+  G4String particleName = track->GetDefinition()->GetParticleName();
+  G4int particleID = track->GetTrackID();
+  G4int parentID = track->GetParentID();
 
-if(edepStep > 0) {
-    G4cout << G4endl
+  if(edepStep > 0) {
+      G4cout << G4endl
            << "Shot Number: " << B1EventAction::GetShotNumber()
            << " Energy Deposit: " << edepStep
            << ", MeV, Particle Type: " << particleName
