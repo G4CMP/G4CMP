@@ -30,7 +30,6 @@
 #include "B1SteppingAction.hh"
 #include "B1EventAction.hh"
 #include "B1DetectorConstruction.hh"
-//#include "B1Analysis.hh"
 
 #include "G4Step.hh"
 #include "G4Event.hh"
@@ -109,7 +108,7 @@ void B1SteppingAction::UserSteppingAction(const G4Step* step)
   auto config = B1AnalysisConfig::Instance();
 
   if (config->IsElectronMode()) {
-    if (particleName == "G4CMPDriftElectron") {
+    if (particleName == "G4CMPDriftElectron" || particleName == "G4CMPDriftHole") {
       acceptTrack = true;
       speciesID = 0;
     }

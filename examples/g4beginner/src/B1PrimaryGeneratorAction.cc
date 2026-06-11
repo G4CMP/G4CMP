@@ -32,6 +32,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Box.hh"
+#include "G4Geantino.hh"
 #include "G4RunManager.hh"
 #include "G4ParticleGun.hh"
 #include "G4ParticleTable.hh"
@@ -49,19 +50,18 @@ B1PrimaryGeneratorAction::B1PrimaryGeneratorAction()
 {
   G4int n_particle = 1;
   fParticleGun  = new G4ParticleGun(n_particle);
-//    fParticleGun->SetParticleEnergy(0.511*MeV);
-/*
-  // default particle kinematic
-  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  G4String particleName;
-  G4ParticleDefinition* particle
-    = particleTable->FindParticle(particleName="gamma");
-  fParticleGun->SetParticleDefinition(particle);
-  fParticleGun->SetParticlePosition(G4ThreeVector(-195*mm,0,0));
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1, 0, 0));
-  //fParticleGun->SetParticleEnergy(0.1*MeV);
-
- */
+  auto* pdef = fParticleGun->GetParticleDefinition();
+  if (pdef) G4cout << __LINE__ << ": " << pdef->GetParticleName() << G4endl;
+  if (!pdef || pdef == G4Geantino::Definition())
+  {
+    G4ParticleDefinition* particle = G4ParticleTable::GetParticleTable()->FindParticle("e-");
+    fParticleGun->SetParticleDefinition(particle);
+    fParticleGun->SetParticleEnergy(100*keV);
+  }
+  if (fParticleGun->GetParticlePosition() == G4ThreeVector(0, 0, 0))
+  {
+    fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -3.74*mm));
+  }
  }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -75,16 +75,6 @@ B1PrimaryGeneratorAction::~B1PrimaryGeneratorAction()
 
 void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  G4ParticleDefinition* particle = particleTable->FindParticle("e-");
-
-  fParticleGun->SetParticleDefinition(particle);
-  fParticleGun->SetParticleEnergy(100*keV);
-
-  // Start above the Si slab and aim downward into it
-  fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -3.2*mm));
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 0., -1.));
-
   fParticleGun->GeneratePrimaryVertex(anEvent);
 }
 

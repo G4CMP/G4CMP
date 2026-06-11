@@ -4,6 +4,9 @@
 /event/verbose 0
 /tracking/verbose 1
 
+/gun/particle phononTS
+/gun/energy 100 keV
+
 /analysis/setSpecies phonons
 /g4cmp/samplingEnergy 100 eV
 

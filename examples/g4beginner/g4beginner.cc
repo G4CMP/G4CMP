@@ -24,8 +24,8 @@
 // ********************************************************************
 //
 //
-/// \file exampleB1.cc
-/// \brief Main program of the B1 example
+/// \file g4beginner.cc
+/// \brief Main program of the g4beginner example
 
 #include "B1DetectorConstruction.hh"
 #include "B1ActionInitialization.hh"
@@ -101,6 +101,9 @@ int main(int argc,char** argv)
 
   // Get the pointer to the User Interface manager
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
+  const G4String macro_dir = MACRO_DIR;
+  // set the default path for finding macros
+  if (!macro_dir.empty()) UImanager->ApplyCommand("/control/macroPath " + macro_dir);
 
   // Process macro or start UI session
   //

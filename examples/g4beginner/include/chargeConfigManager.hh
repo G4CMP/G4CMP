@@ -1,7 +1,20 @@
+/***********************************************************************\
+ * This software is licensed under the terms of the GNU General Public *
+ * License version 3 or later. See G4CMP/LICENSE for the full license. *
+\***********************************************************************/
+
 #ifndef chargeConfigManager_hh
 #define chargeConfigManager_hh 1
 
 #include "globals.hh"
+
+// $Id$
+// File:  chargeConfigManager.hh
+//
+// Description: Singleton container class for user configuration of G4CMP
+//    g4beginner example (extracted from charge example).
+//
+// 20170816  M. Kelsey -- Extract hit filename from G4CMPConfigManager.
 
 class chargeConfigMessenger;
 
