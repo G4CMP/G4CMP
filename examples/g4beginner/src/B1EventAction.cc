@@ -48,7 +48,11 @@ G4int B1EventAction::fShotNumber = 0; // Initialize static variable
 B1EventAction::B1EventAction(B1RunAction* runAction)
 : G4UserEventAction(),
   fRunAction(runAction),
-  fEdep(0.)
+  fEdep(0.),
+  fPhononsInterfaceWeighted(0.),
+  fPhononEnergyInterfaceWeighted(0.),
+  fPhononsAbove2DeltaWeighted(0.),
+  fPhononEnergyAbove2DeltaWeighted(0.)
 {} 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -73,6 +77,11 @@ void B1EventAction::BeginOfEventAction(const G4Event*)
   fElectronInterfaceVperp.clear();
   fElectronInterfaceTime.clear();
   fElectronInterfacePos.clear();
+
+  fPhononsInterfaceWeighted = 0.;
+  fPhononEnergyInterfaceWeighted = 0.;
+  fPhononsAbove2DeltaWeighted = 0.;
+  fPhononEnergyAbove2DeltaWeighted = 0.;
   //End G4CMP application
 }
 
@@ -82,19 +91,29 @@ void B1EventAction::EndOfEventAction(const G4Event* event)
 {
   fRunAction->AddEdep(fEdep);
 
-  G4int nInSi      = GetNElectronsInSi();
-  G4int nReached   = GetNElectronsReachedInterface();
-  G4int nTrapped   = GetNElectronsTrappedInSi();
-  G4double fracHit = GetElectronReachFraction();
-  G4int eventID    = event->GetEventID();
+  G4double nInSi    = GetNElectronsInSi();
+  G4double nReached = GetNElectronsReachedInterface();
+  G4double nTrapped = GetNElectronsTrappedInSi();
+  G4double fracHit  = GetElectronReachFraction();
+  G4int eventID     = event->GetEventID();
 
   auto analysisManager = G4AnalysisManager::Instance();
+
+  // Electron event summary
   analysisManager->FillNtupleIColumn(1, 0, eventID);
-  analysisManager->FillNtupleIColumn(1, 1, nInSi);
-  analysisManager->FillNtupleIColumn(1, 2, nReached);
-  analysisManager->FillNtupleIColumn(1, 3, nTrapped);
+  analysisManager->FillNtupleDColumn(1, 1, nInSi);
+  analysisManager->FillNtupleDColumn(1, 2, nReached);
+  analysisManager->FillNtupleDColumn(1, 3, nTrapped);
   analysisManager->FillNtupleDColumn(1, 4, fracHit);
   analysisManager->AddNtupleRow(1);
+
+  // Phonon event summary
+  analysisManager->FillNtupleIColumn(2, 0, eventID);
+  analysisManager->FillNtupleDColumn(2, 1, fPhononsInterfaceWeighted);
+  analysisManager->FillNtupleDColumn(2, 2, fPhononEnergyInterfaceWeighted / eV);
+  analysisManager->FillNtupleDColumn(2, 3, fPhononsAbove2DeltaWeighted);
+  analysisManager->FillNtupleDColumn(2, 4, fPhononEnergyAbove2DeltaWeighted / eV);
+  analysisManager->AddNtupleRow(2);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -129,32 +148,33 @@ void B1EventAction::CountElectronTrappedInSi(G4int trackID, G4double weight)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4double B1EventAction::GetWeightedElectronsInSi() const
+G4double B1EventAction::GetNElectronsInSi() const
 {
   G4double sum = 0.0;
   for (const auto& kv : fElectronTracksInSi) sum += kv.second;
   return sum;
 }
 
-G4double B1EventAction::GetWeightedElectronsReachedInterface() const
+G4double B1EventAction::GetNElectronsReachedInterface() const
 {
   G4double sum = 0.0;
   for (const auto& kv : fElectronTracksReachedInterface) sum += kv.second;
   return sum;
 }
 
-G4double B1EventAction::GetWeightedElectronsTrappedInSi() const
+G4double B1EventAction::GetNElectronsTrappedInSi() const
 {
   G4double sum = 0.0;
   for (const auto& kv : fElectronTracksTrappedInSi) sum += kv.second;
   return sum;
 }
 
-G4double B1EventAction::GetWeightedElectronReachFraction() const
+G4double B1EventAction::GetElectronReachFraction() const
 {
-  G4double nInSi = GetWeightedElectronsInSi();
+  G4double nInSi = GetNElectronsInSi();
   if (nInSi <= 0.0) return 0.0;
-  return GetWeightedElectronsReachedInterface() / nInSi;
+
+  return GetNElectronsReachedInterface() / nInSi;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -184,18 +204,20 @@ void B1EventAction::AddInterfaceElectronPosition(const G4ThreeVector& pos)
 {
   fElectronInterfacePos.push_back(pos);
 }
-
+              
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4double B1EventAction::GetElectronReachFraction() const
+void B1EventAction::AddPhononInterfaceHit(G4double weight, G4double energy)
 {
-  G4int nInSi = static_cast<G4int>(fElectronTracksInSi.size());
-  if (nInSi <= 0) return 0.0;
+  const G4double twoDelta = 3.6e-4 * eV;
 
-  return static_cast<G4double>(fElectronTracksReachedInterface.size()) /
-         static_cast<G4double>(nInSi);
+  fPhononsInterfaceWeighted += weight;
+  fPhononEnergyInterfaceWeighted += weight * energy;
 
-  //End G4CMP application  
+  if (energy >= twoDelta) {
+    fPhononsAbove2DeltaWeighted += weight;
+    fPhononEnergyAbove2DeltaWeighted += weight * energy;
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

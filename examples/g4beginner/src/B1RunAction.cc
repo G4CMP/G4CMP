@@ -79,7 +79,7 @@ B1RunAction::B1RunAction()
   analysisManager->CreateNtupleDColumn("z_mm");         // 9
   analysisManager->FinishNtuple(0);
 
-  // Ntuple 1: event summary
+  // Ntuple 1: electron event summary
   analysisManager->CreateNtuple("EventSummary", "Per-event electron summary");
   analysisManager->CreateNtupleIColumn("eventID");         // col 0
   analysisManager->CreateNtupleDColumn("nInSi");           // col 1
@@ -88,6 +88,14 @@ B1RunAction::B1RunAction()
   analysisManager->CreateNtupleDColumn("reachFraction");   // col 4
   analysisManager->FinishNtuple(1);
 
+  // Ntuple 2: phonon event summary
+  analysisManager->CreateNtuple("PhononEventSummary", "Per-event phonon interface summary");
+  analysisManager->CreateNtupleIColumn("eventID");                       // col 0
+  analysisManager->CreateNtupleDColumn("nPhononsInterfaceWeighted");     // col 1
+  analysisManager->CreateNtupleDColumn("ePhononsInterfaceWeighted_eV");  // col 2
+  analysisManager->CreateNtupleDColumn("nPhononsAbove2DeltaWeighted");   // col 3
+  analysisManager->CreateNtupleDColumn("ePhononsAbove2DeltaWeighted_eV");// col 4
+  analysisManager->FinishNtuple(2);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

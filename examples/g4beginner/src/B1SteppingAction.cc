@@ -176,6 +176,10 @@ void B1SteppingAction::UserSteppingAction(const G4Step* step)
     analysisManager->FillNtupleDColumn(0, 9, pos.z() / mm);
     analysisManager->AddNtupleRow(0);
 
+    // If we are in phonon mode, accumulate phonon event-level interface quantities
+    if (config->IsPhononMode()) {
+      fEventAction->AddPhononInterfaceHit(weight, energy);
+  }
   }
   // ---------------------------------------------------------
   // 3. Detect electron termination in Si
