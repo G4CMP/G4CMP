@@ -2,7 +2,7 @@
 
 ### Assembled by Jesse Lutz ([jjlutz@sandia.gov](jjlutz@sandia.gov))
 
-This tutorial is meant to guide the user through their first steps of using G4CMP. We focus here on a geometry representing the experimental setup used by Vepsäläinen et al. in their 2020 Nature paper entitled ["Impact of ionizing radiation on superconducting qubit coherence"](https://doi.org/10.1038/s41586-020-2619-8) (as developed from the basic Geant4 example B1 by Adam Hect and I).
+This tutorial is meant to guide the user through their first steps of using G4CMP. We focus here on a geometry representing the experimental setup used by Vepsäläinen et al. in their 2020 Nature paper entitled ["Impact of ionizing radiation on superconducting qubit coherence"](https://doi.org/10.1038/s41586-020-2619-8) The original Geant4 application was developed (starting from the basic example B1) by myself and Prof. Adam Hecht (University of New Mexico).
 
 As a disclaimer, it is expected that you have already installed Geant4 and G4CMP and know how to compile an application (if not, see the instructions in their respective READMEs or click the following [YouTube video](https://www.youtube.com/watch?v=D1ZfUewM8-E). Please note that later parts of this tutorial also require that is ROOT installed, which is available free for download from [CERN](root.cern). Also, don't forget to initialize your environment (if you haven't done so already):
 ```bash
@@ -112,7 +112,7 @@ make
 
 You can see the geometry setup by running the program with the original visualization macro
 ```bash
-./g4beginner G4Macros/init_vis.mac
+./g4beginner init_vis.mac
 ```
 The geometry we use here is meant to mimic the Vepsäläinen setup, which was a copper housing disk containing a superconducting qubit of Al on Si (200 nm on 280 𝜇m) with lateral dimensions 5 mm × 5 mm. The source is <sup>64</sup>Cu with 6.12 𝜇Ci activity, which emits 𝛽+ (653 keV; 17.49%), 𝛽− (580 keV; 38.5%), and 𝛾 particles (1346 keV; 0.472%), and it emits isotropically from the Cu volume. While our original application included all that physics (including 𝛽 emission via a triangle distribution of energies), for the purposes of this tutorial things have been simplified considerably: the particle gun fires only 𝛽− particles at a fixed energy of 100 keV and a fixed distance of about 350 𝜇m. Here is Fig. 1 from that paper as a reminder:
 <img src="figures/Vepsalainen_Fig_1.png" width="100%">
