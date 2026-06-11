@@ -9,7 +9,7 @@ To run this example, you need to install ROOT, Geant4 (Geant4-v11.4.1), and G4CM
 > [!CAUTION]
 > If you do not update your local G4CMP copy to _at least_ G4CMP-V10-00-00, you will be completely unable to run this example. Please pull and install the most recent version of `master`. You can technically run with Geant4-v10.7.0 or later, but your output will not perfectly match what we get in this tutorial.
 
-### Installing Geant4 and G4CMP
+### Tips for Manually Installing Geant4 and G4CMP
 While installing ROOT, Geant4, or G4CMP, a good practice is to assign to each package three directories: a source directory `XXXXX`, a build directory `XXXXX-build`, and an install directory `XXXXX-install`. On my machine, the base name (`XXXXX`) for my geant4 build is `geant4-v11.4.1`, and the base name for the G4CMP build is `G4CMP_quasiparticle`. While the installation instructions for these can be found in the packages' documentation, it's worth reminding that the last steps in the process of each of these installations should be to run `make` and `make install` while in the `XXXXX-build` directory. Moreover, we recommend installing Geant4 with the cmake flags `-DGEANT4_INSTALL_DATA=ON` and `-DGEANT4_USE_OPENGL_X11=ON`, and to build with C++14. In particular, the OpenGL flag will enable visualization, which we will frequently use. However, if you can successfully run other visualizers like DAWN, those are also perfectly fine.
 
 ### Setting up environment
@@ -147,7 +147,7 @@ Let's first look at phonon propagation. We'll make three changes to this macro. 
 /vis/filtering/trajectories/particleFilter-0/add phononTF
 /vis/filtering/trajectories/particleFilter-0/add phononL
 ```
-to allow the visualization to no longer filter out phonons when displaying tracks. Second, let's turn off Cooper-pair breaking so that when we allow phonons to enter our superconducting film, they just pass straight through without creating QPs, which may visually confuse the view:
+to allow the visualization to no longer filter out phonons when displaying tracks. Second, let's turn off Cooper-pair breaking so that when we allow phonons to enter our superconducting film, they just pass straight through without creating QPs, which may visually confuse the view. We'll also turn off phonon polycrystalline elastic scattering, just to simplify things as well.
 ```
 #/process/inactivate phononScattering
 #/process/inactivate phononDownconversion
@@ -228,7 +228,7 @@ and set the trajectory visualization to ignore phonons but now no longer ignore 
 ```
 After this we can go ahead and rerun, which should give us the following image:
 
-<img width="595" height="600" alt="image" src="https://github.com/user-attachments/assets/6450590e-5baf-433a-9bfa-2d010c4f3121" />
+<img width="595" height="600" alt="image" src="https://github.com/user-attachments/assets/3105aa6e-ca13-49c5-b64e-233e72981015" />
 
 Now shown in white are tracks of BogoliubovQP objects. To understand what's going on here, le'ts zoom in a bit:
 ```
@@ -236,85 +236,59 @@ Now shown in white are tracks of BogoliubovQP objects. To understand what's goin
 ```
 which should give us this: 
 
-<img width="593" height="593" alt="image" src="https://github.com/user-attachments/assets/0ba92549-cbff-4e5a-bddb-608353c8cd2c" />
+<img width="594" height="596" alt="image" src="https://github.com/user-attachments/assets/7b8a89e6-9108-43c9-85e9-db2d35ba854e" />
 
-Here, we see QPs, in white, diffusing around a bit and seemingly being impeded by the gray outlines of our resonator and qubit coupler. Since it's hard to get a full sense of what's going on without seeing the phonons (which simultaneously confuse the field of view) and because we're looking at this only in 2D, let's take a look at a QP track's verbose output. Here, I'm inspecting the full track of the final QP spit out in the verbose tracking output:
+
+Here, we see QPs, in white, diffusing around a bit and seemingly being impeded by the gray outlines of our resonator and qubit coupler. Since it's hard to get a full sense of what's going on without seeing the phonons (which simultaneously confuse the field of view) and because we're looking at this only in 2D, let's take a look at a QP track's verbose output. Here, I'm inspecting the beginning and end of track ID 25, a `BogoliubovQP` created by a parent with a track ID of 20. We'll look at the whole track:
 ```
 *********************************************************************************************************
-* G4Track Information:   Particle = BogoliubovQP,   Track ID = 44,   Parent ID = 42
+* G4Track Information:   Particle = BogoliubovQP,   Track ID = 25,   Parent ID = 20
 *********************************************************************************************************
 
 Step#    X(mm)    Y(mm)    Z(mm) KinE(MeV)  dE(MeV) StepLeng TrackLeng  NextVolume ProcName
-    0    -2.04     1.45        5   5.5e-10        0        0         0 ResonatorAssembly_0 initStep
-    1    -2.07     1.42        5  2.78e-10        0     25.6      25.6 ResonatorAssembly_0 qpRadiatesPhonon
+    0    -2.04     1.45        5  2.29e-10        0        0         0 ResonatorAssembly_0 initStep
+    1     -2.1     1.56        5  2.29e-10        0      523       523 ResonatorAssembly_0 qpDiffusion
+    2    -2.17      1.5        5  2.29e-10        0      180       703 ResonatorAssembly_0 qpDiffusion
+    3    -2.15     1.51        5  2.29e-10        0     18.6       722 ResonatorAssembly_0 qpDiffusion
+    4    -2.11     1.53        5  2.29e-10        0     24.7       746 ResonatorAssembly_0 qpDiffusion
+    5    -2.13     1.45        5  2.29e-10        0      319  1.07e+03 ResonatorAssembly_0 qpDiffusion
+    6    -2.17      1.5        5  2.29e-10        0      151  1.22e+03 ResonatorAssembly_0 qpDiffusion
+    7    -2.19      1.5        5  2.29e-10        0     42.4  1.26e+03 ResonatorAssembly_0 qpDiffusion
+    8    -2.19     1.49        5  2.29e-10        0   0.0415  1.26e+03 ResonatorAssembly_0 qpDiffusion
+    9    -2.19     1.49        5  2.29e-10        0   0.0206  1.26e+03 ResonatorAssembly_0 qpDiffusion
+   10    -2.19      1.5        5  2.29e-10        0     0.19  1.26e+03 ResonatorAssembly_0 qpDiffusion
+   11    -2.19      1.5        5  2.29e-10        0    0.132  1.26e+03 ResonatorAssembly_0 qpDiffusion
+   12    -2.19     1.49        5  2.29e-10        0    0.491  1.26e+03 ResonatorAssembly_0 qpDiffusion
+   13    -2.19      1.5        5  2.29e-10        0     0.26  1.26e+03 ResonatorAssembly_0 qpDiffusion
+   14    -2.18     1.49        5  2.29e-10        0     1.08  1.26e+03 ResonatorAssembly_0 qpDiffusion
+   15    -2.18     1.49        5  2.29e-10        0     5.51  1.27e+03 ResonatorAssembly_0 qpDiffusion
+   16    -2.17      1.5        5  2.29e-10        0     7.63  1.27e+03 ResonatorAssembly_0 qpDiffusion
+   17    -2.14     1.49        5  2.29e-10        0     17.9  1.29e+03 ResonatorAssembly_0 qpDiffusion
+   18    -2.15     1.44        5  2.29e-10        0     69.1  1.36e+03 ResonatorAssembly_0 qpDiffusion
+   19    -2.18     1.42        5  2.29e-10        0     22.5  1.38e+03 ResonatorAssembly_0 qpDiffusion
+   20    -2.19     1.42        5  2.29e-10        0     4.91  1.39e+03 ResonatorAssembly_0 qpDiffusion
+   21    -2.19     1.42        5  2.29e-10        0   0.0127  1.39e+03 ResonatorAssembly_0 qpDiffusion
+   22    -2.19     1.41        5  2.29e-10        0   0.0266  1.39e+03 ResonatorAssembly_0 qpDiffusion
+   23    -2.19     1.41        5  2.29e-10        0   0.0169  1.39e+03 ResonatorAssembly_0 qpDiffusion
+   24    -2.19     1.41        5  2.29e-10        0 0.000852  1.39e+03 ResonatorAssembly_0 qpDiffusion
+   25    -2.19     1.41        5  2.29e-10        0  0.00128  1.39e+03 ResonatorAssembly_0 qpDiffusion
+   26    -2.19     1.41        5  2.29e-10        0 0.000382  1.39e+03 ResonatorAssembly_0 qpDiffusion
+   27    -2.19     1.41        5  2.29e-10        0  0.00099  1.39e+03 ResonatorAssembly_0 qpDiffusion
+   28    -2.19     1.41        5  2.29e-10        0  0.00041  1.39e+03 ResonatorAssembly_0 qpDiffusion
+   29    -2.19     1.41        5  2.29e-10        0 1.33e-05  1.39e+03 ResonatorAssembly_0 qpDiffusion
+   30    -2.19     1.41        5  2.29e-10        0 1.56e-05  1.39e+03 ResonatorAssembly_0 qpDiffusion
+   31    -2.19     1.41        5  2.29e-10        0 3.28e-06  1.39e+03 GroundPlane Transportation
+   32    -2.49    0.698        5  1.89e-10        0 1.07e+04  1.21e+04 GroundPlane qpRadiatesPhonon
     :----- List of 2ndaries - #SpawnInStep=  1(Rest= 0,Along= 0,Post= 1), #SpawnTotal=  1 ---------------
-    :     -2.07      1.42         5  2.71e-10           phononTS
+    :     -2.49     0.698         5  4.03e-11           phononTS
     :----------------------------------------------------------------- EndOf2ndaries Info ---------------
-    2    -2.03     1.47        5  1.75e-10        0      179       204 ResonatorAssembly_0 qpRadiatesPhonon
-    :----- List of 2ndaries - #SpawnInStep=  1(Rest= 0,Along= 0,Post= 1), #SpawnTotal=  2 ---------------
-    :     -2.03      1.47         5  1.03e-10           phononTS
-    :----------------------------------------------------------------- EndOf2ndaries Info ---------------
-    3    -1.95     1.54        5  1.75e-10        0 5.14e+03  5.35e+03 ResonatorAssembly_0 qpDiffusion
-    4    -1.96     1.57        5  1.75e-10        0      574  5.92e+03 ResonatorAssembly_0 qpDiffusion
-    5    -1.96     1.57        5  1.75e-10        0     1.06  5.92e+03 ResonatorAssembly_0 qpDiffusion
-    6    -1.95     1.57        5  1.75e-10        0     1.06  5.92e+03 ResonatorAssembly_0 qpDiffusion
-    7    -1.96     1.57        5  1.75e-10        0    0.716  5.92e+03 ResonatorAssembly_0 qpDiffusion
-    8    -1.95     1.57        5  1.75e-10        0    0.407  5.92e+03 ResonatorAssembly_0 qpDiffusion
-    9    -1.95     1.57        5  1.75e-10        0     1.06  5.92e+03 ResonatorAssembly_0 qpDiffusion
-   10    -1.95     1.57        5  1.75e-10        0   0.0155  5.92e+03 ResonatorAssembly_0 qpDiffusion
-   11    -1.95     1.57        5  1.75e-10        0   0.0489  5.92e+03 ResonatorAssembly_0 qpDiffusion
-   12    -1.95     1.57        5  1.75e-10        0    0.106  5.92e+03 ResonatorAssembly_0 qpDiffusion
-   13    -1.95     1.57        5  1.75e-10        0    0.225  5.92e+03 ResonatorAssembly_0 qpDiffusion
-   14    -1.96     1.57        5  1.75e-10        0     3.44  5.93e+03 ResonatorAssembly_0 qpDiffusion
-   15    -1.95     1.57        5  1.75e-10        0     1.91  5.93e+03 ResonatorAssembly_0 qpDiffusion
-   16    -1.95     1.57        5  1.75e-10        0  0.00958  5.93e+03 ResonatorAssembly_0 qpDiffusion
-   17    -1.95     1.57        5  1.75e-10        0   0.0121  5.93e+03 ResonatorAssembly_0 qpDiffusion
-   18    -1.96     1.57        5  1.75e-10        0    0.148  5.93e+03 ResonatorAssembly_0 qpDiffusion
-   19    -1.96     1.57        5  1.75e-10        0    0.956  5.93e+03 ResonatorAssembly_0 qpDiffusion
-   20    -1.96     1.57        5  1.75e-10        0     5.47  5.94e+03 ResonatorAssembly_0 qpDiffusion
-   21    -1.96     1.57        5  1.75e-10        0     10.1  5.95e+03 ResonatorAssembly_0 qpDiffusion
-   22    -1.96     1.57        5  1.75e-10        0     7.31  5.95e+03 ResonatorAssembly_0 qpDiffusion
-   23    -1.96     1.56        5  1.75e-10        0     27.2  5.98e+03 ResonatorAssembly_0 qpDiffusion
-   24    -1.97     1.56        5  1.75e-10        0     73.1  6.05e+03 ResonatorAssembly_0 qpDiffusion
-   25    -1.96     1.58        5  1.75e-10        0     76.5  6.13e+03 ResonatorAssembly_0 qpDiffusion
-   26    -1.97     1.58        5  1.75e-10        0     42.6  6.17e+03 ResonatorAssembly_0 qpDiffusion
-   27    -1.98     1.59        5  1.75e-10        0     89.5  6.26e+03 ResonatorAssembly_0 qpDiffusion
-   28    -1.97     1.62        5  1.75e-10        0      167  6.43e+03 ResonatorAssembly_0 qpDiffusion
-   29    -1.95     1.62        5  1.75e-10        0     59.1  6.49e+03 ResonatorAssembly_0 qpDiffusion
-   30    -1.95     1.62        5  1.75e-10        0 2.86e-05  6.49e+03 ResonatorAssembly_0_shuntCouplerEmpty Transportation
-   31    -1.95     1.62        5  1.75e-10        0        0  6.49e+03 ResonatorAssembly_0 Transportation
-   32       -2     1.58        5  1.75e-10        0 1.43e+03  7.92e+03 ResonatorAssembly_0 qpDiffusion
-   33    -2.02     1.53        5  1.75e-10        0      926  8.85e+03 ResonatorAssembly_0 qpDiffusion
-   34    -2.05      1.6        5  1.75e-10        0    2e+03  1.08e+04 ResonatorAssembly_0 qpDiffusion
-   35    -1.96     1.64        5  1.75e-10        0 5.24e+03  1.61e+04 ResonatorAssembly_0 qpDiffusion
-   36    -1.97     1.64        5  1.75e-10        0     56.3  1.61e+04 ResonatorAssembly_0 qpDiffusion
-   37    -1.97     1.66        5  1.75e-10        0     85.8  1.62e+04 ResonatorAssembly_0 qpDiffusion
-   38    -1.97     1.67        5  1.75e-10        0     90.9  1.63e+04 ResonatorAssembly_0 qpDiffusion
-   39    -1.97     1.66        5  1.75e-10        0     47.3  1.64e+04 ResonatorAssembly_0 qpDiffusion
-   40    -1.97     1.64        5  1.75e-10        0      280  1.66e+04 ResonatorAssembly_0 qpDiffusion
-   41    -1.99     1.66        5  1.75e-10        0      259  1.69e+04 ResonatorAssembly_0 qpDiffusion
-   42       -2     1.63        5  1.75e-10        0      197  1.71e+04 ResonatorAssembly_0 qpDiffusion
-   43    -2.04     1.61        5  1.75e-10        0 1.31e+03  1.84e+04 ResonatorAssembly_0 qpDiffusion
-   44     -2.1     1.55        5  1.75e-10        0 1.02e+03  1.94e+04 ResonatorAssembly_0 qpDiffusion
-   45    -2.19     1.59        5  1.75e-10        0 3.54e+03   2.3e+04 ResonatorAssembly_0 qpDiffusion
-   46    -2.18     1.59        5  1.75e-10        0     3.67   2.3e+04 ResonatorAssembly_0 qpDiffusion
-   47    -2.19     1.58        5  1.75e-10        0     76.9  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   48    -2.19     1.58        5  1.75e-10        0     2.46  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   49    -2.19     1.58        5  1.75e-10        0    0.877  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   50    -2.19     1.58        5  1.75e-10        0    0.584  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   51    -2.19     1.58        5  1.75e-10        0     1.41  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   52    -2.19     1.58        5  1.75e-10        0    0.259  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   53    -2.19     1.59        5  1.75e-10        0     1.32  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   54    -2.19     1.58        5  1.75e-10        0     1.97  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   55    -2.19     1.58        5  1.75e-10        0   0.0164  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   56    -2.19     1.58        5  1.75e-10        0   0.0366  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   57    -2.19     1.58        5  1.75e-10        0    0.121  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   58    -2.19     1.58        5  1.75e-10        0 0.000691  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   59    -2.19     1.59        5  1.75e-10        0  0.00344  2.31e+04 ResonatorAssembly_0 qpDiffusion
-   60    -2.19     1.59        5  1.75e-10        0 7.13e-05  2.31e+04 GroundPlane Transportation
-   61    -2.39     1.73        5  1.75e-10        0 5.46e+04  7.76e+04 GroundPlane qpLocalTrapping
+   33    -2.48    0.998        5  1.89e-10        0 5.41e+03  1.75e+04 GroundPlane qpDiffusion
+   34    -2.61     1.26        5  1.89e-10        0 3.45e+03   2.1e+04 GroundPlane qpDiffusion
+   35    -2.82     1.61        5  1.89e-10        0 6.05e+03  2.71e+04 GroundPlane qpDiffusion
+   36    -3.07     1.04        5  1.89e-10        0 4.33e+04  7.03e+04 GroundPlane qpDiffusion
+   37    -2.79     1.16        5  1.89e-10        0 2.45e+03  7.28e+04 GroundPlane qpLocalTrapping 
 ```
-Let's talk about what's happening here. First, the first few steps feature a `qpRadiatesPhonon` process -- this is doing exactly what it sounds like: lowering the energy of the QP and spitting out a phonon with that deltaE. Most of the rest of the steps are using `qpDiffusion`, and then in step 284 there is a Transportation step where the NextVolume is `ResonatorAssembly_0_shuntCouplerEmpty`. This, coupled with the subsequent step, is a `BogoliubovQP` reflecting off of a boundary with a vacuum volume I've defined to be `ResonatorAssembly_0_shuntCouplerEmpty`. Finally, the `BogoliubovQP` leaves the `ResonatorAssembly_0` in Step 59 into the `GroundPlane` and then dies without fanfare via `qpLocalTrapping` process.
+Let's talk about what's happening here. First, the first several steps feature a `qpDiffusion` process, where the QP is just moving around diffusively. Step 31 features a "transportation" step, in which the QP moves from the `ResonatorAssembly_0` volume into the `GroundPlane` volume. In Step 32, we see a `qpRadiatesPhonon` process -- this is doing exactly what it sounds like: lowering the energy of the QP and spitting out a phononTS with that deltaE. A few following steps proceed again via `qpDiffusion`, and then in step 37 the QP dies without fanfare via the `qpLocalTrapping` process.
 
 In this process, there are a few things worth noting. First, the quasiparticle only actually moves in two dimensions, and doesn't change Z position at all. While this is hard to see due to precision involved in these printouts, this is actually exact, and is fundamental to QP propagation in G4CMP. This is true _even for_ the steps that involve inelastic scatters that, say, produce phonons that then travel vertically. As a result, `BogoliubovQP` objects _do not conserve momentum in G4CMP_, though they do (largely) conserve energy. Second, it is pretty clear from both the picture and the printout that QP reflections are happening on vertical interfaces within the thin films, which also implies that there are additional vertical boundaries that must be defined for QPs (and phonons) to properly follow the physics needed in these volumes. 
 
@@ -332,7 +306,7 @@ The rest of Tutorial Example 1 will be dedicated to discussing how we do these t
 > Homework question: what may be the motivation for limiting our QP propagation to only a 2-dimensional plane?
 
 > [!TIP]
-> Challenge question: in this verbose output you can see that the X and Y locations of the `BogoliubovQP` do not change much (maybe 0.1 mm or so) between Steps 2 and 3, but the step length changes by about 5 meters (!?). This is not a bug. How/why might this be true?
+> Challenge question: in this verbose output you can see that between Step 32, the X and Y locations of the `BogoliubovQP` indicate a displacement of about 1 mm, but the step length column indicates a step length of about 10 meters (!?). This is not a bug. How/why might this be true?
 
 ### Volumes in G4CMP-V10
 
@@ -388,7 +362,7 @@ These boolean solids should work reasonably well with the quasiparticle and phon
 
 ### Lattices in G4CMP-V10
 
-\With the shapes, materials, and positioning of our superconducting volume placed, we now need to ascribe to it a lattice. While most superconducting films don’t end up as single-crystal lattices without concerted effort during fabrication, we nonetheless ascribe to each superconducting volume a `G4LatticePhysical` object. Let’s look at the lines in `QuasiparticleResonatorAssembly.cc` that do this for `curve3Conductor`:
+With the shapes, materials, and positioning of our superconducting volume placed, we now need to ascribe to it a lattice. While most superconducting films don’t end up as single-crystal lattices without concerted effort during fabrication, we nonetheless ascribe to each superconducting volume a `G4LatticePhysical` object. Let’s look at the lines in `QuasiparticleResonatorAssembly.cc` that do this for `curve3Conductor`:
 
 ```
 //Need to construct lattice...                                                                             
@@ -404,8 +378,8 @@ There are six arguments to this constructor, the last five of which are meant to
 1. First argument, value `AlLogical`: this is the logical lattice associated with the physical lattice, and the argument `AlLogical` is defined at the beginning of the `QuasiparticleDetectorConstruction.cc` file. This is a package of information from the aluminum CrystalMaps file. 
 2. Second argument, value `dp_polycryElScatMFP_Al`: This is the length scale for energy-independent, elastic phonon scattering off of polycrystalline grains in this thin film volume. 
 3. Third argument, value `dp_scDelta0_Al`: This is the zero-temperature gap value of this thin-film volume.
-4. Fourth argument, value `dp_scTeff_Al`: This is the effective temperature of this thin-film volume. Together with `dp_scDelta0_Al`, this governs the rates of pairbreaking, phonon radiation by QPs, and QP recombination via the calculations/formalism set out in [CITE KAPLAN]
-5. Fifth argument, value `dp_scDn_Al`: This is the normal-state diffusion constant for electrons in the material — this is combined with an energy dependent term via the formalism in [CITE ULLOM] to capture the dependence of a QP’s transport on its energy.
+4. Fourth argument, value `dp_scTeff_Al`: This is the effective temperature of this thin-film volume. Together with `dp_scDelta0_Al`, this governs the rates of pairbreaking, phonon radiation by QPs, and QP recombination via the calculations/formalism set out in [this reference](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.14.4854).
+5. Fifth argument, value `dp_scDn_Al`: This is the normal-state diffusion constant for electrons in the material — this is combined with an energy dependent term via the formalism in [this reference](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.58.8225) to capture the dependence of a QP’s transport on its energy.
 6. Sixth argument, value `dp_scTauQPTrap_Al`: This is the characteristic “local” trapping time of quasiparticles on impurities. The larger this number is, the slower QPs die due to trapping.
 7. A hidden (default-valued) seventh argument is present, which will allow fine-tuned control over the diffusion process to compensate for biases in places where the cost-efficient walk-on-spheres algorithm is unable to properly capture the correct physics. We do not use this here, but will comment more on this in the Tutorial Example 2.
 
@@ -610,7 +584,7 @@ constexpr double dp_scTeff_Al = 0.2 * CLHEP::kelvin;
 constexpr double dp_scDn_Al = 6 * CLHEP::um*CLHEP::um / CLHEP::ns;
 constexpr double dp_scTauQPTrap_Al = 1 * CLHEP::ms;
 ```
-which says that our local trapping time is set to 1 ms, and that our effective temperature, which governs recombination, is set to 200 mK. This effective temperature produces a QP recombination lifetime in Al (from [CITE KAPLAN]) of around 1 ms at energies just above the gap. With these two separate processes giving QP decay timescales of order 1 ms, the joint decay time should be about half that, or around 500 μs. This is indeed what we see.
+which says that our local trapping time is set to 1 ms, and that our effective temperature, which governs recombination, is set to 200 mK. This effective temperature produces a QP recombination lifetime in Al (from [this reference](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.14.4854)) of around 1 ms at energies just above the gap. With these two separate processes giving QP decay timescales of order 1 ms, the joint decay time should be about half that, or around 500 μs. This is indeed what we see.
 
 
 > [!TIP]
@@ -653,7 +627,7 @@ constexpr double dp_scDn_Al = 6 * CLHEP::um*CLHEP::um / CLHEP::ns;
 constexpr double dp_scTauQPTrap_Al = 1 * CLHEP::ms;
 ```
 Arguably, the three most important parameters here are the zero-temperature gap, `dp_scDelta0_Al`, the effective temperature of the superconductor, `dp_scTeff_Al`, and the trapping lifetime, `dp_scTauQPTrap_Al`. Since the zero-temperature gap should be fixed in principle, this largely is a "set and forget" parameter. The other two are less obvious _a priori_, and are parameters you can tune to match simulations to your data.
-1. `dp_scTeff_Al`: This effective temperature dictates the recombination, phonon radiation, and pairbreaking lifetimes via the formalism in the Kaplan paper [CITE KAPLAN]. While phonon radiation and pairbreaking lifetimes do vary with this, the recombination lifetime is _strongly_ dependent on this, and diverges at low values of (T_eff/T_c). As a result, if you do not have other mechanisms for quasiparticles to die (i.e. local trapping), then setting T_eff below about 15% of T_c will make your code run for a VERY long time. We'll note that when QPs die via this mechanism, they release a near-2Δ phonon with a 50% probability, to conserve energy globally. This permits "QP recycling," in which subsequent cycles of pairbreaking, recombination, and re-pairbreaking keep a QP's influence in the chip around for longer than the time between its initial creation and (initial) death.
+1. `dp_scTeff_Al`: This effective temperature dictates the recombination, phonon radiation, and pairbreaking lifetimes via the formalism in the [Kaplan paper](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.14.4854). While phonon radiation and pairbreaking lifetimes do vary with this, the recombination lifetime is _strongly_ dependent on this, and diverges at low values of (T_eff/T_c). As a result, if you do not have other mechanisms for quasiparticles to die (i.e. local trapping), then setting T_eff below about 15% of T_c will make your code run for a VERY long time. We'll note that when QPs die via this mechanism, they release a near-2Δ phonon with a 50% probability, to conserve energy globally. This permits "QP recycling," in which subsequent cycles of pairbreaking, recombination, and re-pairbreaking keep a QP's influence in the chip around for longer than the time between its initial creation and (initial) death.
 3. `dp_scTauQPTrap_Al`: This local trapping lifetime is set directly, and will kill quasiparticles without fanfare, i.e. without any phonon emission.
 
 > [!CAUTION]
