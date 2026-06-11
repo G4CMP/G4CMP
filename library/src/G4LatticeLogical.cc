@@ -983,14 +983,11 @@ void G4LatticeLogical::Dump(std::ostream& os) const {
      << "\nl0_h " << fL0_h/um << " um"
      << std::endl;
 
-  os << "# Hole anisotropy parameters [m(electron) units]"
+  os << "# Charge carrier masses [m(electron) units]"
+     << "\nhmass " << fHoleMass/mElectron
      << "\nholeA " << fHoleA/mElectron 
      << "\nholeB " << fHoleB/mElectron 
      << "\nholeC " << fHoleC/mElectron  
-     << std::endl;
-
-  os << "# Charge carrier masses [m(electron) units]"
-     << "\nhmass " << fHoleMass/mElectron
      << "\nemass " << fMassTensor.xx()/mElectron
      << " " << fMassTensor.yy()/mElectron
      << " " << fMassTensor.zz()/mElectron << std::endl;

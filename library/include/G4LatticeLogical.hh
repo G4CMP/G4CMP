@@ -194,9 +194,9 @@ public:
   void SetTransverseSoundSpeed(G4double v) { fVTrans = v; }
   void SetHoleScatter(G4double l0) { fL0_h = l0; }
   void SetHoleMass(G4double hmass) { fHoleMass = hmass; }
-  void SetHoleA(G4double val) { fHoleA = val; } 
-  void SetHoleB(G4double val) { fHoleB = val; } 
-  void SetHoleC(G4double val) { fHoleC = val; }
+  void SetHoleA(G4double HoleA) { fHoleA = HoleA; } 
+  void SetHoleB(G4double HoleB) { fHoleB = HoleB; } 
+  void SetHoleC(G4double HoleC) { fHoleC = HoleC; }
   void SetElectronScatter(G4double l0) { fL0_e = l0; }
   void SetMassTensor(const G4RotationMatrix& etens);
   void SetMassTensor(G4double mXX, G4double mYY, G4double mZZ);
