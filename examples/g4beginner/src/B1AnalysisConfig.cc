@@ -4,7 +4,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4ios.hh"
 
-B1AnalysisConfig* B1AnalysisConfig::fInstance = nullptr;
+G4ThreadLocal B1AnalysisConfig* B1AnalysisConfig::fInstance = nullptr;
 
 B1AnalysisConfig* B1AnalysisConfig::Instance()
 {

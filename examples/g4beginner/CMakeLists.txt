@@ -5,11 +5,7 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 set(PROJ_NAME g4beginner)
-project(g4beginner)
-
-if (NOT DEFINED MACRO_DIR)
-  set(MACRO_DIR ${PROJECT_SOURCE_DIR}/G4Macros)
-endif()
+project(${PROJ_NAME})
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
 # You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
@@ -53,32 +49,24 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #
 add_executable(${PROJ_NAME} ${PROJ_NAME}.cc ${sources} ${headers})
 target_link_libraries(${PROJ_NAME} ${Geant4_LIBRARIES} ${G4CMP_LIBRARIES})
-# Setting this variable allows us to set a base directory path for macro files
-target_compile_definitions(${PROJ_NAME} PUBLIC MACRO_DIR="${MACRO_DIR}")
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build g4beginner. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
+set(G4BEGINNER_MACROS
+  g4cmp_electrons_100um.mac
+  g4cmp_phonons_100um.mac
+  g4cmp_electrons_300um.mac
+  g4cmp_phonons_300um.mac
+  init_vis.mac
+  vis.mac
+)
 set(G4BEGINNER_SCRIPTS
   g4cmp_electrons_interface_hits.C
   g4cmp_phonons_interface_hits.C
   g4cmp_phonons_pairbreaking_summary.C
 )
-if (NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR})
-endif()
-# check to see if CMAKE_INSTALL_PREFIX is writable
-set(TEST_PATH "${CMAKE_INSTALL_PREFIX}/.cmake_write_test")
-execute_process(COMMAND ${CMAKE_COMMAND} -E touch "${TEST_PATH}" RESULT_VARIABLE WRITE_RESULT ERROR_QUIET)
-if (WRITE_RESULT EQUAL 0)
-  file(REMOVE "${TEST_PATH}")
-endif()
-if (NOT EXISTS ${CMAKE_INSTALL_PREFIX}/bin)
-  if (WRITE_RESULT EQUAL 0)
-    file(MAKE_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin")
-  endif()
-endif()
 
 foreach(_script ${G4BEGINNER_SCRIPTS})
   configure_file(
@@ -86,23 +74,15 @@ foreach(_script ${G4BEGINNER_SCRIPTS})
     ${PROJECT_BINARY_DIR}/${_script}
     COPYONLY
     )
-  if (WRITE_RESULT EQUAL 0)
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/scripts/${_script}
-      ${CMAKE_INSTALL_PREFIX}/bin/${_script}
-      COPYONLY
-      )
-  endif()
 endforeach()
 
-# foreach(_macro ${G4BEGINNER_MACROS})
-#   configure_file(
-#     ${PROJECT_SOURCE_DIR}/G4Macros/${_macro}
-#     ${MACRO_DIR}/${_macro}
-#     COPYONLY
-#     )
-# endforeach()
-
+foreach(_script ${G4BEGINNER_MACROS})
+  configure_file(
+    ${PROJECT_SOURCE_DIR}/G4Macros/${_script}
+    ${PROJECT_BINARY_DIR}/${_script}
+    COPYONLY
+    )
+endforeach()
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
