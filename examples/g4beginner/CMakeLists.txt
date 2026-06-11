@@ -66,6 +66,7 @@ set(G4BEGINNER_MACROS
 set(G4BEGINNER_SCRIPTS
   g4cmp_electrons_interface_hits.C
   g4cmp_phonons_interface_hits.C
+  g4cmp_phonons_pairbreaking_summary.C
 )
 
 foreach(_script ${G4BEGINNER_SCRIPTS})
