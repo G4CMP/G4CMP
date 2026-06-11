@@ -4,17 +4,13 @@ This example is a demonstration of several features and physics lists that are n
 
 ## Preliminaries
 
-The preliminary requirements for running this example are the same as those needed for other examples such as the RISQTutorial example from RISQ 2024. For completeness, we will repeat these instructions.
+To run this example, you need to install ROOT, Geant4 (Geant4-v11.4.1), and G4CMP (a version at least as large as G4CMP-V10, but we recommend G4CMP-V10-03-00). Our recommended installation method can be found on the [RISQ 2026 Confluence Landing Page](https://confluence.slac.stanford.edu/spaces/G4CMP/pages/711111279/RISQ+2026+G4CMP+Workshop), which contains instructions on how to set up Apptainer, which will give you a standardized software environment compatible with this tutorial. However, we here repeat setup tips included in the last RISQ Tutorial example, for those who prefer to manually set up their environment.
+
+> [!CAUTION]
+> If you do not update your local G4CMP copy to _at least_ G4CMP-V10-00-00, you will be completely unable to run this example. Please pull and install the most recent version of `master`. You can technically run with Geant4-v10.7.0 or later, but your output will not perfectly match what we get in this tutorial.
 
 ### Installing Geant4 and G4CMP
-We'll start with a reminder that in order to run this example, you'll need to install ROOT and both the geant4 and G4CMP packages. On my machine, each of these has three directories associated with its build: a source directory `XXXXX`, a build directory `XXXXX-build`, and an install directory `XXXXX-install`. On my machine, the base name (`XXXXX`) for my geant4 build is `geant4.10.07.p04`, and the base name for the G4CMP build is `G4CMP_quasiparticle`. NB: the last steps in the process of each of these installations should be to run `make` and `make install` while in the `XXXXX-build` directory, for both geant4 and G4CMP
-
-
-> [!IMPORTANT]
-> To streamline your ability to prep for this tutorial, we recommend installing Geant4 with the cmake flags `-DGEANT4_INSTALL_DATA=ON` and `-DGEANT4_USE_OPENGL_X11=ON`, and to build with C++14. In particular, the OpenGL flag will enable visualization, which we will frequently use. However, if you can successfully run other visualizers like DAWN, those are also perfectly fine.
-
-> [!IMPORTANT]
-> You need to update your local G4CMP copy to at least G4CMP-v10 for this tutorial, but we recommend pulling the most current version of the `develop` branch and reinstalling. 
+While installing ROOT, Geant4, or G4CMP, a good practice is to assign to each package three directories: a source directory `XXXXX`, a build directory `XXXXX-build`, and an install directory `XXXXX-install`. On my machine, the base name (`XXXXX`) for my geant4 build is `geant4-v11.4.1`, and the base name for the G4CMP build is `G4CMP_quasiparticle`. While the installation instructions for these can be found in the packages' documentation, it's worth reminding that the last steps in the process of each of these installations should be to run `make` and `make install` while in the `XXXXX-build` directory. Moreover, we recommend installing Geant4 with the cmake flags `-DGEANT4_INSTALL_DATA=ON` and `-DGEANT4_USE_OPENGL_X11=ON`, and to build with C++14. In particular, the OpenGL flag will enable visualization, which we will frequently use. However, if you can successfully run other visualizers like DAWN, those are also perfectly fine.
 
 ### Setting up environment
 Assuming you've built these directories and you're opening up a new terminal, you'll need to source the environmental setup scripts for these:
@@ -68,7 +64,7 @@ The physics involved in this example is an extension of the basic physics in G4C
 G4CMP-v10 adds a particle definition for a BogoliubovQP (Bogoliubov Quasiparticle) to the list of trackable objects. While these QPs can exist anywhere in a thin superconducting film volume, their transport is currently handled only in 2D on computational efficiency grounds, even while phonons can transport in full 3D space. Right now, the two dimensions that these can exist in are _specifically_ the World XY frame, but this limitation will be softened with updates in the coming year. Continuing with numbers corresponding to the bubbles labeled in the above figure,
 
 4. QP Diffusion: `G4CMPQPDiffusion.cc`
- 	* This is a doozy of a function. It uses an efficient MC approach to diffusion in a generalized geometry called Walk-on-Spheres to do diffusion steps of QPs in thin films. Currently only implemented in 2D, and moreover only currently implemented in XY specifically.
+ 	* This is a doozy of a function. It uses an efficient MC [approach to diffusion](https://arxiv.org/pdf/1304.7807) based on an algorithm called [Walk-on-Spheres](https://en.wikipedia.org/wiki/Walk-on-spheres_method) to do diffusion steps of QPs in thin films. Currently only implemented in 2D, and moreover only currently implemented in XY specifically.
   	* For fine geometries (like coplanar waveguides), this will take some time to run. The execution time is dependent on the relationship between typical length scales traveled before hitting a boundary and the overall lifetime of the QP (either via recombination, absorption, or local trapping).
   	* If you intend to have bonafide, trackable BogoliubovQPs in your simulation, this must be turned on for _anything_ to be accurate.
    	* There is also a "secondary" diffusion process, `G4CMPQPDiffusionTimeStepperProcess.cc`, that can be used in conjunction with `G4CMPQPDiffusionProcess.cc` to force finer diffusion steps that are not determined by local geometry. This is useful for testing, as we will explore later in this tutorial.
@@ -86,7 +82,7 @@ G4CMP-v10 adds a particle definition for a BogoliubovQP (Bogoliubov Quasiparticl
    	* The rate of this is dependent on a dedicated singular superconductor parameter.
 
 > [!NOTE]
-> For those interested in a look under the hood, you can take a look at which processes are implemented for which particles in G4CMPPhysics.cc
+> For those interested in a look under the hood, you can take a look at which processes are implemented for which particles in G4CMPPhysics.cc.
 
 ### Table of New Processes' Parameters
 
