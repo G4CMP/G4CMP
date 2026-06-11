@@ -2,9 +2,9 @@
 
 ### Assembled by Jesse Lutz ([jjlutz@sandia.gov](jjlutz@sandia.gov))
 
-This tutorial is meant to guide the user through their first steps of using G4CMP. We focus here on a geometry representing the experimental setup used by Vepsäläinen et al. in their 2020 Nature paper entitled ["Impact of ionizing radiation on superconducting qubit coherence"](https://doi.org/10.1038/s41586-020-2619-8) The original Geant4 application was developed (starting from the basic example B1) by myself and Prof. Adam Hecht (University of New Mexico).
+This tutorial is meant to guide the user through their first steps with G4CMP. Our example geometry is based on the experimental setup used by Vepsäläinen et al. in their 2020 Nature paper, ["Impact of ionizing radiation on superconducting qubit coherence"](https://doi.org/10.1038/s41586-020-2619-8) The original Geant4 application included in the cwd grew out of the Geant4 basic example B1. It was developed by me and Prof. Adam Hecht (University of New Mexico).
 
-As a disclaimer, it is expected that you have already installed Geant4 and G4CMP and know how to compile an application (if not, see the instructions in their respective READMEs or click the following [YouTube video](https://www.youtube.com/watch?v=D1ZfUewM8-E). Please note that later parts of this tutorial also require that is ROOT installed, which is available free for download from [CERN](root.cern). Also, don't forget to initialize your environment (if you haven't done so already):
+Before getting started, we assume that you have already installed Geant4 and G4CMP and know how to compile an application ((if not, please see the instructions in their respective README files or follow this [YouTube video](https://www.youtube.com/watch?v=D1ZfUewM8-E). Please note that later parts of this tutorial also require ROOT, which is available free of charge from [CERN](root.cern). Also, before running anything, make sure your environment is initialized:
 ```bash
 source $G4INSTALL/../../bin/geant4.sh
 source $G4CMPINSTALL/g4cmp_env.sh
@@ -15,9 +15,11 @@ source $G4CMPINSTALL/g4cmp_env.sh
   <p></p>
 </section>
 
-A common problem facing new G4CMP users is how to adapt an existing Geant4 application for use with G4CMP. As an example of how to do this, let's step through the procedure to adapt a Geant4 application included in this directory (`B1_working_Nature_device.zip`). There is no need to unzip the file unless you want to look at the original application. Please note as you read through the following that these changes (and many more) have already been made in the application contained in the base directory. You do not have to adapt `B1_working_Nature_device.zip` but it is included here in case you want the practice. If you just want to compile the code and move on to the next part, scroll down to "Build the Tutorial Example" (just before "Part 2").
+One of the first challenges many new G4CMP users run into is figuring out how to adapt an existing Geant4 application to work with G4CMP. To make that process concrete, we will step through the adaptation of a Geant4 application included in the current working directory (`B1_working_Nature_device.zip`). You do not need to unzip this file unless you want to inspect the original application. 
 
-Adapting a Geant4 application for G4CMP involves loading the G4CMP physics list, directing the program to the G4CMP header files, and assigning a lattice to a material wherein condensed-phase processes will occur. Let's start by assigning a lattice to the silicon material in `B1DetectorConstruction.cc`. Opening that file, we need to add necessary preprocessor directives,
+As you read through the steps below, keep in mind that these changes—and several others—have already been made in the application contained in the base directory. You do not need to adapt `B1_working_Nature_device.zip` yourself unless you want the practice. If you would rather compile the code and move straight to the next part, scroll down to the section heading "Build the Tutorial Example" just before "Part 2".
+
+At a high level, adapting a Geant4 application for G4CMP means loading the G4CMP physics list, pointing the program to the appropriate G4CMP header files, and assigning a lattice to any material in which condensed-phase processes will occur. We will start by assigning a lattice to the silicon material in `B1DetectorConstruction.cc`. To that file one would need to add necessary preprocessor directives,
 ```python
 #include "G4MaterialPropertiesTable.hh"
 #include "G4LatticeManager.hh"
@@ -99,7 +101,8 @@ After user action initialization, instantiate G4CMP configuration manager (enabl
   <h2>Build the Tutorial Example</h2>
   <p></p>
 </section>
-Create a build directory within the source directory, descend into it, and compile the program with
+
+Now we're ready to see what the tutorial application can do. Create a build directory within the source directory, descend into it, and compile the program with
 
 ```bash
 mkdir build
@@ -110,18 +113,18 @@ make
 
 <img src="figures/Zoomed_geometry_visualization.png" width="50%">
 
-You can see the geometry setup by running the program with the original visualization macro
+You can inspect the geometry setup by running the program with the original visualization macro
 ```bash
 ./g4beginner init_vis.mac
 ```
-The geometry we use here is meant to mimic the Vepsäläinen setup, which was a copper housing disk containing a superconducting qubit of Al on Si (200 nm on 280 𝜇m) with lateral dimensions 5 mm × 5 mm. The source is <sup>64</sup>Cu with 6.12 𝜇Ci activity, which emits 𝛽+ (653 keV; 17.49%), 𝛽− (580 keV; 38.5%), and 𝛾 particles (1346 keV; 0.472%), and it emits isotropically from the Cu volume. While our original application included all that physics (including 𝛽 emission via a triangle distribution of energies), for the purposes of this tutorial things have been simplified considerably: the particle gun fires only 𝛽− particles at a fixed energy of 100 keV and a fixed distance of about 350 𝜇m. Here is Fig. 1 from that paper as a reminder:
+The geometry used here is meant to mimic the setup studied by Vepsäläinen et al.: a copper source disk above a superconducting aluminum structure on a silicon substrate (\(200\,\mathrm{nm}\) of Al on \(280\,\mu\mathrm{m}\) of Si) with lateral dimensions \(5\,\mathrm{mm} \times 5\,\mathrm{mm}\). The source is \(^{64}\mathrm{Cu}\) with an activity of \(6.12\,\mu\mathrm{Ci}\). It emits \(\beta^+\) particles (653 keV; 17.49%), \(\beta^-\) particles (580 keV; 38.5%), and \(\gamma\) rays (1346 keV; 0.472%), with emission taken to be isotropic from the Cu volume. The original application included all of this physics, including \(\beta\) emission sampled from a triangular energy distribution. For the purposes of this tutorial, however, we simplify things considerably: the particle gun fires only \(\beta^-\) particles, at a fixed energy of 100 keV and from a fixed distance of about \(350\,\mu\mathrm{m}\). As a visual aid, Fig. 1 from the paper is reproduced below::
 <img src="figures/Vepsalainen_Fig_1.png" width="100%">
 
 <section> 
   <h2>Part 2: Let's track electrons in our application.</h2>
   <p></p>
 </section>
-In radiation-impact studies of superconducting qubits, electrons incident on the Si/Al interface are a useful intermediate observable because they help quantify how energy deposited by ionizing radiation in the device substrate can be transported to the superconducting film, where it may ultimately contribute to non-equilibrium excitations. In the geometry studied here, the aluminum layer is extremely thin compared with the silicon substrate—about 200 nm of Al on 280 μm of Si—so most of the radiation energy is deposited in the silicon rather than directly in the superconductor. As a result, understanding how condensed-matter charge carriers propagate through the substrate and arrive at the Si/Al boundary is an important first step in connecting microscopic transport physics to experimentally relevant qubit degradation mechanisms. Electrons that reach this interface represent a channel by which substrate-deposited energy can be transferred toward the superconducting metal, where later stages of the cascade may generate phonons and quasiparticles that degrade qubit coherence and increase relaxation rates.
+In radiation-impact studies of superconducting qubits, electrons incident on the Si/Al interface are a useful intermediate observable because they help quantify how energy deposited by ionizing radiation in the substrate can be transported to the superconducting film, where it may ultimately contribute to nonequilibrium excitations. In the geometry studied here, the aluminum layer is extremely thin compared with the silicon substrate—about \(200\,\mathrm{nm}\) of Al on \(280\,\mu\mathrm{m}\) of Si—so most of the radiation energy is deposited in the silicon rather than directly in the superconductor. As a result, understanding how condensed-matter charge carriers propagate through the substrate and arrive at the Si/Al boundary is an important first step toward connecting microscopic transport physics to experimentally relevant qubit degradation mechanisms. Electrons that reach this interface represent one channel by which substrate-deposited energy can be transferred toward the superconducting metal, where later stages of the cascade may generate phonons and quasiparticles that degrade qubit coherence and increase relaxation rates.
 
 Run the code with 
 ```bash 
@@ -148,9 +151,9 @@ where the `g4cmp_electrons_100um.mac` macro is:
 
 /run/beamOn 100
 ```
-In the first block we initialize and set verbosity. In the second block, we specify we are tracking G4CMP drift electrons (this is an application specific macro command) and set the sampling energy as 100 eV. The downsampling energy is a kind of "biasing" (in the Geant4 sense) which we use for efficiency.  When you set a sampling energy, that tells you how many _tracked_ charge pairs will be created.  Each of those will be weighted by the ratio of your true energy to the sampling scale.  For a 10 keV energy deposit, for example, 100 eV sampling means each e/h pair will have a weight of 100 (i.e., 10 keV/100 eV).
+In the first block, we initialize the run and set the verbosity level. In the second block, we specify that we are tracking G4CMP drift electrons (this is an application-specific macro command) and set the downsampling energy to 100 eV. The downsampling energy acts as a form of biasing, in the Geant4 sense, and is used here to improve computational efficiency. When you set a downsampling energy, you are effectively setting how many *tracked* charge pairs will be created in the simulation. Each of those tracked pairs is then assigned a weight equal to the ratio of the true deposited energy to the downsampling scale. For example, for a 10 keV energy deposit, a downsampling energy of 100 eV means each tracked electron-hole pair will carry a weight of 100, since \(10\,\mathrm{keV}/100\,\mathrm{eV} = 100\).
 
-In the third block, one should note that phonons were omitted/killed from this simulation. This was done simply to expedite the collection of statistics for electrons. The fourth block controls the electron and hole trapping mean free path values.  We will vary these momentarily to see their effect on the charge dynamics. Finally, we specify 100 shots here to obtain results quickly, but with less accurate statistics. I changed the number of shots to 1000 for compiling the plots below; it ran in 5 minutes on my machine. 
+In the third block, note that phonons are omitted (or killed) in this simulation. This is done simply to speed up the collection of electron statistics. The fourth block controls the mean free paths for electron and hole trapping. We will vary these momentarily to see how they affect the charge dynamics. Finally, we use 100 shots here to obtain results quickly, with the tradeoff of poorer statistics. For the plots shown below, I increased the number of shots to 1000; on my machine, that took about 5 minutes to run.
 
 Once the code has finished running, we will use ROOT to launch a plotting script called `g4cmp_electron_interface_hits.C`,
 
@@ -162,13 +165,14 @@ where the arguments specify the primary particle type (here it is "e-") and the 
 
 <img src="figures/event_summary_100um.png" width="50%">
 
-The preceding figure shows the event-by-event distribution of the fraction of electrons that reach the Si/Al interface, f<sub>reach</sub> = N<sub>reach</sub> / N<sub>in Si</sub>. This quantity summarizes the transport efficiency of the electron population within the silicon substrate for each simulated event. A higher value of ​f<sub>reach</sub> indicates that a larger fraction of generated conduction-band electrons survive scattering and trapping processes long enough to reach the interface, while a lower value indicates stronger loss to trapping in the silicon. This event-level observable is useful because it condenses the detailed carrier-transport dynamics into a single parameter that can later be connected to energy transfer into the aluminum and, in more advanced stages of the tutorial, to phonon and quasiparticle generation.
+The preceding figure shows the event-by-event distribution of the fraction of electrons that reach the Si/Al interface, \(f_{\text{reach}} = N_{\text{reach}}/N_{\text{in Si}}\). This quantity summarizes the transport efficiency of the electron population within the silicon substrate for each simulated event. A higher value of \(f_{\text{reach}}\) indicates that a larger fraction of generated conduction-band electrons survive scattering and trapping processes long enough to reach the interface, while a lower value indicates that more of them are lost to trapping in the silicon. This event-level observable is useful because it condenses the detailed carrier-transport dynamics into a single parameter that can later be connected to energy transfer into the aluminum and, in more advanced stages of the tutorial, to phonon and quasiparticle generation.
 
 <img src="figures/interface_hits_summary_100um.png" width="100%">
 
-The preceding figure summarizes the properties of `G4CMPDriftElectron` carriers that reach the Si/Al interface. The upper-left panel shows the distribution of electron kinetic energies at the interface, illustrating the range of carrier transport energies with which electrons arrive at the superconducting film boundary. The upper-right panel shows the distribution of the interface-normal velocity component  v<sub>⊥</sub>, which characterizes how strongly the electrons are moving toward the interface at the moment of arrival. The lower-left panel shows the arrival-time distribution, indicating the timescale over which the electron population reaches the boundary following the initial radiation event. The lower-right panel is a two-dimensional map of hit positions in the interface plane, showing the spatial distribution of where electrons encounter the Si/Al boundary. Together, these panels provide a compact microscopic description of electron transport in the silicon substrate and the subset of carriers that can deliver energy to the superconducting film.
+The preceding figure summarizes the properties of `G4CMPDriftElectron` carriers that reach the Si/Al interface. The upper-left panel shows the distribution of electron energies at the interface, illustrating the range of transport energies with which electrons arrive at the superconducting film boundary. The upper-right panel shows the distribution of the interface-normal velocity component  v<sub>⊥</sub>, which characterizes how strongly the electrons are moving toward the interface at the moment of arrival. The lower-left panel shows the arrival-time distribution, indicating the timescale over which the electron population reaches the boundary following the initial radiation event. The lower-right panel is a two-dimensional map of hit positions in the interface plane, showing where electrons encounter the Si/Al boundary. Taken together, these panels provide a compact microscopic picture of electron transport in the silicon substrate and of the subset of carriers that can deliver energy to the superconducting film.
 
-Let's now see how changing the trapping mean free path value affects the results.  The only value changed in the new macro, `g4cmp_electrons_300um.mac`, is the eTrappingMFP goes from 100 𝜇m to 300 𝜇m.  Now run with the longer trapping MFP, backup your new data, and run the plotting script again:
+Let's now see how changing the trapping mean free path value affects the results.  In the new macro, `g4cmp_electrons_300um.mac`, the only change is that `eTrappingMFP` is increased from 
+$100 \mu$m to $300 \mu$m. Now run the simulation with the longer trapping mean free path, back up your new output, and run the plotting script again:
 
 ```bash
 ./g4beginner g4cmp_electrons_300um.mac > g4cmp_electrons_300um.out
