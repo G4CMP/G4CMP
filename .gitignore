@@ -17,10 +17,10 @@ doxygen/
 .g4cmp-version
 CMakeLists.txt.user*
 epositions.txt
-# *.png
+*.png
 # Ignore IDE stuff
 *__pycache__*
 .vscode
+# ignore in-source build/install directories
 build/
 install/
-
