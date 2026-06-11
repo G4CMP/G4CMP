@@ -214,9 +214,9 @@ G4bool G4LatticeReader::ProcessValue(const G4String& name) {
   else if (name == "hscat")         pLattice->SetHoleScatter(fValue*ProcessUnits("Length"));
   else if (name == "l0_h")          pLattice->SetHoleScatter(fValue*ProcessUnits("Length"));
   else if (name == "hmass")         pLattice->SetHoleMass(fValue*mElectron);
-  else if (name == "holeA")         pLattice->SetHoleA(fValue*mElectron); 
-  else if (name == "holeB")         pLattice->SetHoleB(fValue*mElectron); 
-  else if (name == "holeC")         pLattice->SetHoleC(fValue*mElectron); 
+  else if (name == "HoleA")         pLattice->SetHoleA(fValue*mElectron); 
+  else if (name == "HoleB")         pLattice->SetHoleB(fValue*mElectron); 
+  else if (name == "HoleC")         pLattice->SetHoleC(fValue*mElectron); 
   else if (name == "acdeform_e") pLattice->SetElectronAcousticDeform(fValue*ProcessUnits("Energy"));
   else if (name == "acdeform_h") pLattice->SetHoleAcousticDeform(fValue*ProcessUnits("Energy"));
   else if (name == "ivquadfield")   pLattice->SetIVQuadField(fValue*ProcessUnits("Electric field"));

@@ -21,7 +21,6 @@ vsound 9000 m/s		# Longitudinal sound speed
 vtrans 5400 m/s		# Transverse sound speed
 #hole and electron masses taken from Robert's thesis
 hmass 0.50		# per m(electron)
-#hole anisotropy parameters 
 holeA 4.22      # per m(electron)
 holeB 0.78      # per m(electron)
 holeC 4.80      # per m(electron)
