@@ -61,7 +61,7 @@ option(INSTALL_VALIDATION "Copy validation directory to installation area.  Defa
 option(INSTALL_EXAMPLES "Copy examples directories to installation area. Default: OFF" OFF)
 
 option(BUILD_G4CMP_TOOLS "Build utility and support programs.  Default: ON" ON)
-option(BUILD_G4CMP_TESTS "Build unit tests for classes.  Default: OFF" OFF)
+option(BUILD_G4CMP_TESTS "Build unit tests for classes.  Default: OFF" ON)
 option(BUILD_G4CMP_VALIDATION "Build validation after installation.  Default: OFF" OFF)
 
 #-----------------------------------------------------------------------------
