@@ -985,9 +985,9 @@ void G4LatticeLogical::Dump(std::ostream& os) const {
 
   os << "# Charge carrier masses [m(electron) units]"
      << "\nhmass " << fHoleMass/mElectron
-     << "\nholeA " << fHoleA/mElectron 
-     << "\nholeB " << fHoleB/mElectron 
-     << "\nholeC " << fHoleC/mElectron  
+     << "\nHoleA " << fHoleA/mElectron 
+     << "\nHoleB " << fHoleB/mElectron 
+     << "\nHoleC " << fHoleC/mElectron  
      << "\nemass " << fMassTensor.xx()/mElectron
      << " " << fMassTensor.yy()/mElectron
      << " " << fMassTensor.zz()/mElectron << std::endl;
