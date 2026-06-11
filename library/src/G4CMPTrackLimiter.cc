@@ -22,6 +22,7 @@
 // 20251024  G4CMP-523:  Remove alternative "stuck tracks" testing code.
 // 20251025  G4CMP-520:  Remove redundant (and incorrect) InvalidPosition().
 // 20260207  G4CMP-583:  Improve escaped-track detector for zero-length steps.
+// 20260428  G4CMP-599:  Add some addition information for escaped tracks.
 
 #include "G4CMPTrackLimiter.hh"
 #include "G4CMPConfigManager.hh"
@@ -98,9 +99,11 @@ G4VParticleChange* G4CMPTrackLimiter::PostStepDoIt(const G4Track& track,
   // Ensure that track is still in original, valid volume
   if (EscapedFromVolume(step)) {
     std::stringstream msg;
-    msg << "Killing track escaped from volume "
-	<< GetCurrentVolume()->GetName() + ":"
-	<< GetCurrentVolume()->GetCopyNo();
+    msg << "Killing track " << track.GetTrackID()
+	<< " (" << track.GetParticleDefinition()->GetParticleName()
+	<< " from parent " << track.GetParentID() << ")"
+	<< " escaped from volume " << GetCurrentVolume()->GetName() + ":"
+	<< GetCurrentVolume()->GetCopyNo() << " at " << track.GetPosition();
     G4Exception("G4CMPTrackLimiter", "Limit001", JustWarning,
 		msg.str().c_str());
 
@@ -111,7 +114,10 @@ G4VParticleChange* G4CMPTrackLimiter::PostStepDoIt(const G4Track& track,
   // Ensure track has not gotten stuck somewhere in mesh field
   if (ChargeStuck(track)) {
     std::stringstream msg;
-    msg << "Stopping charged track stuck in mesh electric field @ "
+    msg << "Stopping track " << track.GetTrackID()
+	<< " (" << track.GetParticleDefinition()->GetParticleName()
+	<< " from parent " << track.GetParentID() << ")"
+	<< " stuck in mesh electric field @ "
 	<< GetLocalPosition(track) << " local" << G4endl;
     G4Exception("G4CMPTrackLimiter", "Limit003", JustWarning,
 		msg.str().c_str());

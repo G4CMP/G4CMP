@@ -50,6 +50,9 @@
 // 20250325  G4CMP-463: Add parameter for phonon surface step size & limit.
 // 20250502  G4CMP-358: Limit number of steps for charged tracks in E-field.
 // 20251116  G4CMP-526: Add function to encapsulate physics ID extraction.
+// 20260121  G4CMP-567: Change charge bounces default to zero.
+// 20260429  G4CMP-598: Add minGenParticles parameter.
+// 20260606  G4CMP-578: Add primaryPhononEnergy parameter for partitioning.
 
 #include "globals.hh"
 #include <iosfwd>
@@ -79,6 +82,7 @@ public:
   static G4int GetMaxQPBounces()         { return Instance()->qpBounces; }
   static G4int GetMaxChargeSteps()       { return Instance()->ehMaxSteps; }
   static G4int GetMaxLukePhonons()       { return Instance()->maxLukePhonons; }
+  static G4int GetMinGenParticles()      { return Instance()->minGenParticles; }
   static G4int GetPhononSurfStepLimit()  { return Instance()->pSurfStepLimit; }
   static G4int GetSafetyNSweep2D()       { return Instance()->safetyNSweep2D; }
   static G4bool UseKVSolver()            { return Instance()->useKVsolver; }
@@ -94,6 +98,7 @@ public:
   static G4double GetGenPhonons()        { return Instance()->genPhonons; }
   static G4double GetGenCharges()        { return Instance()->genCharges; }
   static G4double GetLukeSampling()      { return Instance()->lukeSample; }
+  static G4double GetPrimaryPhononEnergy() { return Instance()->EprimPhonons; }
   static G4double GetComboStepLength()   { return Instance()->combineSteps; }
   static G4double GetETrappingMFP()      { return Instance()->eTrapMFP; }
   static G4double GetHTrappingMFP()      { return Instance()->hTrapMFP; }
@@ -108,7 +113,7 @@ public:
   static G4double GetEmpElow()      { return Instance()->EmpElow; }
   static G4double GetEmpEhigh()     { return Instance()->EmpEhigh; }
   static G4double GetEmpkFixed()    { return Instance()->EmpkFixed; }
-  static G4bool GetEmpEDepK()  { return Instance()->EmpEDepK; }
+  static G4bool   GetEmpEDepK()     { return Instance()->EmpEDepK; }
 
 
   static const G4String& GetLatticeDir() { return Instance()->LatticeDir; }
@@ -132,7 +137,9 @@ public:
   static void SetSamplingEnergy(G4double value) { Instance()->sampleEnergy = value; }
   static void SetGenPhonons(G4double value) { Instance()->genPhonons = value; }
   static void SetGenCharges(G4double value) { Instance()->genCharges = value; }
+  static void SetMinGenParticles(G4int value) { Instance()->minGenParticles = value; }
   static void SetLukeSampling(G4double value) { Instance()->lukeSample = value; }
+  static void SetPrimaryPhononEnergy(G4double value) { Instance()->EprimPhonons = value; }
   static void SetComboStepLength(G4double value) { Instance()->combineSteps = value; }
   static void RecordMinETracks(G4bool value) { Instance()->recordMinE = value; }
   static void UseKVSolver(G4bool value) { Instance()->useKVsolver = value; }
@@ -218,7 +225,9 @@ private:
   G4double sampleEnergy; // Energy above which to do sampling ($G4CMP_SAMPLE_ENERGY)
   G4double genPhonons;	 // Rate to create primary phonons ($G4CMP_MAKE_PHONONS)
   G4double genCharges;	 // Rate to create primary e/h pairs ($G4CMP_MAKE_CHARGES)
+  G4int minGenParticles; // Per-interaction floor value for genCharges/genPhonons ($G4CMP_MIN_GENPARTICLES)
   G4double lukeSample;   // Rate to create Luke phonons ($G4CMP_LUKE_SAMPLE)
+  G4double EprimPhonons; // Energy assigned to primary phonons ($G4CMP_EPRIM_PHONONS)
   G4double combineSteps; // Maximum length to merge track steps ($G4CMP_COMBINE_STEPLEN)
   G4double EminPhonons;	 // Minimum energy to track phonons ($G4CMP_EMIN_PHONONS)
   G4double EminCharges;	 // Minimum energy to track e/h ($G4CMP_EMIN_CHARGES)
