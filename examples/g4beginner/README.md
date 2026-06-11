@@ -10,6 +10,8 @@ source $G4INSTALL/../../bin/geant4.sh
 source $G4CMPINSTALL/g4cmp_env.sh
 ```
 
+This tutorial is organized into four sections. The first, which is optional, gives a description of how to incorporate G4CMP into an existing Geant4 application.  While this is important information for new users, we do not launch the tutorial program until Part 2.  In Parts 2 and 3 we investigate electron and phonon dynamics, respectively. Finally, in Part 4 we make a conceptual connection between our simulations, quasiparticles, and the Veps$/"a$l$/"a$inen study.
+
 <section> 
   <h2>Part 1: Adapting an existing Geant4 application for G4CMP</h2>
   <p></p>
