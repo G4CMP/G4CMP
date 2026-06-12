@@ -21,9 +21,9 @@ vsound 9000 m/s		# Longitudinal sound speed
 vtrans 5400 m/s		# Transverse sound speed
 #hole and electron masses taken from Robert's thesis
 hmass 0.50		# per m(electron)
-holeA 4.22      # per m(electron)
-holeB 0.78      # per m(electron)
-holeC 4.80      # per m(electron)
+holeA 4.22      # Unitless
+holeB 0.78      # Unitless
+holeC 4.80      # Unitless
 emass 0.91 0.19 0.19	# per m(electron)
 valleyDir 1 0 0 
 valleyDir 0 1 0 
