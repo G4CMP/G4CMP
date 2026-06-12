@@ -272,6 +272,9 @@ void G4LatticeLogical::Initialize(const G4String& newName) {
   // Compute Luke Scattering rate scale
   ComputeLukeScatteringRateScale_e();
 
+  // Check if IV parameters have the same length
+  CheckIVConsistency();
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -992,8 +995,7 @@ void G4LatticeLogical::CheckIVConsistency() const
       fIVPhononMode.size() != n)
   {
     G4Exception("G4LatticeLogical::CheckIVConsistency",
-                "IV_SIZE_MISMATCH",
-                EventMustBeAborted,
+                "Lattice002",EventMustBeAborted,
                 "IV parameter vectors have inconsistent sizes");
   }
 }

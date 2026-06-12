@@ -69,6 +69,7 @@ G4double G4CMPLukeEmissionRate::Rate(const G4Track& aTrack) const {
     mass = theLattice->GetHoleMass();
     vsound = theLattice->GetSoundSpeed();
   }
+
   kmag = ktrk.mag();
 
   G4double gammaSound = 1/sqrt(1.-vsound*vsound/c_squared);

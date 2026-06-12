@@ -272,30 +272,12 @@ public:
   void SetAlpha(G4double v)	     { fAlpha = v; }
   void SetElectronAcousticDeform(G4double v) { fAcDeform_e = v; }
   void SetHoleAcousticDeform(G4double v) { fAcDeform_h = v; }
-  void SetIVDeform(const std::vector<G4double>& vlist) {
-    fIVDeform = vlist;
-    CheckIVConsistency();
-  }
-  void SetIVEnergy(const std::vector<G4double>& vlist) {
-    fIVEnergy = vlist;
-    CheckIVConsistency();
-  }
-  void SetIVNValleys(const std::vector<G4double>& vlist) {
-    fIVNValleys = vlist;
-    CheckIVConsistency();
-  }
-  void SetIVOrder(const std::vector<G4double>& vlist) {
-    fIVOrder = vlist;
-    CheckIVConsistency();
-  }
-  void SetIVFGScattering(const std::vector<G4String>& vlist) {
-    fIVFGScattering = vlist;
-    CheckIVConsistency();
-  }
-  void SetIVPhononMode(const std::vector<G4String>& vlist) {
-    fIVPhononMode = vlist;
-    CheckIVConsistency();
-  }
+  void SetIVDeform(const std::vector<G4double>& vlist) { fIVDeform = vlist; }
+  void SetIVEnergy(const std::vector<G4double>& vlist) { fIVEnergy = vlist; }
+  void SetIVNValleys(const std::vector<G4double>& vlist) { fIVNValleys = vlist; }
+  void SetIVOrder(const std::vector<G4double>& vlist) { fIVOrder = vlist; }
+  void SetIVFGScattering(const std::vector<G4String>& vlist) { fIVFGScattering = vlist; }
+  void SetIVPhononMode(const std::vector<G4String>& vlist) { fIVPhononMode = vlist; }
   void CheckIVConsistency() const;
 
   //Set functions for superconductor properties
