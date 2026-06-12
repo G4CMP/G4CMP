@@ -142,7 +142,7 @@ where the `g4cmp_electrons_100um.mac` macro is:
 /control/verbose 2
 /run/verbose 2
 /event/verbose 0
-/tracking/verbose 1
+/run/printProgress 1
 
 /gun/particle e-
 /gun/energy 100 keV
@@ -211,7 +211,7 @@ where the `g4cmp_phonons_100um.mac` macro is:
 /control/verbose 2
 /run/verbose 2
 /event/verbose 0
-/tracking/verbose 1
+/run/printProgress 1
 
 /gun/particle e-
 /gun/energy 100 keV
