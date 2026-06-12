@@ -564,6 +564,9 @@ the crystal system.
 
 The keywords l0_e and l0_h are optional. If they are not specified in
 config.txt, they will be computed from other physical constants: 
+
+The keywords holea, holeb and holec are used to specifiy hole transport
+anisotropy. See equation 2.37 in Noah Kurinsky's Thesis https://purl.stanford.edu/xh271zf3698
 ```
   l0 = pi*hbar^4*density / (2*mass^3*acDeform^2)
 ```
