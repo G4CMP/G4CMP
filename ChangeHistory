@@ -6,6 +6,7 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-06-12  g4cmp-V10-04-00  New tutorials/examples for RISQ 2026 Workshop.
 2026-06-12  G4CMP-626 : New Geant4-G4CMP adaptation example "g4beginner"
 2026-06-12  G4CMP-620 : Expanded quasiparticle example for use at RISQ 2026.
 2026-06-06  G4CMP-578 : New parameter for primary phonon energy partitioning.
