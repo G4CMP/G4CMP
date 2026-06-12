@@ -215,8 +215,10 @@ where the `g4cmp_phonons_100um.mac` macro is:
 /event/verbose 0
 /tracking/verbose 1
 
-/gun/particle phononTS
+/gun/particle e-
 /gun/energy 100 keV
+/gun/position 0 0 -3.2 mm
+/gun/direction 0 0 -1
 
 /analysis/setSpecies phonons
 /g4cmp/samplingEnergy 100 eV

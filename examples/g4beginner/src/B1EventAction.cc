@@ -98,7 +98,6 @@ void B1EventAction::EndOfEventAction(const G4Event* event)
   G4int eventID     = event->GetEventID();
 
   auto analysisManager = G4AnalysisManager::Instance();
-  G4cout << __LINE__ << ": " << eventID << ", " << nInSi << ", " << nReached << ", " << nTrapped << ", " << fracHit << G4endl;
   // Electron event summary
   analysisManager->FillNtupleIColumn(1, 0, eventID);
   analysisManager->FillNtupleDColumn(1, 1, nInSi);
