@@ -984,9 +984,9 @@ void G4LatticeLogical::Dump(std::ostream& os) const {
      << std::endl;
 
   os << "# Hole Anisotropy Parameters [Unitless]"
-     << "\nholeA " << fHoleA
-     << "\nholeB " << fHoleB
-     << "\nholeC " << fHoleC
+     << "\nholeA " << fHoleA/mElectron
+     << "\nholeB " << fHoleB/mElectron
+     << "\nholeC " << fHoleC/mElectron
      << std::endl;
 
   os << "# Charge carrier masses [m(electron) units]"
