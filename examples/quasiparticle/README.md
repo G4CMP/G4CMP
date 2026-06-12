@@ -1,6 +1,6 @@
 # Tutorial: Quasiparticle Propagation in G4CMP
 
-This example is a demonstration of several features and physics lists that are new to G4CMP as of November 2025. Ryan Linehan, linehan3@fnal.gov made this, so please email him with questions/compliments/complaints.
+This example is a demonstration of several features and physics processes that are new to G4CMP as of November 2025. Ryan Linehan, linehan3@fnal.gov made this, so please email him with questions/compliments/complaints.
 
 ## Preliminaries
 
@@ -10,15 +10,15 @@ To run this example, you need to install ROOT, Geant4 (Geant4-v11.4.1), and G4CM
 > If you do not update your local G4CMP copy to _at least_ G4CMP-V10-00-00, you will be completely unable to run this example. Please pull and install the most recent version of `master`. You can technically run with Geant4-v10.7.0 or later, but your output will not perfectly match what we get in this tutorial.
 
 ### Tips for Manually Installing Geant4 and G4CMP
-While installing ROOT, Geant4, or G4CMP, a good practice is to assign to each package three directories: a source directory `XXXXX`, a build directory `XXXXX-build`, and an install directory `XXXXX-install`. On my machine, the base name (`XXXXX`) for my geant4 build is `geant4-v11.4.1`, and the base name for the G4CMP build is `G4CMP_quasiparticle`. While the installation instructions for these can be found in the packages' documentation, it's worth reminding that the last steps in the process of each of these installations should be to run `make` and `make install` while in the `XXXXX-build` directory. Moreover, we recommend installing Geant4 with the cmake flags `-DGEANT4_INSTALL_DATA=ON` and `-DGEANT4_USE_OPENGL_X11=ON`, and to build with C++14. In particular, the OpenGL flag will enable visualization, which we will frequently use. However, if you can successfully run other visualizers like DAWN, those are also perfectly fine.
+While installing ROOT, Geant4, or G4CMP, a good practice is to assign to each package three directories: a source directory `XXXXX`, a build directory `XXXXX-build`, and an install directory `XXXXX-install`. On my machine, the base name (`XXXXX`) for my Geant4 build is `geant4-v11.4.1`, and the base name for the G4CMP build is `G4CMP_quasiparticle`. While the installation instructions for these can be found in the packages' documentation, it's worth reminding that the last steps in the process of each of these installations should be to run `make` and `make install` while in the `XXXXX-build` directory. Moreover, we recommend installing Geant4 with the cmake flags `-DGEANT4_INSTALL_DATA=ON` and `-DGEANT4_USE_OPENGL_X11=ON`. In particular, the OpenGL flag will enable visualization, which we will frequently use. However, if you can successfully run other visualizers like DAWN, those are also perfectly fine.
 
 ### Setting up environment
 Assuming you've built these directories and you're opening up a new terminal, you'll need to source the environmental setup scripts for these:
 ```
-source /path/to/geant4.10.07.p04-install/bin/geant4.sh
+source /path/to/geant4-v11.4.1-install/bin/geant4.sh
 source /path/to/G4CMP_quasiparticle-install/share/G4CMP/g4cmp_env.sh
 ```
-Now we can make our example. Copy this tutorial's source directory into a new directory -- I like to copy it outside of the whole G4CMP source directory just to avoid confusion and remember that this is its own executable that needs to be made. Moreover, make build and install directories to accompany it:
+Now we can compile our example. Copy this tutorial's source directory into a new directory -- I like to copy it outside of the whole G4CMP source directory just to avoid confusion and remember that this is its own executable that needs to be made. Moreover, make build and install directories to accompany it:
 ```
 cd /path/to/G4CMP_quasiparticle 
 cp -r ./examples/quasiparticle /path/to/
@@ -29,7 +29,7 @@ mkdir quasiparticle-install
 Now we head into our build directory and run CMake:
 ```
 cd quasiparticle-build
-cmake -DCMAKE_INSTALL_PREFIX=/path/to/quasiparticle-install -DCMAKE_CXX_STANDARD=14 ../quasiparticle/
+cmake -DCMAKE_INSTALL_PREFIX=/path/to/quasiparticle-install -DCMAKE_CXX_STANDARD=17 ../quasiparticle/
 ```
 If this runs successfully, we should be able to run make and then make install, and we're done:
 ```
@@ -110,17 +110,17 @@ Rather than being prescriptive about what applications can make best use of this
 * The locations and energy distribution of quasiparticles produced in an interaction
 * The transport of quasiparticles across regions of varying superconducting gap Δ.
 * Phonon recycling (i.e. QP recombination into phonons that rebreak Cooper pairs)
-Some examples of these include superconducting qubit devices, where diffusion plays a role in governing the population of QPs that can make it to the junction for tunneling, as well as resonators, where different densities of QPs at different points on the resonator may produce variable signals (CITE). We'll look at an example of the latter in our Tutorial Example 2.
+Some examples of these include superconducting qubit devices, where diffusion plays a role in governing the population of QPs that can make it to the junction for tunneling, as well as resonators, where different densities of QPs at different points on the resonator may produce variable signals. We'll look at an example of the latter in our Tutorial Example 2.
 
 However, if your application does not need to model these effects, a more limited superconducting response is still handled by the KaplanQP class within G4CMP, and executes significantly faster. This works relatively well for spatially limited devices, but currently ignores QP recombination.
 
 ## Tutorial Example 1: Geometry Construction
 
-The goal of this section is to introduce advanced users to new elements of geometry construction that are needed for adopting the new features of G4CMP-V10. We're going to start in the approximately the same place as the original RISQ Tutorial example: by inspecting a moderately complicated superconducting qubit geometry, once again based on the "candlestick" Xmon qubits designed by the McDermott Group at UW-Madison. The following features are on this chip:
+The goal of this section is to introduce advanced users to new elements of geometry construction that are needed for adopting the new features of G4CMP-V10. We're going to start in approximately the same place as the original RISQ Tutorial example: by inspecting a moderately complicated superconducting qubit geometry, once again based on the "candlestick" Xmon qubits designed by the McDermott Group at UW-Madison. The following features are on this chip:
 * Silicon chip substrate
 * Aluminum ground plane (sibling to the silicon chip in the geometry heirarchy)
-* Aluminum CPW transmission line with wirebond pads (daughter of the ground plane)
-* Aluminum CPW quarter-wave resonators (x6) (daughters of the ground plane)
+* Aluminum coplanar waveguide (CPW) transmission line with wirebond pads (daughter of the ground plane)
+* Aluminum coplanar waveguide (CPW) quarter-wave resonators (x6) (daughters of the ground plane)
 * Aluminum Xmon qubits (no junction leads included) (also daughters of the ground plane)
 * Copper mounts for thermalization (sibling to the silicon chip in the geometry heirarchy)
   
@@ -129,7 +129,7 @@ To see these features, we'll run our first macro, `quasiparticle_geometry_vis.ma
 cd /path/to/quasiparticle-build
 ./g4cmpQuasiparticle
 ```
-This will start an interactive session, and now we can run our macro. If you've followed the installation instructions above and kept `quasiparticle` and `quasiparticle-build` separate at the same level of the filetree, then you can just run
+(Note that the binary, `g4cmpQuasiparticle`, may also show up in `../quasiparticle-install/bin/`, so if it doesn't appear in your `quasiparticle-build` directory, you can check there.) This will start an interactive session, and now we can run our macro. If you've followed the installation instructions above and kept `quasiparticle` and `quasiparticle-build` separate at the same level of the filetree, then you can just run
 ```
 /control/execute ../quasiparticle/G4Macros/quasiparticle_geometry_vis.mac
 ```
@@ -202,9 +202,9 @@ Step#    X(mm)    Y(mm)    Z(mm) KinE(MeV)  dE(MeV) StepLeng TrackLeng  NextVolu
    19     1.06    -1.15     4.94     4e-09        0     0.77      6.93 SiliconChip phononScattering
    20     1.06    -1.14     4.95     4e-09        0   0.0126      6.94 SiliconChip phononScattering
 ```
-Only the first twenty steps are shown, and show a quasi-periodic behavior in which the phonon's volume follows a trajectory like SiliconChip-->World-->SiliconChip-->GroundPlane-->World-->GroundPlane-->SiliconChip. This cadence demonstrates a phonon reflecting off of the vacuum boundaries with the world (the steps after "World" are zero-length turnaround steps) and then transmitting through the SiliconChip-to-Groundplane interface. Here the StepLeng (step length) column for the steps like Step 4, in which in which the last step's NextVolume was the GroundPlane and the current step's NextVolume is World, shows that the phonon is propagating around 0.000122 mm (about 122 nm), which is comparable to the thickness of the ground plane. Together, these things demonstrate that _the ground plane is a physically realized volume in which the phonons can propagate_, which is a new feature of this version of G4CMP.
+Only the first twenty steps are shown, and show a quasi-periodic behavior in which the phonon's volume follows a trajectory like SiliconChip-->World-->SiliconChip-->GroundPlane-->World-->GroundPlane-->SiliconChip. This cadence demonstrates a phonon reflecting off of the vacuum boundaries with the world (the steps after "World" are zero-length turnaround steps) and then transmitting through the SiliconChip-to-Groundplane interface. Here the StepLeng (step length) column for the steps like Step 4, in which the last step's NextVolume was the GroundPlane and the current step's NextVolume is World, shows that the phonon is propagating around 0.000122 mm (about 122 nm), which is comparable to the thickness of the ground plane. Together, these things demonstrate that _the ground plane is a physically realized volume in which the phonons can propagate_, which is a new feature of this version of G4CMP.
 
-With that simple phonon example under our belt, let's make things a bit more complicated and see what happens when we turn on quasiparticle physics. Go ahead and exit (`exit`), and let's re-enter our macro, reactivate cooper pair breaking:
+With that simple phonon example under our belt, let's make things a bit more complicated and see what happens when we turn on quasiparticle physics. Go ahead and exit (`exit`), and let's re-enter our macro, reactivate Cooper-pair breaking:
 
 ```
 #/process/inactivate phononScattering
@@ -353,7 +353,7 @@ Sometimes, it may be useful to define geometrical volumes using boolean addition
 <img width="650" height="650" alt="image" src="https://github.com/user-attachments/assets/4fd70eed-055c-496b-9522-01b0046ece9c" />
 
 These boolean solids should work reasonably well with the quasiparticle and phonon physics in G4CMP, but...
-1. ...deep nestings of G4UnionSolids to build complicated structures is not wise on performance grounds, and in my experience has occasionally made visualization choke as well. While functionally a triply- or quadruply-nested G4UnionSolid will work okay, consider using a G4MultiUnion if you're going to going to be attempting to link more than a couple basic `G4VSolid` objects (`G4Tubs`, `G4Box`, `G4Trd`, etc.). QP and phonon transport in `G4MultiUnion` objects has been lightly tested and anecdotal evidence points to it giving the correct film response, but this also needs further rigorous exploration, so proceed with caution and skepticism.
+1. ...deep nestings of G4UnionSolids to build complicated structures is not wise on performance grounds, and in my experience has occasionally made visualization choke as well. While functionally a triply- or quadruply-nested G4UnionSolid will work okay, consider using a G4MultiUnion if you're going to be attempting to link more than a couple basic `G4VSolid` objects (`G4Tubs`, `G4Box`, `G4Trd`, etc.). QP and phonon transport in `G4MultiUnion` objects has been lightly tested and anecdotal evidence points to it giving the correct film response, but this also needs further rigorous exploration, so proceed with caution and skepticism.
 2. ...due to the current lack of generality of superconducting plane orientation currently available to the `qpDiffusion` process, one will find best results aligning their superconducting thin film's plane with _both_ the global XY plane _and_ the local XY coordinate systems of the constituent base solids (G4Box, G4Tubs, etc.). For most base solid geometries, this is what one might most naturally do anyway -- for example, a `G4Tubs`' local XY plane is the one described by ρ and φ, which is the plane that one would naturally keep coplanar with a film if one is attempting to build a curved structure into a thin film. However, solids like `G4Trd`, which one may use for a taper in a pad, set the local z direction to be in the direction of the taper, which requires a 90 degree rotation to embed them into the plane of a film. This may cause issues with QP propagation, but for now these issues can be temporarily circumvented by embedding these structures into a `G4UnionSolid` whose base element _does_ follow the coplanarity guidance given above. 
 
 > [!TIP]
@@ -406,7 +406,7 @@ new G4CMPLogicalBorderSurface(curve3Conductor_boundaryName4, shl7Conductor,
 ```
 We see that in this block we've defined four boundaries for this volume: two establishing the Al/vacuum boundary between `curve3Conductor` and `curve3Empty` (i.e. the "sidewall" boundaries to the CPW center conductor), and two establishing the boundaries between `curve3Conductor` and the straight horizontal line 7 conductor object, `shl7Conductor`. 
 
-How should I think about why there should be two? Critically, because both phonons and QPs can now _traverse_ boundaries, we have both the opportunity and oblication to provide information about how those particles should see or behave when impinging upon boundaries from either side. This is required for the Al/Al and Al/Si boundaries used in this work, and while not strictly required for the Al/Vacuum boundaries (since phonons or QPs can't exist in vacuum and aren't expected to impinge on the boundary from the vacuum side), we include the "extra" volume for symmetry and overcaution (and in case we wanted to, for example, turn all vacuum into something like LHe, where phonons could propagate.)
+How should I think about why there should be two? Critically, because both phonons and QPs can now _traverse_ boundaries, we have both the opportunity and obligation to provide information about how those particles should see or behave when impinging upon boundaries from either side. This is required for the Al/Al and Al/Si boundaries used in this work, and while not strictly required for the Al/Vacuum boundaries (since phonons or QPs can't exist in vacuum and aren't expected to impinge on the boundary from the vacuum side), we include the "extra" volume for symmetry and overcaution (and in case we wanted to, for example, turn all vacuum into something like LHe, where phonons could propagate.)
 
 If you're paying close attention, you may be asking yourself, "wait, but by this logic there should be _six additional_ boundaries created with other volumes: boundaries with the silicon chip, boundaries with the world vacuum above the CPW, and boundaries with the vertical piece in between `curve3Conductor` and the Xmon coupler, right?" And indeed this is correct. The last of those pairs is actually defined when I define the straight vertical line (`svl1Conductor`) just below this in the file. The other two pairs are created one layer up, in the `QuasiparticleDetectorConstruction.cc` file. 
 
@@ -436,7 +436,7 @@ Lastly, given that the superconducting device field often uses small device/sens
 
 ## Tutorial Example 2: Scanning Energy Depositions in a Planar Resonator
 
-We now present a tutorial based on the same geometry that is intended to showcase some of the power of G4CMP-V10's new QP tracking. In this, we will study the time evolution of the quasiparticle density in the top left superconducting resonator on the chip, for energy depositions at two different points: one in the ground plane (Point 1) and one directly within the coplanar waveguide's inner conductor (Point 1).
+We now present a tutorial based on the same geometry that is intended to showcase some of the power of G4CMP-V10's new QP tracking. In this, we will study the time evolution of the quasiparticle density in the top left superconducting resonator on the chip, for energy depositions at two different points: one in the ground plane (Point 1) and one directly within the coplanar waveguide's inner conductor (Point 2).
 
 <img width="690" height="686" alt="image" src="https://github.com/user-attachments/assets/df48c971-5ca2-44c5-81cb-a79a00425dd6" />
 
@@ -451,10 +451,10 @@ Let's go ahead and just run our new macro out of the box:
 ./g4cmpQuasiparticle
 /control/execute ../quasiparticle/G4Macros/quasiparticle_resonator_targeted.mac
 ```
-It's first set up to launch three events, each with a single 36.9 meV phonon (Al Debye energy, a la [CITE KOZOREZOV]) in the ground plane at Point 1 in the above diagram. This should run for about 3 minutes, and should produce a visualization that looks like the left image below:
+It's first set up to launch three events, each with a single 36.9 meV phonon (Al Debye energy, a la [this reference](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.61.11807)) in the ground plane at Point 1 in the above diagram. This should run for about 2 minutes, and should produce a visualization that looks like the left image below:
 
 
-<img width="1002" height="495" alt="image" src="https://github.com/user-attachments/assets/57c4bd2d-127b-458a-8693-4b7f380e68d0" />
+<img width="1276" height="628" alt="image" src="https://github.com/user-attachments/assets/07c4e93b-b4a2-408f-a2c9-7a98e7886dc9" />
 
 
 You may also observe a few exceptions thrown, including but not limited to messages such as
@@ -466,15 +466,15 @@ When calculating safety from a boundary, the2DSafety is below one picometer, and
 *** This is just a warning message. ***
 -------- WWWW -------- G4Exception-END --------- WWWW -------
 ```
-These exceptions kill individual quasiparticle tracks that have been produced and which have wandered into locations that are challenging to properly handle using the diffusion code embedded into a Geant4-esque Monte Carlo with as complicated of a planar geometry as we're using. We can also estimate roughly the level at which these errors artificially kill tracks: on average, during the simulation we just did, we deposit about 111 meV of energy into the film, of which about 57% is expected to be converted into QPs. Divide that energy into the Al gap energy (~178 μeV), and we get about 250 QPs created. While running, I got about 6 exceptions, which means that about 1.3% of our QPs were artificially killed. This is higher than what we ideally want, but is also heavily geometry dependent, and these errors will be a future focus of refining the diffusion code.
+These exceptions kill individual quasiparticle tracks that have been produced and which have wandered into locations that are challenging to properly handle using the diffusion code embedded into a Geant4-esque Monte Carlo with as complicated of a planar geometry as we're using. We can also estimate roughly the level at which these errors artificially kill tracks: on average, during the simulation we just did, we deposit about 111 meV of energy into the film, of which about 57% is expected to be converted into QPs. Divide that energy into the Al gap energy (~178 μeV), and we get about 250 QPs created. While running, I got about 1 exception, which means that about 0.4% of our QPs were artificially killed. This is higher than what we ideally want, but is also heavily geometry and parameter-dependent, and these errors will be a future focus of refining the diffusion code.
 
-The main output from this is a file called `QuasiparticleStepInformationFile.txt`. We'll open that in a sec, but for now let's rename it and rerun, since our next sim will actually take about 15 minutes to run, and it will overwrite this output file if we keep it the same name. After exiting G4CMP's interactive session, we can run
+The main output from this is a file called `QuasiparticleStepInformationFile.txt`. We'll open that in a sec, but for now let's rename it and rerun, since our next sim will actually take about 10-20 minutes to run (though this may vary depending on your computing hardware), and it will overwrite this output file if we keep it the same name. Note that this next file will nominally use about 3GB of disk space. If you don't have that, we recommend cleaning up some disk space if you want to continue. After exiting G4CMP's interactive session, we can run
 ```
 mv QuasiparticleStepInformationFile.txt QuasiparticleStepInformationFile_Point1_3evts.txt
 ```
 so that we name the file with some useful labels that we can use to remember what went into it. Once we do this, let's go into our macro and edit it to simulate interactions at Point 2, by changing the position definition lines to:
 ```
-#/gps/pos/centre -2.65 1.221 5.0001 mm # Point 1, in film
+#/gps/pos/centre -2.58 1.221 5.0001 mm # Point 1, in film
 /gps/pos/centre -1.85 1.221 5.0001 mm # Point 2, in film
 ```
 Now rerun the simulation with this amended interaction point, which is dumping our Debye-energy phonon into the central conductor of our CPW resonator at Point 2. 
@@ -482,13 +482,13 @@ Now rerun the simulation with this amended interaction point, which is dumping o
 ./g4cmpQuasiparticle
 /control/execute ../quasiparticle/G4Macros/quasiparticle_resonator_targeted.mac
 ```
-This process should take much longer, about 15 minutes, and will give an output as shown on the right half of the above image. (In the meantime, we'll move on and talk about analysis of the output file we've already collected.) Once this finishes, let's go ahead and rename this as well:
+This process should take much longer, about 10-20 minutes, and will give an output as shown on the right half of the above image. (In the meantime, we'll move on and talk about analysis of the output file we've already collected.) Once this finishes, let's go ahead and rename this as well:
 ```
 mv QuasiparticleStepInformationFile.txt QuasiparticleStepInformationFile_Point2_3evts.txt
 ```
 
 > [!TIP]
-> Homework question: why does it make sense that this simulation taking longer? Given the walk-on-spheres technique, can you estimate a naive scaling for how much longer this simulation should take than the simulation for Point 2? Does it agree with the observed difference in execution time?
+> Homework question: why does it make sense that this simulation takes longer? Given the walk-on-spheres technique, can you estimate a naive scaling for how much longer this simulation should take than the simulation for Point 2? Does it agree with the observed difference in execution time?
 
 
 ### Analyzing the Simulation Output
@@ -526,10 +526,10 @@ if( particleName.find("BogoliubovQP") != std::string::npos ){
                 << preStepVolume << " " << postStepVolume << std::endl;
 }
 ```
-In this block (which runs after gathering all of the step info that is exported here) we write information to our stepping output file if the particle taking the step is a `BogoliubovQP`. For that QP, we write pre- and post-step information including X, Y, Z, T, E, KE, and volume name variables, as well as the total number of reflections at this step and the process that determines the step. Notably, we do this for _all_ QP steps, without discrimination. As you may have already noticed looking at your output files from the last section, this can produce reasonably large output files even for small numbers of events. For now, we'll accept this, with the recognition that it we can trim these files using additional conditionals in the above block of code to request that the simulation only saves the steps we care about.
+In this block (which runs after gathering all of the step info that is exported here) we write information to our stepping output file if the particle taking the step is a `BogoliubovQP`. For that QP, we write pre- and post-step information including X, Y, Z, T, E, KE, and volume name variables, as well as the total number of reflections at this step and the process that determines the step. Notably, we do this for _all_ QP steps, without discrimination. As you may have already noticed looking at your output files from the last section, this can produce reasonably large output files even for small numbers of events. For now, we'll accept this, with the recognition that we can trim these files using additional conditionals in the above block of code to request that the simulation only saves the steps we care about.
 
 > [!CAUTION]
-> Running far more events in our `quasiparticle_resonator_targeted.mac` than what we've already set up without further conditionals on what is saved may quickly fill up your disk. Proceed with caution.
+> Running far more events in our `quasiparticle_resonator_targeted.mac` than what we've already set up without further conditionals on what is saved may quickly fill up your disk. For Point 1, expect about 30 MB per event, and for Point 2, expect about 1 GB per event. Proceed with caution.
 
 With this information, let's go ahead and run our analysis macro using ROOT. We'll start up an interactive ROOT session and run
 ```
@@ -537,15 +537,15 @@ root -l
 .L ../quasiparticle/AnalysisTools/quasiparticle_analysis.cc
 run_quasiparticle_analysis("/path/to/QuasiparticleStepInformationFile_Point1_3evts.txt","/path/to/QuasiparticleStepInformationFile_Point2_3evts.txt")
 ```
-This will take some time to run -- it reads the step files, which are between a few hundred MB and a few GB, and builds simple event structures out of them. It then analyzes those events, plotting basic information like quasiparticle creation/destruction times and locations, all step locations, and finally the time-averaged quasiparticle occupations of our resonator structures. We'll first explore some basic cross-check plots, which is an important step in any analysis to make sure that our desired results make sense.
+This will take some time to run -- it reads the stepping output files, which are between a few hundred MB and a few GB, and builds simple event structures out of them. It then analyzes those events, plotting basic information like quasiparticle creation/destruction times and locations, all step locations, and finally the time-averaged quasiparticle occupations of our resonator structures. We'll first explore some basic cross-check plots, which is an important step in any analysis to make sure that our desired results make sense.
 
 Let's go ahead and open up a TBrowser, where we can start poking around the plots that are made:
 ```
 TBrowser a
 ```
-Within our output file, we have two directories, one for each analyzed file, so that we can compare "apples to apples" plots but keep the various plots separated under different conditions. First up as a cross check, let's plot the starting locations of quasiparticles produced in our simulation with phonons spawned at Point 1: for this we'll open up the `qp_startXY`, `qp_startXZ`, and `qpStartYZ` histograms:
+Within our output file, we have two directories, one for each analyzed file, so that we can compare "apples to apples" plots between the two conditions. As a first cross check, let's plot the starting locations of quasiparticles produced in our simulation with phonons spawned at Point 1: for this we'll open up the `qp_startXY`, `qp_startXZ`, and `qpStartYZ` histograms:
 
-<img width="1226" height="392" alt="image" src="https://github.com/user-attachments/assets/4b1d7e46-e574-4fbc-bab1-6b53e10b14dc" />
+<img width="1229" height="417" alt="image" src="https://github.com/user-attachments/assets/c210a220-6512-4c29-ac0a-ca8b53de1741" />
 
 _Do these make sense?_ Given the physics of the initial, high-energy downconversion cascade, we might expect a lot of quasiparticles produced at the point very near where our original Debye-energy phonons were spawned. We do see this in XY (see inset), but we also see lots of quasiparticle starting points far (100's of μm to mm) from this initial point. Why might this be? This could reasonably be due to a handful of effects:
 1. As QPs radiate off phonons, those phonons may leave the superconducting film, bounce around the chip to different, more distant locations in the chip and re-break pairs in the film there.
@@ -553,7 +553,7 @@ _Do these make sense?_ Given the physics of the initial, high-energy downconvers
 
 So okay, this seems sensible. For XZ and YZ, we do see that all of our QP creation points occur in the thin film on the top of the 400μm chip, and there are no other QP steps taken elsewhere (as expected).
 
-Let's move on to looking cross-checking our plots of _all_ QP steps. Here, now focusing entirely on XY because our XZ and YZ plots all (thankfully) look the same, we find the following plot for Point 1.
+Let's move on to  cross-checking our plots of _all_ QP steps. Here, now focusing entirely on XY because our XZ and YZ plots all (thankfully) look the same, we find the following plot for Point 1.
 
 <img width="615" height="571" alt="image" src="https://github.com/user-attachments/assets/1dfd47d2-5721-4d8f-930d-b7b2a779ed93" />
 
