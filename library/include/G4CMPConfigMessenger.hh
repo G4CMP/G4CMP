@@ -48,6 +48,7 @@
 // 20250325  G4CMP-463: Add parameter for phonon surface step size & limit.
 // 20250502  G4CMP-358: Add macro command for maximum steps (stuck tracks).
 // 20260429  G4CMP-598: Add macro command for minimum particle generation.
+// 20260606  G4CMP-578: Add macro command for pprimary phonon energy.
 
 
 #include "G4UImessenger.hh"
@@ -86,6 +87,7 @@ private:
   G4UIcmdWithADoubleAndUnit* minEPhononCmd;
   G4UIcmdWithADoubleAndUnit* minEChargeCmd;
   G4UIcmdWithADoubleAndUnit* sampleECmd;
+  G4UIcmdWithADoubleAndUnit* phonEprimCmd;
   G4UIcmdWithADoubleAndUnit* comboStepCmd;
   G4UIcmdWithADoubleAndUnit* trapEMFPCmd;
   G4UIcmdWithADoubleAndUnit* trapHMFPCmd;
