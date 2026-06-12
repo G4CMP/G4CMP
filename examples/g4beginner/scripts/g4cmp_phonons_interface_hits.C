@@ -1,4 +1,4 @@
-void g4cmp_phonons_interface_hits(TString primaryType="electron", Int_t nShots=1) {
+void g4cmp_phonons_interface_hits(TString fileName, TString primaryType="electron", Int_t nShots=1) {
   gSystem->mkdir("figures", kTRUE);
 
   gStyle->SetOptStat(0);
@@ -21,9 +21,9 @@ void g4cmp_phonons_interface_hits(TString primaryType="electron", Int_t nShots=1
 
   TString yLabel = "Phonon count / " + primaryType;
 
-  TFile *f = TFile::Open("g4cmp_phonons.root");
+  TFile *f = TFile::Open(fileName, "read");
   if (!f || f->IsZombie()) {
-    std::cerr << "Error: could not open g4cmp_phonons.root" << std::endl;
+    std::cerr << "Error: could not open " << fileName << std::endl;
     return;
   }
 

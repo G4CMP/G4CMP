@@ -1,4 +1,4 @@
-void g4cmp_phonon_pairbreaking_summary(TString primaryType="electron", Int_t nShots=1) {
+void g4cmp_phonons_pairbreaking_summary(TString fileName, TString primaryType="electron", Int_t nShots=1) {
   gSystem->mkdir("figures", kTRUE);
 
   gStyle->SetOptStat(0);
@@ -19,9 +19,9 @@ void g4cmp_phonon_pairbreaking_summary(TString primaryType="electron", Int_t nSh
     return;
   }
 
-  TFile *f = TFile::Open("g4cmp_phonons.root");
+  TFile *f = TFile::Open(fileName, "read");
   if (!f || f->IsZombie()) {
-    std::cerr << "Error: could not open g4cmp_phonons.root" << std::endl;
+    std::cerr << "Error: could not open " << fileName << std::endl;
     return;
   }
 
@@ -34,11 +34,17 @@ void g4cmp_phonon_pairbreaking_summary(TString primaryType="electron", Int_t nSh
   // ------------------------------------------------------------------
   // Compute summary statistics
   // ------------------------------------------------------------------
-  Double_t meanEnergyAbove2Delta =
-    events->GetMean("ePhononsAbove2DeltaWeighted_eV");
+  // Double_t meanEnergyAbove2Delta =
+  //   events->GetMean("ePhononsAbove2DeltaWeighted_eV");
 
-  Double_t meanCountAbove2Delta =
-    events->GetMean("nPhononsAbove2DeltaWeighted");
+  // Double_t meanCountAbove2Delta =
+  //   events->GetMean("nPhononsAbove2DeltaWeighted");
+  events->Draw("ePhononsAbove2DeltaWeighted_eV >> h_e");
+  TH1F *htemp = (TH1F*)gDirectory->Get("h_e");
+  const double meanEnergyAbove2Delta = htemp->GetMean();
+  events->Draw("nPhononsAbove2DeltaWeighted >> h_n");
+  htemp = (TH1F*)gDirectory->Get("h_n");
+  const double meanCountAbove2Delta = htemp->GetMean();
 
   Double_t meanEnergyPerShot = meanEnergyAbove2Delta; // if 1 event = 1 shot
   Double_t totalEnergyPerShot = 0.0;
@@ -142,5 +148,5 @@ void g4cmp_phonon_pairbreaking_summary(TString primaryType="electron", Int_t nSh
   leg2->AddEntry(lineN, Form("Mean = %.4g /event", meanCountAbove2Delta), "l");
   leg2->Draw();
 
-  c1->SaveAs("figures/phonon_pairbreaking_summary.png");
+  c1->SaveAs("figures/phonons_pairbreaking_summary.png");
 }

@@ -169,8 +169,7 @@ In the fourth block, note that phonons are omitted (or killed) in this simulatio
 Once the code has finished running, we will use ROOT to launch a plotting script called `g4cmp_electron_interface_hits.C`,
 
 ```bash
-cp g4cmp_electrons.root g4cmp_electrons_100um.root
-root -l 'g4cmp_electrons_interface_hits.C("e-",100)'
+root -l 'g4cmp_electrons_interface_hits.C("g4cmp_electrons.root", "e-", 100)'
 ```
 where the arguments specify the primary particle type (here it is `e-`) and the number of shots (from `beamOn 100`) (don't forget you can press `Ctrl+D` (if on Unix/Mac) or type `exit` to exit ROOT). This produces two plots stored in the figures directory called `event_summary.png` and `interface_hits_summary.png` shown below. For future reference, I recommend you rename them to `event_summary_100um.png` and `interface_hits_summary_100um.png`, respectively.
 
@@ -186,8 +185,7 @@ Let's now see how changing the trapping mean free path value affects the results
 
 ```bash
 ./g4beginner g4cmp_electrons_300um.mac > g4cmp_electrons_300um.out
-cp g4cmp_electrons.root g4cmp_electrons_300um.root
-root -l 'g4cmp_electrons_interface_hits.C("e-",100)'
+root -l 'g4cmp_electrons_interface_hits.C("g4cmp_electrons.root", "e-", 100)'
 ```
 
 Varying this parameter changes the electron dynamics in the substrate considerably.  Note that the peak of the electron fraction distribution has shifted significantly, from about 0.25 to about 0.5. Other properties are affected. Comparing the arrival time histograms, we see that the drift electrons can now take twice as long to arrive at the interface. Indeed, the radial distribution has a much larger radius since the particles can undergo longer random walks without being trapped. 
@@ -236,7 +234,7 @@ where the `g4cmp_phonons_100um.mac` macro is:
 where we set the species tracked to be phonon instead of electron. The 100 shots took about 10 minutes on my machine; dial that down if necessary. As a reminder, back up your data and figures as they are generated. Plot the data
 
 ```bash 
-root -l 'g4cmp_phonons_interface_hits.C("e-",100)'
+root -l 'g4cmp_phonons_interface_hits.C("g4cmp_phonons.root", "e-", 100)'
 ``` 
 again specifying as arguments the type of primary particle and the number of shots. This should produce the following collection of plots
 
@@ -247,7 +245,7 @@ From this we can compare the behavior of the various flavors of phonons: longitu
 Finally, let us explore the interdependence between the electron and phonon behavior. Let's again change the trapping mean free path to 300 𝜇m, rerun, and regenerate the plots:
 ```bash 
 ./g4beginner g4cmp_phonons_300um.mac > g4cmp_phonons_300um.out
-root -l 'g4cmp_phonons_interface_hits.C("e-",100)'
+root -l 'g4cmp_phonons_interface_hits.C("g4cmp_phonons.root", "e-", 100)'
 ```
 Notably, the phonon distributions are not too different for electron trapping MFP values of 100 vs 300 𝜇m.  Why is that?
 
@@ -260,8 +258,11 @@ Notably, the phonon distributions are not too different for electron trapping MF
 
 Electron and phonon transport to the Si/Al interface are not themselves the directly measured qubit observables, but they are microscopic proxies for how much substrate-deposited radiation energy is delivered to the superconducting film. In the Vepsäläinen et al. framework, that delivered energy feeds quasiparticle generation in Al, which then sets the excess quasiparticle density $x_{qp}$ ​and contributes to their qubit relaxation rate $\Gamma_1$. Without explicitly tracking quasiparticles, which is the subject of other tutorials, let's try using the quantity we have: the phonon energy deposited to the film. A phonon with energy exceeding 2Δ can break at least one Cooper pair. If its energy is substantially larger than 2Δ, then through direct pair breaking and subsequent downconversion cascades it can, in principle, lead to multiple broken Cooper pairs and hence multiple quasiparticles. For this reason, the total phonon energy above 2Δ is a physically meaningful proxy for quasiparticle generation than simply counting the number of above-threshold phonons.
 
-​To make a more direct connection between G4CMP phonon transport and the superconducting-qubit physics discussed by Vepsäläinen et al., we define event-level quantities that track the subset of phonons reaching the Si/Al interface with enough energy to break Cooper pairs in aluminum. For Al, the pair-breaking threshold is approximately 2Δ≈3.6×10−4 eV, so we identify all interface-reaching phonons with $E_{ph}$ ≥ 2Δ. Because G4CMP tracks may carry weights, each simulated phonon can represent multiple true phonons, so the physically meaningful quantities are weighted sums rather than raw track counts. In particular, we compute the weighted phonon count above threshold, $N_{ph,E\geq 2\Delta}^{(w)} = \sum_i w_i$, and the weighted phonon energy above threshold at the interface, $E_{ph,int}^{(w)} = \sum_i w_i E_i$, where the sum runs over all interface-reaching phonons in a given event with $E_i$ ≥ 2Δ. These quantities provide a simple proxy for the pair-breaking-capable energy delivered from the silicon substrate to the superconducting aluminum film.
+​To make a more direct connection between G4CMP phonon transport and the superconducting-qubit physics discussed by Vepsäläinen et al., we define event-level quantities that track the subset of phonons reaching the Si/Al interface with enough energy to break Cooper pairs in aluminum. For Al, the pair-breaking threshold is approximately 2Δ≈3.6×10−4 eV, so we identify all interface-reaching phonons with $E_{ph}$ ≥ 2Δ. Because G4CMP tracks may carry weights, each simulated phonon can represent multiple true phonons, so the physically meaningful quantities are weighted sums rather than raw track counts. In particular, we compute the weighted phonon count above threshold, $N_{ph,E\geq 2\Delta}^{(w)} = \sum_i w_i$, and the weighted phonon energy above threshold at the interface, $E_{ph,int}^{(w)} = \sum_i w_i E_i$, where the sum runs over all interface-reaching phonons in a given event with $E_i$ ≥ 2Δ. These quantities provide a simple proxy for the pair-breaking-capable energy delivered from the silicon substrate to the superconducting aluminum film. Let's generate some summary plots:
+```bash 
+root -l 'g4cmp_phonons_pairbreaking_summary.C("g4cmp_phonons.root", "e-", 100)'
+```
 
- <img src="figures/phonon_pairbreaking_summary.png" width="100%">
+ <img src="figures/phonons_pairbreaking_summary.png" width="100%">
 
 The means of these event-level distributions summarize how much pair-breaking-capable phonon population is generated by a single primary radiation event and transported to the Si/Al boundary. Their magnitudes can be much larger than the energy or count associated with any individual tracked phonon because they represent weighted sums over the full phonon cascade produced in one event. This is physically reasonable: a single energetic radiation interaction in the silicon substrate can generate many phonons, and one phonon with energy above 2Δ can in principle contribute to more than one broken Cooper pair through further downconversion and relaxation cascades. Although we are not yet simulating quasiparticles explicitly in the aluminum film, these weighted above-threshold phonon quantities are consistent with the framework of the attached paper. In the language of Vepsäläinen et al., they provide a microscopic proxy for the radiation-induced energy input that would feed quasiparticle generation in the superconductor, ultimately contributing to the excess quasiparticle density $x_{qp}$ and therefore to increased qubit relaxation rate $\Gamma_1$​	
