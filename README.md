@@ -540,6 +540,9 @@ the crystal system.
 | l0_e    | len       | electron scattering length | length            |
 | l0_h	  | len       | hole scattering length     | length            |
 | hmass   | m_h       | effective mass of hole   | electron mass ratio |
+| holea   | val       | hole anisotropy parameter A   | unitless |
+| holeb   | val       | hole anisotropy parameter A   | unitless |
+| holec   | val       | hole anisotropy parameter A   | unitless |
 | emass   | m_xx m_yy m_zz | electron mass tensor | (same)             |
 | valley  | theta phi psi unit | Euler angles     | angle (deg/rad)    |
 | **InterValley scattering with matrix elements** |
