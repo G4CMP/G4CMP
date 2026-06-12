@@ -34,7 +34,7 @@ namespace QuasiparticleDetectorParameters
   constexpr double dp_scDelta0_Al = 0.000176 * CLHEP::eV;
   constexpr double dp_scTeff_Al = 0.2 * CLHEP::kelvin;
   constexpr double dp_scDn_Al = 6 * CLHEP::um*CLHEP::um / CLHEP::ns;
-  constexpr double dp_scTauQPTrap_Al = 1 * CLHEP::ms;
+  constexpr double dp_scTauQPTrap_Al = 0.2 * CLHEP::ms;
 
   
   //----------------------------------------------------------------

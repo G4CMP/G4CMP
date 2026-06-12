@@ -65,7 +65,7 @@
 /gps/particle phononTF
 /gps/pos/type Volume
 /gps/pos/shape Para
-/gps/pos/centre -2.65 1.221 5.0001 mm # Point 1, in film
+/gps/pos/centre -2.58 1.221 5.0001 mm # Point 1, in film
 #/gps/pos/centre -1.85 1.221 5.0001 mm # Point 2, in film
 
 #These spawn phonons from a parallelepiped with the following

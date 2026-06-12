@@ -9,7 +9,9 @@
 /run/initialize
 
 # We'll use an OpenGL viewer here, and load
-# a specific angle and zoom
+# a specific angle and zoom. Note that one can
+# also use OGLSQt for additional visualization
+# options.
 /vis/open OGL
 /vis/viewer/set/upVector 0 1 0
 /vis/viewer/set/viewpointThetaPhi 30 150
@@ -41,7 +43,7 @@
 
 # Toggle phononBounces depending on whether
 # you want to see a full event or not.
-/g4cmp/phononBounces 0 
+/g4cmp/phononBounces 0
 /g4cmp/qpBounces 1000000000
 
 #/process/inactivate phononScattering

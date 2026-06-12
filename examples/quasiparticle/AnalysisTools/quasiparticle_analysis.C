@@ -1,6 +1,11 @@
+/***********************************************************************\
+ * This software is licensed under the terms of the GNU General Public *
+ * License version 3 or later. See G4CMP/LICENSE for the full license. *
+\***********************************************************************/
+
 //------------------------------------------------------------------
 //
-// quasiparticle_analysis.cc
+// quasiparticle_analysis.C
 // linehan3@fnal.gov
 //
 // This macro is meant to analyze the output of the quasiparticle
@@ -251,11 +256,11 @@ void DoAnalysis(TFile * fOut, std::vector<Event> eventList, std::string name ){
   double maxZ_mm = 5.1;
   
   //Bins/bounds for QP T info
-  int nBinsT = 1000;
-  double maxT_ns = 1e7;
-  double maxDeltaT_ns = 1e7;
-  int nBinsTimeResonator = 1000;
-  double maxTimeResonator_ns = 1e7;
+  int nBinsT = 200;
+  double maxT_ns = 2e6;
+  double maxDeltaT_ns = 2e6;
+  int nBinsTimeResonator = 200;
+  double maxTimeResonator_ns = 2e6;
   
   double nBinsLength = 10000;
   double maxLength_nm = 10000;
