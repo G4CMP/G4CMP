@@ -555,7 +555,7 @@ So okay, this seems sensible. For XZ and YZ, we do see that all of our QP creati
 
 Let's move on to  cross-checking our plots of _all_ QP steps. Here, now focusing entirely on XY because our XZ and YZ plots all (thankfully) look the same, we find the following plot for Point 1.
 
-<img width="615" height="571" alt="image" src="https://github.com/user-attachments/assets/1dfd47d2-5721-4d8f-930d-b7b2a779ed93" />
+<img width="574" height="576" alt="image" src="https://github.com/user-attachments/assets/3905dad3-68e1-47af-89c8-aa3712b0a883" />
 
 _Does this make sense?_ Once we create our QPs, they are free to diffuse according to the mechanics of the `qpDiffusion` G4CMP process. Coarseley, we do see that there are lots of steps that are occurring in the top left of the chip where we are launching our Debye phonons, which makes sense given that most of our QPs are being generated in this region. However, there are a handful of other features that are worth pointing out.
 * Some features seem a bit artificial, such as the rectangular "doorway" surrounding the resonator. This "doorway" is as a result of the fact that I've defined a base layer of aluminum into which all of the resonator features are embedded as daughter volumes. QPs impinging upon this base layer will end their step and transport across the boundary here if they encounter it, implying an artificial overdensity of points here.
@@ -567,24 +567,24 @@ _Does this make sense?_ Once we create our QPs, they are free to diffuse accordi
 
 To get a more physically accurate picture of where QPs diffuse, we can look at a physical observable, something driven by a process other than diffusion. We'll look at the _endpoints_ of the QP tracks, which are dictated by the times at which QPs either trap or recombine, but which diffuse in XY from their creation to this time. Since we're now limiting ourselves to the small-ish, O(1000) number of QPs, we'll actually coarse-bin our histograms a bit to help display this. On the left below we re-show `h_qpAllStepsXY` for Point 1, and on the right we show `h_qpLastStepPostXY` for Point 1, with an additional re-binning of 4 on both axes.
 
-<img width="1193" height="523" alt="image" src="https://github.com/user-attachments/assets/766a502f-30ba-4aaf-a787-6c1a12d3e78e" />
+<img width="1266" height="616" alt="image" src="https://github.com/user-attachments/assets/ae102177-d8a6-4060-8e1e-1f81b453524e" />
 
 We now see that even though there is a massive nonuniformity in the locations of all steps (left), the locations at which the QPs end up dying look a bit more uniformly distributed around the creation point, while still being constrained by the CPW structures, as we expect.
 
-One last thing we can do for a cross check is to look at the lifetimes of the quasiparticles, by just taking their final step post-step time and subtracting it from their initial step pre-step time. From our 724 quasiparticles created in this event, we get the following distribution:
+One last thing we can do for a cross check is to look at the lifetimes of the quasiparticles, by just taking their final step post-step time and subtracting it from their initial step pre-step time. From our 472 quasiparticles created in this event, we get the following distribution:
 
-<img width="675" height="563" alt="image" src="https://github.com/user-attachments/assets/80c52793-6b0e-436b-9871-9e5c4e0adced" />
+<img width="629" height="573" alt="image" src="https://github.com/user-attachments/assets/0d12bc97-2173-44cc-a5fc-38537d04c123" />
 
-From the mean in the stat block on the top right, we can get a rough sense of the QP lifetime: around 450 μs. Does _this_ make sense? There are two contributors that will non-artificially kill a quasiparticle: trapping and recombination. To understand what parameters we're using for this, let's take a look in our favorite parameters file: `quasiparticle/include/QuasiparticleDetectorParameters.hh`. At the top of this file we have:
+From the mean in the stat block on the top right, we can get a rough sense of the QP lifetime: around 158 μs. Does _this_ make sense? There are two contributors that will non-artificially kill a quasiparticle: trapping and recombination. To understand what parameters we're using for this, let's take a look in our favorite parameters file: `quasiparticle/include/QuasiparticleDetectorParameters.hh`. At the top of this file we have:
 
 ```
 constexpr double dp_polycryElScatMFP_Al = 10 * CLHEP::nm;
 constexpr double dp_scDelta0_Al = 0.000176 * CLHEP::eV;
 constexpr double dp_scTeff_Al = 0.2 * CLHEP::kelvin;
 constexpr double dp_scDn_Al = 6 * CLHEP::um*CLHEP::um / CLHEP::ns;
-constexpr double dp_scTauQPTrap_Al = 1 * CLHEP::ms;
+constexpr double dp_scTauQPTrap_Al = 0.2 * CLHEP::ms;
 ```
-which says that our local trapping time is set to 1 ms, and that our effective temperature, which governs recombination, is set to 200 mK. This effective temperature produces a QP recombination lifetime in Al (from [this reference](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.14.4854)) of around 1 ms at energies just above the gap. With these two separate processes giving QP decay timescales of order 1 ms, the joint decay time should be about half that, or around 500 μs. This is indeed what we see.
+which says that our local trapping time is set to 200 μs, and that our effective temperature, which governs recombination, is set to 200 mK. This effective temperature produces a QP recombination lifetime in Al (from [this reference](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.14.4854)) of around 1 ms at energies just above the gap. With these two separate decay timescales, the joint decay time should be 1/(1/200μs + 1/1ms)~160 μs. This is indeed what we see.
 
 
 > [!TIP]
@@ -598,23 +598,23 @@ Ok, so now let's look at the plots we stated in our goal: the time-averaged QP o
 * Just half-circle 1
 * Just half-circle 6
 
-For Point 1, these three plots are shown below:
+For Point 1, these three plots are shown below (noting that we zoomed in on the x-axis in the TBrowser for clarity):
 
-<img width="1021" height="708" alt="image" src="https://github.com/user-attachments/assets/610dc069-8a3a-44c1-8dea-e67b5f163ea4" />
+<img width="1202" height="830" alt="image" src="https://github.com/user-attachments/assets/07c90686-e36b-4a5f-a5ed-ebd2eb7185cf" />
 
-From these we can gain a bit of direct insight into QP dynamics directly within the central conductor. First, on average, for this set of simulation parameters, there aren't that many QPs that are created and exist anywhere within the central conductor in response to our initial phonons: the left plot shows that on average, only either 1 or 2 QPs is really present anywhere. Moreover, looking at the middle plot, we see it entirely empty: this is consistent with the simulation rendering above -- we see no QP tracks in that chunk of the resonator. Finally, we see the evolution in half-circle 6 in the top right: there are QPs that appear, but they do so only briefly, diffusing into that section before either diffusing back out or trapping/recombining.
+From these we can gain a bit of direct insight into QP dynamics directly within the central conductor. First, on average, for this set of simulation parameters, there aren't that many QPs that are created and exist anywhere within the central conductor in response to our initial phonons: the left plot shows that on average, only either 1, 2, or 3 QPs is really present anywhere. Moreover, right two plots, we find them nearly empty. These are consistent with the simulation rendering above -- only very short regions of QP tracks can be seen encroaching into the half-circle 1 or half-circle 6 volumes, suggesting that these QPs either diffuse back out of these regions or recombine/trap quickly after entering. As a result, we get a "fractional" time-averaged QP population: for those time bins, a single QP only occupies that bin for a fraction of the length of that time bin.
 
 Let's now compare this to our Point 2 simulations, which are shown below:
 
-<img width="1228" height="856" alt="image" src="https://github.com/user-attachments/assets/4ca594ac-ee4d-473d-bf3b-4ddac3dbc380" />
+<img width="1151" height="797" alt="image" src="https://github.com/user-attachments/assets/13dfd1df-704e-498c-bce4-4378a0a059c7" />
 
-Here, we have a very different story. The left plot, again showing the QP presence in the entire CPW, shows a distinct exponential falloff in QP occupancy (with our aforementioned decay time) until reaching the few-QP regime, at which point statistical fluctuations determine the shape of the plot. The QP occupancy in half-circle 1 (center plot) is now nonzero, and notably shows a QP arising not at zero but around 0.5 ms to 1 ms or so. This timescale most likely comes about due to diffusion of initially-produced quasiparticles, but let's confirm this intuition to see if it makes sense. The rough distance that this QP needs to travel to get to half-circle 1 is, based on the geometry of the meander, about 2.4 mm. The diffusion constant for QPs is given by this expression:
+Here, we have a very different story. The left plot, again showing the QP presence in the entire CPW, shows a distinct quasi-exponential falloff in QP occupancy (with our aforementioned decay time) until reaching the few-QP regime, at which point statistical fluctuations determine the shape of the plot. The QP occupancy in half-circle 1 (center plot) is now nonzero, and notably shows a QP peaked not at zero but at some time roughly 0.3 ms after the Debye phonon injection. This timescale most likely comes about due to diffusion of initially-produced quasiparticles, but let's confirm this intuition to see if it makes sense. The rough distance that this QP needs to travel to get to half-circle 1 is, based on the geometry of the meander, about 2.4 mm. The diffusion constant for QPs is given by this expression:
 
 <img width="400" height="142" alt="image" src="https://github.com/user-attachments/assets/8430e220-d72a-49cb-8411-fac6e59a384b" />
 
-Where D_n is the normal-state diffusion coefficient just above the transition temperature. In G4CMP, our value for this is about 6 um^2/ns. The dependence on the QP energy means that for most QPs that have cooled, the diffusion coefficient will be a factor of a few lower than this D_n out front, so we'll guess for now that the diffusion coefficient is about 2 um^2/ns. Then, we can calculate what average Δt we may expect for a given diffused Δx using (Δx)^2/2D. For our numbers here, using Δx=2400 um and D=2 um^2/ns, we find an expected time to diffuse of about 1.1 ms. For a back of the envelope, this is reasonably close to what we see, which is a nice confirmation. 
+Where D_n is the normal-state diffusion coefficient just above the transition temperature. In G4CMP, our value for this is about 6 um^2/ns. The dependence on the QP energy means that for most QPs that have cooled, the diffusion coefficient will be a factor of a few lower than this D_n out front, so we'll guess for now that the diffusion coefficient is about 2 um^2/ns. Then, we can calculate what average Δt we may expect for a given diffused Δx using (Δx)^2/2D. For our numbers here, using Δx=2400 um and D=2 um^2/ns, we find an expected time to diffuse of about 1.1 ms. For a back of the envelope, this is not bad. However, we also recognize that additional pairbreaking may occur in regions of the CPW far from the initial injection point due to phonons released in the initial cascade, which may help explain why QPs are present in this distant location a bit earlier than our estimate.
 
-The final plot on the right, showing the QP occupancy of half-circle 6, is much more populated with QPs, but also displays a pattern of QPs "hopping in and out" of that section at late times, once many of the initial QPs have decayed away. Overall, this scenario shows a significantly different outcome compared to the Debye phonons launched into the ground plane: here, we don't have to "get lucky" and have a QP produced in the CPW from a phonon that happens to enter it after being produced far away.
+The final plot on the right, showing the QP occupancy of half-circle 6, is much more populated with QPs, but also displays a pattern of QPs "hopping in and out" of that section at late times, once many of the initial QPs have decayed away. Overall, this scenario shows a significantly different outcome compared to the Debye phonons launched into the ground plane (Point 1): here, we don't have to "get lucky" and have a QP produced in the CPW from a phonon that happens to enter it after being produced far away.
 
 ### Parameter Tuning
 
@@ -624,7 +624,7 @@ constexpr double dp_polycryElScatMFP_Al = 10 * CLHEP::nm;
 constexpr double dp_scDelta0_Al = 0.000176 * CLHEP::eV;
 constexpr double dp_scTeff_Al = 0.2 * CLHEP::kelvin;
 constexpr double dp_scDn_Al = 6 * CLHEP::um*CLHEP::um / CLHEP::ns;
-constexpr double dp_scTauQPTrap_Al = 1 * CLHEP::ms;
+constexpr double dp_scTauQPTrap_Al = 0.2 * CLHEP::ms;
 ```
 Arguably, the three most important parameters here are the zero-temperature gap, `dp_scDelta0_Al`, the effective temperature of the superconductor, `dp_scTeff_Al`, and the trapping lifetime, `dp_scTauQPTrap_Al`. Since the zero-temperature gap should be fixed in principle, this largely is a "set and forget" parameter. The other two are less obvious _a priori_, and are parameters you can tune to match simulations to your data.
 1. `dp_scTeff_Al`: This effective temperature dictates the recombination, phonon radiation, and pairbreaking lifetimes via the formalism in the [Kaplan paper](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.14.4854). While phonon radiation and pairbreaking lifetimes do vary with this, the recombination lifetime is _strongly_ dependent on this, and diverges at low values of (T_eff/T_c). As a result, if you do not have other mechanisms for quasiparticles to die (i.e. local trapping), then setting T_eff below about 15% of T_c will make your code run for a VERY long time. We'll note that when QPs die via this mechanism, they release a near-2Δ phonon with a 50% probability, to conserve energy globally. This permits "QP recycling," in which subsequent cycles of pairbreaking, recombination, and re-pairbreaking keep a QP's influence in the chip around for longer than the time between its initial creation and (initial) death.
@@ -642,5 +642,11 @@ One last thing to mention are some subtleties with the diffusion code that advan
 And with that, we'll conclude with a handful of homework problems for particularly motivated readers.
 
 > [!TIP]
-> Homework problem: repeat the analysis in the above section, but after having turned off recombination and set the trapping timescale to 100 μs. What do you observe in terms of execution time? Output filesize? In-resonator QP occupations?
+> Homework problem: repeat the analysis in the above section, but after having turned off recombination and set the trapping timescale to 1 ms. What do you observe in terms of execution time? Output filesize? In-resonator QP occupations?
+
+> [!TIP]
+> Homework question: can you think of a way to meaningfully cut down stepping output filesize while still getting results similar to what we've seen here?
+
+> [!TIP]
+> Challenge question: for QPs produced in the middle of the CPW resonator, what's a technique that you can add to the existing script to test the accuracy of the diffusion through the CPW? 
 
