@@ -30,33 +30,31 @@ void g4cmp_phonons_pairbreaking_summary(TString fileName, TString primaryType="e
     std::cerr << "Error: missing PhononEventSummary tree" << std::endl;
     return;
   }
-  TCanvas *c1 = new TCanvas("c1","Phonon Pair-Breaking Summary",1200,600);
-  c1->SetFillColor(kWhite);
-  c1->Divide(2,1,0.01,0.01);
-  c1->cd(1);
   // ------------------------------------------------------------------
   // Compute summary statistics
   // ------------------------------------------------------------------
-  events->Draw("ePhononsAbove2DeltaWeighted_eV >> h_e");
-  TH1F *htemp = (TH1F*)gDirectory->Get("h_e");
-  const double meanEnergyAbove2Delta = htemp->GetMean();
-  events->Draw("nPhononsAbove2DeltaWeighted >> h_n");
-  htemp = (TH1F*)gDirectory->Get("h_n");
-  const double meanCountAbove2Delta = htemp->GetMean();
+  Double_t meanEnergyAbove2Delta = 0.;
+  Double_t meanCountAbove2Delta = 0.;
 
-  Double_t meanEnergyPerShot = meanEnergyAbove2Delta; // if 1 event = 1 shot
   Double_t totalEnergyPerShot = 0.0;
 
   // More robust total mean from explicit event sum
   Double_t eAbove = 0.0;
   events->SetBranchAddress("ePhononsAbove2DeltaWeighted_eV", &eAbove);
+  Double_t nAbove = 0.;
+  events->SetBranchAddress("nPhononsAbove2DeltaWeighted", &nAbove);
 
   Long64_t nEntries = events->GetEntries();
   Double_t totalEnergy = 0.0;
   for (Long64_t i = 0; i < nEntries; ++i) {
     events->GetEntry(i);
     totalEnergy += eAbove;
+    meanEnergyAbove2Delta += eAbove;
+    meanCountAbove2Delta += nAbove;
   }
+  if (nEntries > 0) meanEnergyAbove2Delta /= nEntries;
+  if (nEntries > 0) meanCountAbove2Delta /= nEntries;
+  Double_t meanEnergyPerShot = meanEnergyAbove2Delta; // if 1 event = 1 shot
 
   if (nShots > 0) totalEnergyPerShot = totalEnergy / nShots;
 
@@ -76,7 +74,10 @@ void g4cmp_phonons_pairbreaking_summary(TString fileName, TString primaryType="e
   // ------------------------------------------------------------------
   // Plotting
   // ------------------------------------------------------------------
-
+  TCanvas *c1 = new TCanvas("c1","Phonon Pair-Breaking Summary",1200,600);
+  c1->SetFillColor(kWhite);
+  c1->Divide(2,1,0.01,0.01);
+  c1->cd(1);
   // ----------------------------------------------------------
   // Left panel: weighted phonon energy above 2Delta
   // ----------------------------------------------------------
@@ -85,8 +86,7 @@ void g4cmp_phonons_pairbreaking_summary(TString fileName, TString primaryType="e
   gPad->SetBottomMargin(0.13);
   gPad->SetRightMargin(0.05);
   gPad->SetTopMargin(0.10);
-
-  events->Draw("ePhononsAbove2DeltaWeighted_eV>>hEpb(100,0,0.05)");
+  events->Draw("ePhononsAbove2DeltaWeighted_eV>>hEpb");
   TH1 *hEpb = (TH1*)gDirectory->Get("hEpb");
   hEpb->SetTitle(Form("Weighted Phonon Energy Above 2#Delta at Interface (%d shots, %s primary)",
                       nShots, primaryType.Data()));
@@ -119,7 +119,7 @@ void g4cmp_phonons_pairbreaking_summary(TString fileName, TString primaryType="e
   gPad->SetRightMargin(0.05);
   gPad->SetTopMargin(0.10);
 
-  events->Draw("nPhononsAbove2DeltaWeighted>>hNpb(100,0,50)");
+  events->Draw("nPhononsAbove2DeltaWeighted>>hNpb");
   TH1 *hNpb = (TH1*)gDirectory->Get("hNpb");
   hNpb->SetTitle(Form("Weighted Phonon Count Above 2#Delta at Interface (%d shots, %s primary)",
                       nShots, primaryType.Data()));
