@@ -22,7 +22,7 @@ class B1AnalysisConfig
     B1AnalysisConfig();
     ~B1AnalysisConfig();
 
-    static G4ThreadLocal B1AnalysisConfig* fInstance;
+    static B1AnalysisConfig* fInstance;
 
     G4String fSpecies;
     G4GenericMessenger* fMessenger;

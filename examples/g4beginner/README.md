@@ -171,7 +171,7 @@ Once the code has finished running, we will use ROOT to launch a plotting script
 ```bash
 root -l 'g4cmp_electrons_interface_hits.C("g4cmp_electrons", "e-", 100)'
 ```
-where the arguments specify the primary particle type (here it is `e-`) and the number of shots (from `beamOn 100`) (don't forget you can press `Ctrl+D` (if on Unix/Mac) or type `exit` to exit ROOT). This produces two plots stored in the figures directory called `event_summary.png` and `interface_hits_summary.png` shown below. For future reference, I recommend you rename them to `event_summary_100um.png` and `interface_hits_summary_100um.png`, respectively.
+where the arguments specify the primary particle type (here it is `e-`) and the number of shots (from `beamOn 100`) (don't forget you can press `Ctrl+D` (if on Unix/Mac) or type `.q` to exit ROOT). This produces two plots stored in the figures directory called `event_summary.png` and `interface_hits_summary.png` shown below. For future reference, I recommend you rename them to `event_summary_100um.png` and `interface_hits_summary_100um.png`, respectively.
 
 <img src="figures/event_summary_100um.png" width="50%">
 
