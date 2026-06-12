@@ -104,52 +104,6 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
     // and some fake Cu
     //G4double density_Air = 0.00000001*g/cm3;
     //G4Material* Cu_mat = nist->BuildMaterialWithNewDensity("Cu_newDens","G4_Cu",density_Air); // a way to get rid of Cu attenuation
-
-    
-    /*
-    
-   //Argon gas definition taken from NIST, then change density (https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Appendix/materialNames.html)
-   G4double density_Ar = 0.0017857*g/cm3;
-   
-   G4Material* Ar_mat = nist->BuildMaterialWithNewDensity("Ar_newDens","G4_Ar",density_Ar);
-
-
-  //borosilicate (Pyrex) definition, taken from material compendium Borosilicate glass
-  //https://www.pnnl.gov/main/publications/external/technical_reports/PNNL-15870.pdf pg.52
-   G4double a,z,density_Pyrex,fractionmass;
-   G4String name,symbol;
-   G4int ncomponents;
-   
-   a=10.811*g/mole;
-   G4Element* elB=new G4Element(name="Boron",symbol="B",z=5.,a);
-   
-   a=15.999*g/mole;
-   G4Element* elO=new G4Element(name="Oxygen",symbol="O",z=8.,a);
-   
-   a=22.990*g/mole;
-   G4Element* elNa=new G4Element(name="Sodium",symbol="Na",z=11.,a);
-   
-   a=26.982*g/mole;
-   G4Element* elAl=new G4Element(name="Aluminum",symbol="Al",z=13.,a);
-   
-   a=28.086*g/mole;
-   G4Element* elSi=new G4Element(name="Silicon",symbol="Si",z=14.,a);
-   
-   a=39.098*g/mole;
-   G4Element* elK=new G4Element(name="Potassium",symbol="K",z=19.,a);
-   
-   
-  density_Pyrex = 2.23*g/cm3;
-  G4Material* pyrex_mat = new G4Material(name="pyrex_mat",density_Pyrex,ncomponents=6);
-  pyrex_mat->AddElement(elB,  fractionmass=0.040066);
-  pyrex_mat->AddElement(elO, fractionmass=0.539559);
-  pyrex_mat->AddElement(elNa,  fractionmass=0.028191);
-  pyrex_mat->AddElement(elAl,  fractionmass=0.011644);
-  pyrex_mat->AddElement(elSi, fractionmass=0.377220);
-  pyrex_mat->AddElement(elK, fractionmass=0.003321);
-   
-  
-*/
     
   //     
   // World Box
