@@ -70,6 +70,7 @@
 // 20260428  G4CMP-598 -- Use nParticlesMinimum as floor value for
 //	       nPairsGen/nPhononsGen in GenerateCharges()/GeneratePhonons().
 // 20260523  G4CMP-608 -- Address compiler warnings with nParticlesMinimum.
+// 20260606  G4CMP-578 -- Use primaryPhononEnergy instead of Debye energy.
 
 #include "G4CMPEnergyPartition.hh"
 #include "G4CMPChargeCloud.hh"
@@ -565,7 +566,10 @@ void G4CMPEnergyPartition::GeneratePhonons(G4double energy) {
   if (verboseLevel)
     G4cout << " GeneratePhonons " << energy/MeV << " MeV" <<  G4endl;
 
-  G4double ePhon = theLattice->GetDebyeEnergy(); // TODO: No fluctuations yet!
+  // User may override Debye energy with primaryPhononEnergy
+  G4double ePhon = G4CMPConfigManager::GetPrimaryPhononEnergy();
+  if (ePhon <= 0.) ePhon = theLattice->GetDebyeEnergy();
+  // TODO: No fluctuations in generated phonon energy
 
   nPhononsTrue = std::ceil(energy / ePhon);	// Average number of phonons
   ePhon = energy / nPhononsTrue;		// Split energy evenly to all
