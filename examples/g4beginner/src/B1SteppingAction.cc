@@ -106,6 +106,7 @@ void B1SteppingAction::UserSteppingAction(const G4Step* step)
   G4int speciesID = -1;
 
   auto config = B1AnalysisConfig::Instance();
+  G4cout << __LINE__ << ": " << config->IsElectronMode() << ", " << particleName << G4endl;
 
   if (config->IsElectronMode()) {
     if (particleName == "G4CMPDriftElectron" || particleName == "G4CMPDriftHole") {

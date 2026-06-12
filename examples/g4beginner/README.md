@@ -119,7 +119,7 @@ You can inspect the geometry setup by running the program with the original visu
 ```bash
 ./g4beginner init_vis.mac
 ```
-The geometry used here is meant to mimic the setup studied by Vepsäläinen et al.: a copper source disk above a superconducting aluminum structure on a silicon substrate (200 nm of Al on 280 μm of Si) with lateral dimensions 5 mm x 5 mm. The source is $^{64}\mathrm{Cu}$ with an activity of $6.12\,\mu\mathrm{Ci}$. It emits $\beta^+$ particles (653 keV; 17.49%), $\beta^-$ particles (580 keV; 38.5%), and \(\gamma\) rays (1346 keV; 0.472%), with emission taken to be isotropic from the Cu volume. The original application included all of this physics, including $\beta$ emission sampled from a triangular energy distribution. For the purposes of this tutorial, however, we simplify things considerably: the particle gun fires only $\beta^-$ particles, at a fixed energy of 100 keV and from a fixed distance of about $350\,\mu\mathrm{m}$. As a visual aid, Fig. 1 from the paper is reproduced below:
+The geometry used here is meant to mimic the setup studied by Vepsäläinen et al.: a copper source disk above a superconducting aluminum structure on a silicon substrate (200 nm of Al on 280 μm of Si) with lateral dimensions 5 mm x 5 mm. The source is $^{64}\mathrm{Cu}$ with an activity of $6.12\,\mu\mathrm{Ci}$. It emits $\beta^+$ particles ($E_{endpt}=653~\mathrm{keV}$; 17.49%), $\beta^-$ particles ($E_{endpt}=580~\mathrm{keV}$; 38.5%), and $\gamma$ rays (1346 keV; 0.472%), with emission taken to be isotropic from the Cu volume. The original application included all of this physics, including $\beta$ emission sampled from a triangular energy distribution. For the purposes of this tutorial, however, we simplify things considerably: the particle gun fires only $\beta^-$ particles, at a fixed energy of 100 keV and from a fixed distance of about $350\,\mu\mathrm{m}$. As a visual aid, Fig. 1 from the paper is reproduced below:
 <img src="figures/Vepsalainen_Fig_1.png" width="100%">
 
 <section> 
@@ -140,6 +140,11 @@ where the `g4cmp_electrons_100um.mac` macro is:
 /event/verbose 0
 /tracking/verbose 1
 
+/gun/particle e-
+/gun/energy 100 keV
+/gun/position 0 0 -3.2 mm
+/gun/direction 0 0 -1
+
 /analysis/setSpecies electrons
 /g4cmp/samplingEnergy 100 eV
 
@@ -153,9 +158,9 @@ where the `g4cmp_electrons_100um.mac` macro is:
 
 /run/beamOn 100
 ```
-In the first block, we initialize the run and set the verbosity level. In the second block, we specify that we are tracking G4CMP drift electrons (this is an application-specific macro command) and set the downsampling energy to 100 eV. The downsampling energy acts as a form of biasing, in the Geant4 sense, and is used here to improve computational efficiency. When you set a downsampling energy, you are effectively setting how many *tracked* charge pairs will be created in the simulation. Each of those tracked pairs is then assigned a weight equal to the ratio of the true deposited energy to the downsampling scale. For example, for a 10 keV energy deposit, a downsampling energy of 100 eV means each tracked electron-hole pair will carry a weight of 100, since $10\,\mathrm{keV}/100\,\mathrm{eV} = 100$.
+In the first block, we initialize the run and set the verbosity level. In the second block, we set the primary generator characteristics. In the third block, we specify that we are tracking G4CMP drift electrons (this is an application-specific macro command) and set the downsampling energy to 100 eV. The downsampling energy acts as a form of biasing, in the Geant4 sense, and is used here to improve computational efficiency. When you set a downsampling energy, you are effectively setting how many *tracked* charge pairs will be created in the simulation. Each of those tracked pairs is then assigned a weight equal to the ratio of the true deposited energy to the downsampling scale. For example, for a 10 keV energy deposit, a downsampling energy of 100 eV means each tracked electron-hole pair will carry a weight of 100, since $10\,\mathrm{keV}/100\,\mathrm{eV} = 100$.
 
-In the third block, note that phonons are omitted (or killed) in this simulation. This is done simply to speed up the collection of electron statistics. The fourth block controls the mean free paths for electron and hole trapping. We will vary these momentarily to see how they affect the charge dynamics. Finally, we use 100 shots here to obtain results quickly, with the tradeoff of poorer statistics. For the plots shown below, I increased the number of shots to 1000; on my machine, that took about 5 minutes to run.
+In the fourth block, note that phonons are omitted (or killed) in this simulation. This is done simply to speed up the collection of electron statistics. The fifth block controls the mean free paths for electron and hole trapping. We will vary these momentarily to see how they affect the charge dynamics. Finally, we use 100 shots here to obtain results quickly, with the tradeoff of poorer statistics. For the plots shown below, I increased the number of shots to 1000; on my machine, that took about 5 minutes to run.
 
 Once the code has finished running, we will use ROOT to launch a plotting script called `g4cmp_electron_interface_hits.C`,
 
@@ -163,7 +168,7 @@ Once the code has finished running, we will use ROOT to launch a plotting script
 cp g4cmp_electrons.root g4cmp_electrons_100um.root
 root -l 'g4cmp_electrons_interface_hits.C("e-",100)'
 ```
-where the arguments specify the primary particle type (here it is "e-") and the number of shots (from beamOn 100). Don't forget you can press ctrl+D (if on a mac) to exit ROOT. This produces two plots stored in the figures directory called `event_summary.png` and `interface_hits_summary.png` shown below. For future reference, I recommend you rename them to `event_summary_100um.png` and `interface_hits_summary_100um.png`, respectively.
+where the arguments specify the primary particle type (here it is `e-`) and the number of shots (from `beamOn 100`) (don't forget you can press `Ctrl+D` (if on Unix/Mac) or type `exit` to exit ROOT). This produces two plots stored in the figures directory called `event_summary.png` and `interface_hits_summary.png` shown below. For future reference, I recommend you rename them to `event_summary_100um.png` and `interface_hits_summary_100um.png`, respectively.
 
 <img src="figures/event_summary_100um.png" width="50%">
 
@@ -205,6 +210,9 @@ where the `g4cmp_phonons_100um.mac` macro is:
 /run/verbose 2
 /event/verbose 0
 /tracking/verbose 1
+
+/gun/particle phononTS
+/gun/energy 100 keV
 
 /analysis/setSpecies phonons
 /g4cmp/samplingEnergy 100 eV

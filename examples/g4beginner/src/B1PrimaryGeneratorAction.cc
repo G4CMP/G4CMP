@@ -51,7 +51,10 @@ B1PrimaryGeneratorAction::B1PrimaryGeneratorAction()
   G4int n_particle = 1;
   fParticleGun  = new G4ParticleGun(n_particle);
   auto* pdef = fParticleGun->GetParticleDefinition();
-  if (pdef) G4cout << __LINE__ << ": " << pdef->GetParticleName() << G4endl;
+  if (fParticleGun->GetParticleMomentumDirection() == G4ThreeVector(0, 0, 0))
+  {
+    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 0., -1.));
+  }
   if (!pdef || pdef == G4Geantino::Definition())
   {
     G4ParticleDefinition* particle = G4ParticleTable::GetParticleTable()->FindParticle("e-");
