@@ -115,9 +115,13 @@ make
 
 <img src="figures/Zoomed_geometry_visualization.png" width="50%">
 
-You can inspect the geometry setup by running the program with the original visualization macro
+You can inspect the geometry setup by running the program without any arguments
 ```bash
-./g4beginner init_vis.mac
+./g4beginner
+```
+and then, once at the Geant4 UI prompt, call the original visualization macro
+```python
+/control/execute init_vis.mac
 ```
 The geometry used here is meant to mimic the setup studied by Vepsäläinen et al.: a copper source disk above a superconducting aluminum structure on a silicon substrate (200 nm of Al on 280 μm of Si) with lateral dimensions 5 mm x 5 mm. The source is $^{64}\mathrm{Cu}$ with an activity of $6.12\,\mu\mathrm{Ci}$. It emits $\beta^+$ particles ($E_{endpt}=653~\mathrm{keV}$; 17.49%), $\beta^-$ particles ($E_{endpt}=580~\mathrm{keV}$; 38.5%), and $\gamma$ rays (1346 keV; 0.472%), with emission taken to be isotropic from the Cu volume. The original application included all of this physics, including $\beta$ emission sampled from a triangular energy distribution. For the purposes of this tutorial, however, we simplify things considerably: the particle gun fires only $\beta^-$ particles, at a fixed energy of 100 keV and from a fixed distance of about $350\,\mu\mathrm{m}$. As a visual aid, Fig. 1 from the paper is reproduced below:
 <img src="figures/Vepsalainen_Fig_1.png" width="100%">

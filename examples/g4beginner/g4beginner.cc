@@ -112,7 +112,6 @@ int main(int argc,char** argv)
   }
   else { 
     // interactive mode
-    UImanager->ApplyCommand("/control/execute init_vis.mac");
     ui->SessionStart();
     delete ui;
   }
