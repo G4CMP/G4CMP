@@ -534,7 +534,7 @@ In this block (which runs after gathering all of the step info that is exported 
 With this information, let's go ahead and run our analysis macro using ROOT. We'll start up an interactive ROOT session and run
 ```
 root -l
-.L ../quasiparticle/AnalysisTools/quasiparticle_analysis.cc
+.L ../quasiparticle/AnalysisTools/quasiparticle_analysis.C
 run_quasiparticle_analysis("/path/to/QuasiparticleStepInformationFile_Point1_3evts.txt","/path/to/QuasiparticleStepInformationFile_Point2_3evts.txt")
 ```
 This will take some time to run -- it reads the stepping output files, which are between a hundred MB and a few GB, and builds simple event structures out of them. It then analyzes those events, plotting basic information like quasiparticle creation/destruction times and locations, all step locations, and finally the time-averaged quasiparticle occupations of our resonator structures. We'll first explore some basic cross-check plots, which is an important step in any analysis to make sure that our desired results make sense.
