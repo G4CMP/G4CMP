@@ -2,7 +2,7 @@
 /control/verbose 2
 /run/verbose 2
 /event/verbose 0
-/run/printProgress 1
+/tracking/verbose 1
 
 /gun/particle e-
 /gun/energy 100 keV
@@ -19,5 +19,5 @@
 
 /g4cmp/eTrappingMFP 100 um
 /g4cmp/hTrappingMFP 100 um
-
+/run/printProgress 1
 /run/beamOn 100
