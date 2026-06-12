@@ -19,9 +19,9 @@ void g4cmp_phonons_pairbreaking_summary(TString fileName, TString primaryType="e
     return;
   }
 
-  TFile *f = TFile::Open(fileName, "read");
+  TFile *f = TFile::Open(fileName + ".root", "read");
   if (!f || f->IsZombie()) {
-    std::cerr << "Error: could not open " << fileName << std::endl;
+    std::cerr << "Error: could not open " << fileName << ".root" << std::endl;
     return;
   }
 
@@ -30,15 +30,13 @@ void g4cmp_phonons_pairbreaking_summary(TString fileName, TString primaryType="e
     std::cerr << "Error: missing PhononEventSummary tree" << std::endl;
     return;
   }
-
+  TCanvas *c1 = new TCanvas("c1","Phonon Pair-Breaking Summary",1200,600);
+  c1->SetFillColor(kWhite);
+  c1->Divide(2,1,0.01,0.01);
+  c1->cd(1);
   // ------------------------------------------------------------------
   // Compute summary statistics
   // ------------------------------------------------------------------
-  // Double_t meanEnergyAbove2Delta =
-  //   events->GetMean("ePhononsAbove2DeltaWeighted_eV");
-
-  // Double_t meanCountAbove2Delta =
-  //   events->GetMean("nPhononsAbove2DeltaWeighted");
   events->Draw("ePhononsAbove2DeltaWeighted_eV >> h_e");
   TH1F *htemp = (TH1F*)gDirectory->Get("h_e");
   const double meanEnergyAbove2Delta = htemp->GetMean();
@@ -78,9 +76,6 @@ void g4cmp_phonons_pairbreaking_summary(TString fileName, TString primaryType="e
   // ------------------------------------------------------------------
   // Plotting
   // ------------------------------------------------------------------
-  TCanvas *c1 = new TCanvas("c1","Phonon Pair-Breaking Summary",1200,600);
-  c1->SetFillColor(kWhite);
-  c1->Divide(2,1,0.01,0.01);
 
   // ----------------------------------------------------------
   // Left panel: weighted phonon energy above 2Delta
@@ -148,5 +143,5 @@ void g4cmp_phonons_pairbreaking_summary(TString fileName, TString primaryType="e
   leg2->AddEntry(lineN, Form("Mean = %.4g /event", meanCountAbove2Delta), "l");
   leg2->Draw();
 
-  c1->SaveAs("figures/phonons_pairbreaking_summary.png");
+  c1->SaveAs(Form("figures/%s_phonons_pairbreaking_summary.png", fileName.Data()));
 }

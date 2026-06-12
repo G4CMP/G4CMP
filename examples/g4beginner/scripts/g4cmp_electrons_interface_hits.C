@@ -21,9 +21,9 @@ void g4cmp_electrons_interface_hits(TString fileName, TString primaryType="elect
 
   TString yLabel = "Drift electron count / " + primaryType;
 
-  TFile *f = TFile::Open(fileName, "read");
+  TFile *f = TFile::Open(fileName + ".root", "read");
   if (!f || f->IsZombie()) {
-    std::cerr << "Error: could not open " << fileName << std::endl;
+    std::cerr << "Error: could not open " << fileName << ".root" << std::endl;
     return;
   }
 
@@ -119,8 +119,7 @@ void g4cmp_electrons_interface_hits(TString fileName, TString primaryType="elect
   hXY->GetXaxis()->SetLimits(-0.5, 0.5);
   hXY->GetYaxis()->SetRangeUser(-0.5, 0.5);
 
-  c1->SaveAs("figures/interface_hits_summary.png");
-
+  c1->SaveAs(Form("figures/%s_interface_hits_summary.png", fileName.Data()));
   // ---------- Canvas 2: event summary ----------
   TCanvas *c2 = new TCanvas("c2","Event Summary",900,700);
   c2->SetFillColor(kWhite);
@@ -141,6 +140,6 @@ void g4cmp_electrons_interface_hits(TString fileName, TString primaryType="elect
   hFrac->SetMinimum(0.);
 //hFrac->SetMaximum(240.);
 
-  c2->SaveAs("figures/event_summary.png");
+  c2->SaveAs(Form("figures/%s_event_summary.png", fileName.Data()));
 }
 

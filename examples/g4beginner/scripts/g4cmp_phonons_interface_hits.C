@@ -21,9 +21,9 @@ void g4cmp_phonons_interface_hits(TString fileName, TString primaryType="electro
 
   TString yLabel = "Phonon count / " + primaryType;
 
-  TFile *f = TFile::Open(fileName, "read");
+  TFile *f = TFile::Open(fileName + ".root", "read");
   if (!f || f->IsZombie()) {
-    std::cerr << "Error: could not open " << fileName << std::endl;
+    std::cerr << "Error: could not open " << fileName << ".root" << std::endl;
     return;
   }
 
@@ -237,6 +237,6 @@ void g4cmp_phonons_interface_hits(TString fileName, TString primaryType="electro
   leg4->AddEntry((TObject*)0, "phononTS: green", "");
   leg4->Draw();
 
-  c1->SaveAs("figures/interface_hits_summary_phonons.png");
+  c1->SaveAs(Form("figures/%s_interface_hits_summary.png", fileName.Data()));
 }
 
