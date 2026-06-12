@@ -847,13 +847,10 @@ void G4LatticeLogical::AddValley(const G4ThreeVector& valleyDirVec, G4bool antiv
   G4double d=-vz*b;
   G4double e=vz*a;
 
-  if ( vdir.mag()<1e-10 ) {
-      vdir = G4ThreeVector(1,0,0);
-      a=0;
-      b=1;
-      d=0;
-      e=0;
-      f=1;
+  // If vx=vy=vz=0 use Identity matrix
+  if (vdir.mag()<1e-10) {
+    vdir = G4ThreeVector(1,0,0);
+    a=0; b=1; d=0; e=0; f=1;
   }
 
   // Store the valley's rotation matrix, its inverse and the valley's direction
