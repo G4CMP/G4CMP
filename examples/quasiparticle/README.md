@@ -72,7 +72,7 @@ G4CMP-v10 adds a particle definition for a BogoliubovQP (Bogoliubov Quasiparticl
 	* This will radiate phonons from QPs above delta. The rate is affected by a similar set of parameters to the `G4CMPSCPairBreaking` process.
 6. QP Recombination: `G4CMPQPRecombinationProcess.cc`
 	* This will take a QP and "recombine" it with an ambient quasiparticle that is implicitly in the environment due to some ambient density. A phonon will emerge half of the time. This strategy is a kludge to conserve energy.
-	* This does *not* do n^2 recombination. This recombination is linear in the density of quasiparticles and is a good approximation in the limit of low density of QPs. We'll put back-of-the-envelope numbers to this regime soon. Again, this does *not* do n^2 recombination.
+	* This does *not* do n<sup>2</sup> recombination. This recombination is linear in the density of quasiparticles and is a good approximation in the limit of low density of QPs. We'll put back-of-the-envelope numbers to this regime soon. Again, this does *not* do n<sup>2</sup> recombination.
 	* The rate is affected by a similar set of parameters to the `G4CMPSCPairBreaking` process.
 7. Quasiparticle boundary interactions: `G4CMPQPBoundaryProcess.cc`
 	*  `G4CMPSurfaceProperties` now has two additional parameters: `qpAbsProb` (QP Absorption Probability) and `qpReflProb`, which come after the charge and phonon values.
@@ -98,7 +98,7 @@ There are a set of "superconducting" parameters needed to describe the behavior 
 | `polycryElScatMFP` | Characteristic Polycrystalline Grain Boundary Scattering Length | Second argument of `G4LatticePhysical` constructor | 30 nm | `G4CMPPhononPolycrystalElasticScattering.cc` |
 | `scDelta0` | Zero-Temperature Superconducting Gap, Δ | Third argument of `G4LatticePhysical` constructor | 180 μeV | `G4CMPSCPairBreakingProcess.cc`, `G4CMPQPRecombinationProcess.cc`, `G4CMPQPRadiatesPhononProcess.cc`, `G4CMPQPBoundaryProcess.cc`, `G4CMPQPDiffusion.cc` |
 | `scTeff` | Effective Temperature | Fourth argument of `G4LatticePhysical` constructor | 0.2 K | `G4CMPSCPairBreakingProcess.cc`, `G4CMPQPRecombinationProcess.cc`, `G4CMPQPRadiatesPhononProcess.cc`, `G4CMPQPBoundaryProcess.cc`, `G4CMPQPDiffusion.cc` |
-| `scDn` | Normal-state QP Diffusion Constant | Fifth argument of `G4LatticePhysical` constructor | 6 μm^{2} / ns | `G4CMPQPDiffusion.cc` |
+| `scDn` | Normal-state QP Diffusion Constant | Fifth argument of `G4LatticePhysical` constructor | 6 μm<sup>2</sup> / ns | `G4CMPQPDiffusion.cc` |
 | `scTauQPTrap` | Characteristic QP Local Trapping Time | Sixth argument of `G4LatticePhysical` constructor | 1 ms | `G4CMPQPLocalTrappingProcess.cc` | 
 
 
@@ -612,7 +612,7 @@ Here, we have a very different story. The left plot, again showing the QP presen
 
 <img width="400" height="142" alt="image" src="https://github.com/user-attachments/assets/8430e220-d72a-49cb-8411-fac6e59a384b" />
 
-Where D_n is the normal-state diffusion coefficient just above the transition temperature. In G4CMP, our value for this is about 6 um^2/ns. The dependence on the QP energy means that for most QPs that have cooled, the diffusion coefficient will be a factor of a few lower than this D_n out front, so we'll guess for now that the diffusion coefficient is about 2 um^2/ns. Then, we can calculate what average Δt we may expect for a given diffused Δx using (Δx)^2/2D. For our numbers here, using Δx=2400 um and D=2 um^2/ns, we find an expected time to diffuse of about 1.1 ms. For a back of the envelope, this is not bad. However, we also recognize that additional pairbreaking may occur in regions of the CPW far from the initial injection point due to phonons released in the initial cascade, which may help explain why QPs are present in this distant location a bit earlier than our estimate.
+Where D_n is the normal-state diffusion coefficient just above the transition temperature. In G4CMP, our value for this is about 6 μm<sup>2</sup>/ns. The dependence on the QP energy means that for most QPs that have cooled, the diffusion coefficient will be a factor of a few lower than this D_n out front, so we'll guess for now that the diffusion coefficient is about 2 μm<sup>2</sup>/ns. Then, we can calculate what average Δt we may expect for a given diffused Δx using (Δx)<sup>2</sup>/2D. For our numbers here, using Δx=2400 μm and D=2 μm<sup>2</sup>/ns, we find an expected time to diffuse of about 1.1 ms. For a back of the envelope, this is not bad. However, we also recognize that additional pairbreaking may occur in regions of the CPW far from the initial injection point due to phonons released in the initial cascade, which may help explain why QPs are present in this distant location a bit earlier than our estimate.
 
 The final plot on the right, showing the QP occupancy of half-circle 6, is much more populated with QPs, but also displays a pattern of QPs "hopping in and out" of that section at late times, once many of the initial QPs have decayed away. Overall, this scenario shows a significantly different outcome compared to the Debye phonons launched into the ground plane (Point 1): here, we don't have to "get lucky" and have a QP produced in the CPW from a phonon that happens to enter it after being produced far away.
 
