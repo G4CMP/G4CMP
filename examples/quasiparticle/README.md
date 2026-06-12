@@ -529,7 +529,7 @@ if( particleName.find("BogoliubovQP") != std::string::npos ){
 In this block (which runs after gathering all of the step info that is exported here) we write information to our stepping output file if the particle taking the step is a `BogoliubovQP`. For that QP, we write pre- and post-step information including X, Y, Z, T, E, KE, and volume name variables, as well as the total number of reflections at this step and the process that determines the step. Notably, we do this for _all_ QP steps, without discrimination. As you may have already noticed looking at your output files from the last section, this can produce reasonably large output files even for small numbers of events. For now, we'll accept this, with the recognition that we can trim these files using additional conditionals in the above block of code to request that the simulation only saves the steps we care about.
 
 > [!CAUTION]
-> Running far more events in our `quasiparticle_resonator_targeted.mac` than what we've already set up without further conditionals on what is saved may quickly fill up your disk. For Point 1, expect about 30 MB per event, and for Point 2, expect about 1 GB per event. Proceed with caution.
+> Running far more events in our `quasiparticle_resonator_targeted.mac` than what we've already set up without further conditionals on what is saved may quickly fill up your disk. For Point 1, expect about 40 MB per event, and for Point 2, expect about 1 GB per event. Proceed with caution.
 
 With this information, let's go ahead and run our analysis macro using ROOT. We'll start up an interactive ROOT session and run
 ```
@@ -537,7 +537,7 @@ root -l
 .L ../quasiparticle/AnalysisTools/quasiparticle_analysis.cc
 run_quasiparticle_analysis("/path/to/QuasiparticleStepInformationFile_Point1_3evts.txt","/path/to/QuasiparticleStepInformationFile_Point2_3evts.txt")
 ```
-This will take some time to run -- it reads the stepping output files, which are between a few hundred MB and a few GB, and builds simple event structures out of them. It then analyzes those events, plotting basic information like quasiparticle creation/destruction times and locations, all step locations, and finally the time-averaged quasiparticle occupations of our resonator structures. We'll first explore some basic cross-check plots, which is an important step in any analysis to make sure that our desired results make sense.
+This will take some time to run -- it reads the stepping output files, which are between a hundred MB and a few GB, and builds simple event structures out of them. It then analyzes those events, plotting basic information like quasiparticle creation/destruction times and locations, all step locations, and finally the time-averaged quasiparticle occupations of our resonator structures. We'll first explore some basic cross-check plots, which is an important step in any analysis to make sure that our desired results make sense.
 
 Let's go ahead and open up a TBrowser, where we can start poking around the plots that are made:
 ```
