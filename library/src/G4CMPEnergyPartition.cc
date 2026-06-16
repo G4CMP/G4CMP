@@ -488,6 +488,7 @@ void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
 
   // Test if electron-hole pair creation is possible
   if (energy < eBand || eBand <= 0. || ePair <= 0.) {
+    if (verboseLevel>1) G4cout << " No charge-pair creation." << G4endl;
     nPairsTrue = nPairsGen = 0;
     chargeEnergyLeft = energy;
     return;
@@ -496,6 +497,7 @@ void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
   // Use Fano factor to determine generated number of charge pairs
   nPairsTrue = MeasuredChargePairs(energy);	// Apply fluctuations
   if (nPairsTrue < 0.) {
+    if (verboseLevel>1) G4cout << " No charge-pair creation." << G4endl;
     nPairsTrue = nPairsGen = 0;
     chargeEnergyLeft = energy;
     return;
