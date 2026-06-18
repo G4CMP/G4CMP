@@ -60,6 +60,7 @@
 // 20240510  E. Michhaud -- Add function to compute L0 from other parameters
 // 20250904  R. Linehan -- Linking Tcrit to Delta0 for superconductors
 // 20250905  G4CMP-500 -- Removing non-fundamental superconductor parameters
+// 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
 
 #include "G4LatticeLogical.hh"
 #include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****
@@ -251,7 +252,10 @@ void G4LatticeLogical::Initialize(const G4String& newName) {
   // Populate phonon lookup tables if not read from files
   FillMaps();
 
-  //Check for completeness of superconducting parameters
+  // Check for completeness of charge transport parameters
+  CheckLatticeChargeParameters();
+
+  // Check for completeness of superconducting parameters
   CheckLatticeForSCCompleteness();
 }
 
@@ -1116,6 +1120,64 @@ void G4LatticeLogical::DumpList(std::ostream& os,
 }
 
 
+// Check for completeness of charge transport parameters
+
+void G4LatticeLogical::CheckLatticeChargeParameters() {
+  G4bool goodChg = true;
+
+  // No bandgap will suppress e/h creation, but allow single tracking
+  if (fBandGap <= 0. && fPairEnergy <= 0.) {
+    if (verboseLevel) {
+      G4cout << "Lattice " << fName << " does not have bandgap or pair energy"
+	     << " defined.  No charge production." << G4endl;
+    }
+  }
+
+  // If bandgap is defined, pair energy must be larger
+  if (fPairEnergy < fBandGap) {
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << " has pair energy " << fPairEnergy/eV
+	<< " eV below bandgap " << fBandGap << " eV.";
+    G4Exception("G4LatticeLogical", "Lattice008", FatalException, msg);
+    goodChg = false;
+  }
+
+  // If charge masses are not defined, remind user they're free electrons
+  if (goodChg && (fabs(fElectronMass-mElectron)/mElectron < 1e-3 ||
+		  fabs(fHoleMass-mElectron)/mElectron < 1e-3)) {
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << " does not have charge carrier masses set."
+	<< "\n Bare electron mass assumed.";
+    G4Exception("G4LatticeLogical", "Lattice009", JustWarning, msg);
+  }
+
+  // Without valleys, assume a direct gap semiconductor with Gamma 'valley'
+  if (goodChg && fValley.size() < 1U) {
+    G4cout << "Lattice " << fName << " assuming direct gap semiconductor,"
+	   << " using Gamma valley (0,0,0)." << G4endl;
+
+    AddValley(G4ThreeVector(0,0,0));
+  }
+
+  // Sensible charge transport must include finite scattering lengths
+  if (goodChg && (fL0_e <= 0. || fL0_h <= 0.)) {
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << " has no charge scattering L0 defined.";
+    G4Exception("G4LatticeLogical", "Lattice010", FatalException, msg);
+    goodChg = false;
+  }
+
+  // Multiple valleys ought to have IV scattering, but may not
+  if (goodChg && fValley.size() > 1U && fIVModel.empty()) {
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << "has no intervalley scattering model.";
+    G4Exception("G4LatticeLogical", "Lattice011", JustWarning, msg);
+  }
+
+  // TODO: Should we be checking the different IV model parmaeters?
+}
+
+
 //This checks the results of the created lattice to understand if all relevant
 //parameters have been added. We can put whatever we want here, but for now I
 //want to say that if any of the superconductor lattice parameters have been
@@ -1123,7 +1185,7 @@ void G4LatticeLogical::DumpList(std::ostream& os,
 //that isn't true, then they should make it true. This forced execution stop
 //occurs here for the "fundamental" parameters and in SCUtils for the "physical-
 //lattice-dependent" ones
-void G4LatticeLogical::CheckLatticeForSCCompleteness() {
+void G4LatticeLogical::CheckLatticeForSCCompleteness() const {
   //Check to see if any of the SC parameters are not at their default values,
   //i.e. if they have been set.
   if (fSC_Tau0_qp != DBL_MAX ||
@@ -1136,12 +1198,9 @@ void G4LatticeLogical::CheckLatticeForSCCompleteness() {
       //Throw a warning that there are outstanding SC parameters that are not
       //set.
       G4ExceptionDescription msg;
-      msg << "Noticed that one or more superconducting film lattice parameters "
-	  << "are set in a config file, but that one or more are also missing. "
-	  << "Please fill in Tau0_qp and Tau0_ph for all superconductors you "
-	  << "want to use before continuing.";
-      G4Exception("G4LatticeLogical::CheckLatticeForSCCompleteness", "Lattice007",
-		  FatalException, msg);
+      msg << "Lattice " << fName << ": Both Tau0_qp and Tau0_ph required"
+	  << " for superconductors.";
+      G4Exception("G4LatticeLogical", "Lattice007", FatalException, msg);
     }
   }  
 }

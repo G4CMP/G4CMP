@@ -45,6 +45,7 @@
 // 20250904  R. Linehan -- Linked Tcrit to Delta0 for superconductors
 // 20250905  G4CMP-500  -- Removed non-fundamental superconductor params from
 //              lattice info
+// 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
 
 #ifndef G4LatticeLogical_h
 #define G4LatticeLogical_h
@@ -309,8 +310,11 @@ private:
   // Use direct calculation to get group velocity for phonons
   G4ThreeVector ComputeKtoVg(G4int mode, const G4ThreeVector& k) const;
 
-  //Do an internal check to make sure that we have all SC parameters
-  void CheckLatticeForSCCompleteness();
+  // Internal check to ensure that we have sufficient charge parameters
+  void CheckLatticeChargeParameters();		// Non-const for AddValley() use
+
+  // Internal check to make sure that we have all SC parameters
+  void CheckLatticeForSCCompleteness() const;
   
 private:
   // Create a thread-local buffer to use with MapAtoB() functions
