@@ -12,7 +12,9 @@
 // 20181001  Use systematic names for IV rate parameters
 // 20210908  Use global track position to query field; configure field.
 // 20211003  Use encapsulated G4CMPFieldUtils to get field.
-// 20230829  Rotated E-field to local frame first and changed Mass Multiplication in HV transformation
+// 20230829  Rotated E-field to local frame first and changed Mass
+//	       Multiplication in HV transformation
+// 20260618  G4CMP-636 -- Protect Threshold() from empty IVEnergy list.
 
 #include "G4CMPIVRateLinear.hh"
 #include "G4CMPFieldUtils.hh"
@@ -66,8 +68,11 @@ G4double G4CMPIVRateLinear::Rate(const G4Track& aTrack) const {
 // Threshold is minimum energy of any scattering channel
 
 G4double G4CMPIVRateLinear::Threshold(G4double Eabove) const {
+  const std::vector<G4double>& ivEnergy = theLattice->GetIVEnergy();
+
   // NOTE: min_element returns iterator, dereference returns value
-  G4double Emin = *std::min_element(theLattice->GetIVEnergy().begin(),
-				    theLattice->GetIVEnergy().end());
+  G4double Emin = (ivEnergy.empty() ? 0.
+		   : *std::min_element(ivEnergy.begin(), ivEnergy.end()) );
+
   return (Eabove<Emin) ? Emin : 0.;
 }

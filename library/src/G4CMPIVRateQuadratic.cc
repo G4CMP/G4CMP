@@ -16,6 +16,7 @@
 // 20230829  Rotated E-field to local frame first and changed Mass
 //	       Multiplication in HV transformation
 // 20250515  Apply IV energy thresholds to reduce zero-voltage scatters
+// 20260618  G4CMP-636 -- Protect Threshold() from empty IVEnergy list.
 
 #include "G4CMPIVRateQuadratic.hh"
 #include "G4CMPFieldUtils.hh"
@@ -73,8 +74,11 @@ G4double G4CMPIVRateQuadratic::Rate(const G4Track& aTrack) const {
 // Threshold is minimum energy of any scattering channel
 
 G4double G4CMPIVRateQuadratic::Threshold(G4double Eabove) const {
+  const std::vector<G4double>& ivEnergy = theLattice->GetIVEnergy();
+
   // NOTE: min_element returns iterator, dereference returns value
-  G4double Emin = *std::min_element(theLattice->GetIVEnergy().begin(),
-				    theLattice->GetIVEnergy().end());
+  G4double Emin = (ivEnergy.empty() ? 0.
+		   : *std::min_element(ivEnergy.begin(), ivEnergy.end()) );
+
   return (Eabove<Emin) ? Emin : 0.;
 }
