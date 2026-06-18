@@ -1165,8 +1165,10 @@ void G4LatticeLogical::CheckLatticeChargeParameters() {
   // Without valleys, assume a direct gap semiconductor with Gamma 'valley'
   // TODO: Move to CheckIVConsistency() under G4CMP-404
   if (fValley.size() < 1U) {
-    G4cout << "Lattice " << fName << " assuming direct gap semiconductor,"
-	   << " using Gamma valley (0,0,0)." << G4endl;
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << " has no valley definitions.\n"
+	<< " Assuming direct gap semiconductor with Gamma valley.";
+    G4Exception("G4LatticeLogical", "Lattice012", JustWarning, msg);
 
     AddValley(G4ThreeVector(0,0,0));
   }
@@ -1176,7 +1178,7 @@ void G4LatticeLogical::CheckLatticeChargeParameters() {
   if (fValley.size() > 1U && fIVModel.empty()) {
     G4ExceptionDescription msg;
     msg << "Lattice " << fName << "has no intervalley scattering model.";
-    G4Exception("G4LatticeLogical", "Lattice012", JustWarning, msg);
+    G4Exception("G4LatticeLogical", "Lattice013", JustWarning, msg);
   }
 }
 
