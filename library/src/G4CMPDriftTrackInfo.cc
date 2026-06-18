@@ -12,6 +12,7 @@
 // $Id$
 //
 // 20161111 Initial commit - R. Agnese
+// 20260618 Simplify test condition, and set index to -1 after exception
 
 #include "G4CMPDriftTrackInfo.hh"
 #include "G4LatticePhysical.hh"
@@ -26,12 +27,12 @@ G4CMPDriftTrackInfo::G4CMPDriftTrackInfo(const G4LatticePhysical* lat,
 }
 
 void G4CMPDriftTrackInfo::SetValleyIndex(G4int valIdx) {
-  // -1 is a valid value, so be careful coparing signed/unsigned.
-  if (valIdx < -1 ||
-      valIdx > static_cast<G4int>(Lattice()->NumberOfValleys() - 1)) {
+  // -1 is a valid value, and be careful comparing signed/unsigned.
+  if (valIdx < -1 || valIdx >= (G4int)Lattice()->NumberOfValleys()) {
     G4Exception("G4CMPDriftTrackInfo: Constructor", "DrfitTrackInfo001",
                 EventMustBeAborted,
-                "valley index parameter is out of bounds for the given lattice");
+                "valley index parameter is out of bounds for the lattice");
+    valIdx = -1;
   }
 
   valleyIdx = valIdx;

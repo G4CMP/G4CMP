@@ -6,6 +6,7 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-06-18  G4CMP-634 : Clean up check on valley index for new tracks.
 2026-06-18  G4CMP-633 : Validate consistency of charge parameters in config.txt.
 2026-06-18  G4CMP-636 : Protect IV Threshold() from empty ivEnergy list.
 2026-06-18  G4CMP-637 : Move calculation of L0 from acDeform into LatticeLogical
