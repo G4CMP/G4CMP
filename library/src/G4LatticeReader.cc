@@ -430,9 +430,17 @@ G4bool G4LatticeReader::ProcessValleyDirection() {
 	   << millerj << " " << millerk << G4endl;
 
   G4ThreeVector valleyDirVec(milleri,millerj,millerk);
+
+  // if valleyDir 0 0 0, add Identity matrix once (no anti-valley)
+  if (valleyDirVec.mag() < 1e-10) {
+    pLattice->AddValley(valleyDirVec);
+    return psLatfile->good();
+  }
+  else {
   pLattice->AddValley(valleyDirVec);
   pLattice->AddValley(-valleyDirVec,true);
   return psLatfile->good();
+  }
 }
 
 
