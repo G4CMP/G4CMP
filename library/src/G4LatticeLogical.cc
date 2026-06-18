@@ -1181,29 +1181,16 @@ void G4LatticeLogical::CheckLatticeChargeParameters() {
 }
 
 
-//This checks the results of the created lattice to understand if all relevant
-//parameters have been added. We can put whatever we want here, but for now I
-//want to say that if any of the superconductor lattice parameters have been
-//added, we want to make sure that all of them have, and alert users that if
-//that isn't true, then they should make it true. This forced execution stop
-//occurs here for the "fundamental" parameters and in SCUtils for the "physical-
-//lattice-dependent" ones
+// Ensure that lattice-defined quasiparticle parameters are consistent
 void G4LatticeLogical::CheckLatticeForSCCompleteness() const {
-  //Check to see if any of the SC parameters are not at their default values,
-  //i.e. if they have been set.
-  if (fSC_Tau0_qp != DBL_MAX ||
-      fSC_Tau0_ph != DBL_MAX) {
-    
-    //If one of these is set, check to see if any of them are NOT set.
-    if (fSC_Tau0_qp == DBL_MAX ||
-	fSC_Tau0_ph == DBL_MAX) {
-      
-      //Throw a warning that there are outstanding SC parameters that are not
-      //set.
-      G4ExceptionDescription msg;
-      msg << "Lattice " << fName << ": Both Tau0_qp and Tau0_ph required"
-	  << " for superconductors.";
-      G4Exception("G4LatticeLogical", "Lattice007", FatalException, msg);
-    }
-  }  
+  // If any of the QP parameters are set, then they all must be set
+  G4bool allOrNone = ( (fSC_Tau0_qp != DBL_MAX && fSC_Tau0_ph != DBL_MAX) ||
+		       (fSC_Tau0_qp == DBL_MAX && fSC_Tau0_ph == DBL_MAX) );
+
+  if (!allOrNone) {   // Terminate job if QP parameters are not consisent
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << ": Both Tau0_qp and Tau0_ph required"
+	<< " for superconductors.";
+    G4Exception("G4LatticeLogical", "Lattice007", FatalException, msg);
+  }
 }
