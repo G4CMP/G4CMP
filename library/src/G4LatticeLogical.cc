@@ -61,6 +61,7 @@
 // 20250904  R. Linehan -- Linking Tcrit to Delta0 for superconductors
 // 20250905  G4CMP-500 -- Removing non-fundamental superconductor parameters
 // 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
+// 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
 
 #include "G4LatticeLogical.hh"
 #include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****
@@ -251,6 +252,10 @@ void G4LatticeLogical::Initialize(const G4String& newName) {
 
   // Populate phonon lookup tables if not read from files
   FillMaps();
+
+  // Compute charge scattering lengths from theoretical parameters
+  if (fL0_e <= 0.) fL0_e = ComputeL0(fElectronMass, fAcDeform_e);
+  if (fL0_h <= 0.) fL0_h = ComputeL0(fHoleMass, fAcDeform_h);
 
   // Check for completeness of charge transport parameters
   CheckLatticeChargeParameters();
@@ -921,21 +926,13 @@ const G4ThreeVector& G4LatticeLogical::GetValleyAxis(G4int iv) const {
 
 // Process scattering length l0_e and l0_h
 
-G4double G4LatticeLogical::ComputeL0(G4bool IsElec) {
-  G4double mass = 0.;
-  G4double acDeform = 0.;
-      
-  if (IsElec) {
-      mass = GetElectronMass();
-      acDeform = GetElectronAcousticDeform();
-  }
-  else    {
-      mass = GetHoleMass();
-      acDeform = GetHoleAcousticDeform();
-  }
- 
-  G4double l0 = pi*hbar_Planck*hbar_Planck*hbar_Planck*hbar_Planck*fDensity/2/mass/mass/mass/acDeform/acDeform;
-  return l0;
+G4double G4LatticeLogical::ComputeL0(G4double mass, G4double acDeform) const {
+  const G4double hbar4 = hbar_Planck*hbar_Planck*hbar_Planck*hbar_Planck;
+  const G4double mass3 = mass*mass*mass;
+  const G4double ac2 = acDeform*acDeform;
+
+  // If acDeform was not set, return zero scattering length
+  return (acDeform > 0. ? 0.5*pi*hbar4*fDensity/(mass3*ac2) : 0.);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
