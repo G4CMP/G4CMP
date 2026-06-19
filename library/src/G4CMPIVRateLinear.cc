@@ -13,6 +13,7 @@
 // 20210908  Use global track position to query field; configure field.
 // 20211003  Use encapsulated G4CMPFieldUtils to get field.
 // 20230829  Rotated E-field to local frame first and changed Mass Multiplication in HV transformation
+// 20260618  G4CMP-628 -- Skip IV scattering (MFP=0) for single valley case.
 
 #include "G4CMPIVRateLinear.hh"
 #include "G4CMPFieldUtils.hh"
@@ -30,7 +31,8 @@
 // Scattering rate is computed from electric field
 
 G4double G4CMPIVRateLinear::Rate(const G4Track& aTrack) const {
-  // No scattering if track is below threshold
+  // No scattering if single valley or track is below threshold
+  if (theLattice->NumberOfValleys() < 2) return 0.;
   if (Threshold(GetKineticEnergy(aTrack)) > 0.) return 0.;
 
   G4ThreeVector fieldVector = G4CMP::GetFieldAtPosition(aTrack);

@@ -12,6 +12,7 @@
 // 20170830  Follow Jacoboni, with unified D0/D1 expression and units; drop
 //		acoustic rate, as it is _intra_valley.
 // 20170919  Add interface for threshold identification
+// 20260618  G4CMP-628 -- Skip IV scattering (MFP=0) for single valley case.
 
 #include "G4CMPInterValleyRate.hh"
 #include "G4LatticePhysical.hh"
@@ -51,6 +52,9 @@ LoadDataForTrack(const G4Track* track, const G4bool /*overrideMomentumReset*/) {
 
 G4double G4CMPInterValleyRate::Rate(const G4Track& aTrack) const {
   const_cast<G4CMPInterValleyRate*>(this)->LoadDataForTrack(&aTrack);
+
+  // No scattering if single valley or track is below threshold
+  if (theLattice->NumberOfValleys() < 2) return 0.;
 
   // Initialize numerical buffers
   eTrk = GetKineticEnergy(aTrack);
