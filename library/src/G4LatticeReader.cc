@@ -431,7 +431,7 @@ G4bool G4LatticeReader::ProcessValleyDirection() {
 
   G4ThreeVector valleyDirVec(milleri,millerj,millerk);
   pLattice->AddValley(valleyDirVec);
-  pLattice->AddValley(-valleyDirVec, true);
+  pLattice->AddValley(-valleyDirVec,true);
   return psLatfile->good();
 }
 
