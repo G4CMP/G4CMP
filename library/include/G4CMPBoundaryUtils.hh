@@ -91,7 +91,7 @@ public:
 			      G4ParticleChange& aParticleChange);
 
 protected:
-  G4bool IsBounaryStep(const G4Step& aStep);
+  G4bool IsBoundaryStep(const G4Step& aStep);
   G4bool GetBoundingVolumes(const G4Step& aStep);
   G4bool GetSurfaceProperty(const G4Step& aStep);
 
