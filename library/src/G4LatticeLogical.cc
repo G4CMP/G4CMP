@@ -62,6 +62,7 @@
 // 20250905  G4CMP-500 -- Removing non-fundamental superconductor parameters
 // 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
 // 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
+// 20260618  E. Michaud -- If ValleyDir 0 0 0, then AddValley Identity Matrix
 
 #include "G4LatticeLogical.hh"
 #include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****
@@ -854,7 +855,14 @@ void G4LatticeLogical::AddValley(const G4ThreeVector& valleyDirVec, G4bool antiv
      
   G4double d=-vz*b;
   G4double e=vz*a;
-      
+
+  // If vx=vy=vz=0 use Identity matrix
+  if (vdir.mag()<1e-10) {
+    if (antival) return;
+    vdir = G4ThreeVector(1,0,0);
+    a=0; b=1; d=0; e=0; f=1;
+  }
+
   // Store the valley's rotation matrix, its inverse and the valley's direction
   fValley.resize(fValley.size()+1);
   fValley.back().setRows(vdir, G4ThreeVector(a,b,0), G4ThreeVector(d,e,f));
