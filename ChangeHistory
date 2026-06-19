@@ -6,6 +6,14 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-06-19  g4cmp-C10-04-01  Fixes and sanity checks for partial charge params.
+2026-06-18  G4CMP-628 : If ValleyDir 0 0 0, then AddValley Identity Matrix.
+2026-06-18  G4CMP-634 : Clean up check on valley index for new tracks.
+2026-06-18  G4CMP-633 : Validate consistency of charge parameters in config.txt.
+2026-06-18  G4CMP-636 : Protect IV Threshold() from empty ivEnergy list.
+2026-06-18  G4CMP-637 : Move calculation of L0 from acDeform into LatticeLogical
+2026-06-16  G4CMP-601 : Protect e-h production for undefined bandgap or Epair.
+
 2026-06-12  g4cmp-V10-04-00  New tutorials/examples for RISQ 2026 Workshop.
 2026-06-12  G4CMP-626 : New Geant4-G4CMP adaptation example "g4beginner"
 2026-06-12  G4CMP-620 : Expanded quasiparticle example for use at RISQ 2026.

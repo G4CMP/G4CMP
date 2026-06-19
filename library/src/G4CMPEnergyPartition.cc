@@ -71,6 +71,7 @@
 //	       nPairsGen/nPhononsGen in GenerateCharges()/GeneratePhonons().
 // 20260523  G4CMP-608 -- Address compiler warnings with nParticlesMinimum.
 // 20260606  G4CMP-578 -- Use primaryPhononEnergy instead of Debye energy.
+// 20260616  G4CMP-601 -- Avoid GenerateCharges if bandgap not configured
 
 #include "G4CMPEnergyPartition.hh"
 #include "G4CMPChargeCloud.hh"
@@ -222,10 +223,14 @@ LindhardScalingFactor(G4double E, G4double Z, G4double A) const {
 // Apply Fano factor to convert true energy deposition to random pairs
 
 G4double G4CMPEnergyPartition::MeasuredChargePairs(G4double eTrue) const {
-  if (eTrue < theLattice->GetBandGapEnergy()) return 0.;
-  if (eTrue <= theLattice->GetPairProductionEnergy()) return 1.;
+  G4double eBand = theLattice->GetBandGapEnergy();
+  G4double ePair = theLattice->GetPairProductionEnergy();
 
-  G4double Ntrue = eTrue/theLattice->GetPairProductionEnergy();
+  if (eBand <= 0. || ePair <= 0.) return 0.;	// e-h pairs not supported
+  if (eTrue < eBand) return 0.;		// Insufficient energy for anything
+  if (eTrue <= ePair) return 1.;	// Below energy for Fano fluctuations
+
+  G4double Ntrue = eTrue/ePair;
 
   // Fano noise changes the number of generated charges
   if (!G4CMPConfigManager::FanoStatisticsEnabled()) {
@@ -481,8 +486,9 @@ void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
   G4double eBand = 1.01*theLattice->GetBandGapEnergy(); // Force visible energy
   G4double ePair = theLattice->GetPairProductionEnergy();
 
-  // If energy is below band gap, electron-hole pairs can't be created
-  if (energy < eBand) {
+  // Test if electron-hole pair creation is possible
+  if (energy < eBand || eBand <= 0. || ePair <= 0.) {
+    if (verboseLevel>1) G4cout << " No charge-pair creation." << G4endl;
     nPairsTrue = nPairsGen = 0;
     chargeEnergyLeft = energy;
     return;
@@ -490,6 +496,13 @@ void G4CMPEnergyPartition::GenerateCharges(G4double energy) {
 
   // Use Fano factor to determine generated number of charge pairs
   nPairsTrue = MeasuredChargePairs(energy);	// Apply fluctuations
+  if (nPairsTrue < 0.) {
+    if (verboseLevel>1) G4cout << " No charge-pair creation." << G4endl;
+    nPairsTrue = nPairsGen = 0;
+    chargeEnergyLeft = energy;
+    return;
+  }
+
   ePair = energy/nPairsTrue;			// Split energy evenly to all
 
   // Only apply downsampling to sufficiently large statistics
