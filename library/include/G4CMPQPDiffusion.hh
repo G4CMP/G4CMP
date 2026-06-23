@@ -124,6 +124,9 @@ private:
   G4double SampleTimeStepFromFirstPassageDistribution(G4double the2DSafety);
   G4double SampleDimensionlessTimeStepUsingAcceptanceRejectionTechnique();
   
+  G4CMPParticleChangeForQPDiffusion* DoSimpleQPKill();
+  G4ThreeVector PrepSimpleQPKillWithNullReturnVect();
+  
 protected:
   virtual G4bool UpdateMeanFreePathForLatticeChangeover(const G4Track& aTrack);
   virtual void UpdateSCAfterLatticeChange();

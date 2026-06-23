@@ -10,6 +10,7 @@
 //		ChargeConfigManager.
 //
 // 20170816  Michael Kelsey
+// 20260422  G4CMP-597 -- Make fileCmd optional and provide default value.
 
 #include "ChargeConfigMessenger.hh"
 #include "ChargeConfigManager.hh"
@@ -34,6 +35,9 @@ ChargeConfigMessenger::ChargeConfigMessenger(ChargeConfigManager* mgr)
 
   fileCmd = CreateCommand<G4UIcmdWithAString>("EPotFile",
 			      "Set filename for non-uniform electric field");
+  // Make the filename argument optional with empty string as default
+  fileCmd->SetParameterName("filename", true);
+  fileCmd->SetDefaultValue("");
 
   hitsCmd = CreateCommand<G4UIcmdWithAString>("HitsFile",
 			      "Set filename for output of phonon hit locations");

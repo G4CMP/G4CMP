@@ -26,7 +26,7 @@
 //Default constructor
 QuasiparticleSteppingAction::QuasiparticleSteppingAction() {
   //Upon construction of this class, create a txt file with step information 
-  fOutputFile.open("StepInformationFile.txt",std::ios::trunc);
+  fOutputFile.open("QuasiparticleStepInformationFile.txt",std::ios::trunc);
 }
 
 QuasiparticleSteppingAction::~QuasiparticleSteppingAction() {
@@ -35,11 +35,9 @@ QuasiparticleSteppingAction::~QuasiparticleSteppingAction() {
 
 //Alternative constructor
 void QuasiparticleSteppingAction::UserSteppingAction(const G4Step* step) {
-  //For now, simple: look at the pre-step point volume name and the track name
 
   //First up: do generic exporting of step information (no cuts made here)
   ExportStepInformation(step);
-
   return;
 }
 
@@ -49,6 +47,7 @@ void QuasiparticleSteppingAction::ExportStepInformation(const G4Step* step) {
   G4StepPoint* preSP = step->GetPreStepPoint();
   G4StepPoint* postSP = step->GetPostStepPoint();
 
+  int thisStepNumber = step->GetTrack()->GetCurrentStepNumber();  
   int runNo = G4RunManager::GetRunManager()->GetCurrentRun()->GetRunID();
   int eventNo = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
   
@@ -70,20 +69,31 @@ void QuasiparticleSteppingAction::ExportStepInformation(const G4Step* step) {
   double postStepEnergy_eV = postSP->GetTotalEnergy() / CLHEP::eV;
   double postStepKinEnergy_eV = postSP->GetKineticEnergy() / CLHEP::eV;
 
+  double deltaX = (postStepX_mm-preStepX_mm);
+  double deltaY = (postStepY_mm-preStepY_mm);
+  double deltaXY_mm = pow(deltaX*deltaX+deltaY*deltaY,0.5);    
+  
   //Get reflection count
   size_t nReflections =
     G4CMP::GetTrackInfo<G4CMPVTrackInfo>(step->GetTrack())->ReflectionCount();
   
   std::string stepProcess = postSP->GetProcessDefinedStep()->GetProcessName();
-  
-  //Fill the output file with the step info  
-  fOutputFile << runNo << " " << eventNo << " " << trackNo
-              << " " << particleName << " "
-              << std::setprecision(14) << preStepX_mm << " " << preStepY_mm
-              << " " << preStepZ_mm << " " << preStepT_ns << " "
-              << preStepEnergy_eV << " "
-              << preStepKinEnergy_eV << " " << postStepX_mm << " "
-              << postStepY_mm << " " << postStepZ_mm << " " << postStepT_ns
-              << " " << postStepEnergy_eV << " " << postStepKinEnergy_eV
-              << " " << nReflections << " " << stepProcess << std::endl;
+  std::string preStepVolume = preSP->GetPhysicalVolume()->GetName();
+  std::string postStepVolume = postSP->GetPhysicalVolume()->GetName();  
+
+  //Only fill stepping output with QP information
+  if( particleName.find("BogoliubovQP") != std::string::npos ){
+
+    //Fill the output file with the step info  
+    fOutputFile << runNo << " " << eventNo << " " << trackNo << " "
+                << particleName << " " << std::setprecision(14) << preStepX_mm
+                << " " << preStepY_mm << " " << preStepZ_mm << " "
+                << preStepT_ns << " " << preStepEnergy_eV << " "
+                << preStepKinEnergy_eV << " " << postStepX_mm << " "
+                << postStepY_mm << " " << postStepZ_mm << " " << postStepT_ns
+                << " " << postStepEnergy_eV << " " << postStepKinEnergy_eV
+                << " " << nReflections << " " << stepProcess << " "
+                << preStepVolume << " " << postStepVolume << std::endl;
+    
+  }
 }
