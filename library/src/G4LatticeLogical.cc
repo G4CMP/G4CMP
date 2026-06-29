@@ -66,6 +66,7 @@
 // 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
 // 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
 // 20260618  E. Michaud -- If ValleyDir 0 0 0, then AddValley Identity Matrix
+// 20260629  G4CMP-638 -- Add CheckIV consistency : missing or invalid parameters.
 
 #include "G4LatticeLogical.hh"
 #include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****

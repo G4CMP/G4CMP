@@ -50,6 +50,7 @@
 
 // 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
 // 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
+// 20260629  G4CMP-638 -- Add CheckIV consistency : missing or invalid parameters.
 
 #ifndef G4LatticeLogical_h
 #define G4LatticeLogical_h
