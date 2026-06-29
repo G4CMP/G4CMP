@@ -13,6 +13,7 @@
 //		acoustic rate, as it is _intra_valley.
 // 20170919  Add interface for threshold identification
 // 20250423  Add parabolic ellipsoidal bands IV scattering rate.
+// 20260618  G4CMP-628 -- Skip IV scattering (MFP=0) for single valley case.
 
 #include "G4CMPInterValleyRate.hh"
 #include "G4LatticePhysical.hh"
@@ -45,8 +46,13 @@ LoadDataForTrack(const G4Track* track, const G4bool /*overrideMomentumReset*/) {
 G4double G4CMPInterValleyRate::Rate(const G4Track& aTrack) const {
   const_cast<G4CMPInterValleyRate*>(this)->LoadDataForTrack(&aTrack);
 
-  // Initialize Energy and momentum
-  eTrk = GetKineticEnergy(aTrack);    
+  // No scattering if single valley or track is below threshold
+  if (theLattice->NumberOfValleys() < 2) return 0.;
+
+  // Initialize numerical buffers
+  eTrk = GetKineticEnergy(aTrack);
+  if (verboseLevel>1)
+    G4cout << "G4CMPInterValleyRate eTrk " << eTrk/eV << " eV" << G4endl;  
   ivalley = GetValleyIndex(aTrack);
   ptrk = GetLocalMomentum(aTrack);
   ktrk = theLattice->MapPtoK(ivalley, ptrk);
@@ -56,6 +62,7 @@ G4double G4CMPInterValleyRate::Rate(const G4Track& aTrack) const {
   IVprob.clear();		// Store IV rates
   G4double totalIVRate = 0.;      // Total IV rate
   G4int N_op = theLattice->GetNIVDeform();		// # of IV transitions possible
+
 
   // Going through each phonon mode
   for (G4int i = 0; i<N_op; i++) {

@@ -63,6 +63,9 @@
 // 20250904  R. Linehan -- Linking Tcrit to Delta0 for superconductors
 // 20250905  G4CMP-500 -- Removing non-fundamental superconductor parameters
 // 20260318  G4CMP-495  -- Make Map functions non parabolic
+// 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
+// 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
+// 20260618  E. Michaud -- If ValleyDir 0 0 0, then AddValley Identity Matrix
 
 #include "G4LatticeLogical.hh"
 #include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****
@@ -74,6 +77,7 @@
 #include "G4PhysicalConstants.hh"
 #include <cmath>
 #include <fstream>
+#include <set>
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -83,7 +87,7 @@ G4LatticeLogical::G4LatticeLogical(const G4String& name)
     fPermittivity(1.), fElasticity{}, fElReduced{}, fHasElasticity(false),
     fpPhononKin(0), fpPhononTable(0),
     fA(0), fB(0), fLDOS(0), fSTDOS(0), fFTDOS(0), fTTFrac(0), 
-    fBeta(0), fGamma(0), fLambda(0), fMu(0),
+    fBeta(0), fGamma(0), fLambda(0), fMu(0), fDebye(0),
     fSC_Tau0_qp(DBL_MAX), fSC_Tau0_ph(DBL_MAX),
     fVSound(0.), fVTrans(0.), fVSoundAverage(0.), fL0_e(0.), fL0_h(0.), 
     mElectron(electron_mass_c2/c_squared),
@@ -259,12 +263,15 @@ void G4LatticeLogical::Initialize(const G4String& newName) {
   // Populate phonon lookup tables if not read from files
   FillMaps();
 
-  //Check for completeness of superconducting parameters
-  CheckLatticeForSCCompleteness();
+  // Compute charge scattering lengths from theoretical parameters
+  if (fL0_e <= 0.) fL0_e = ComputeL0(fElectronMDOS, fAcDeform_e);
+  if (fL0_h <= 0.) fL0_h = ComputeL0(fHoleMass, fAcDeform_h);
 
-  // Compute l0 if not already set in config.txt
-  if (GetElectronScatter()==0.) ComputeL0(true);
-  if (GetHoleScatter()==0.) ComputeL0(false);
+  // Check for completeness of charge transport parameters
+  CheckLatticeChargeParameters();
+
+  // Check for completeness of superconducting parameters
+  CheckLatticeForSCCompleteness();
 
   // Compute average speed of sound
   ComputeAverageSoundSpeed();
@@ -949,7 +956,14 @@ void G4LatticeLogical::AddValley(const G4ThreeVector& valleyDirVec, G4bool antiv
      
   G4double d=-vz*b;
   G4double e=vz*a;
-      
+
+  // If vx=vy=vz=0 use Identity matrix
+  if (vdir.mag()<1e-10) {
+    if (antival) return;
+    vdir = G4ThreeVector(1,0,0);
+    a=0; b=1; d=0; e=0; f=1;
+  }
+
   // Store the valley's rotation matrix, its inverse and the valley's direction
   fValley.resize(fValley.size()+1);
   fValley.back().setRows(vdir, G4ThreeVector(a,b,0), G4ThreeVector(d,e,f));
@@ -984,20 +998,91 @@ SetIVDeform(ivdeformtest);
 
 // Check if IV parameters are the same size
 
-void G4LatticeLogical::CheckIVConsistency() const
-{
-  const size_t n = fIVDeform.size();
+void G4LatticeLogical::CheckIVConsistency() {
 
-  if (fIVEnergy.size() != n ||
-      fIVNValleys.size() != n ||
-      fIVOrder.size() != n ||
-      fIVFGScattering.size() != n ||
-      fIVPhononMode.size() != n)
-  {
-    G4Exception("G4LatticeLogical::CheckIVConsistency",
-                "Lattice002",EventMustBeAborted,
-                "IV parameter vectors have inconsistent sizes");
+  // Without valleys, assume a direct gap semiconductor with Gamma 'valley'
+  if (fValley.size() < 1U) {
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << " has no valley definitions.\n"
+	<< " Assuming direct gap semiconductor with Gamma valley.";
+    G4Exception("G4LatticeLogical", "Lattice012", JustWarning, msg);
+
+    AddValley(G4ThreeVector(0,0,0));
   }
+
+  // Multiple valleys ought to have IV scattering, but may not
+  if (fValley.size() > 1U && fIVModel.empty()) {
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << " has no intervalley scattering model.";
+    G4Exception("G4LatticeLogical", "Lattice013", JustWarning, msg);
+  }
+    
+  // Intervalley phonon parameters (matrix) missing or not valid
+  if (fValley.size() > 1U && fIVModel == "Matrix") {
+    if (fIVPhononMode.empty() || fIVDeform.empty() || fIVEnergy.empty() ||
+      fIVNValleys.empty() || fIVOrder.empty() || fIVFGScattering.empty()) {
+      G4ExceptionDescription msg; msg << "Lattice " << fName
+      << " has missing intervalley scattering (Matrix) parameters.";
+      G4Exception("G4LatticeLogical", "Lattice014", JustWarning, msg);
+  } else {
+      const size_t n = fIVDeform.size();
+        G4cout << n << G4endl;
+      if (fIVEnergy.size() != n ||
+        fIVNValleys.size() != n ||
+        fIVOrder.size() != n ||
+        fIVFGScattering.size() != n ||
+        fIVPhononMode.size() != n) {
+        G4ExceptionDescription msg; 
+        msg << "Lattice " << fName << 
+        " has IV parameter vectors with inconsistent sizes.";
+        G4Exception("G4LatticeLogical", "Lattice015", EventMustBeAborted, msg);
+      }
+
+      static const std::set<G4String> PhononValidModes = {"TA", "LA", "TO", "LO"};
+      for (size_t i = 0; i < n; ++i) {
+        if (PhononValidModes.find(fIVPhononMode[i]) == PhononValidModes.end()) {
+          G4ExceptionDescription msg; msg << "Lattice " << fName
+          << " has unknown phonon mode.";
+          G4Exception("G4LatticeLogical", "Lattice016", JustWarning, msg);
+        }
+      }
+
+      static const std::set<G4double> IVValidOrder = {0,1};
+      for (size_t i = 0; i < n; ++i) {
+        if (fIVOrder[i] != 0 && fIVOrder[i] != 1) {
+          G4ExceptionDescription msg; msg << "Lattice " << fName
+          << " has invalid IV order scattering (0 or 1).";
+          G4Exception("G4LatticeLogical", "Lattice017", JustWarning, msg);
+        }
+      }
+
+      static const std::set<G4String> IVFGmode = {"f", "g"};
+      for (size_t i = 0; i < n; ++i) {
+        if (IVFGmode.find(fIVFGScattering[i]) == IVFGmode.end()) {
+          G4ExceptionDescription msg; msg << "Lattice " << fName
+          << " has unknown (f or g) IV scattering type.";
+          G4Exception("G4LatticeLogical", "Lattice018", JustWarning, msg);
+        }
+      }
+    }
+  }
+
+  // Linear model selected but rate parameters missing
+  if (fValley.size() > 1U && fIVModel == "Linear" &&
+    (fIVLinRate0 == 0. || fIVLinRate1 == 0. || fIVLinExponent == 0.)) {
+    G4ExceptionDescription msg; msg << "Lattice " << fName 
+    << " has missing intervalley scattering (Linear) parameters.";
+    G4Exception("G4LatticeLogical", "Lattice019", JustWarning, msg);
+  }
+
+  // Quadratic model selected but rate parameters missing
+  if (fValley.size() > 1U && fIVModel == "Quadratic" &&
+    (fIVQuadRate == 0. || fIVQuadField == 0. || fIVQuadExponent == 0.)) {
+    G4ExceptionDescription msg; msg << "Lattice " << fName 
+    << " has missing intervalley scattering (Quadratic) parameters.";
+    G4Exception("G4LatticeLogical", "Lattice020", JustWarning, msg);
+  }
+
 }
 
 // Transform for drifting-electron valleys in momentum space
@@ -1052,26 +1137,14 @@ const G4ThreeVector& G4LatticeLogical::GetValleyAxis(G4int iv) const {
 
 // Process scattering length l0_e and l0_h
 
-void G4LatticeLogical::ComputeL0(G4bool IsElec) {
-  G4double mass = 0.;
-  G4double acDeform = 0.;
+G4double G4LatticeLogical::ComputeL0(G4double mass, G4double acDeform) const {
+  const G4double hbar4 = hbar_Planck*hbar_Planck*hbar_Planck*hbar_Planck;
+  const G4double mass3 = mass*mass*mass;
+  const G4double ac2 = acDeform*acDeform;
 
-  if (IsElec) {
-      mass = GetElectronDOSMass();
-      acDeform = GetElectronAcousticDeform();
-  }
-  else    {
-      mass = GetHoleMass();
-      acDeform = GetHoleAcousticDeform();
-  }
+  // If acDeform was not set, return zero scattering length
+  return (acDeform > 0. ? 0.5*pi*hbar4*fDensity/(mass3*ac2) : 0.);
 
-  G4double mcubed = mass*mass*mass;
-  G4double acDeformSquared = acDeform*acDeform;
-  G4double hbarQuad = hbar_Planck*hbar_Planck*hbar_Planck*hbar_Planck;
-  G4double l0 = pi*hbarQuad*fDensity/(2*mcubed*acDeformSquared);
-
-  if (IsElec) SetElectronScatter(l0);
-  else SetHoleScatter(l0);
 }
 
 // Compute average speed of sound based on phonon DOS
@@ -1283,32 +1356,60 @@ void G4LatticeLogical::DumpList(std::ostream& os,
 }
 
 
-//This checks the results of the created lattice to understand if all relevant
-//parameters have been added. We can put whatever we want here, but for now I
-//want to say that if any of the superconductor lattice parameters have been
-//added, we want to make sure that all of them have, and alert users that if
-//that isn't true, then they should make it true. This forced execution stop
-//occurs here for the "fundamental" parameters and in SCUtils for the "physical-
-//lattice-dependent" ones
-void G4LatticeLogical::CheckLatticeForSCCompleteness() {
-  //Check to see if any of the SC parameters are not at their default values,
-  //i.e. if they have been set.
-  if (fSC_Tau0_qp != DBL_MAX ||
-      fSC_Tau0_ph != DBL_MAX) {
-    
-    //If one of these is set, check to see if any of them are NOT set.
-    if (fSC_Tau0_qp == DBL_MAX ||
-	fSC_Tau0_ph == DBL_MAX) {
-      
-      //Throw a warning that there are outstanding SC parameters that are not
-      //set.
-      G4ExceptionDescription msg;
-      msg << "Noticed that one or more superconducting film lattice parameters "
-	  << "are set in a config file, but that one or more are also missing. "
-	  << "Please fill in Tau0_qp and Tau0_ph for all superconductors you "
-	  << "want to use before continuing.";
-      G4Exception("G4LatticeLogical::CheckLatticeForSCCompleteness", "Lattice007",
-		  FatalException, msg);
+// Check for completeness of charge transport parameters
+
+void G4LatticeLogical::CheckLatticeChargeParameters() {
+  // No bandgap will suppress e/h creation, but allow single tracking
+  if (fBandGap <= 0. && fPairEnergy <= 0.) {
+    if (verboseLevel) {
+      G4cout << "Lattice " << fName << " does not have bandgap or pair energy"
+	     << " defined.  No charge production." << G4endl;
     }
-  }  
+  }
+
+  // If bandgap is defined, pair energy must be larger
+  if (fPairEnergy < fBandGap) {
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << " has pair energy " << fPairEnergy/eV
+	<< " eV, which is below bandgap " << fBandGap/eV << " eV.";
+    G4Exception("G4LatticeLogical", "Lattice008", FatalException, msg);
+  }
+
+  // If charge masses are not defined, remind user they're free electrons
+  if (fabs(fElectronMass-mElectron)/mElectron < 1e-3 ||
+      fabs(fHoleMass-mElectron)/mElectron < 1e-3) {
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << " does not have charge carrier masses set."
+	<< "\n Bare electron mass assumed.";
+    G4Exception("G4LatticeLogical", "Lattice009", JustWarning, msg);
+  }
+
+  // Sensible charge transport must include finite scattering lengths
+  if (fL0_e <= 0. || fL0_h <= 0.) {
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << " has no charge scattering L0 defined.";
+    G4Exception("G4LatticeLogical", "Lattice010", FatalException, msg);
+  }
+
+  // Speed of sound must be defined, to avoid infinite Luke scattering
+  if (fVSound <= 0. && fVTrans <= 0.) {
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << " has no speed of sound defined.";
+    G4Exception("G4LatticeLogical", "Lattice011", FatalException, msg);
+  }
+}
+
+
+// Ensure that lattice-defined quasiparticle parameters are consistent
+void G4LatticeLogical::CheckLatticeForSCCompleteness() const {
+  // If any of the QP parameters are set, then they all must be set
+  G4bool allOrNone = ( (fSC_Tau0_qp != DBL_MAX && fSC_Tau0_ph != DBL_MAX) ||
+		       (fSC_Tau0_qp == DBL_MAX && fSC_Tau0_ph == DBL_MAX) );
+
+  if (!allOrNone) {   // Terminate job if QP parameters are not consisent
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << ": Both Tau0_qp and Tau0_ph required"
+	<< " for superconductors.";
+    G4Exception("G4LatticeLogical", "Lattice007", FatalException, msg);
+  }
 }

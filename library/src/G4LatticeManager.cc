@@ -21,6 +21,7 @@
 // 20170928  Replace "polarizationState" with "mode"
 // 20250905  G4CMP-500 -- Added warning comment about RegisterLattice
 //                 use with tracked film response
+// 20260618  G4CMP-637 -- Move calculation of L0 into G4LatticeLogical
 
 #include "G4LatticeManager.hh"
 #include "G4CMPConfigManager.hh"

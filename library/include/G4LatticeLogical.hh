@@ -48,6 +48,9 @@
 //              lattice info
 // 20260205  G4CMP-495  -- Added non-parabolicity function NonParE.
 
+// 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
+// 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
+
 #ifndef G4LatticeLogical_h
 #define G4LatticeLogical_h
 
@@ -278,7 +281,7 @@ public:
   void SetIVOrder(const std::vector<G4double>& vlist) { fIVOrder = vlist; }
   void SetIVFGScattering(const std::vector<G4String>& vlist) { fIVFGScattering = vlist; }
   void SetIVPhononMode(const std::vector<G4String>& vlist) { fIVPhononMode = vlist; }
-  void CheckIVConsistency() const;
+  void CheckIVConsistency() ;      // check for missing or invalid IV parameters
 
   //Set functions for superconductor properties
   void SetSCTau0qp(G4double v)              { fSC_Tau0_qp = v; }
@@ -340,18 +343,21 @@ private:
   // Use direct calculation to get group velocity for phonons
   G4ThreeVector ComputeKtoVg(G4int mode, const G4ThreeVector& k) const;
 
-  //Do an internal check to make sure that we have all SC parameters
-  void CheckLatticeForSCCompleteness();
+  // Compute scattering length L0 for electrons or hole
+  G4double ComputeL0(G4double mass, G4double acDeform) const;
 
-  // Compute "l0" for electron and hole
-  void ComputeL0(G4bool IsElec);
+  // Internal check to ensure that we have sufficient charge parameters
+  void CheckLatticeChargeParameters();		// Non-const for AddValley() use
+
+  // Internal check to make sure that we have all SC parameters
+  void CheckLatticeForSCCompleteness() const;
 
   // Compute average speed of sound
   void ComputeAverageSoundSpeed();
 
   // Compute Luke Scattering rate scale
   void ComputeLukeScatteringRateScale_e();
-
+  
 private:
   // Create a thread-local buffer to use with MapAtoB() functions
   inline G4ThreeVector& tempvec() const {

@@ -980,7 +980,7 @@ G4ThreeVector G4CMP::GetSurfaceNormal(const G4Step& step, const G4ThreeVector& i
         << "Volumes are: "
         << preSolid->GetName() << " and " << postSolid->GetName() << G4endl;
     G4Exception("G4CMP::GetSurfaceNormal()", "Geometry006",
-                FatalException, msg);
+                JustWarning, msg);
     G4ThreeVector dummy(0,0,0);
     output = dummy;
   }
