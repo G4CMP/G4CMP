@@ -268,21 +268,20 @@ void G4LatticeLogical::Initialize(const G4String& newName) {
   if (fL0_e <= 0.) fL0_e = ComputeL0(fElectronMDOS, fAcDeform_e);
   if (fL0_h <= 0.) fL0_h = ComputeL0(fHoleMass, fAcDeform_h);
 
-  // Check for completeness of charge transport parameters
-  CheckLatticeChargeParameters();
-
-  // Check for completeness of superconducting parameters
-  CheckLatticeForSCCompleteness();
-
   // Compute average speed of sound
   ComputeAverageSoundSpeed();
 
   // Compute Luke Scattering rate scale
   ComputeLukeScatteringRateScale_e();
 
+  // Check for completeness of charge transport parameters
+  CheckLatticeChargeParameters();
+
+  // Check for completeness of superconducting parameters
+  CheckLatticeForSCCompleteness();
+
   // Check if IV parameters have the same length
   CheckIVConsistency();
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -683,7 +682,7 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
       *(1-1/nonParE/nonParE ) )/(bandP));
   } else {
     PMag = sqrt(GetElectronMass()
-      *(Ekin*Ekin+2.*Ekin*GetElectronMass()*c_squared)/(bandP));
+      *(Ekin*Ekin+2.*Ekin*GetElectronMass()*c_squared)/bandP);
    }
 
 #ifdef G4CMP_DEBUG
@@ -998,87 +997,80 @@ SetIVDeform(ivdeformtest);
 }
 
 // Check if IV parameters are the same size
-
 void G4LatticeLogical::CheckIVConsistency() {
-
   // Without valleys, assume a direct gap semiconductor with Gamma 'valley'
   if (fValley.size() < 1U) {
     G4ExceptionDescription msg;
     msg << "Lattice " << fName << " has no valley definitions.\n"
 	<< " Assuming direct gap semiconductor with Gamma valley.";
     G4Exception("G4LatticeLogical", "Lattice012", JustWarning, msg);
-
     AddValley(G4ThreeVector(0,0,0));
   }
 
-  // Multiple valleys ought to have IV scattering, but may not
-  if (fValley.size() > 1U && fIVModel.empty()) {
-    G4ExceptionDescription msg; msg << "Lattice " << fName
-    << " has no intervalley scattering model.";
-    G4Exception("G4LatticeLogical", "Lattice013", JustWarning, msg);
-  }
-
-  // Linear model selected but rate parameters missing
-  if (fValley.size() > 1U && fIVModel == "Linear" &&
-    (fIVLinRate0 == 0. || fIVLinRate1 == 0. || fIVLinExponent == 0.)) {
-    G4ExceptionDescription msg; msg << "Lattice " << fName
-    << " has missing intervalley scattering (Linear) parameters.";
-    G4Exception("G4LatticeLogical", "Lattice019", JustWarning, msg);
-  }
-
-  // Quadratic model selected but rate parameters missing
-  if (fValley.size() > 1U && fIVModel == "Quadratic" &&
-    (fIVQuadRate == 0. || fIVQuadField == 0. || fIVQuadExponent == 0.)) {
-    G4ExceptionDescription msg; msg << "Lattice " << fName
-    << " has missing intervalley scattering (Quadratic) parameters.";
-    G4Exception("G4LatticeLogical", "Lattice020", JustWarning, msg);
-  }
-
-  // Intervalley phonon parameters (matrix) missing or not valid
-  if (fValley.size() > 1U && fIVModel == "Matrix") {
-    if (fIVPhononMode.empty() ||  fIVOrder.empty() || fIVEnergy.empty() ||
-      fIVNValleys.empty() || fIVDeform.empty() || fIVFGScattering.empty()) {
+  if (fValley.size() > 1U) {
+    // Multiple valleys ought to have IV scattering, but may not
+    if (fIVModel.empty()) {
       G4ExceptionDescription msg; msg << "Lattice " << fName
-      << " has missing intervalley scattering (Matrix) parameters.";
-      G4Exception("G4LatticeLogical", "Lattice014", JustWarning, msg);
-  } else {
-      const size_t n = fIVDeform.size();
-        G4cout << n << G4endl;
-      if (fIVEnergy.size() != n ||
-        fIVOrder.size() != n ||
-        fIVNValleys.size() != n ||
-        fIVPhononMode.size() != n ||
-        fIVFGScattering.size() != n) {
-        G4ExceptionDescription msg;
-        msg << "Lattice " << fName <<
-        " has IV parameters vectors with inconsistent sizes.";
-        G4Exception("G4LatticeLogical", "Lattice015", EventMustBeAborted, msg);
-      }
-
-      static const std::set<G4String> IVFGmode = {"f", "g"};
-      for (size_t i = 0; i < n; ++i) {
-        if (IVFGmode.find(fIVFGScattering[i]) == IVFGmode.end()) {
-          G4ExceptionDescription msg; msg << "Lattice " << fName
-          << " has unknown (f or g) IV scattering type.";
-          G4Exception("G4LatticeLogical", "Lattice016", JustWarning, msg);
+      << " has no intervalley scattering model.";
+      G4Exception("G4LatticeLogical", "Lattice013", JustWarning, msg);
+    }
+    // Linear model selected but rate parameters missing
+    if (fIVModel == "Linear" &&
+      (fIVLinRate0 == 0. || fIVLinRate1 == 0. || fIVLinExponent == 0.)) {
+      G4ExceptionDescription msg; msg << "Lattice " << fName
+      << " has missing intervalley scattering (Linear) parameters.";
+      G4Exception("G4LatticeLogical", "Lattice019", JustWarning, msg);
+    }
+    // Quadratic model selected but rate parameters missing
+    if (fIVModel == "Quadratic" &&
+      (fIVQuadRate == 0. || fIVQuadField == 0. || fIVQuadExponent == 0.)) {
+      G4ExceptionDescription msg; msg << "Lattice " << fName
+      << " has missing intervalley scattering (Quadratic) parameters.";
+      G4Exception("G4LatticeLogical", "Lattice020", JustWarning, msg);
+    }
+    // Intervalley phonon parameters (matrix) missing or not valid
+    if (fIVModel == "Matrix") {
+      if (fIVPhononMode.empty() ||  fIVOrder.empty() || fIVEnergy.empty() ||
+        fIVNValleys.empty() || fIVDeform.empty() || fIVFGScattering.empty()) {
+        G4ExceptionDescription msg; msg << "Lattice " << fName
+        << " has missing intervalley scattering (Matrix) parameters.";
+        G4Exception("G4LatticeLogical", "Lattice014", JustWarning, msg);
+      } else {
+        const size_t n = fIVDeform.size();
+          G4cout << n << G4endl;
+        if (fIVEnergy.size() != n ||
+          fIVOrder.size() != n ||
+          fIVNValleys.size() != n ||
+          fIVPhononMode.size() != n ||
+          fIVFGScattering.size() != n) {
+          G4ExceptionDescription msg;
+          msg << "Lattice " << fName
+          << " has IV parameters vectors with inconsistent sizes.";
+          G4Exception("G4LatticeLogical", "Lattice015", EventMustBeAborted, msg);
         }
-      }
-        
-      static const std::set<G4String> PhononValidModes = {"TA", "LA", "TO", "LO"};
-      for (size_t i = 0; i < n; ++i) {
-        if (PhononValidModes.find(fIVPhononMode[i]) == PhononValidModes.end()) {
-          G4ExceptionDescription msg; msg << "Lattice " << fName
-          << " has unknown phonon mode.";
-          G4Exception("G4LatticeLogical", "Lattice017", JustWarning, msg);
+        static const std::set<G4String> IVFGmode = {"f", "g"};
+        for (size_t i = 0; i < n; ++i) {
+          if (IVFGmode.find(fIVFGScattering[i]) == IVFGmode.end()) {
+            G4ExceptionDescription msg; msg << "Lattice " << fName
+            << " has unknown (f or g) IV scattering type.";
+            G4Exception("G4LatticeLogical", "Lattice016", JustWarning, msg);
+          }
         }
-      }
+        static const std::set<G4String> PhononValidModes = {"TA", "LA", "TO", "LO"};
+        for (size_t i = 0; i < n; ++i) {
+          if (PhononValidModes.find(fIVPhononMode[i]) == PhononValidModes.end()) {
+            G4ExceptionDescription msg; msg << "Lattice " << fName
+            << " has unknown phonon mode.";
+            G4Exception("G4LatticeLogical", "Lattice017", JustWarning, msg);
+          }
+        }
 
-      static const std::set<G4double> IVValidOrder = {0,1};
-      for (size_t i = 0; i < n; ++i) {
-        if (fIVOrder[i] != 0 && fIVOrder[i] != 1) {
-          G4ExceptionDescription msg; msg << "Lattice " << fName
-          << " has invalid IV order scattering (0 or 1).";
-          G4Exception("G4LatticeLogical", "Lattice018", JustWarning, msg);
+        for (size_t i = 0; i < n; ++i) {
+          if (fIVOrder[i] != 0 && fIVOrder[i] != 1) {
+            G4ExceptionDescription msg; msg << "Lattice " << fName
+            << " has invalid IV order scattering (0 or 1).";
+            G4Exception("G4LatticeLogical", "Lattice018", JustWarning, msg);
+          }
         }
       }
     }
