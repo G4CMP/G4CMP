@@ -1033,8 +1033,8 @@ void G4LatticeLogical::CheckIVConsistency() {
         fIVOrder.size() != n ||
         fIVFGScattering.size() != n ||
         fIVPhononMode.size() != n) {
-        G4ExceptionDescription msg; 
-        msg << "Lattice " << fName << 
+        G4ExceptionDescription msg;
+        msg << "Lattice " << fName <<
         " has IV parameter vectors with inconsistent sizes.";
         G4Exception("G4LatticeLogical", "Lattice015", EventMustBeAborted, msg);
       }
@@ -1071,7 +1071,7 @@ void G4LatticeLogical::CheckIVConsistency() {
   // Linear model selected but rate parameters missing
   if (fValley.size() > 1U && fIVModel == "Linear" &&
     (fIVLinRate0 == 0. || fIVLinRate1 == 0. || fIVLinExponent == 0.)) {
-    G4ExceptionDescription msg; msg << "Lattice " << fName 
+    G4ExceptionDescription msg; msg << "Lattice " << fName
     << " has missing intervalley scattering (Linear) parameters.";
     G4Exception("G4LatticeLogical", "Lattice019", JustWarning, msg);
   }
@@ -1079,7 +1079,7 @@ void G4LatticeLogical::CheckIVConsistency() {
   // Quadratic model selected but rate parameters missing
   if (fValley.size() > 1U && fIVModel == "Quadratic" &&
     (fIVQuadRate == 0. || fIVQuadField == 0. || fIVQuadExponent == 0.)) {
-    G4ExceptionDescription msg; msg << "Lattice " << fName 
+    G4ExceptionDescription msg; msg << "Lattice " << fName
     << " has missing intervalley scattering (Quadratic) parameters.";
     G4Exception("G4LatticeLogical", "Lattice020", JustWarning, msg);
   }
@@ -1385,7 +1385,6 @@ void G4LatticeLogical::CheckLatticeChargeParameters() {
     G4Exception("G4LatticeLogical", "Lattice009", JustWarning, msg);
   }
 
-    
   // Sensible charge transport must include finite scattering lengths
   if (fL0_e <= 0. || fL0_h <= 0.) {
     G4ExceptionDescription msg;
