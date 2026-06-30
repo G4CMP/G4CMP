@@ -66,7 +66,7 @@
 // 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
 // 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
 // 20260618  E. Michaud -- If ValleyDir 0 0 0, then AddValley Identity Matrix
-// 20260629  G4CMP-638 -- Add CheckIV consistency : missing or invalid parameters.
+// 20260629  G4CMP-638 -- Update CheckIVConsistency() : missing or invalid parameters.
 
 #include "G4LatticeLogical.hh"
 #include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****
@@ -1017,7 +1017,23 @@ void G4LatticeLogical::CheckIVConsistency() {
     msg << "Lattice " << fName << " has no intervalley scattering model.";
     G4Exception("G4LatticeLogical", "Lattice013", JustWarning, msg);
   }
-    
+
+  // Linear model selected but rate parameters missing
+  if (fValley.size() > 1U && fIVModel == "Linear" &&
+    (fIVLinRate0 == 0. || fIVLinRate1 == 0. || fIVLinExponent == 0.)) {
+    G4ExceptionDescription msg; msg << "Lattice " << fName
+    << " has missing intervalley scattering (Linear) parameters.";
+    G4Exception("G4LatticeLogical", "Lattice019", JustWarning, msg);
+  }
+
+  // Quadratic model selected but rate parameters missing
+  if (fValley.size() > 1U && fIVModel == "Quadratic" &&
+    (fIVQuadRate == 0. || fIVQuadField == 0. || fIVQuadExponent == 0.)) {
+    G4ExceptionDescription msg; msg << "Lattice " << fName
+    << " has missing intervalley scattering (Quadratic) parameters.";
+    G4Exception("G4LatticeLogical", "Lattice020", JustWarning, msg);
+  }
+
   // Intervalley phonon parameters (matrix) missing or not valid
   if (fValley.size() > 1U && fIVModel == "Matrix") {
     if (fIVPhononMode.empty() || fIVDeform.empty() || fIVEnergy.empty() ||
@@ -1067,23 +1083,6 @@ void G4LatticeLogical::CheckIVConsistency() {
       }
     }
   }
-
-  // Linear model selected but rate parameters missing
-  if (fValley.size() > 1U && fIVModel == "Linear" &&
-    (fIVLinRate0 == 0. || fIVLinRate1 == 0. || fIVLinExponent == 0.)) {
-    G4ExceptionDescription msg; msg << "Lattice " << fName
-    << " has missing intervalley scattering (Linear) parameters.";
-    G4Exception("G4LatticeLogical", "Lattice019", JustWarning, msg);
-  }
-
-  // Quadratic model selected but rate parameters missing
-  if (fValley.size() > 1U && fIVModel == "Quadratic" &&
-    (fIVQuadRate == 0. || fIVQuadField == 0. || fIVQuadExponent == 0.)) {
-    G4ExceptionDescription msg; msg << "Lattice " << fName
-    << " has missing intervalley scattering (Quadratic) parameters.";
-    G4Exception("G4LatticeLogical", "Lattice020", JustWarning, msg);
-  }
-
 }
 
 // Transform for drifting-electron valleys in momentum space
