@@ -357,7 +357,7 @@ private:
 
   // Compute Luke Scattering rate scale
   void ComputeLukeScatteringRateScale_e();
-  
+
 private:
   // Create a thread-local buffer to use with MapAtoB() functions
   inline G4ThreeVector& tempvec() const {

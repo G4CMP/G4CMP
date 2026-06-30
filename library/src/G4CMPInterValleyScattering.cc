@@ -50,6 +50,7 @@
 #include "G4ThreeVector.hh"
 #include "G4VParticleChange.hh"
 #include <math.h>
+#include <numeric>
 
 
 // Construcor and destructor
@@ -210,7 +211,7 @@ G4CMPInterValleyScattering::ValleyScattering(const G4Track& aTrack,
     G4double totalIVRate = 0.;
 
     // Calculate total IV rate
-    for (auto& element : probabilities) { totalIVRate += element; }
+    totalIVRate = std::accumulate(probabilities.begin(), probabilities.end(), 0.);
 
     // Don't do anything if IV rate is 0 
     if (totalIVRate == 0) {
@@ -219,14 +220,12 @@ G4CMPInterValleyScattering::ValleyScattering(const G4Track& aTrack,
     }
 
     // Normalize IV rates 
-    for (auto& element : probabilities) { element /= totalIVRate; }
+    std::transform(probabilities.begin(), probabilities.end(), probabilities.begin(),
+               [totalIVRate](G4double ratei) { return ratei / totalIVRate; });
 
     // Calculate weight of each rates to total rate
     std::vector<G4double> cumulatives(probabilities.size());
-    cumulatives[0] = probabilities[0];
-    for (size_t i = 1; i < probabilities.size(); i++) {
-      cumulatives[i] = cumulatives[i - 1] + probabilities[i];
-    }
+    std::partial_sum(probabilities.begin(), probabilities.end(), cumulatives.begin());
 
     // Choose random rate index from weighted step distribution
     G4double ivrandom = G4UniformRand();
