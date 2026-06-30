@@ -997,13 +997,16 @@ SetIVDeform(ivdeformtest);
 }
 
 // Check if IV parameters are the same size
+
 void G4LatticeLogical::CheckIVConsistency() {
+
   // Without valleys, assume a direct gap semiconductor with Gamma 'valley'
   if (fValley.size() < 1U) {
     G4ExceptionDescription msg;
     msg << "Lattice " << fName << " has no valley definitions.\n"
 	<< " Assuming direct gap semiconductor with Gamma valley.";
     G4Exception("G4LatticeLogical", "Lattice012", JustWarning, msg);
+
     AddValley(G4ThreeVector(0,0,0));
   }
 
@@ -1048,14 +1051,15 @@ void G4LatticeLogical::CheckIVConsistency() {
           << " has IV parameters vectors with inconsistent sizes.";
           G4Exception("G4LatticeLogical", "Lattice015", EventMustBeAborted, msg);
         }
-        static const std::set<G4String> IVFGmode = {"f", "g"};
+
         for (size_t i = 0; i < n; ++i) {
-          if (IVFGmode.find(fIVFGScattering[i]) == IVFGmode.end()) {
+          if (fIVOrder[i] != 0 && fIVOrder[i] != 1) {
             G4ExceptionDescription msg; msg << "Lattice " << fName
-            << " has unknown (f or g) IV scattering type.";
+            << " has invalid IV order scattering (0 or 1).";
             G4Exception("G4LatticeLogical", "Lattice016", JustWarning, msg);
           }
         }
+
         static const std::set<G4String> PhononValidModes = {"TA", "LA", "TO", "LO"};
         for (size_t i = 0; i < n; ++i) {
           if (PhononValidModes.find(fIVPhononMode[i]) == PhononValidModes.end()) {
@@ -1064,11 +1068,11 @@ void G4LatticeLogical::CheckIVConsistency() {
             G4Exception("G4LatticeLogical", "Lattice017", JustWarning, msg);
           }
         }
-
+        static const std::set<G4String> IVFGmode = {"f", "g"};
         for (size_t i = 0; i < n; ++i) {
-          if (fIVOrder[i] != 0 && fIVOrder[i] != 1) {
+          if (IVFGmode.find(fIVFGScattering[i]) == IVFGmode.end()) {
             G4ExceptionDescription msg; msg << "Lattice " << fName
-            << " has invalid IV order scattering (0 or 1).";
+            << " has unknown (f or g) IV scattering type.";
             G4Exception("G4LatticeLogical", "Lattice018", JustWarning, msg);
           }
         }
