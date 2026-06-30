@@ -47,7 +47,6 @@
 // 20250905  G4CMP-500  -- Removed non-fundamental superconductor params from
 //              lattice info
 // 20260205  G4CMP-495  -- Added non-parabolicity function NonParE.
-
 // 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
 // 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
 
