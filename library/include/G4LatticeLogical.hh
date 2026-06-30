@@ -308,21 +308,28 @@ public:
   const std::vector<G4double>& GetIVOrder() const { return fIVOrder; }
   const std::vector<G4String>& GetIVFGScattering() const { return fIVFGScattering; }
   const std::vector<G4String>& GetIVPhononMode() const { return fIVPhononMode; }
+  // IV deformation potential. Use 0 eV/cm (no IV process) if outside length of list
   G4double GetIVDeform(G4int i) const {
     return (i>=0 && i<GetNIVDeform()) ? fIVDeform[i] : 0.;
   }
+  // IV phonon energy. Use 0 eV (no phonon emission) if outside length of list
   G4double GetIVEnergy(G4int i) const {
     return (i>=0 && i<GetNIVDeform()) ? fIVEnergy[i] : 0.;
   }
+  // # final valleys after IV scattering. Use 0 (no IV process) if outside length of list
   G4double GetIVValley(G4int i) const {
     return (i>=0 && i<GetNIVDeform()) ? fIVNValleys[i] : 0.;
   }
+  // IV process order (0 or 1). Use 0 (lowest order) if outside length of list
   G4double GetIVOrder(G4int i) const {
     return (i>=0 && i<GetNIVDeform()) ? fIVOrder[i] : 0.;
   }
+  // IV type of scattering (f or g). Use g (anti-valley, to keep
+  // same acceleration direction) if outside length of list
   G4String GetIVFGScattering(G4int i) const {
-    return (i>=0 && i<GetNIVDeform()) ? fIVFGScattering[i] : G4String("f");
+    return (i>=0 && i<GetNIVDeform()) ? fIVFGScattering[i] : G4String("g");
   }
+  // IV phonon mode. Use TA (highest DOS) if outside length of list
   G4String GetIVPhononMode(G4int i) const {
     return (i>=0 && i<GetNIVDeform()) ? fIVPhononMode[i] : G4String("TA");
   }
