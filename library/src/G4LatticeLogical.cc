@@ -66,6 +66,7 @@
 // 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
 // 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
 // 20260618  E. Michaud -- If ValleyDir 0 0 0, then AddValley Identity Matrix
+// 20260629  G4CMP-638 -- Update CheckIVConsistency() : missing or invalid parameters.
 
 #include "G4LatticeLogical.hh"
 #include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****
@@ -267,21 +268,20 @@ void G4LatticeLogical::Initialize(const G4String& newName) {
   if (fL0_e <= 0.) fL0_e = ComputeL0(fElectronMDOS, fAcDeform_e);
   if (fL0_h <= 0.) fL0_h = ComputeL0(fHoleMass, fAcDeform_h);
 
-  // Check for completeness of charge transport parameters
-  CheckLatticeChargeParameters();
-
-  // Check for completeness of superconducting parameters
-  CheckLatticeForSCCompleteness();
-
   // Compute average speed of sound
   ComputeAverageSoundSpeed();
 
   // Compute Luke Scattering rate scale
   ComputeLukeScatteringRateScale_e();
 
+  // Check for completeness of charge transport parameters
+  CheckLatticeChargeParameters();
+
+  // Check for completeness of superconducting parameters
+  CheckLatticeForSCCompleteness();
+
   // Check if IV parameters have the same length
   CheckIVConsistency();
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -682,7 +682,7 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
       *(1-1/nonParE/nonParE ) )/(bandP));
   } else {
     PMag = sqrt(GetElectronMass()
-      *(Ekin*Ekin+2.*Ekin*GetElectronMass()*c_squared)/(bandP));
+      *(Ekin*Ekin+2.*Ekin*GetElectronMass()*c_squared)/bandP);
    }
 
 #ifdef G4CMP_DEBUG
@@ -999,17 +999,94 @@ SetIVDeform(ivdeformtest);
 // Check if IV parameters are the same size
 
 void G4LatticeLogical::CheckIVConsistency() {
-  const size_t n = fIVDeform.size();
 
-  if (fIVEnergy.size() != n ||
-      fIVNValleys.size() != n ||
-      fIVOrder.size() != n ||
-      fIVFGScattering.size() != n ||
-      fIVPhononMode.size() != n)
-  {
-    G4Exception("G4LatticeLogical::CheckIVConsistency",
-                "Lattice002",EventMustBeAborted,
-                "IV parameter vectors have inconsistent sizes");
+  // Without valleys, assume a direct gap semiconductor with Gamma 'valley'
+  if (fValley.size() < 1U) {
+    G4ExceptionDescription msg;
+    msg << "Lattice " << fName << " has no valley definitions.\n"
+        << " Assuming direct gap semiconductor with Gamma valley.";
+    G4Exception("G4LatticeLogical", "Lattice012", JustWarning, msg);
+    AddValley(G4ThreeVector(0,0,0));
+  }
+
+  // No IV scattering possible with a single valley
+  if (fValley.size() < 2U) return;
+
+  // Multiple valleys ought to have IV scattering, but may not
+  if (fIVModel.empty()) {
+    G4ExceptionDescription msg; msg << "Lattice " << fName
+    << " has no preset intervalley scattering model.";
+    G4Exception("G4LatticeLogical", "Lattice013", JustWarning, msg);
+  }
+
+  // Linear model: warn only if partially configured
+  const int nLinear =
+    (fIVLinRate0 != 0.) + (fIVLinRate1 != 0.) + (fIVLinExponent != 0.);
+  if (nLinear > 0 && nLinear < 3) {
+    G4ExceptionDescription msg; msg << "Lattice " << fName
+    << " has incomplete intervalley scattering (Linear) parameters.";
+    G4Exception("G4LatticeLogical", "Lattice014", FatalException, msg);
+  }
+
+  // Quadratic model: warn only if partially configured
+  const int nQuad =
+    (fIVQuadRate != 0.) + (fIVQuadField != 0.) + (fIVQuadExponent != 0.);
+  if (nQuad > 0 && nQuad < 3) {
+    G4ExceptionDescription msg; msg << "Lattice " << fName
+    << " has incomplete intervalley scattering (Quadratic) parameters.";
+    G4Exception("G4LatticeLogical", "Lattice015", FatalException, msg);
+  }
+
+  // Matrix model: warn only if partially configured
+  const int nMatrix =
+    (!fIVPhononMode.empty()) + (!fIVOrder.empty()) + (!fIVEnergy.empty())
+    + (!fIVNValleys.empty()) + (!fIVDeform.empty()) + (!fIVFGScattering.empty());
+  if (nMatrix > 0 && nMatrix < 6) {
+    G4ExceptionDescription msg; msg << "Lattice " << fName
+    << " has incomplete intervalley scattering (Matrix) parameters.";
+    G4Exception("G4LatticeLogical", "Lattice016", FatalException, msg);
+  } else if (nMatrix == 6) {
+
+    // All six parameters present : make sure they are the same size
+    const size_t n = fIVDeform.size();
+    if (fIVEnergy.size() != n || fIVOrder.size() != n ||
+      fIVNValleys.size() != n || fIVPhononMode.size() != n ||
+      fIVFGScattering.size() != n) {
+      G4ExceptionDescription msg;
+      msg << "Lattice " << fName
+      << " has IV parameter vectors (Matrix) with inconsistent sizes.";
+      G4Exception("G4LatticeLogical", "Lattice017", JustWarning, msg);
+    }
+
+    // Make sure IV process order is 0 or 1
+    if (std::any_of(fIVOrder.begin(), fIVOrder.end(),
+      [](int order) { return order != 0 && order != 1; })) {
+      G4ExceptionDescription msg; msg << "Lattice " << fName
+      << " has invalid IV order scattering (not 0 or 1).";
+      G4Exception("G4LatticeLogical", "Lattice018", JustWarning, msg);
+    }
+
+    // Make sure IV phonon modes are valid (TA, LA, TO or LO)
+    static const std::set<G4String> PhononValidModes = {"TA","LA","TO","LO"};
+    if (std::any_of(fIVPhononMode.begin(), fIVPhononMode.end(),
+      [&](const G4String& mode) {
+        return PhononValidModes.find(mode) == PhononValidModes.end();
+      })) {
+      G4ExceptionDescription msg; msg << "Lattice " << fName
+      << " has unknown IV scattering (Matrix) phonon channel.";
+      G4Exception("G4LatticeLogical", "Lattice019", JustWarning, msg);
+    }
+
+    // Make sure IV scattering types are valid (f or g)
+    static const std::set<G4String> IVFGmode = {"f", "g"};
+    if (std::any_of(fIVFGScattering.begin(), fIVFGScattering.end(),
+      [&](const G4String& mode) {
+        return IVFGmode.find(mode) == IVFGmode.end();
+      })) {
+      G4ExceptionDescription msg; msg << "Lattice " << fName
+      << " has unknown (f or g) IV scattering type.";
+      G4Exception("G4LatticeLogical", "Lattice020", JustWarning, msg);
+    }
   }
 }
 
