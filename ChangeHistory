@@ -6,7 +6,7 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
-2026-06-19  g4cmp-C10-04-01  Fixes and sanity checks for partial charge params.
+2026-06-19  g4cmp-V10-04-01  Fixes and sanity checks for partial charge params.
 2026-06-18  G4CMP-628 : If ValleyDir 0 0 0, then AddValley Identity Matrix.
 2026-06-18  G4CMP-634 : Clean up check on valley index for new tracks.
 2026-06-18  G4CMP-633 : Validate consistency of charge parameters in config.txt.
