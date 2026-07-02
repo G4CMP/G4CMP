@@ -46,7 +46,7 @@
 // 20260429  G4CMP-598: Add macro command for minimum particle generation.
 // 20250502  G4CMP-358: Add macro command for maximum steps (stuck tracks).
 // 20250527  G4CMP-485: Change IVRate name to Matrix.
-// 20260606  G4CMP-578: Add macro command for pprimary phonon energy.
+// 20260606  G4CMP-578: Add macro command for primary phonon energy.
 
 #include "G4CMPConfigMessenger.hh"
 #include "G4CMPConfigManager.hh"

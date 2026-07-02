@@ -13,7 +13,7 @@
 //		acoustic rate, as it is _intra_valley.
 // 20170919  Add interface for threshold identification
 // 20250423  Add parabolic ellipsoidal bands IV scattering rate.
-// 20260618  G4CMP-628 -- Skip IV scattering (MFP=0) for single valley case.
+// 20260618  G4CMP-628 -- Skip IV scattering (rate=0) for single valley case.
 
 #include "G4CMPInterValleyRate.hh"
 #include "G4LatticePhysical.hh"

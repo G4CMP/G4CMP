@@ -49,6 +49,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4ThreeVector.hh"
 #include "G4VParticleChange.hh"
+#include <functional>
 #include <math.h>
 #include <numeric>
 
@@ -221,7 +222,7 @@ G4CMPInterValleyScattering::ValleyScattering(const G4Track& aTrack,
 
     // Normalize IV rates 
     std::transform(probabilities.begin(), probabilities.end(), probabilities.begin(),
-               [totalIVRate](G4double ratei) { return ratei / totalIVRate; });
+                std::bind(std::divides<G4double>(), std::placeholders::_1, totalIVRate));
 
     // Calculate weight of each rates to total rate
     std::vector<G4double> cumulatives(probabilities.size());
