@@ -1025,7 +1025,7 @@ void G4LatticeLogical::CheckIVConsistency() {
   if (nLinear > 0 && nLinear < 3) {
     G4ExceptionDescription msg; msg << "Lattice " << fName
     << " has incomplete intervalley scattering (Linear) parameters.";
-    G4Exception("G4LatticeLogical", "Lattice014", JustWarning, msg);
+    G4Exception("G4LatticeLogical", "Lattice014", FatalException, msg);
   }
 
   // Quadratic model: warn only if partially configured
@@ -1034,7 +1034,7 @@ void G4LatticeLogical::CheckIVConsistency() {
   if (nQuad > 0 && nQuad < 3) {
     G4ExceptionDescription msg; msg << "Lattice " << fName
     << " has incomplete intervalley scattering (Quadratic) parameters.";
-    G4Exception("G4LatticeLogical", "Lattice015", JustWarning, msg);
+    G4Exception("G4LatticeLogical", "Lattice015", FatalException, msg);
   }
 
   // Matrix model: warn only if partially configured
@@ -1044,7 +1044,7 @@ void G4LatticeLogical::CheckIVConsistency() {
   if (nMatrix > 0 && nMatrix < 6) {
     G4ExceptionDescription msg; msg << "Lattice " << fName
     << " has incomplete intervalley scattering (Matrix) parameters.";
-    G4Exception("G4LatticeLogical", "Lattice016", JustWarning, msg);
+    G4Exception("G4LatticeLogical", "Lattice016", FatalException, msg);
   } else if (nMatrix == 6) {
 
     // All six parameters present : make sure they are the same size
@@ -1054,7 +1054,7 @@ void G4LatticeLogical::CheckIVConsistency() {
       fIVFGScattering.size() != n) {
       G4ExceptionDescription msg;
       msg << "Lattice " << fName
-      << " has IV parameters vectors with inconsistent sizes.";
+      << " has IV parameter vectors (Matrix) with inconsistent sizes.";
       G4Exception("G4LatticeLogical", "Lattice017", JustWarning, msg);
     }
 
@@ -1062,7 +1062,7 @@ void G4LatticeLogical::CheckIVConsistency() {
     if (std::any_of(fIVOrder.begin(), fIVOrder.end(),
       [](int order) { return order != 0 && order != 1; })) {
       G4ExceptionDescription msg; msg << "Lattice " << fName
-      << " has invalid IV order scattering (0 or 1).";
+      << " has invalid IV order scattering (not 0 or 1).";
       G4Exception("G4LatticeLogical", "Lattice018", JustWarning, msg);
     }
 
@@ -1073,7 +1073,7 @@ void G4LatticeLogical::CheckIVConsistency() {
         return PhononValidModes.find(mode) == PhononValidModes.end();
       })) {
       G4ExceptionDescription msg; msg << "Lattice " << fName
-      << " has unknown phonon mode.";
+      << " has unknown IV scattering (Matrix) phonon channel.";
       G4Exception("G4LatticeLogical", "Lattice019", JustWarning, msg);
     }
 
