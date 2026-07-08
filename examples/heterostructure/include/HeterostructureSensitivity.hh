@@ -1,0 +1,38 @@
+/***********************************************************************\
+ * This software is licensed under the terms of the GNU General Public *
+ * License version 3 or later. See G4CMP/LICENSE for the full license. *
+\***********************************************************************/
+
+#ifndef HeterostructureSensitivity_h
+#define HeterostructureSensitivity_h 1
+
+#include "G4CMPElectrodeSensitivity.hh"
+
+class HeterostructureSensitivity final : public G4CMPElectrodeSensitivity {
+public:
+  HeterostructureSensitivity(G4String name);
+  virtual ~HeterostructureSensitivity();
+  // No copies
+  HeterostructureSensitivity(const HeterostructureSensitivity&) = delete;
+  HeterostructureSensitivity& operator=(const HeterostructureSensitivity&) = delete;
+  /* Move is disabled for now because old versions of GCC can't move ofstream
+  // Move OK
+  HeterostructureSensitivity(HeterostructureSensitivity&&);
+  HeterostructureSensitivity& operator=(HeterostructureSensitivity&&);
+  */
+  HeterostructureSensitivity(HeterostructureSensitivity&&) = delete;
+  HeterostructureSensitivity& operator=(HeterostructureSensitivity&&) = delete;
+
+  virtual void EndOfEvent(G4HCofThisEvent*);
+
+  void SetOutputFile(const G4String& fn);
+
+protected:
+  virtual G4bool IsHit(const G4Step*, const G4TouchableHistory*) const;
+
+private:
+  std::ofstream output;
+  G4String fileName;
+};
+
+#endif
