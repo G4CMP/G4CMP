@@ -205,14 +205,16 @@ void G4CMPConfigManager::setVersion() {
 
 G4int G4CMPConfigManager::setPhysicsModelID() const {
 #if G4VERSION_NUMBER < 1100
-  G4PhysicsModelCatalog::Register("G4CMP process");
+  return G4PhysicsModelCatalog::Register("G4CMP process");
 #elif G4VERSION_NUMBER < 1142
   G4PhysicsModelCatalog::Initialize();	// Uses G4CMP local hack of function
+  return G4PhysicsModelCatalog::GetModelID("G4CMP process");
 #else
   G4PhysicsModelCatalog::RegisterCustomModel("G4CMP process");
+  return G4PhysicsModelCatalog::GetModelID("G4CMP process");
 #endif
 
-  return G4PhysicsModelCatalog::GetModelID("G4CMP process");
+  return 0;		// Should never get here
 }
 
 
