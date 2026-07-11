@@ -170,7 +170,7 @@ AbsorbPhonon(G4double energy, std::vector<G4double>& reflectedEnergies) const {
 
   // Divide incident phonon according to maximum QP energy (or no split)
   G4int nQPpairs =
-    (highQPLimit>0. ? std::ceil(energy/(2.*highQPLimit*gapEnergy)) : 1);
+    (highQPLimit>0. && gapEnergy > 0. ? std::ceil(energy/(2.*highQPLimit*gapEnergy)) : 1);
 
   // Initialize event buffers for new processing
   qpEnergyList.clear();
@@ -409,7 +409,7 @@ G4CMPKaplanQP::CalcQPAbsorption(G4double qpE,
 // Handle quasiparticle energy-dependent absorption efficiency
 
 G4double G4CMPKaplanQP::CalcQPEfficiency(G4double qpE) const {
-  G4double eff = absorberEff + absorberEffSlope * qpE/gapEnergy;
+  G4double eff = absorberEff + absorberEffSlope * gapEnergy > 0. ? qpE/gapEnergy : 1.;
   eff = std::max(0., std::min(eff, 1.));
 
   if (verboseLevel>2) {
