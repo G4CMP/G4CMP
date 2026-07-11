@@ -34,13 +34,14 @@
 /// directly absorb phonons below 2*bandgap.
 // 
 // 20221006  M. Kelsey -- Adapted from SuperCDMS simulation version
+// 20260710  G4CMP-647 -- Replace G4CMPKaplanQP member with G4CMPVKaplanQP
 
 #ifndef G4CMPPhononElectrode_hh
 #define G4CMPPhononElectrode_hh 1
 
 #include "G4CMPVElectrodePattern.hh"
 
-class G4CMPKaplanQP;
+class G4CMPVKaplanQP;
 class G4ParticleChange;
 class G4Step;
 class G4Track;
@@ -67,7 +68,7 @@ public:
   virtual void AbsorbAtElectrode(const G4Track&,
                                  const G4Step&,
                                  G4ParticleChange&) const;
-
+  G4CMPVKaplanQP* getKaplanQP(G4String identifier = "") const;
 protected:
   // Record energy deposition and re-emitted energies as secondary phonons
   void ProcessAbsorption(const G4Track& track, const G4Step& step,
@@ -78,7 +79,7 @@ protected:
 			 G4ParticleChange& particleChange) const;
 
   // NOTE: "Mutable" because AbsorbAtElectrode() function is const
-  mutable G4CMPKaplanQP* kaplanQP;	// Create instance of QET simulator
+  mutable G4CMPVKaplanQP* kaplanQP;	// Create instance of QET simulator
   mutable std::vector<G4double> phononEnergies;		// Reusable buffer
 };
 
