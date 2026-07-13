@@ -35,6 +35,8 @@
 // 
 // 20221006  M. Kelsey -- Adapted from SuperCDMS simulation version
 // 20260710  G4CMP-647 -- Replace G4CMPKaplanQP member with G4CMPVKaplanQP
+// 20260710  G4CMP-647 -- Add RegisterAbsorber method to enable user
+// customization
 
 #ifndef G4CMPPhononElectrode_hh
 #define G4CMPPhononElectrode_hh 1
@@ -90,8 +92,8 @@ protected:
   // NOTE: "Mutable" because AbsorbAtElectrode() function is const
   mutable G4CMPVKaplanQP* kaplanQP;	// Create instance of QET simulator
   mutable std::vector<G4double> phononEnergies;		// Reusable buffer
-  mutable G4bool absorberSet; // so we can tell if user has set kaplanQP to nullptr
-  // intentionally
+  mutable G4bool absorberSet; // so we can tell if user has set kaplanQP to
+  // nullptr intentionally
 };
 
 #endif
