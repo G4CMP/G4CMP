@@ -68,7 +68,7 @@
 // Constructor and destructor
 
 G4CMPPhononElectrode::G4CMPPhononElectrode()
-  : G4CMPVElectrodePattern(), kaplanQP(0) {;}
+  : G4CMPVElectrodePattern(), kaplanQP(0), absorberSet(false) {;}
 
 G4CMPPhononElectrode::~G4CMPPhononElectrode() {
   delete kaplanQP; kaplanQP=0;
@@ -95,7 +95,7 @@ AbsorbAtElectrode(const G4Track& track, const G4Step& step,
   }
 
   // Create KaplanQP simulator if not already available
-  if (!kaplanQP) {
+  if (!kaplanQP && !absorberSet) {
     // Pass temperature through to KaplanQP if not already included
     if (!theSurfaceTable->ConstPropertyExists("temperature"))
       G4CMP::UpdateMPT(theSurfaceTable, "temperature",
@@ -106,8 +106,9 @@ AbsorbAtElectrode(const G4Track& track, const G4Step& step,
     // parameter that will get passed in here so the user can specify
     // the model to be used from a macro command
     G4String interaction_model;
-    kaplanQP = getKaplanQP(interaction_model);
+    RegisterAbsorber(interaction_model);
   }
+  else if (!kaplanQP && absorberSet) return;
 
   // Transfer phonon energy into superconducting film
   G4double Ekin = GetKineticEnergy(track);
@@ -234,7 +235,19 @@ ProcessReflection(const G4Track& track, const G4Step& step,
   trackInfo->IncrementReflectionCount();
 }
 
-// define phonon-qp interaction mechanism via string identifier; G4CMPKaplanQP default
+void G4CMPPhononElectrode::setKaplanQP(G4CMPVKaplanQP* val) const
+{
+  if (kaplanQP)
+  {
+    delete kaplanQP;
+    kaplanQP = 0;
+  }
+  kaplanQP = val;
+  absorberSet = true;
+}
+
+// define phonon-qp interaction mechanism via string identifier;
+// G4CMPKaplanQP default
 G4CMPVKaplanQP* G4CMPPhononElectrode::getKaplanQP(G4String identifier) const
 {
   G4CMPVKaplanQP* val = nullptr;

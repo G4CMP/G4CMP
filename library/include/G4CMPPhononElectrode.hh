@@ -68,8 +68,17 @@ public:
   virtual void AbsorbAtElectrode(const G4Track&,
                                  const G4Step&,
                                  G4ParticleChange&) const;
+  // define phonon-qp interaction mechanism via string identifier;
+  // G4CMPKaplanQP default
   G4CMPVKaplanQP* getKaplanQP(G4String identifier = "") const;
+  // define phonon-qp interaction mechanism directly
+  // NOTE: PhononElectrode object will take ownership of absorber object
+  // and eventually delete it
+  virtual void RegisterAbsorber(G4CMPVKaplanQP* absorber) const { setKaplanQP(absorber); }
+  // use getKaplanQP to register absorber
+  virtual void RegisterAbsorber(const G4String& identifier) const  { RegisterAbsorber(getKaplanQP(identifier)); }
 protected:
+  virtual void setKaplanQP(G4CMPVKaplanQP* val) const;
   // Record energy deposition and re-emitted energies as secondary phonons
   void ProcessAbsorption(const G4Track& track, const G4Step& step,
 			 G4double EDep, G4ParticleChange& particleChange) const;
@@ -81,6 +90,8 @@ protected:
   // NOTE: "Mutable" because AbsorbAtElectrode() function is const
   mutable G4CMPVKaplanQP* kaplanQP;	// Create instance of QET simulator
   mutable std::vector<G4double> phononEnergies;		// Reusable buffer
+  mutable G4bool absorberSet; // so we can tell if user has set kaplanQP to nullptr
+  // intentionally
 };
 
 #endif
