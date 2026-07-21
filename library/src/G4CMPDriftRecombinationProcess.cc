@@ -53,7 +53,7 @@ G4CMPDriftRecombinationProcess::GetMeanFreePath(const G4Track& aTrack, G4double,
   UpdateMeanFreePathForLatticeChangeover(aTrack);
 
   G4bool doRecomb = ReadyToRecombine(aTrack);
-  *cond = (doRecomb ? Forced : NotForced);
+  *cond = (aTrack.GetTrackStatus() == fStopButAlive ? Forced : NotForced);
   return (doRecomb ? 0. : DBL_MAX);
 }
 
