@@ -6,7 +6,11 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
-2026-07-21  G4CMP-624 : Make wavevector available in TrackInfo for charges.
+== G4CMP-624 project branch: Add subtask information below this line ==
+2026-07-21  G4CMP-624 : Compute and store initial-state wavevectors for charges.
+2026-07-21  G4CMP-621 : Move wavevector from PhononTrackInfo to base VTrackInfo.
+== G4CMP-624 project branch: Add subtask information above this line ==
+
 2026-07-07  G4CMP-641 : Update PhysicsModelCatalog usage for G4 11.4.2.
 
 2026-06-19  g4cmp-V10-04-01  Fixes and sanity checks for partial charge params.
