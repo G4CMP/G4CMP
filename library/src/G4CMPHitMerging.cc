@@ -21,6 +21,8 @@
 //	       If not preset, then call UsePosition() in ProcessStep().
 // 20240822  G4CMP-423 -- In UsePosition(), take midpoint of step to avoid
 //	       boundary surfaces.
+// 20240721  G4CMP-649 -- In SurfaceClearance(), create touchable from
+//		position if not available
 
 #include "G4CMPHitMerging.hh"
 #include "G4CMPConfigManager.hh"
@@ -451,5 +453,16 @@ void G4CMPHitMerging::GeneratePositions(size_t nsec,
 
 G4ThreeVector 
 G4CMPHitMerging::SurfaceClearance(const G4ThreeVector& pos) {
-  return G4CMP::ApplySurfaceClearance(GetCurrentTouchable(), pos);
+  const G4VTouchable* touch = GetCurrentTouchable();
+  G4ThreeVector clear;
+
+  if (touch) clear = G4CMP::ApplySurfaceClearance(touch, pos);
+  else {
+    // Preset touchable not set, get one based on position
+    touch = G4CMP::CreateTouchableAtPoint(pos);
+    clear = G4CMP::ApplySurfaceClearance(touch, pos);
+    delete touch;
+  }
+
+  return clear;
 }
