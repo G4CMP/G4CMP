@@ -12,12 +12,20 @@
 // $Id$
 //
 // 20161111 Initial commit - R. Agnese
+// 20260721 G4CMP-624 -- Move wavevector here from PhononTrackInfo.
 
 #include "G4CMPVTrackInfo.hh"
+#include "G4SystemOfUnits.hh"
+
 
 G4CMPVTrackInfo::G4CMPVTrackInfo(const G4LatticePhysical* lat) :
-  G4VAuxiliaryTrackInformation(), lattice(lat) {}
+  G4VAuxiliaryTrackInformation(), lattice(lat), waveVec(0,0,0) {}
+
+G4CMPVTrackInfo::G4CMPVTrackInfo(const G4LatticePhysical* lat,
+				 const G4ThreeVector& theK) :
+  G4VAuxiliaryTrackInformation(), lattice(lat), waveVec(theK) {}
 
 void G4CMPVTrackInfo::Print() const {
-//TODO
+  G4cout << "G4CMPVTrackInfo: lattice @ " << lattice << G4endl
+	 << " K " << waveVec*m << " /m" << G4endl;
 }
