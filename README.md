@@ -96,9 +96,11 @@ developers should check the source code in
 | G4CMP\_EH\_MAX\_STEPS [N] | /g4mp/maximumSteps [N]      | Maximum allowed charged track steps     |
 | G4CMP\_MAKE\_PHONONS [R] | /g4cmp/producePhonons [R]     | Fraction of phonons from energy deposit   |
 | G4CMP\_MAKE\_CHARGES [R] | /g4cmp/produceCharges [R]     | Fraction of charge pairs from energy deposit |
+| G4CMP\_MIN\_GENPARTICLES [N] | /g4cmp/minParticles [N]     | Minimum particles from energy deposit   |
 | G4CMP\_LUKE\_SAMPLE [R] | /g4cmp/sampleLuke [R]         | Fraction of generated Luke phonons |
 | G4CMP\_MAX\_LUKE [N] | /g4cmp/maxLukePhonons [N] | Soft maximum Luke phonons per event |
 | G4CMP\_SAMPLE\_ENERGY [E] | /g4cmp/samplingEnergy [E] eV  | Energy above which to downsample |
+| G4CMP\_EPRIM\_PHOBNONS [E] | /g4cmp/primaryPhononEnergy [E] eV | Energy to assign to primary phonons |
 | G4CMP\_COMBINE\_STEPLEN [L] | /g4cmp/combiningStepLength [L] mm | Combine hits below step length |
 | G4CMP\_EMIN\_PHONONS [E] | /g4cmp/minEPhonons [E] eV     | Minimum energy to track phonons         |
 | G4CMP\_EMIN\_CHARGES [E] | /g4cmp/minECharges [E] eV     | Minimum energy to track charges         |
@@ -143,6 +145,12 @@ the set of models provided in G4CMP:
     Impact@TUNL      # IMPACT@TUNL Si NIEL measurements
     Sarkis           # Lindhard NIEL modified by Sarkis 2022     
 
+"Primary" phonons, either from non-ionizing energy loss or from
+electron-hole recombination, are produced all at the same energy, the Debye
+energy set in the material's config.txt file.  The environment variable
+`$G4CMP_EPRIM_PHONONS` may be set (in eV) to override the material value,
+typically to something much lower, just a few eV.
+
 The environment variable `$G4CMP_MAKE_CHARGES` controls the rate (R) as a
 fraction of total interactions, at which electron-hole pairs are produced
 by energy partitioning.  Secondaries will be
@@ -166,7 +174,9 @@ track weight set to 1/R:
   setenv G4CMP_MAKE_PHONONS 0.001 # Generate phonon 1:1000 occurrences
 ```
 When primary phonons are not produced, the equivalent energy is recorded as
-non-ionizing energy loss (NIEL) on the track.  
+non-ionizing energy loss (NIEL) on the track. 
+
+The environment variable `$G4CMP_MIN_GENPARTICLES` (default value: 10) controls the minimum number of particles produced due to energy partitioning. This ensures that very low values for `$G4CMP_MAKE_PHONONS`/`$G4CMP_MAKE_CHARGES` will not result in zero secondary production.
 
 Secondary phonons may be produced either by downconversion of higher energy
 phonons, or by emission of Luke-Neganov phonons from charge carriers.
@@ -390,6 +400,9 @@ emission of phonons and intervalley scattering.
 * The `sensor` example shows how to configure the geometry to collect and
 record phonon energy by absorption on superconducting TES-style surface
 sensors.
+
+* The `g4beginner` example shows how to adapt an existing Geant4 model
+to a G4CMP-capable model as well as simple demonstrations of G4CMP features.
 
 Users may copy any of the individual example directories to their own work
 area and adapt them as necessary, or use them as inspiration in developing a

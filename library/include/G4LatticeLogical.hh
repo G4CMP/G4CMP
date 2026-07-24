@@ -45,6 +45,8 @@
 // 20250904  R. Linehan -- Linked Tcrit to Delta0 for superconductors
 // 20250905  G4CMP-500  -- Removed non-fundamental superconductor params from
 //              lattice info
+// 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
+// 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
 
 #ifndef G4LatticeLogical_h
 #define G4LatticeLogical_h
@@ -215,9 +217,6 @@ public:
   // Compute "effective mass" for electron to preserve E/p relationship
   G4double GetElectronEffectiveMass(G4int iv, const G4ThreeVector& p) const;
     
-  // Compute "l0" for electron and hole
-  G4double ComputeL0(G4bool IsElec);
-
   G4ThreeVector RotateToValley(G4int iv, const G4ThreeVector& v) const;
   G4ThreeVector RotateFromValley(G4int iv, const G4ThreeVector& v) const;
   G4ThreeVector EllipsoidalToSphericalTranformation(G4int iv, const G4ThreeVector& v) const;
@@ -309,8 +308,14 @@ private:
   // Use direct calculation to get group velocity for phonons
   G4ThreeVector ComputeKtoVg(G4int mode, const G4ThreeVector& k) const;
 
-  //Do an internal check to make sure that we have all SC parameters
-  void CheckLatticeForSCCompleteness();
+  // Compute scattering length L0 for electrons or hole
+  G4double ComputeL0(G4double mass, G4double acDeform) const;
+
+  // Internal check to ensure that we have sufficient charge parameters
+  void CheckLatticeChargeParameters();		// Non-const for AddValley() use
+
+  // Internal check to make sure that we have all SC parameters
+  void CheckLatticeForSCCompleteness() const;
   
 private:
   // Create a thread-local buffer to use with MapAtoB() functions

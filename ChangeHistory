@@ -6,7 +6,34 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
-2026-06-06  G4CMP-517 : Support charge recombination below NTL threshold.
+2026-07-23  G4CMP-517 : Support charge recombination below NTL threshold.
+2026-07-21  G4CMP-649 : Protect against missing touchable in SurfaceClearance.
+2026-07-07  G4CMP-641 : Update PhysicsModelCatalog usage for G4 11.4.2.
+
+2026-06-19  g4cmp-V10-04-01  Fixes and sanity checks for partial charge params.
+2026-06-18  G4CMP-628 : If ValleyDir 0 0 0, then AddValley Identity Matrix.
+2026-06-18  G4CMP-634 : Clean up check on valley index for new tracks.
+2026-06-18  G4CMP-633 : Validate consistency of charge parameters in config.txt.
+2026-06-18  G4CMP-636 : Protect IV Threshold() from empty ivEnergy list.
+2026-06-18  G4CMP-637 : Move calculation of L0 from acDeform into LatticeLogical
+2026-06-16  G4CMP-601 : Protect e-h production for undefined bandgap or Epair.
+
+2026-06-12  g4cmp-V10-04-00  New tutorials/examples for RISQ 2026 Workshop.
+2026-06-12  G4CMP-626 : New Geant4-G4CMP adaptation example "g4beginner"
+2026-06-12  G4CMP-620 : Expanded quasiparticle example for use at RISQ 2026.
+2026-06-06  G4CMP-578 : New parameter for primary phonon energy partitioning.
+
+2026-06-05  g4cmp-V10-03-00  Avoid FatalExceptions, add QPDiffusion setting.
+2026-06-03  G4CMP-619 : Softened some exception types in Boundary/GeometryUtils
+2026-06-01  G4CMP-593 : Add diffusion time stepper tau for individual lattices
+
+2026-05-28  g4cmp-V10-02-00 Several bug fixes and EnergyPartition improvements
+2026-05-28  G4CMP-617 : Simplify nParticlesMinimum tests in EnergyPartition
+2026-05-23  G4CMP-608 : Address initializer compiler warnings from G4CMP-598.
+2026-05-20  G4CMP-576 : First step of G4CMPEqEMField uses base EqOfMotion for 
+                        non G4CMP carrier and holes.
+2026-05-18  G4CMP-598 : Make G4CMPEnergyPartition respect nParticlesMinimum
+>>>>>>> develop
 
 2026-05-06  G4CMP-592 : Replace FatalExceptions in QPDiffusion with warnings
 2026-04-28  G4CMP-496 : Test for zero energy before generating charge pairs.
@@ -26,7 +53,7 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 2026-01-28  G4CMP-494 : Migrate code to be compatible with G4 v11 and v10.
 2026-01-07  G4CMP-565 : Apply G4 v11 migrations to new quasiparticle code.
 2026-01-07  G4CMP-563 : Remove copy operators from G4CMPParticleChangeForQP.
-2025-12-11  G4CMP-553 : Update vis export in examples, complete hyperN daughters.
+2025-12-11  G4CMP-553 : Update vis export in examples, complete hyperN daughters
 2025-12-03  G4CMP-552 : To silence DecayChannel warnings, add hyperN daughters.
 2025-12-03  G4CMP-551 : Fix compatibility implementation of G4StrUtil::*strip()
 2025-11-28  G4CMP-547 : Ensure that ParticleChange touchable is always cleared.
@@ -62,7 +89,7 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 2025-10-30  g4cmp-V09-09-02 Final bug fix for chargeBounces errors.
 2025-11-08  G4CMP-533 : Fix long-standing typo in README: neutron -> neutral.
-2025-11-08  G4CMP-527 : Adjust post-step "surface" point for all boundary actions.
+2025-11-08  G4CMP-527 : Adjust post-step surface point for all boundary actions.
 
 2025-10-30  g4cmp-V09-09-01 Bug fixes following V09-09-00 release.
 2025-10-25  G4CMP-520 : Fix incorrect local transform in TrackLimiter.

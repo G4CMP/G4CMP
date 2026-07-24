@@ -177,7 +177,7 @@ void QuasiparticleDetectorConstruction::SetupGeometry() {
     //For the the interface of the Al and Al
     fAlAlInterface = new G4CMPSurfaceProperty("AlAlSurf",
                                               0.0, 1.0, 0.0, 0.0,
-                                              0.0, 1.0, 0.0, 0.0,
+                                              0.0, 0.0, 0.0, 0.0,
                                               0.0, 0.0);
     fAlAlInterface->AddScatteringProperties(anhCutoff, reflCutoff, anhCoeffs,
                                             diffCoeffs, specCoeffs, GHz, GHz,
@@ -422,7 +422,7 @@ void QuasiparticleDetectorConstruction::SetupGeometry() {
             G4ThreeVector(dp_resonatorLateralSpacing*(iR-1)
                           +dp_centralResonatorOffsetX,
                           0.5 * dp_resonatorAssemblyBaseAlDimY
-                          + 0.5 * dp_transmissionLineCavityFullWidth,
+                          + 0.5 * dp_transmissionLineCavityFullWidth + dp_largeEpsilon,
                           0.0);
           rotAssembly = 0;
         }
@@ -432,7 +432,7 @@ void QuasiparticleDetectorConstruction::SetupGeometry() {
             G4ThreeVector(dp_resonatorLateralSpacing*(iR-4)
                           -dp_centralResonatorOffsetX, 
                           -1*(0.5 * dp_resonatorAssemblyBaseAlDimY
-                              + 0.5 * dp_transmissionLineCavityFullWidth),
+                              + 0.5 * dp_transmissionLineCavityFullWidth + dp_largeEpsilon),
                           0.0);
           rotAssembly = new G4RotationMatrix();
           rotAssembly->rotateZ(180*deg);

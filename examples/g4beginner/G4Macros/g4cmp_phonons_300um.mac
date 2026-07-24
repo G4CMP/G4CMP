@@ -1,0 +1,24 @@
+/run/initialize
+/control/verbose 2
+/run/verbose 2
+/event/verbose 0
+/tracking/verbose 1
+
+/gun/particle e-
+/gun/energy 100 keV
+/gun/position 0 0 -3.2 mm
+/gun/direction 0 0 -1
+
+/analysis/setSpecies phonons
+/g4cmp/samplingEnergy 100 eV
+
+/g4cmp/producePhonons 1.
+/g4cmp/produceCharges 1.
+/g4cmp/sampleLuke 1.
+/g4cmp/minEPhonons 0.05 eV
+
+/g4cmp/eTrappingMFP 300 um
+/g4cmp/hTrappingMFP 100 um
+/run/printProgress 1
+/run/beamOn 100
+

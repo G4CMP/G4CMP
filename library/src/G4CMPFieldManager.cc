@@ -195,6 +195,11 @@ void G4CMPFieldManager::ConfigureForTrack(const G4Track* aTrack) {
   } else {
     theEqMotion->SetNoValley();
   }
+  const G4bool isG4CMPCarrier =
+    aTrack->GetDefinition() == G4CMPDriftElectron::Definition() ||
+    aTrack->GetDefinition() == G4CMPDriftHole::Definition();
+
+  theEqMotion->SetG4CMPChargeCarrier(isG4CMPCarrier);
 }
 
 void G4CMPFieldManager::SetChargeValleyForTrack(const G4LatticePhysical* lat,

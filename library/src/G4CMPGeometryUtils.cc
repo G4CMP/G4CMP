@@ -18,6 +18,7 @@
 //		to specified direction.
 // 20250905  G4CMP-500 -- Added a function to make nicer robust 2D vectors
 // 20260111  G4CMP-567 -- Use geometric tolerance prescribed by G4VSolid
+// 20260721  G4CMP-649 -- Protect against missing touchable in SurfaceClearance.
 
 #include "G4CMPGeometryUtils.hh"
 #include "G4CMPConfigManager.hh"
@@ -980,7 +981,7 @@ G4ThreeVector G4CMP::GetSurfaceNormal(const G4Step& step, const G4ThreeVector& i
         << "Volumes are: "
         << preSolid->GetName() << " and " << postSolid->GetName() << G4endl;
     G4Exception("G4CMP::GetSurfaceNormal()", "Geometry006",
-                FatalException, msg);
+                JustWarning, msg);
     G4ThreeVector dummy(0,0,0);
     output = dummy;
   }
@@ -1049,6 +1050,14 @@ G4VTouchable* G4CMP::CreateTouchableAtPoint(const G4ThreeVector& pos) {
 
 G4ThreeVector G4CMP::ApplySurfaceClearance(const G4VTouchable* touch,
 					   G4ThreeVector pos) {
+  if (!touch) {
+    G4ExceptionDescription msg;
+    msg << "Missing touchable: not supplied for position " << pos;
+    G4Exception("G4CMP::ApplySurfaceClearance", "Geometry011",
+		EventMustBeAborted, msg);
+    return pos;
+  }
+
   // Clearance is the minimum distance where a position is guaranteed Inside
   const G4double clearance = G4CMPConfigManager::GetSurfaceClearance();
 
@@ -1061,7 +1070,7 @@ G4ThreeVector G4CMP::ApplySurfaceClearance(const G4VTouchable* touch,
     if (!lat) {
       G4ExceptionDescription msg;
       msg << "Position " << pos << " not associated with valid volume.";
-      G4Exception("G4CMP::CreateSecondary", "Secondary008",
+      G4Exception("G4CMP::ApplySurfaceClearance", "Geometry012",
 		  EventMustBeAborted, msg);
       return pos;
     }

@@ -42,8 +42,10 @@
 // 20240506  G4CMP-371: Add flag to keep or discard below-minimum track energy.
 // 20241224  G4CMP-419: Add macro command to set LukeScattering debug file.
 // 20250212  G4CMP-457: Add macro command for Lindhard empirical ionization.
-// 20250502  G4CMP-358: Add macro command for maximum steps (stuck tracks).
 // 20250325  G4CMP-463: Add parameter for phonon surface step size & limit.
+// 20250502  G4CMP-358: Add macro command for maximum steps (stuck tracks).
+// 20260429  G4CMP-598: Add macro command for minimum particle generation.
+// 20260606  G4CMP-578: Add macro command for pprimary phonon energy.
 
 #include "G4CMPConfigMessenger.hh"
 #include "G4CMPConfigManager.hh"
@@ -63,12 +65,13 @@ G4CMPConfigMessenger::G4CMPConfigMessenger(G4CMPConfigManager* mgr)
     theManager(mgr), versionCmd(0), printCmd(0), verboseCmd(0), ehBounceCmd(0),
     pBounceCmd(0), qpBounceCmd(0), maxStepsCmd(0), maxLukeCmd(0),
     pSurfStepLimitCmd(0), safetyNSweep2DCmd(0), clearCmd(0), minEPhononCmd(0),
-    minEChargeCmd(0), sampleECmd(0), comboStepCmd(0), trapEMFPCmd(0),
-    trapHMFPCmd(0), eDTrapIonMFPCmd(0), eATrapIonMFPCmd(0), hDTrapIonMFPCmd(0),
-    hATrapIonMFPCmd(0), tempCmd(0), pSurfStepSizeCmd(0), minstepCmd(0),
+    minEChargeCmd(0), sampleECmd(0), phonEprimCmd(0), comboStepCmd(0),
+    trapEMFPCmd(0), trapHMFPCmd(0), eDTrapIonMFPCmd(0), eATrapIonMFPCmd(0),
+    hDTrapIonMFPCmd(0), hATrapIonMFPCmd(0),
+    tempCmd(0), pSurfStepSizeCmd(0), minstepCmd(0),
     makePhononCmd(0), makeChargeCmd(0), lukePhononCmd(0), dirCmd(0),
     lukeFileCmd(0), ivRateModelCmd(0), nielPartitionCmd(0), kvmapCmd(0),
-    fanoStatsCmd(0), kaplanKeepCmd(0), ehCloudCmd(0), recordMinECmd(0) {
+    fanoStatsCmd(0), kaplanKeepCmd(0), ehCloudCmd(0), recordMinECmd(0), minParCmd(0) {
   verboseCmd = CreateCommand<G4UIcmdWithAnInteger>("verbose",
 					   "Enable diagnostic messages");
 
@@ -100,6 +103,14 @@ G4CMPConfigMessenger::G4CMPConfigMessenger(G4CMPConfigManager* mgr)
   sampleECmd->SetGuidance("and 'sampleLuke'.");
   sampleECmd->SetUnitCategory("Energy");
 
+  phonEprimCmd = CreateCommand<G4UIcmdWithADoubleAndUnit>("primaryPhononEnergy",
+		  "Energy assigned to primary phonons when partitioning");
+  phonEprimCmd->SetGuidance("Replaces the Debye energy when partitioning an");
+  phonEprimCmd->SetGuidance("energy deposit (nuclear recoil or recombination)");
+  phonEprimCmd->SetGuidance("into directly produced phonons.  All phonons are");
+  phonEprimCmd->SetGuidance("assigned this energy.");
+  phonEprimCmd->SetUnitCategory("Energy");
+
   makePhononCmd = CreateCommand<G4UIcmdWithADouble>("producePhonons",
 		    "Set rate of production of primary phonons");
 
@@ -130,6 +141,7 @@ G4CMPConfigMessenger::G4CMPConfigMessenger(G4CMPConfigManager* mgr)
   comboStepCmd = CreateCommand<G4UIcmdWithADoubleAndUnit>("combiningStepLength",
 	  "Maximum track step-length to merge energy deposit for partitioning");
   comboStepCmd->SetUnitCategory("Length");
+  comboStepCmd->SetDefaultUnit("mm");
 
   ehBounceCmd = CreateCommand<G4UIcmdWithAnInteger>("chargeBounces",
 		  "Maximum number of reflections allowed for charge carriers");
@@ -238,6 +250,8 @@ G4CMPConfigMessenger::G4CMPConfigMessenger(G4CMPConfigManager* mgr)
   EmpEhighCmd = CreateCommand<G4UIcmdWithADoubleAndUnit>("/g4cmp/NIELPartition/Empirical/Ehigh",
       "Set Ehigh parameter for Emp Lindhard model.");
   EmpEhighCmd->SetUnitCategory("Energy");
+
+  minParCmd = CreateCommand<G4UIcmdWithAnInteger>("minParticles", "Set minimum number of phonons/charges to generate per interaction");
 }
 
 G4CMPConfigMessenger::~G4CMPConfigMessenger() {
@@ -254,6 +268,7 @@ G4CMPConfigMessenger::~G4CMPConfigMessenger() {
   delete minEChargeCmd; minEChargeCmd=0;
   delete recordMinECmd; recordMinECmd=0;
   delete sampleECmd; sampleECmd=0;
+  delete phonEprimCmd; phonEprimCmd=0;
   delete comboStepCmd; comboStepCmd=0;
   delete trapEMFPCmd; trapEMFPCmd=0;
   delete trapHMFPCmd; trapHMFPCmd=0;
@@ -283,6 +298,7 @@ G4CMPConfigMessenger::~G4CMPConfigMessenger() {
   delete EmpEhighCmd; EmpEhighCmd = 0;
   delete EmpkFixedCmd; EmpkFixedCmd = 0;
   delete EmpEDepKCmd; EmpEDepKCmd = 0;
+  delete minParCmd; minParCmd = 0;
 }
 
 // Parse user input and add to configuration
@@ -324,6 +340,9 @@ void G4CMPConfigMessenger::SetNewValue(G4UIcommand* cmd, G4String value) {
     theManager->SetSamplingEnergy(sampleECmd->GetNewDoubleValue(value));
     if (theManager->GetLukeSampling() == 1.) theManager->SetLukeSampling(-1.);
   }
+
+  if (cmd == phonEprimCmd)
+    theManager->SetPrimaryPhononEnergy(phonEprimCmd->GetNewDoubleValue(value));
 
   if (cmd == comboStepCmd)
     theManager->SetComboStepLength(comboStepCmd->GetNewDoubleValue(value));
@@ -378,4 +397,6 @@ void G4CMPConfigMessenger::SetNewValue(G4UIcommand* cmd, G4String value) {
 
   if (cmd == EmpEDepKCmd)
     theManager->SetEmpEDepK(EmpEDepKCmd->GetNewBoolValue(value));
+
+  if (cmd == minParCmd) theManager->SetMinGenParticles(StoI(value));
 }
