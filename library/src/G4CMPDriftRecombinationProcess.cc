@@ -53,7 +53,7 @@ G4CMPDriftRecombinationProcess::GetMeanFreePath(const G4Track& aTrack, G4double,
   UpdateMeanFreePathForLatticeChangeover(aTrack);
 
   G4bool doRecomb = ReadyToRecombine(aTrack);
-  *cond = (aTrack.GetTrackStatus() == fStopButAlive ? Forced : NotForced);
+  *cond = (doRecomb ? Forced : NotForced);
   return (doRecomb ? 0. : DBL_MAX);
 }
 
@@ -61,13 +61,6 @@ G4VParticleChange*
 G4CMPDriftRecombinationProcess::PostStepDoIt(const G4Track& aTrack,
 					     const G4Step& aStep) {
   InitializeParticleChange(aTrack);
-
-  /***
-  G4bool doRecomb = ReadyToRecombine(aTrack);
-
-  // If the particle has not come to rest, do nothing
-  if (!doRecomb) return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
-  ***/
 
   if (verboseLevel) {
     G4cout << GetProcessName() << "::PostStepDoIt: " << G4endl
@@ -117,7 +110,7 @@ ReadyToRecombine(const G4Track& aTrack) const {
     G4cout << GetProcessName() << "::ReadyToRecombine?" << G4endl;
 
   if (aTrack.GetTrackStatus() == fStopButAlive) {
-    if (verboseLevel>2) G4cout << " track stopped." << G4endl;
+    if (verboseLevel>1) G4cout << " track stopped." << G4endl;
     return true;
   }
 
