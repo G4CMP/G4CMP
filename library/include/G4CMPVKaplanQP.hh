@@ -4,13 +4,11 @@
 \***********************************************************************/
 
 /// \file library/include/G4CMPVKaplanQP.hh
-/// \brief Grouping of free standing functions that relate to the
-/// creation and energy calculations of quasi-particle downconversion
-/// by phonons breaking Cooper pairs in superconductors.
+/// \brief Base class for phonon-qp interaction physics
 ///
-/// This code implements a "lumped" version of Kaplan's model for
-/// quasiparticle-phonon interactions in superconducting films,
-/// S.B.Kaplan et al., Phys.Rev.B14 (1976).
+/// This code implements a base class to control the properties of
+/// phonon-qp interactions. Most of the code is extracted from the original
+/// G4CMPKaplanQP implementation.
 ///
 /// If the thin-film parameters are set from a MaterialPropertiesTable,
 /// the table must contain the first five of the following entries:
