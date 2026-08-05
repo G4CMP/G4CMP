@@ -117,7 +117,7 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   //
   // Germanium layer -- should change to SiGe in the future!
   // 
-  G4VSolid* fGermaniumSolid = new G4Box("fGermaniumSolid", 0.5*mm, 0.5*mm, 100.*nm);
+  G4VSolid* fGermaniumSolid = new G4Box("fGermaniumSolid", 10.*mm, 10.*mm, 5.*mm);
   G4LogicalVolume* fGermaniumLogical =
     new G4LogicalVolume(fGermaniumSolid,fGermanium,"fGermaniumLogical");
   G4VPhysicalVolume* GePhys =
@@ -141,11 +141,11 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   //
   // Silicon layer
   //
-  G4VSolid* fSiliconSolid = new G4Box("fSiliconSolid",0.5*mm,0.5*mm,2.5*nm);
+  G4VSolid* fSiliconSolid = new G4Box("fSiliconSolid",10.*mm,10.*mm,5.*mm);
   G4LogicalVolume* fSiliconLogical =
     new G4LogicalVolume(fSiliconSolid,fSilicon,"fSiliconLogical");
   G4VPhysicalVolume* SiPhys = new G4PVPlacement(0,
-    G4ThreeVector(0.,0.,102.5*nm), fSiliconLogical, "fSiliconPhysical",
+    G4ThreeVector(0.,0.,10.*mm), fSiliconLogical, "fSiliconPhysical",
     worldLogical,false,0);
   // std::cout<<"SQD: Constructed silicon physical volume!" <<std::endl;
 

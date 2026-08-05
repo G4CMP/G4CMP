@@ -3,15 +3,6 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
-/// \file exoticphysics/Heterostructure/src/HeterostructurePrimaryGeneratorAction.cc
-/// \brief Implementation of the HeterostructurePrimaryGeneratorAction class
-//
-// $Id: e75f788b103aef810361fad30f75077829192c13 $
-//
-// 20140519  Allow the user to specify Heterostructure type by name in macro; if
-//	     "geantino" is set, use random generator to select.
-
-#include "HeterostructureConfigManager.hh"
 #include "HeterostructurePrimaryGeneratorAction.hh"
 
 #include "G4Event.hh"

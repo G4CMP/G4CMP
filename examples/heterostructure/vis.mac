@@ -4,8 +4,8 @@
 /g4cmp/verbose 2
 /g4cmp/chargeBounces 1000
 
-/g4cmp/qAbsProbGeSi 0.5
-/g4cmp/qReflProbGeSi 0.5
+/g4cmp/qAbsProbGeSi 0
+/g4cmp/qReflProbGeSi 0
 /g4cmp/qAbsProbSiGe 0
 /g4cmp/qReflProbSiGe 0
 
