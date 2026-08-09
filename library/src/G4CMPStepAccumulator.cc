@@ -96,9 +96,13 @@ G4double G4CMPStepInfo::ComputeNIEL(const G4Step& step) const {
   const G4ParticleDefinition* thePD = step.GetTrack()->GetDefinition();
   G4int Z=thePD->GetAtomicNumber(), A=thePD->GetAtomicMass();
 
-  G4double energy = step.GetTotalEnergyDeposit();
-  const G4VNIELPartition* lind = G4CMPConfigManager::GetNIELPartition();
-  return energy * (1. - lind->PartitionNIEL(energy, mat, Z, A));
+  if (A >= 1) {
+    G4double energy = step.GetTotalEnergyDeposit();
+    const G4VNIELPartition* lind = G4CMPConfigManager::GetNIELPartition();
+    return energy * (1. - lind->PartitionNIEL(energy, mat, Z, A));
+  }
+
+  return 0.;
 }
 
 
