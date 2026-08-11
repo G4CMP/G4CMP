@@ -6,6 +6,7 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-08-10  G4CMP-654 : Avoid lattice FatalExceptions if no charge parameters.
 2026-08-08  G4CMP-653 : Apply Lindhard yield to steps within HitMerging.
 2026-07-27  G4CMP-650 : Add missing file to library/CMakeLists.txt header list
 2026-07-21  G4CMP-649 : Protect against missing touchable in SurfaceClearance.
