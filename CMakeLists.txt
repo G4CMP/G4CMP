@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 project(G4CMP)
 
 # User can provide version string in case build is not from Git source
-set(G4CMP_VERSION "" CACHE STRING "G4CMP Version Tag to be used")
+set(G4CMP_USER_VERSION "" CACHE STRING "G4CMP Version Tag to be used")
 
 #----------------------------------------------------------------------------
 # Option to include additional diagnostic output
@@ -35,13 +35,14 @@ if (NOT DEFINED CMAKE_CXX_STANDARD)	# Only if user did not specify
     if (DEFINED Geant4_CXXSTD)			# For G4 v10, value is "c++NN"
         string(REPLACE "c++" "" CMAKE_CXX_STANDARD ${Geant4_CXXSTD})
     elseif (DEFINED Geant4_CXX_STANDARD)	# For G4 v11, value is "NN"
-	set(CMAKE_CXX_STANDARD ${Geant4_CXX_STANDARD})
+        set(CMAKE_CXX_STANDARD ${Geant4_CXX_STANDARD})
     endif()
 endif()
 
 # Store actual value of c++NN derived from above or set by user
 set(G4CMP_CXX_STANDARD ${CMAKE_CXX_STANDARD} CACHE STRING
    "C++ version used for building G4CMP")
+message(STATUS "Setting G4CMP_CXX_STANDARD: ${G4CMP_CXX_STANDARD}")
 
 #----------------------------------------------------------------------------
 # Utility function to define simple executables in subdirectories
@@ -50,7 +51,7 @@ function(make_binaries)
     foreach(bin IN LISTS ARGV)
         add_executable(${bin} ${bin}.cc)
         target_link_libraries(${bin} G4cmp)
-	install(TARGETS ${bin} DESTINATION bin)
+        install(TARGETS ${bin} DESTINATION bin)
     endforeach()
 endfunction()
 
@@ -88,18 +89,35 @@ add_custom_target(version ALL
     VERBATIM			# Allows for parentheses and redirection below
     COMMAND ${CMAKE_COMMAND} -E env ${SH}
         -c "(cd ${PROJECT_SOURCE_DIR};\
-        [ -d .git ] && git describe --always || echo ${G4CMP_VERSION}) > ${version_FILE}"
+        [ -d .git ] && git describe --always || echo ${G4CMP_USER_VERSION}) > ${version_FILE}"
     )
 
 install(FILES ${PROJECT_BINARY_DIR}/${version_FILE} DESTINATION share/G4CMP
         COMPONENT config)
+
+# Load G4CMP version into cmake flag
+if (NOT DEFINED G4CMP_VERSION)	# Only if user did not specify
+    file(READ ${PROJECT_BINARY_DIR}/${version_FILE} VERSION_CONTENT)
+    # Strip trailing newlines or whitespace
+    string(STRIP "${VERSION_CONTENT}" CLEAN_VERSION)
+    set(G4CMP_VERSION ${CLEAN_VERSION})
+endif()
+
+#-----------------------------------------------------------------------------
+# Create local UseG4CMP.cmake from template
+#
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/UseG4CMP.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/UseG4CMP.cmake"
+    @ONLY
+)
 
 #-----------------------------------------------------------------------------
 # Install CMake config files
 #
 install(FILES ${PROJECT_SOURCE_DIR}/cmake/G4CMPConfig.cmake
         DESTINATION cmake)
-install(FILES ${PROJECT_SOURCE_DIR}/cmake/UseG4CMP.cmake
+install(FILES ${PROJECT_BINARY_DIR}/UseG4CMP.cmake
         DESTINATION cmake)
 
 #-----------------------------------------------------------------------------
