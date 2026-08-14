@@ -184,14 +184,11 @@ G4double G4CMPVKaplanQP::QPEnergyRand(G4double Energy) const {
 
 G4double G4CMPVKaplanQP::QPEnergyPDF(G4double E, G4double x) const {
   const G4double gapsq = gapEnergy*gapEnergy;
-  const G4double occupy = 1. - ThermalPDF(E) - ThermalPDF(E-x);
+  const G4double mbE = G4CMP::MaxwellBoltzmannPDF(temperature, E);
+  const G4double mbEx = G4CMP::MaxwellBoltzmannPDF(temperature, E-x);
+  const G4double occupy = 1. - mbE - mbEx;
 
   return ( occupy * (x*(E-x)+gapsq) / sqrt((x*x-gapsq) * ((E-x)*(E-x)-gapsq)) );
-}
-
-G4double G4CMPVKaplanQP::ThermalPDF(G4double E) const {
-  const G4double kT = k_Boltzmann*temperature;
-  return ( (temperature > 0.) ? 1./(exp(E/kT)+1.) : 0. );
 }
 
 

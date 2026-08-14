@@ -80,6 +80,7 @@ namespace G4CMP {
 class G4CMPKaplanQP : public G4CMPVKaplanQP {
 public:
   G4CMPKaplanQP(G4MaterialPropertiesTable* prop, G4int vb=0);
+  virtual ~G4CMPKaplanQP() {;}
 
   // Do absorption on sensor/metalization film
   // Returns absorbed energy, fills list of re-emitted phonons

@@ -235,10 +235,8 @@ ProcessReflection(const G4Track& track, const G4Step& step,
   trackInfo->IncrementReflectionCount();
 }
 
-void G4CMPPhononElectrode::setKaplanQP(G4CMPVKaplanQP* val) const
-{
-  if (kaplanQP)
-  {
+void G4CMPPhononElectrode::setKaplanQP(G4CMPVKaplanQP* val) const {
+  if (kaplanQP) {
     delete kaplanQP;
     kaplanQP = 0;
   }
@@ -248,11 +246,10 @@ void G4CMPPhononElectrode::setKaplanQP(G4CMPVKaplanQP* val) const
 
 // define phonon-qp interaction mechanism via string identifier;
 // G4CMPKaplanQP default
-G4CMPVKaplanQP* G4CMPPhononElectrode::getKaplanQP(G4String identifier) const
-{
+G4CMPVKaplanQP*
+G4CMPPhononElectrode::getKaplanQP(const G4String& identifier) const {
   G4CMPVKaplanQP* val = nullptr;
-  if (identifier.empty() || identifier.find("aplan") != G4String::npos)
-  {
+  if (identifier.empty() || identifier.find("aplan") != G4String::npos) {
     val = new G4CMPKaplanQP(theSurfaceTable, verboseLevel);
   }
   return val;

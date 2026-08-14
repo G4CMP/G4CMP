@@ -46,10 +46,10 @@ class G4MaterialPropertiesTable;
 class G4CMPVKaplanQP {
 public:
   G4CMPVKaplanQP(G4MaterialPropertiesTable* prop, G4int vb=0);
-  ~G4CMPVKaplanQP();
+  virtual ~G4CMPVKaplanQP();
 
   // Turn on diagnostic messages
-  void SetVerboseLevel(G4int vb) { verboseLevel = vb; }
+  virtual void SetVerboseLevel(G4int vb) { verboseLevel = vb; }
   G4int GetVerboseLevel() const { return verboseLevel; }
 
   // Set temperature for use by thermalization functions
@@ -79,8 +79,9 @@ public:
 
 protected:
   // Check that the five required parameters are set to meaningful values
-  G4bool ParamsReady() const {
-    return (filmThickness > 0. && gapEnergy >= 0. && vSound > 0. &&
+  virtual G4bool ParamsReady() const {
+    // return (filmThickness > 0. && gapEnergy >= 0. && vSound > 0. &&
+    return (filmThickness > 0. && gapEnergy > 0. && vSound > 0. &&
       phononLifetime > 0. && phononLifetimeSlope >= 0.);
   }
 
@@ -120,7 +121,6 @@ protected:
   // Compute quasiparticle energy distribution from broken Cooper pair.
   G4double QPEnergyRand(G4double Energy) const;
   G4double QPEnergyPDF(G4double E, G4double x) const;
-  G4double ThermalPDF(G4double E) const;
 
   // Compute phonon energy distribution from quasiparticle in superconductor.
   G4double PhononEnergyRand(G4double Energy) const;
