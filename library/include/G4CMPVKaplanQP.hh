@@ -80,7 +80,6 @@ public:
 protected:
   // Check that the five required parameters are set to meaningful values
   virtual G4bool ParamsReady() const {
-    // return (filmThickness > 0. && gapEnergy >= 0. && vSound > 0. &&
     return (filmThickness > 0. && gapEnergy > 0. && vSound > 0. &&
       phononLifetime > 0. && phononLifetimeSlope >= 0.);
   }
