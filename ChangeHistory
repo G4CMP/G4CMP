@@ -6,6 +6,13 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-08-11  G4CMP-643 : E-field has incorrect HV transform in G4CMPIVRate.
+2026-08-10  G4CMP-654 : Avoid lattice FatalExceptions if no charge parameters.
+2026-08-08  G4CMP-653 : Apply Lindhard yield to steps within HitMerging.
+2026-07-27  G4CMP-650 : Add missing file to library/CMakeLists.txt header list
+2026-07-21  G4CMP-649 : Protect against missing touchable in SurfaceClearance.
+2026-07-07  G4CMP-641 : Update PhysicsModelCatalog usage for G4 11.4.2.
+
 2026-06-19  g4cmp-V10-04-01  Fixes and sanity checks for partial charge params.
 2026-06-18  G4CMP-628 : If ValleyDir 0 0 0, then AddValley Identity Matrix.
 2026-06-18  G4CMP-634 : Clean up check on valley index for new tracks.

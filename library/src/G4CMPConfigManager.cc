@@ -53,6 +53,7 @@
 // 20260121  G4CMP-567: Change charge bounces default to zero.
 // 20260429  G4CMP-598: Add minGenParticles parameter.
 // 20260606  G4CMP-578: Add primaryPhononEnergy parameter for partitioning.
+// 20260707  G4CMP-641: Use new RegisterCustomModel() for Physics in G4 11.4.2+
 
 #include "G4CMPConfigManager.hh"
 #include "G4CMPConfigMessenger.hh"
@@ -205,10 +206,15 @@ void G4CMPConfigManager::setVersion() {
 G4int G4CMPConfigManager::setPhysicsModelID() const {
 #if G4VERSION_NUMBER < 1100
   return G4PhysicsModelCatalog::Register("G4CMP process");
+#elif G4VERSION_NUMBER < 1142
+  G4PhysicsModelCatalog::Initialize();	// Uses G4CMP local hack of function
+  return G4PhysicsModelCatalog::GetModelID("G4CMP process");
 #else
-  G4PhysicsModelCatalog::Initialize();
+  G4PhysicsModelCatalog::RegisterCustomModel("G4CMP process");
   return G4PhysicsModelCatalog::GetModelID("G4CMP process");
 #endif
+
+  return 0;		// Should never get here
 }
 
 
