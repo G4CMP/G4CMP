@@ -15,16 +15,20 @@
 // 20220228  Add sanity check that only energy-deposit hits are accumulated.
 // 20220821  G4CMP-308 -- Define step-info container to avoid needing G4Step
 // 20220828  Only call Clear() if event ID has changed.
+// 20260809  G4CMP-653 -- Compute NIEL for step using registered model
 
 #include "globals.hh"
+#include "G4CMPConfigManager.hh"
 #include "G4CMPStepAccumulator.hh"
 #include "G4Event.hh"
+#include "G4Material.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4RunManager.hh"
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Track.hh"
+#include "G4VNIELPartition.hh"
 #include <iostream>
 
 
@@ -36,7 +40,7 @@ G4CMPStepInfo::G4CMPStepInfo(const G4Step* step)
     pd(step->GetTrack()->GetDefinition()),
     length(step->GetStepLength()),
     Edep(step->GetTotalEnergyDeposit()),
-    Eniel(step->GetNonIonizingEnergyDeposit()),
+    Eniel(ComputeNIEL(*step)),
     time(step->GetPostStepPoint()->GetGlobalTime()),
     start(step->GetPreStepPoint()->GetPosition()),
     end(step->GetPostStepPoint()->GetPosition()),
@@ -49,7 +53,7 @@ G4CMPStepInfo::G4CMPStepInfo(const G4Step& step)
     pd(step.GetTrack()->GetDefinition()),
     length(step.GetStepLength()),
     Edep(step.GetTotalEnergyDeposit()),
-    Eniel(step.GetNonIonizingEnergyDeposit()),
+    Eniel(ComputeNIEL(step)),
     time(step.GetPostStepPoint()->GetGlobalTime()),
     start(step.GetPreStepPoint()->GetPosition()),
     end(step.GetPostStepPoint()->GetPosition()),
@@ -79,6 +83,26 @@ G4CMPStepInfo::operator=(const G4CMPStepInfo& step) {
   sStatus = step.sStatus;
 
   return *this;
+}
+
+
+// Compute non-ionizing energy deposit (Lindhard theory)
+
+G4double G4CMPStepInfo::ComputeNIEL(const G4Step& step) const {
+  if (step.GetNonIonizingEnergyDeposit() > 0.)
+    return step.GetNonIonizingEnergyDeposit();
+						 
+  G4Material* mat = step.GetPreStepPoint()->GetMaterial();
+  const G4ParticleDefinition* thePD = step.GetTrack()->GetDefinition();
+  G4int Z=thePD->GetAtomicNumber(), A=thePD->GetAtomicMass();
+
+  if (A >= 1) {
+    G4double energy = step.GetTotalEnergyDeposit();
+    const G4VNIELPartition* lind = G4CMPConfigManager::GetNIELPartition();
+    return energy * (1. - lind->PartitionNIEL(energy, mat, Z, A));
+  }
+
+  return 0.;
 }
 
 

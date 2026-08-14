@@ -361,6 +361,7 @@ set(library_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPQPDiffusionTimeStepperProcess.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPQPDiffusionTimeStepperRate.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPVKaplanQP.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPParticleChangeForQPDiffusion.icc
     )
 
 set(config_FILES
