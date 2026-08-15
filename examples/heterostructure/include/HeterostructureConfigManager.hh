@@ -10,7 +10,7 @@
 ///   initialization to set default values; active values may be
 ///   changed via macro commands (see HeterostructureConfigMessenger).
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #ifndef HeterostructureConfigManager_hh
 #define HeterostructureConfigManager_hh 1

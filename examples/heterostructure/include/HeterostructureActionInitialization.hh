@@ -6,7 +6,7 @@
 /// \file HeterostructureActionInitialization.hh
 /// \brief Definition of the HeterostructureActionInitialization class
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #ifndef HeterostructureActionInitialization_hh
 #define HeterostructureActionInitialization_hh 1

@@ -10,13 +10,11 @@
 ///		initialization to set default values; active values may be
 ///		changed via macro commands (see HeterostructureConfigMessenger).
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #include "HeterostructureConfigManager.hh"
 #include "HeterostructureConfigMessenger.hh"
-
 #include "G4RunManager.hh"
-
 #include <stdlib.h>
 
 // Constructor and Singleton Initializer
@@ -30,8 +28,8 @@ HeterostructureConfigManager* HeterostructureConfigManager::Instance() {
 
 HeterostructureConfigManager::HeterostructureConfigManager()
   : Hit_file(getenv("G4CMP_HIT_FILE")?getenv("G4CMP_HIT_FILE"):"Heterostructure_hits.txt"),
-    messenger(new HeterostructureConfigMessenger(this)),
-    fQAbsProbGeSi(0), fQAbsProbSiGe(0), fQReflProbGeSi(0), fQReflProbSiGe(0) {;}
+    fQAbsProbGeSi(0), fQAbsProbSiGe(0), fQReflProbGeSi(0), fQReflProbSiGe(0),
+    messenger(new HeterostructureConfigMessenger(this)) {;}
 
 HeterostructureConfigManager::~HeterostructureConfigManager() {
   delete messenger; messenger=0;

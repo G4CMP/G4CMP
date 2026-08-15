@@ -6,7 +6,7 @@
 /// \file HeterostructurePrimaryGeneratorAction.hh
 /// \brief Definition of the HeterostructurePrimaryGeneratorAction class
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #ifndef HeterostructurePrimaryGeneratorAction_h
 #define HeterostructurePrimaryGeneratorAction_h 1

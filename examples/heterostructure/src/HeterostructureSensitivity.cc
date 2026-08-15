@@ -6,14 +6,12 @@
 /// \file HeterostructureSensitivity.cc
 /// \brief Implementation of the HeterostructureSensitivity class
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #include "HeterostructureSensitivity.hh"
 #include "HeterostructureConfigManager.hh"
-
 #include "G4CMPElectrodeHit.hh"
 #include "G4CMPUtils.hh"
-
 #include "G4Event.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4PhononLong.hh"

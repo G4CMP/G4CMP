@@ -6,7 +6,7 @@
 /// \file HeterostructureDetectorConstruction.hh
 /// \brief Definition of the HeterostructureDetectorConstruction class
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #ifndef HeterostructureDetectorConstruction_h
 #define HeterostructureDetectorConstruction_h 1

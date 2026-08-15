@@ -8,11 +8,10 @@
 ///   Macro command defitions to set user configuration in
 ///		HeterostructureConfigManager.
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #include "HeterostructureConfigMessenger.hh"
 #include "HeterostructureConfigManager.hh"
-
 #include "G4UIcmdWithAString.hh"
 
 
@@ -36,13 +35,13 @@ HeterostructureConfigMessenger::HeterostructureConfigMessenger(HeterostructureCo
 
   qReflProbGeSiCmd = CreateCommand<G4UIcmdWithADouble> ("qReflProbGeSi", 
             "Set the pReflProb parameter from Ge to Si, between 0 and 1");
-  qReflProbGeSiCmd->SetParameterName("qReflProbGeSi", false);
-  qReflProbGeSiCmd->SetRange("qReflProbGeSi >= 0. && qReflProbGeSi <= 1.");
+  qReflProbGeSiCmd->SetParameterName("value", false);
+  qReflProbGeSiCmd->SetRange("value >= 0. && value <= 1.");
 
   qReflProbSiGeCmd = CreateCommand<G4UIcmdWithADouble> ("qReflProbSiGe", 
             "Set the pReflProb parameter from Si to Ge, between 0 and 1");
-  qReflProbSiGeCmd->SetParameterName("qReflProbSiGe", false);
-  qReflProbSiGeCmd->SetRange("qReflProbSiGe >= 0. && qReflProbSiGe <= 1.");
+  qReflProbSiGeCmd->SetParameterName("value", false);
+  qReflProbSiGeCmd->SetRange("value >= 0. && value <= 1.");
 }
 
 
@@ -59,8 +58,8 @@ HeterostructureConfigMessenger::~HeterostructureConfigMessenger() {
 
 void HeterostructureConfigMessenger::SetNewValue(G4UIcommand* cmd, G4String value) {
   if (cmd == hitsCmd) theManager->SetHitOutput(value);
-  if (cmd == qAbsProbGeSiCmd) theManager->SetQAbsProbGeSi(std::stod(value));
-  if (cmd == qAbsProbSiGeCmd) theManager->SetQAbsProbSiGe(std::stod(value));
-  if (cmd == qReflProbGeSiCmd) theManager->SetQReflProbGeSi(std::stod(value));
-  if (cmd == qReflProbSiGeCmd) theManager->SetQReflProbSiGe(std::stod(value));
+  if (cmd == qAbsProbGeSiCmd) theManager->SetQAbsProbGeSi(StoD(value));
+  if (cmd == qAbsProbSiGeCmd) theManager->SetQAbsProbSiGe(StoD(value));
+  if (cmd == qReflProbGeSiCmd) theManager->SetQReflProbGeSi(StoD(value));
+  if (cmd == qReflProbSiGeCmd) theManager->SetQReflProbSiGe(StoD(value));
 }

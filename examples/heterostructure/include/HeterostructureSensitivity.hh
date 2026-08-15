@@ -6,7 +6,7 @@
 /// \file HeterostructureSensitivity.hh
 /// \brief Definition of the HeterostructureSensitivity class
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #ifndef HeterostructureSensitivity_h
 #define HeterostructureSensitivity_h 1

@@ -7,13 +7,11 @@
 /// \brief Implementation of the HeterostructurePrimaryGeneratorAction class
 /// Constructs heterostructure toy geometry with germanium on silicon.
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #include "HeterostructurePrimaryGeneratorAction.hh"
-
 #include "G4CMPDriftElectron.hh"
 #include "G4CMPDriftHole.hh"
-
 #include "G4Event.hh"
 #include "G4Geantino.hh"
 #include "G4ParticleGun.hh"

@@ -7,18 +7,16 @@
 /// \brief Implementation of the HeterostructureDetectorConstruction class
 /// Constructs heterostructure toy geometry with germanium on silicon.
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #include "HeterostructureDetectorConstruction.hh"
 #include "HeterostructureConfigManager.hh"
 #include "HeterostructureSensitivity.hh"
-
 #include "G4CMPLogicalBorderSurface.hh"
 #include "G4CMPLogicalSkinSurface.hh"
 #include "G4CMPPhononElectrode.hh"
 #include "G4CMPSurfaceProperty.hh"
 #include "G4CMPUtils.hh"
-
 #include "G4Box.hh"
 #include "G4Colour.hh"
 #include "G4GeometryManager.hh"
@@ -41,7 +39,7 @@
 
 HeterostructureDetectorConstruction::HeterostructureDetectorConstruction()
   : fLiquidHelium(0), fGermanium(0), fSilicon(0), fWorldPhys(0), 
-    fGeSiInterface(0), fSiGeInterface(0), fSiVacInterface(0), fGeVacInterface(0),
+    fGeSiInterface(0), fSiGeInterface(0), fGeVacInterface(0), fSiVacInterface(0), 
     fConstructed(false) {;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -144,13 +142,10 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   SiPhysical->SetMillerOrientation(1,0,0);
   LM->RegisterLattice(SiPhys, SiPhysical);
 
-  double qAbsProbGeSi,qAbsProbSiGe,qReflProbGeSi,qReflProbSiGe;
-  qAbsProbGeSi=qAbsProbSiGe=qReflProbGeSi=qReflProbSiGe=0;
-
-  if(HeterostructureConfigManager::GetQAbsProbGeSi() != -1.0) qAbsProbGeSi = HeterostructureConfigManager::GetQAbsProbGeSi();
-  if(HeterostructureConfigManager::GetQReflProbGeSi() != -1.0) qReflProbGeSi = HeterostructureConfigManager::GetQReflProbGeSi();
-  if(HeterostructureConfigManager::GetQAbsProbSiGe() != -1.0) qAbsProbSiGe = HeterostructureConfigManager::GetQAbsProbSiGe();
-  if(HeterostructureConfigManager::GetQReflProbSiGe() != -1.0) qReflProbSiGe = HeterostructureConfigManager::GetQReflProbSiGe();
+  double qAbsProbGeSi  = HeterostructureConfigManager::GetQAbsProbGeSi();
+  double qReflProbGeSi = HeterostructureConfigManager::GetQReflProbGeSi();
+  double qAbsProbSiGe  = HeterostructureConfigManager::GetQAbsProbSiGe();
+  double qReflProbSiGe = HeterostructureConfigManager::GetQReflProbSiGe();
 
 
   if (!fConstructed) {
@@ -179,7 +174,7 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   //
   // Border surfaces
   //
-  new G4CMPLogicalBorderSurface("f", GePhys, SiPhys,
+  new G4CMPLogicalBorderSurface("GeSi", GePhys, SiPhys,
         fGeSiInterface);
   new G4CMPLogicalBorderSurface("SiGe", SiPhys, GePhys, 
         fSiGeInterface);

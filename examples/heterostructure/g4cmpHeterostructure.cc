@@ -6,15 +6,13 @@
 /// \file Heterostructure/g4cmpHeterostructure.cc
 /// \brief Main program of the G4CMP/Heterostructure example
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #include "HeterostructureActionInitialization.hh"
 #include "HeterostructureConfigManager.hh"
 #include "HeterostructureDetectorConstruction.hh"
-
 #include "G4CMPPhysicsList.hh"
 #include "G4CMPConfigManager.hh"
-
 #include "G4RunManager.hh"
 #include "G4UIExecutive.hh"
 #include "G4UImanager.hh"

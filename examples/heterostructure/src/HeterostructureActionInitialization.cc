@@ -6,11 +6,10 @@
 /// /file  HeterostructureActionInitialization.cc
 /// /brief Implementation of the HeterostructureActionInitialization class
 
-//    20260815 Selby Q. Dang
+// 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #include "HeterostructureActionInitialization.hh"
 #include "HeterostructurePrimaryGeneratorAction.hh"
-
 #include "G4CMPStackingAction.hh"
 
 void HeterostructureActionInitialization::Build() const {
