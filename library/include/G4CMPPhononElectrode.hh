@@ -83,6 +83,9 @@ public:
   // use getKaplanQP to register absorber
   virtual void RegisterAbsorber(const G4String& identifier) const  { RegisterAbsorber(getKaplanQP(identifier)); }
 
+  // allow surface table to be registered with kaplanqp object as well
+  virtual void UseSurfaceTable(G4MaterialPropertiesTable* surfProp) override;
+
 protected:
   virtual void setKaplanQP(G4CMPVKaplanQP* val) const;
 
@@ -97,8 +100,6 @@ protected:
   // NOTE: "Mutable" because AbsorbAtElectrode() function is const
   mutable G4CMPVKaplanQP* kaplanQP;	// Create instance of QET simulator
   mutable std::vector<G4double> phononEnergies;		// Reusable buffer
-  mutable G4bool absorberSet; // so we can tell if user has set kaplanQP to
-  // nullptr intentionally
 };
 
 #endif
