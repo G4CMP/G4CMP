@@ -20,16 +20,6 @@ else()
   find_package(Geant4 REQUIRED)
 endif()
 
-# Geant4 11+ requires C++17 or greater
-if (Geant4_VERSION_MAJOR GREATER_EQUAL 11)
-  if (NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 17)
-  endif()
-  if (CMAKE_CXX_STANDARD LESS 17)
-    set(CMAKE_CXX_STANDARD 17)
-  endif()
-endif()
-
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
 # Setup include directory for this project
@@ -37,6 +27,15 @@ endif()
 include(${Geant4_USE_FILE})
 include(${G4CMP_USE_FILE})
 include_directories(${PROJECT_SOURCE_DIR}/include)
+
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Use same C++ version as was used for G4CMP
+if (NOT DEFINED CMAKE_CXX_STANDARD) # Only if user did not specify
+    set(CMAKE_CXX_STANDARD ${G4CMP_CXX_STANDARD})
+endif()
+
+message(STATUS "Found G4CMP: ${G4CMP_VERSION}")
+message(STATUS "Setting CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}")
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
