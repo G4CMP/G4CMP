@@ -3,20 +3,26 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
+/// \file HeterostructurePrimaryGeneratorAction.cc 
+/// \brief Implementation of the HeterostructurePrimaryGeneratorAction class
+/// Constructs heterostructure toy geometry with germanium on silicon.
+
+//    20260815 Selby Q. Dang
+
 #include "HeterostructurePrimaryGeneratorAction.hh"
+
+#include "G4CMPDriftElectron.hh"
+#include "G4CMPDriftHole.hh"
 
 #include "G4Event.hh"
 #include "G4Geantino.hh"
 #include "G4ParticleGun.hh"
 #include "G4RandomDirection.hh"
-#include "G4PhononTransFast.hh"
-#include "G4PhononTransSlow.hh"
-#include "G4PhononLong.hh"
 #include "G4SystemOfUnits.hh"
-#include "G4CMPDriftElectron.hh"
-#include "G4CMPDriftHole.hh"
 
 using namespace std;
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 HeterostructurePrimaryGeneratorAction::HeterostructurePrimaryGeneratorAction() { 
   G4int n_particle = 1;
@@ -31,30 +37,11 @@ HeterostructurePrimaryGeneratorAction::HeterostructurePrimaryGeneratorAction() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-
 HeterostructurePrimaryGeneratorAction::~HeterostructurePrimaryGeneratorAction() {
   delete fParticleGun;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-
- 
-// void HeterostructurePrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
-//   if (fParticleGun->GetParticleDefinition() == G4Geantino::Definition()) {
-//     G4double selector = G4UniformRand();
-//     if (selector<0) {//<1) { //SQD: Silly vis exercise
-//       fParticleGun->SetParticleDefinition(G4CMPDriftElectron::Definition()); 
-//       std::cout<<"SQD: generated a drift electron"<<std::endl;
-//     } 
-//     else {
-//       fParticleGun->SetParticleDefinition(G4CMPDriftHole::Definition());
-//       std::cout<<"SQD: generated a drift hole"<<std::endl;
-//     }
-//   }
-
-//   fParticleGun->SetParticleMomentumDirection(G4RandomDirection());
-//   fParticleGun->GeneratePrimaryVertex(anEvent);
-// }
 
 void HeterostructurePrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   if (fParticleGun->GetParticleDefinition() == G4Geantino::Definition()) {

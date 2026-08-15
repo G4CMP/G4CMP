@@ -3,16 +3,15 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
+/// \file  HeterostructureConfigMessenger.hh
+/// \brief Definition of the HeterostructureConfigMessenger class
+///   Macro command defitions to set user configuration in
+///   HeterostructureConfigManager.
+
+//    20260815 Selby Q. Dang
+
 #ifndef HeterostructureConfigMessenger_hh
 #define HeterostructureConfigMessenger_hh 1
-
-// $Id$
-// File:  HeterostructureConfigMessenger.hh
-//
-// Description:	Macro command defitions to set user configuration in
-//		HeterostructureConfigManager.
-//
-// 20170816  Michael Kelsey
 
 #include "G4UImessenger.hh"
 #include "G4UIcmdWithADouble.hh"  

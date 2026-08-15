@@ -3,27 +3,22 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
-/// \file exoticphysics/Heterostructure/src/HeterostructureDetectorConstruction.cc \brief
-/// Implementation of the HeterostructureDetectorConstruction class
-//
-// $Id: a2016d29cc7d1e75482bfc623a533d20b60390da $
-//
-// 20140321  Drop passing placement transform to G4LatticePhysical
-// 20211207  Replace G4Logical*Surface with G4CMP-specific versions.
-// 20220809  [ For M. Hui ] -- Add frequency dependent surface properties.
-// 20221006  Remove unused features; add Heterostructure sensor pad with use of
-//		G4CMPPhononElectrode to demonstrate KaplanQP.
-// 20251116  G4CMP-539 -- Use UpdateMPT wrapper function to set properties.
-// 20251117  G4CMP-541 -- For G4 v11, replace ::Invisible w/::GetInvisible()
+/// \file HeterostructureDetectorConstruction.cc 
+/// \brief Implementation of the HeterostructureDetectorConstruction class
+/// Constructs heterostructure toy geometry with germanium on silicon.
+
+//    20260815 Selby Q. Dang
 
 #include "HeterostructureDetectorConstruction.hh"
 #include "HeterostructureConfigManager.hh"
 #include "HeterostructureSensitivity.hh"
+
 #include "G4CMPLogicalBorderSurface.hh"
 #include "G4CMPLogicalSkinSurface.hh"
 #include "G4CMPPhononElectrode.hh"
 #include "G4CMPSurfaceProperty.hh"
 #include "G4CMPUtils.hh"
+
 #include "G4Box.hh"
 #include "G4Colour.hh"
 #include "G4GeometryManager.hh"
@@ -32,17 +27,12 @@
 #include "G4LatticePhysical.hh"
 #include "G4LogicalVolume.hh"
 #include "G4LogicalVolumeStore.hh"
-#include "G4Material.hh"
-#include "G4MaterialPropertiesTable.hh"
 #include "G4NistManager.hh"
 #include "G4PVPlacement.hh"
 #include "G4PhysicalVolumeStore.hh"
 #include "G4RunManager.hh"
-#include "G4SDManager.hh"
 #include "G4SolidStore.hh"
 #include "G4SystemOfUnits.hh"
-#include "G4TransportationManager.hh"
-#include "G4Tubs.hh"
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 
@@ -65,8 +55,7 @@ HeterostructureDetectorConstruction::~HeterostructureDetectorConstruction() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-G4VPhysicalVolume* HeterostructureDetectorConstruction::Construct()
-{
+G4VPhysicalVolume* HeterostructureDetectorConstruction::Construct() {
   if (fConstructed) {
     if (!G4RunManager::IfGeometryHasBeenDestroyed()) {
       // Run manager hasn't cleaned volume stores. This code shouldn't execute
@@ -136,8 +125,6 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   GePhysical->SetMillerOrientation(1,0,0);
   LM->RegisterLattice(GePhys, GePhysical);
 
-  // std::cout<<"SQD: Constructed germanium lattice!" <<std::endl;
-
   //
   // Silicon layer
   //
@@ -147,7 +134,6 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   G4VPhysicalVolume* SiPhys = new G4PVPlacement(0,
     G4ThreeVector(0.,0.,10.*mm), fSiliconLogical, "fSiliconPhysical",
     worldLogical,false,0);
-  // std::cout<<"SQD: Constructed silicon physical volume!" <<std::endl;
 
   //
   //Silicon lattice information
@@ -157,8 +143,6 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   G4LatticePhysical* SiPhysical = new G4LatticePhysical(SiLogical);
   SiPhysical->SetMillerOrientation(1,0,0);
   LM->RegisterLattice(SiPhys, SiPhysical);
-
-  // std::cout<<"SQD: Constructed silicon lattice!" <<std::endl;
 
   double qAbsProbGeSi,qAbsProbSiGe,qReflProbGeSi,qReflProbSiGe;
   qAbsProbGeSi=qAbsProbSiGe=qReflProbGeSi=qReflProbSiGe=0;
@@ -195,7 +179,7 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   //
   // Border surfaces
   //
-  new G4CMPLogicalBorderSurface("GeSi", GePhys, SiPhys,
+  new G4CMPLogicalBorderSurface("f", GePhys, SiPhys,
         fGeSiInterface);
   new G4CMPLogicalBorderSurface("SiGe", SiPhys, GePhys, 
         fSiGeInterface);
@@ -224,7 +208,5 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   G4VisAttributes* siVisAtt= new G4VisAttributes(G4Colour(1.0,0,1.0));
   siVisAtt->SetVisibility(true);
   fGermaniumLogical->SetVisAttributes(simpleBoxVisAtt);
-  // fAluminumLogical->SetVisAttributes(simpleBoxVisAtt);
   fSiliconLogical->SetVisAttributes(siVisAtt);
-  std::cout<<"SQD: Set vis attributes!" <<std::endl;
 }

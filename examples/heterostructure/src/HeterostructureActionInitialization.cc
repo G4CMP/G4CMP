@@ -3,10 +3,14 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
-// $Id: 539f524339ae53ad098a07cfa3bebd07784d23dd $
+/// /file  HeterostructureActionInitialization.cc
+/// /brief Implementation of the HeterostructureActionInitialization class
+
+//    20260815 Selby Q. Dang
 
 #include "HeterostructureActionInitialization.hh"
 #include "HeterostructurePrimaryGeneratorAction.hh"
+
 #include "G4CMPStackingAction.hh"
 
 void HeterostructureActionInitialization::Build() const {

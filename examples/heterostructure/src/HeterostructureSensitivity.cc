@@ -3,8 +3,17 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
+/// \file HeterostructureSensitivity.cc
+/// \brief Implementation of the HeterostructureSensitivity class
+
+//    20260815 Selby Q. Dang
+
 #include "HeterostructureSensitivity.hh"
+#include "HeterostructureConfigManager.hh"
+
 #include "G4CMPElectrodeHit.hh"
+#include "G4CMPUtils.hh"
+
 #include "G4Event.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4PhononLong.hh"
@@ -14,7 +23,7 @@
 #include "G4RunManager.hh"
 #include "G4SDManager.hh"
 #include "G4SystemOfUnits.hh"
-#include "HeterostructureConfigManager.hh"
+
 #include <fstream>
 
 
@@ -87,7 +96,7 @@ void HeterostructureSensitivity::SetOutputFile(const G4String &fn) {
     if (!output.good()) {
       G4ExceptionDescription msg;
       msg << "Error opening output file " << fileName;
-      G4Exception("HeterostructureSensitivity::SetOutputFile", "PhonSense003",
+      G4Exception("HeterostructureSensitivity::SetOutputFile", "HetStruct",
                   FatalException, msg);
       output.close();
     } else {
@@ -101,17 +110,15 @@ void HeterostructureSensitivity::SetOutputFile(const G4String &fn) {
 
 G4bool HeterostructureSensitivity::IsHit(const G4Step* step,
                                 const G4TouchableHistory*) const {
-  /* Heterostructures tracks are sometimes killed at the boundary in order to spawn new
-   * Heterostructure tracks. These tracks that are killed deposit no energy and should
+  /* Phonon tracks are sometimes killed at the boundary in order to spawn new
+   * phonon tracks. These tracks that are killed deposit no energy and should
    * not be picked up as hits.
    */
   const G4Track* track = step->GetTrack();
   const G4StepPoint* postStepPoint = step->GetPostStepPoint();
   const G4ParticleDefinition* particle = track->GetDefinition();
 
-  G4bool correctParticle = particle == G4PhononLong::Definition() ||
-                           particle == G4PhononTransFast::Definition() ||
-                           particle == G4PhononTransSlow::Definition();
+  G4bool correctParticle = G4CMP::IsPhonon(particle);
 
   G4bool correctStatus = step->GetTrack()->GetTrackStatus() == fStopAndKill &&
                          postStepPoint->GetStepStatus() == fGeomBoundary &&

@@ -3,6 +3,11 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
+/// \file HeterostructureSensitivity.hh
+/// \brief Definition of the HeterostructureSensitivity class
+
+//    20260815 Selby Q. Dang
+
 #ifndef HeterostructureSensitivity_h
 #define HeterostructureSensitivity_h 1
 

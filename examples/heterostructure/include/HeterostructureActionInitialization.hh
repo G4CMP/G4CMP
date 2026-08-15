@@ -3,7 +3,10 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
-// $Id: e58a61fedbb99b167e16dafebc9c8664ae0c7b94 $
+/// \file HeterostructureActionInitialization.hh
+/// \brief Definition of the HeterostructureActionInitialization class
+
+//    20260815 Selby Q. Dang
 
 #ifndef HeterostructureActionInitialization_hh
 #define HeterostructureActionInitialization_hh 1

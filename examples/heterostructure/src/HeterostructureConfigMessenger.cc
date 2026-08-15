@@ -3,16 +3,16 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
-// $Id$
-// File:  HeterostructureConfigMessenger.cc
-//
-// Description:	Macro command defitions to set user configuration in
-//		HeterostructureConfigManager.
-//
-// 20170816  Michael Kelsey
+/// /file  HeterostructureConfigMessenger.cc
+/// /brief Implementation of the HeterostructureConfigMessenger class
+///   Macro command defitions to set user configuration in
+///		HeterostructureConfigManager.
+
+//    20260815 Selby Q. Dang
 
 #include "HeterostructureConfigMessenger.hh"
 #include "HeterostructureConfigManager.hh"
+
 #include "G4UIcmdWithAString.hh"
 
 
@@ -23,14 +23,26 @@ HeterostructureConfigMessenger::HeterostructureConfigMessenger(HeterostructureCo
     theManager(mgr), hitsCmd(0) {
   hitsCmd = CreateCommand<G4UIcmdWithAString>("HitsFile",
 			      "Set filename for output of Heterostructure hit locations");
+
   qAbsProbGeSiCmd = CreateCommand<G4UIcmdWithADouble> ("qAbsProbGeSi", 
             "Set the qAbsProb parameter from Ge to Si, between 0 and 1");
+  qAbsProbGeSiCmd->SetParameterName("qAbsProbGeSi", false);
+  qAbsProbGeSiCmd->SetRange("qAbsProbGeSi >= 0. && qAbsProbGeSi <= 1.");
+
   qAbsProbSiGeCmd = CreateCommand<G4UIcmdWithADouble> ("qAbsProbSiGe", 
             "Set the qAbsProb parameter from Si to Ge, between 0 and 1");
+  qAbsProbSiGeCmd->SetParameterName("qAbsProbSiGe", false);
+  qAbsProbSiGeCmd->SetRange("qAbsProbSiGe >= 0. && qAbsProbSiGe <= 1.");
+
   qReflProbGeSiCmd = CreateCommand<G4UIcmdWithADouble> ("qReflProbGeSi", 
             "Set the pReflProb parameter from Ge to Si, between 0 and 1");
+  qReflProbGeSiCmd->SetParameterName("qReflProbGeSi", false);
+  qReflProbGeSiCmd->SetRange("qReflProbGeSi >= 0. && qReflProbGeSi <= 1.");
+
   qReflProbSiGeCmd = CreateCommand<G4UIcmdWithADouble> ("qReflProbSiGe", 
             "Set the pReflProb parameter from Si to Ge, between 0 and 1");
+  qReflProbSiGeCmd->SetParameterName("qReflProbSiGe", false);
+  qReflProbSiGeCmd->SetRange("qReflProbSiGe >= 0. && qReflProbSiGe <= 1.");
 }
 
 
@@ -47,8 +59,8 @@ HeterostructureConfigMessenger::~HeterostructureConfigMessenger() {
 
 void HeterostructureConfigMessenger::SetNewValue(G4UIcommand* cmd, G4String value) {
   if (cmd == hitsCmd) theManager->SetHitOutput(value);
-  if (cmd == qAbsProbGeSiCmd) theManager->SetQAbsProbGeSi(qAbsProbGeSiCmd->GetNewDoubleValue(value));
-  if (cmd == qAbsProbSiGeCmd) theManager->SetQAbsProbSiGe(qAbsProbSiGeCmd->GetNewDoubleValue(value));
-  if (cmd == qReflProbGeSiCmd) theManager->SetQReflProbGeSi(qReflProbGeSiCmd->GetNewDoubleValue(value));
-  if (cmd == qReflProbSiGeCmd) theManager->SetQReflProbSiGe(qReflProbSiGeCmd->GetNewDoubleValue(value));
+  if (cmd == qAbsProbGeSiCmd) theManager->SetQAbsProbGeSi(std::stod(value));
+  if (cmd == qAbsProbSiGeCmd) theManager->SetQAbsProbSiGe(std::stod(value));
+  if (cmd == qReflProbGeSiCmd) theManager->SetQReflProbGeSi(std::stod(value));
+  if (cmd == qReflProbSiGeCmd) theManager->SetQReflProbSiGe(std::stod(value));
 }

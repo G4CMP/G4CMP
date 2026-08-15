@@ -3,18 +3,17 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
+/// \file  HeterostructureConfigManager.hh
+/// \brief Definition of the HeterostructureConfigManager class
+///   Singleton container class for user configuration of G4CMP
+///   Heterostructure example. Looks for environment variables  at
+///   initialization to set default values; active values may be
+///   changed via macro commands (see HeterostructureConfigMessenger).
+
+//    20260815 Selby Q. Dang
+
 #ifndef HeterostructureConfigManager_hh
 #define HeterostructureConfigManager_hh 1
-
-// $Id$
-// File:  HeterostructureConfigManager.hh
-//
-// Description:	Singleton container class for user configuration of G4CMP
-//		Heterostructure example. Looks for environment variables	at
-//		initialization to set default values; active values may be
-//		changed via macro commands (see HeterostructureConfigMessenger).
-//
-// 20170816  M. Kelsey -- Extract hit filename from G4CMPConfigManager.
 
 #include "globals.hh"
 
