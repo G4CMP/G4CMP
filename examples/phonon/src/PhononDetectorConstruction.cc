@@ -15,6 +15,7 @@
 //		G4CMPPhononElectrode to demonstrate KaplanQP.
 // 20251116  G4CMP-539 -- Use UpdateMPT wrapper function to set properties.
 // 20251117  G4CMP-541 -- For G4 v11, replace ::Invisible w/::GetInvisible()
+// 20260816  G4CMP-657 -- Fix typo in specCoeffs vector.
 
 #include "PhononDetectorConstruction.hh"
 #include "PhononSensitivity.hh"
@@ -175,7 +176,7 @@ void PhononDetectorConstruction::SetupGeometry()
     const std::vector<G4double> diffCoeffs =
       {5.88e-2, 7.83e-4, -2.47e-6, 1.71e-8, -2.98e-11};
     const std::vector<G4double> specCoeffs =
-      {0,928, -2.03e-4, -3.21e-6, 3.1e-9, 2.9e-13};
+      {0.928, -2.03e-4, -3.21e-6, 3.1e-9, 2.9e-13};
 
     const G4double anhCutoff = 520., reflCutoff = 350.;   // Units external
 
