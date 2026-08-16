@@ -6,6 +6,7 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-08-16  G4CMP-657 : Fix typo in specCoeffs vector in phonon example.
 2026-08-11  G4CMP-643 : E-field has incorrect HV transform in G4CMPIVRate.
 2026-08-10  G4CMP-654 : Avoid lattice FatalExceptions if no charge parameters.
 2026-08-08  G4CMP-653 : Apply Lindhard yield to steps within HitMerging.
