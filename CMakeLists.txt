@@ -79,29 +79,36 @@ if (BUILD_G4CMP_TESTS)
 endif()
 
 #-----------------------------------------------------------------------------
-# Create a version file as part of the "make all" procedure
+# Extract G4CMP version and create a version file during configuration
 #
-set(version_FILE .g4cmp-version)
+set(G4CMP_VERSION ${G4CMP_USER_VERSION})
+set(VERSION_FILE .g4cmp-version)
 
-find_program(SH sh HINTS /bin)
-add_custom_target(version ALL
-    COMMENT Building version identification file
-    VERBATIM			# Allows for parentheses and redirection below
-    COMMAND ${CMAKE_COMMAND} -E env ${SH}
-        -c "(cd ${PROJECT_SOURCE_DIR};\
-        [ -d .git ] && git describe --always || echo ${G4CMP_USER_VERSION}) > ${version_FILE}"
+if (NOT DEFINED G4CMP_VERSION)
+    # Locate git
+    find_package(Git REQUIRED)
+    # Execute git describe
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" describe --always
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        OUTPUT_VARIABLE G4CMP_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-
-install(FILES ${PROJECT_BINARY_DIR}/${version_FILE} DESTINATION share/G4CMP
-        COMPONENT config)
-
-# Load G4CMP version into cmake flag
-if (NOT DEFINED G4CMP_VERSION)	# Only if user did not specify
-    file(READ ${PROJECT_BINARY_DIR}/${version_FILE} VERSION_CONTENT)
-    # Strip trailing newlines or whitespace
-    string(STRIP "${VERSION_CONTENT}" CLEAN_VERSION)
-    set(G4CMP_VERSION ${CLEAN_VERSION})
 endif()
+
+# Fallback if git describe fails and user did not specify version
+if (NOT G4CMP_VERSION)
+    set(G4CMP_VERSION "unknown")
+endif()
+
+message(STATUS "Build G4CMP: ${G4CMP_VERSION}")
+
+# Write version to file
+file(WRITE ${PROJECT_BINARY_DIR}/${VERSION_FILE} ${G4CMP_VERSION})
+
+# Copy version file to install area
+install(FILES ${PROJECT_BINARY_DIR}/${VERSION_FILE} DESTINATION share/G4CMP
+        COMPONENT config)
 
 #-----------------------------------------------------------------------------
 # Create local UseG4CMP.cmake from template
@@ -123,18 +130,19 @@ install(FILES ${PROJECT_BINARY_DIR}/UseG4CMP.cmake
 #-----------------------------------------------------------------------------
 # Install example applications if requested
 #
-if(INSTALL_EXAMPLES)
+if (INSTALL_EXAMPLES)
     install(DIRECTORY examples DESTINATION . COMPONENT examples
-	    PATTERN ".git" EXCLUDE)
+        PATTERN ".git" EXCLUDE)
 endif()
 
-if(INSTALL_VALIDATION)
+if (INSTALL_VALIDATION)
     install(DIRECTORY validation DESTINATION . COMPONENT validation
-            PATTERN ".git" EXCLUDE)
+        PATTERN ".git" EXCLUDE)
 endif()
 
 #-----------------------------------------------------------------------------
 # Build validation as "external" project if requested
+#
 if(BUILD_G4CMP_VALIDATION)
     message(WARNING "BUILD_G4CMP_VALIDATION is not yet implemented.")
 endif()
