@@ -79,6 +79,9 @@ protected:
   virtual void DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
 				 G4ParticleChange& aParticleChange);
 
+  virtual void DoTransmission(const G4Track& aTrack, const G4Step& aStep,
+          G4ParticleChange& aParticleChange);
+
 private:
   G4CMPEnergyPartition* partitioner;
 

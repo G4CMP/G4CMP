@@ -283,3 +283,62 @@ DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
 		  G4ParticleChange& particleChange) {
   DoAbsorption(aTrack, aStep, particleChange);
 }
+
+void G4CMPDriftBoundaryProcess::
+DoTransmission(const G4Track& aTrack, const G4Step& aStep,
+      G4ParticleChange& aParticleChange) {
+    std::cout<<"SQD: G4CMPDriftBoundaryProcess::DoTransmission() is called. "<<std::endl;
+  //Debugging
+  if (verboseLevel > 5) {
+    std::cout << "-- G4CMPDriftBoundaryProcess::DoTransmission --" << std::endl;
+    std::cout << "DT Function Point A | aTrack getposition: "
+           << aTrack.GetPosition() << std::endl;
+    std::cout << "DT Function Point A | aStep poststepposition: "
+           << aStep.GetPostStepPoint()->GetPosition() << std::endl;
+    std::cout << "DT Function Point A | aStep pre-step touchable: "
+           << aStep.GetPreStepPoint()->GetTouchable()->GetVolume()->GetName()
+           << std::endl;
+    std::cout << "DT Function Point A | aStep post-step touchable: "
+           << aStep.GetPostStepPoint()->GetTouchable()->GetVolume()->GetName()
+           << std::endl;
+    std::cout << "DT Function Point A | current touchable: "
+           << GetCurrentTouchable()->GetVolume()->GetName() << std::endl;
+    std::cout << "DT Function Point A | Lattice manager current lattice: "
+           << G4LatticeManager::GetLatticeManager()->GetLattice(aStep.GetPreStepPoint()->GetPhysicalVolume())
+           << ", lattice manager post step point lattice: "
+           << G4LatticeManager::GetLatticeManager()->GetLattice(aStep.GetPostStepPoint()->GetPhysicalVolume())
+           << std::endl;
+  }
+
+  //First, check the different materials involved. If one of them does not have
+  //a lattice, then something upstream has gone wrong. Scream. Note that here,
+  //we need to use the G4LatticeManager rather than the TrackUtils version of
+  //GetLattice() because the trackUtils version somehow chooses a point that's
+  //inside the current (i.e. not the post-step) volume.
+  G4LatticePhysical * latNear = G4LatticeManager::GetLatticeManager()->GetLattice(aStep.GetPreStepPoint()->GetPhysicalVolume());
+  G4LatticePhysical * latFar = G4LatticeManager::GetLatticeManager()->GetLattice(aStep.GetPostStepPoint()->GetPhysicalVolume());
+  if( !latNear || !latFar ){
+    G4ExceptionDescription msg;
+    msg << "Expecting to do charge transmission at interface but one or more "
+        << "lattices splitting the boundary cannot be found.";
+    G4Exception("G4CMPDriftBoundaryProcess::DoTransmission","DriftBoundary001",FatalException,msg);
+  }
+
+  //Since the lattice hasn't changed yet, change it here. 
+  // this->SetLattice(G4LatticeManager::GetLatticeManager()->GetLattice(aStep.GetPostStepPoint()->GetPhysicalVolume()));
+  if( verboseLevel > 5 ){
+    G4cout << "DT Function Point B | the lattice at the end of doTransmission: " 
+           << theLattice << std::endl;
+  }
+  
+  //SQD: If we don't do anything to the track, will it transmit?
+  // G4ThreeVector momdir = aStep.GetPostStepPoint()->GetMomentumDirection(); 
+  // G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(aStep);
+  
+  // aParticleChange.ProposeMomentumDirection(momdir);
+
+  // if (verboseLevel > 5) {
+  //     G4cout << "DT Function Point C | Momentum direction proposed at end of "
+  //            << "doTransmission: " << momdir << G4endl;
+  // }
+}
