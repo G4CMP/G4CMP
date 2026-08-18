@@ -30,6 +30,7 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4RunManager.hh"
 #include "G4SolidStore.hh"
+#include "G4SDManager.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
@@ -40,7 +41,7 @@
 HeterostructureDetectorConstruction::HeterostructureDetectorConstruction()
   : fLiquidHelium(0), fGermanium(0), fSilicon(0), fWorldPhys(0), 
     fGeSiInterface(0), fSiGeInterface(0), fGeVacInterface(0), fSiVacInterface(0), 
-    fConstructed(false) {;}
+    fGeSensitivity(0), fSiSensitivity(0), fConstructed(false) {;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
@@ -204,4 +205,22 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   siVisAtt->SetVisibility(true);
   fGermaniumLogical->SetVisAttributes(simpleBoxVisAtt);
   fSiliconLogical->SetVisAttributes(siVisAtt);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+void HeterostructureDetectorConstruction::ConstructSDandField()
+{
+  
+  G4SDManager* sdman = G4SDManager::GetSDMpointer();
+  if (!fGeSensitivity){ // Only create detector if one doesn't exist.
+    fGeSensitivity = new HeterostructureSensitivity("GermaniumElectrode");
+  }
+  sdman->AddNewDetector(fGeSensitivity);
+  SetSensitiveDetector("fGermaniumLogical",fGeSensitivity);
+  if (!fSiSensitivity){ // Only create detector if one doesn't exist.
+    fSiSensitivity = new HeterostructureSensitivity("SiliconElectrode");
+  }
+  sdman->AddNewDetector(fSiSensitivity);
+  SetSensitiveDetector("fSiliconLogical",fSiSensitivity);
 }

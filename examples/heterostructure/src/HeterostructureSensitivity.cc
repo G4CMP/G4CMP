@@ -10,45 +10,21 @@
 
 #include "HeterostructureSensitivity.hh"
 #include "HeterostructureConfigManager.hh"
-#include "G4CMPElectrodeHit.hh"
+#include "G4CMPDriftElectron.hh"
+#include "G4CMPDriftHole.hh"
 #include "G4CMPUtils.hh"
 #include "G4Event.hh"
-#include "G4HCofThisEvent.hh"
-#include "G4PhononLong.hh"
-#include "G4PhononTransFast.hh"
-#include "G4PhononTransSlow.hh"
-#include "G4Run.hh"
 #include "G4RunManager.hh"
+#include "G4Run.hh"
+#include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
 #include "G4SystemOfUnits.hh"
-
 #include <fstream>
-
 
 HeterostructureSensitivity::HeterostructureSensitivity(G4String name) :
   G4CMPElectrodeSensitivity(name), fileName("") {
   SetOutputFile(HeterostructureConfigManager::GetHitOutput());
 }
-
-/* Move is disabled for now because old versions of GCC can't move ofstream
-HeterostructureSensitivity::HeterostructureSensitivity(HeterostructureSensitivity&& in) :
-  G4CMPElectrodeSensitivity(std::move(in)),
-  output(std::move(in.output)),
-  fileName(std::move(in.fileName)) {
-}
-
-HeterostructureSensitivity& HeterostructureSensitivity::operator=(HeterostructureSensitivity&& in) {
-  // Move all base mebers
-  G4CMPElectrodeSensitivity::operator=(std::move(in));
-
-  // Our members
-  output.close();
-  output = std::move(in.output);
-  fileName = in.fileName;
-
-  return *this;
-}
-*/
 
 HeterostructureSensitivity::~HeterostructureSensitivity() {
   if (output.is_open()) output.close();
@@ -93,7 +69,7 @@ void HeterostructureSensitivity::SetOutputFile(const G4String &fn) {
     output.open(fileName, std::ios_base::app);
     if (!output.good()) {
       G4ExceptionDescription msg;
-      msg << "Error opening output file " << fileName;
+      msg << "Error opening output file, " << fileName << ".\n";
       G4Exception("HeterostructureSensitivity::SetOutputFile", "HetStruct",
                   FatalException, msg);
       output.close();
@@ -107,20 +83,18 @@ void HeterostructureSensitivity::SetOutputFile(const G4String &fn) {
 }
 
 G4bool HeterostructureSensitivity::IsHit(const G4Step* step,
-                                const G4TouchableHistory*) const {
-  /* Phonon tracks are sometimes killed at the boundary in order to spawn new
-   * phonon tracks. These tracks that are killed deposit no energy and should
-   * not be picked up as hits.
-   */
+                                         const G4TouchableHistory*) const {
+  // Charge carriers do not deposit energy when they land on an electrode.
   const G4Track* track = step->GetTrack();
+  const G4StepPoint* preStepPoint  = step->GetPreStepPoint();
   const G4StepPoint* postStepPoint = step->GetPostStepPoint();
   const G4ParticleDefinition* particle = track->GetDefinition();
 
-  G4bool correctParticle = G4CMP::IsPhonon(particle);
+  G4bool correctParticle = particle == G4CMPDriftElectron::Definition() ||
+                           particle == G4CMPDriftHole::Definition();
 
-  G4bool correctStatus = step->GetTrack()->GetTrackStatus() == fStopAndKill &&
-                         postStepPoint->GetStepStatus() == fGeomBoundary &&
-                         step->GetNonIonizingEnergyDeposit() > 0.;
+  G4bool correctStatus = preStepPoint->GetStepStatus() == fGeomBoundary ||
+                         postStepPoint->GetStepStatus() == fGeomBoundary;
 
   return correctParticle && correctStatus;
 }

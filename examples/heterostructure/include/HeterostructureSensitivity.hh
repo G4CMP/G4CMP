@@ -11,20 +11,19 @@
 #ifndef HeterostructureSensitivity_h
 #define HeterostructureSensitivity_h 1
 
+#include "G4CMPElectrodeHit.hh"
 #include "G4CMPElectrodeSensitivity.hh"
+#include <memory>
+
 
 class HeterostructureSensitivity final : public G4CMPElectrodeSensitivity {
 public:
-  HeterostructureSensitivity(G4String name);
+  HeterostructureSensitivity(G4String);
   virtual ~HeterostructureSensitivity();
+
   // No copies
   HeterostructureSensitivity(const HeterostructureSensitivity&) = delete;
   HeterostructureSensitivity& operator=(const HeterostructureSensitivity&) = delete;
-  /* Move is disabled for now because old versions of GCC can't move ofstream
-  // Move OK
-  HeterostructureSensitivity(HeterostructureSensitivity&&);
-  HeterostructureSensitivity& operator=(HeterostructureSensitivity&&);
-  */
   HeterostructureSensitivity(HeterostructureSensitivity&&) = delete;
   HeterostructureSensitivity& operator=(HeterostructureSensitivity&&) = delete;
 
@@ -41,3 +40,4 @@ private:
 };
 
 #endif
+
