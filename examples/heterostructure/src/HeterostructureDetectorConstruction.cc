@@ -41,7 +41,7 @@
 HeterostructureDetectorConstruction::HeterostructureDetectorConstruction()
   : fLiquidHelium(0), fGermanium(0), fSilicon(0), fWorldPhys(0), 
     fGeSiInterface(0), fSiGeInterface(0), fGeVacInterface(0), fSiVacInterface(0), 
-    fGeSensitivity(0), fSiSensitivity(0), fConstructed(false) {;}
+    fConstructed(false) {;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
@@ -213,14 +213,18 @@ void HeterostructureDetectorConstruction::ConstructSDandField()
 {
   
   G4SDManager* sdman = G4SDManager::GetSDMpointer();
-  if (!fGeSensitivity){ // Only create detector if one doesn't exist.
-    fGeSensitivity = new HeterostructureSensitivity("GermaniumElectrode");
+
+  G4VSensitiveDetector* geSD = sdman->FindSensitiveDetector("GermaniumElectrode", false);
+  if (!geSD){ // Only create detector if one doesn't exist.
+    geSD = new HeterostructureSensitivity("GermaniumElectrode");
+    sdman->AddNewDetector(geSD);
   }
-  sdman->AddNewDetector(fGeSensitivity);
-  SetSensitiveDetector("fGermaniumLogical",fGeSensitivity);
-  if (!fSiSensitivity){ // Only create detector if one doesn't exist.
-    fSiSensitivity = new HeterostructureSensitivity("SiliconElectrode");
+  SetSensitiveDetector("fGermaniumLogical",geSD);
+
+  G4VSensitiveDetector* siSD = sdman->FindSensitiveDetector("SiliconElectrode", false);
+  if (!siSD) {
+    siSD = new HeterostructureSensitivity("SiliconElectrode");
+    sdman->AddNewDetector(siSD);
   }
-  sdman->AddNewDetector(fSiSensitivity);
-  SetSensitiveDetector("fSiliconLogical",fSiSensitivity);
+  SetSensitiveDetector("fSiliconLogical", siSD);
 }

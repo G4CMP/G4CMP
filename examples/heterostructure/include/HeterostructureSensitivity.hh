@@ -13,7 +13,7 @@
 
 #include "G4CMPElectrodeHit.hh"
 #include "G4CMPElectrodeSensitivity.hh"
-#include <memory>
+// #include <memory>
 
 
 class HeterostructureSensitivity final : public G4CMPElectrodeSensitivity {
@@ -39,5 +39,4 @@ private:
   G4String fileName;
 };
 
-#endif
-
+#endif  /* HeterostructureSensitivity_h */

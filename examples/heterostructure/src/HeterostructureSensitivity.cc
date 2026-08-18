@@ -69,7 +69,7 @@ void HeterostructureSensitivity::SetOutputFile(const G4String &fn) {
     output.open(fileName, std::ios_base::app);
     if (!output.good()) {
       G4ExceptionDescription msg;
-      msg << "Error opening output file, " << fileName << ".\n";
+      msg << "Error opening output file, " << fileName;
       G4Exception("HeterostructureSensitivity::SetOutputFile", "HetStruct",
                   FatalException, msg);
       output.close();
