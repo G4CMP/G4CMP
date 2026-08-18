@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 project(G4CMP)
 
 # User can provide version string in case build is not from Git source
-set(G4CMP_USER_VERSION "" CACHE STRING "G4CMP Version Tag to be used")
+set(G4CMP_VERSION "" CACHE STRING "G4CMP Version Tag to be used")
 
 #----------------------------------------------------------------------------
 # Option to include additional diagnostic output
@@ -81,10 +81,9 @@ endif()
 #-----------------------------------------------------------------------------
 # Extract G4CMP version and create a version file during configuration
 #
-set(G4CMP_VERSION ${G4CMP_USER_VERSION})
 set(VERSION_FILE .g4cmp-version)
 
-if (NOT DEFINED G4CMP_VERSION)
+if (NOT G4CMP_VERSION)
     # Locate git
     find_package(Git REQUIRED)
     # Execute git describe
