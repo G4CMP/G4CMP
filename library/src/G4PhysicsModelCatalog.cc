@@ -9,10 +9,11 @@
 //
 //  20251116  Michael Kelsey, G4CMP-526
 //  20251125  Change model ID for G4CMP to 39000 to avoid runtime error
+//  20260707  G4CMP-641 -- Only use this hack before G4 11.4.2.
 
 #include "G4Version.hh"
 
-#if G4VERSION_NUMBER >= 1100
+#if 1100 <= G4VERSION_NUMBER && G4VERSION_NUMBER < 1142
 #include "G4PhysicsModelCatalog.hh"
 
 void G4PhysicsModelCatalog::Initialize() {

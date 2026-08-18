@@ -63,6 +63,7 @@
 // 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
 // 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
 // 20260618  E. Michaud -- If ValleyDir 0 0 0, then AddValley Identity Matrix
+// 20260810  G4CMP-654 -- Avoid FatalException error if no charge transport.
 
 #include "G4LatticeLogical.hh"
 #include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****
@@ -1128,6 +1129,10 @@ void G4LatticeLogical::DumpList(std::ostream& os,
 // Check for completeness of charge transport parameters
 
 void G4LatticeLogical::CheckLatticeChargeParameters() {
+  // Flag if charge transport is supposed to be supported at all
+  G4bool hasCharge = (fabs(fElectronMass-mElectron)/mElectron > 1e-3 ||
+		      fBandGap > 0.);
+
   // No bandgap will suppress e/h creation, but allow single tracking
   if (fBandGap <= 0. && fPairEnergy <= 0.) {
     if (verboseLevel) {
@@ -1137,7 +1142,7 @@ void G4LatticeLogical::CheckLatticeChargeParameters() {
   }
 
   // If bandgap is defined, pair energy must be larger
-  if (fPairEnergy < fBandGap) {
+  if (hasCharge && fPairEnergy < fBandGap) {
     G4ExceptionDescription msg;
     msg << "Lattice " << fName << " has pair energy " << fPairEnergy/eV
 	<< " eV, which is below bandgap " << fBandGap/eV << " eV.";
@@ -1150,18 +1155,21 @@ void G4LatticeLogical::CheckLatticeChargeParameters() {
     G4ExceptionDescription msg;
     msg << "Lattice " << fName << " does not have charge carrier masses set."
 	<< "\n Bare electron mass assumed.";
-    G4Exception("G4LatticeLogical", "Lattice009", JustWarning, msg);
+
+    if (hasCharge) {
+      G4Exception("G4LatticeLogical", "Lattice009", JustWarning, msg);
+    } else if (verboseLevel) G4cout << msg.str() << G4endl;
   }
 
   // Sensible charge transport must include finite scattering lengths
-  if (fL0_e <= 0. || fL0_h <= 0.) {
+  if (hasCharge && (fL0_e <= 0. || fL0_h <= 0.)) {
     G4ExceptionDescription msg;
     msg << "Lattice " << fName << " has no charge scattering L0 defined.";
     G4Exception("G4LatticeLogical", "Lattice010", FatalException, msg);
   }
 
   // Speed of sound must be defined, to avoid infinite Luke scattering
-  if (fVSound <= 0. && fVTrans <= 0.) {
+  if (hasCharge && (fVSound <= 0. && fVTrans <= 0.)) {
     G4ExceptionDescription msg;
     msg << "Lattice " << fName << " has no speed of sound defined.";
     G4Exception("G4LatticeLogical", "Lattice011", FatalException, msg);
@@ -1170,17 +1178,19 @@ void G4LatticeLogical::CheckLatticeChargeParameters() {
   // Without valleys, assume a direct gap semiconductor with Gamma 'valley'
   // TODO: Move to CheckIVConsistency() under G4CMP-404
   if (fValley.size() < 1U) {
-    G4ExceptionDescription msg;
-    msg << "Lattice " << fName << " has no valley definitions.\n"
-	<< " Assuming direct gap semiconductor with Gamma valley.";
-    G4Exception("G4LatticeLogical", "Lattice012", JustWarning, msg);
+    if (hasCharge) {		// Don't bother with message for phonon-only
+      G4ExceptionDescription msg;
+      msg << "Lattice " << fName << " has no valley definitions.\n"
+	  << " Assuming direct gap semiconductor with Gamma valley.";
+      G4Exception("G4LatticeLogical", "Lattice012", JustWarning, msg);
+    }
 
     AddValley(G4ThreeVector(0,0,0));
   }
 
   // Multiple valleys ought to have IV scattering, but may not
   // TODO: Move to CheckIVConsistency() under G4CMP-404
-  if (fValley.size() > 1U && fIVModel.empty()) {
+  if (hasCharge && (fValley.size() > 1U && fIVModel.empty())) {
     G4ExceptionDescription msg;
     msg << "Lattice " << fName << "has no intervalley scattering model.";
     G4Exception("G4LatticeLogical", "Lattice013", JustWarning, msg);
