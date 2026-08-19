@@ -10,9 +10,11 @@
 
 #include "HeterostructureActionInitialization.hh"
 #include "HeterostructurePrimaryGeneratorAction.hh"
+#include "HeterostructureSteppingAction.hh"
 #include "G4CMPStackingAction.hh"
 
 void HeterostructureActionInitialization::Build() const {
   SetUserAction(new HeterostructurePrimaryGeneratorAction);
   SetUserAction(new G4CMPStackingAction);
+  SetUserAction(new HeterostructureSteppingAction);
 } 

@@ -32,6 +32,7 @@ public:
 private:
   HeterostructureConfigManager* theManager;
   G4UIcmdWithAString* hitsCmd;
+  G4UIcmdWithAString* stepCmd;
   G4UIcmdWithADouble* qAbsProbGeSiCmd;
   G4UIcmdWithADouble* qReflProbGeSiCmd;
   G4UIcmdWithADouble* qAbsProbSiGeCmd;

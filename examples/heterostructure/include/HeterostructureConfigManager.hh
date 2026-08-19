@@ -26,7 +26,8 @@ public:
   static HeterostructureConfigManager* Instance();   // Only needed by static accessors
 
   // Access current values
-  static const G4String& GetHitOutput() { return Instance()->Hit_file; }
+  static const G4String& GetHitOutput()  { return Instance()->Hit_file; }
+  static const G4String& GetStepOutput() { return Instance()->step_file; }
   static double GetQAbsProbGeSi() { return Instance()->fQAbsProbGeSi; }
   static double GetQReflProbGeSi() { return Instance()->fQReflProbGeSi; }
   static double GetQAbsProbSiGe() { return Instance()->fQAbsProbSiGe; }
@@ -34,6 +35,7 @@ public:
 
   // Change values (e.g., via Messenger)
   static void SetHitOutput(const G4String& name) { Instance()->Hit_file=name; UpdateGeometry(); }
+  static void SetStepOutput(const G4String& name) { Instance()->step_file=name; UpdateGeometry(); }
   static void SetQAbsProbGeSi(const double qAbsProbGeSi) { Instance()->fQAbsProbGeSi=qAbsProbGeSi; UpdateGeometry(); }
   static void SetQReflProbGeSi(const double qReflProbGeSi) { Instance()->fQReflProbGeSi=qReflProbGeSi; UpdateGeometry(); }
   static void SetQAbsProbSiGe(const double qAbsProbSiGe) { Instance()->fQAbsProbSiGe=qAbsProbSiGe; UpdateGeometry(); }
@@ -52,6 +54,7 @@ private:
 
 private:
   G4String Hit_file;	// Output file of e/h hits ($G4CMP_HIT_FILE)
+  G4String step_file;
   G4double fQAbsProbGeSi;
   G4double fQReflProbGeSi;
   G4double fQAbsProbSiGe;

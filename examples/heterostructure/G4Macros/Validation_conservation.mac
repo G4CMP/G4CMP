@@ -3,6 +3,7 @@
 
 /g4cmp/verbose 2
 /g4cmp/chargeBounces 1000
+/g4cmp/StepFile h_singlePt.txt
 
 /g4cmp/qAbsProbGeSi 0
 /g4cmp/qReflProbGeSi 0.5
@@ -11,6 +12,7 @@
 
 
 /run/initialize
+
 #
 # Create a scene handler for a specific graphics system
 # (Edit the next line(s) to choose another graphic system)
@@ -49,7 +51,11 @@
 #/vis/filtering/trajectories/particleFilter-0/invert true
 #
 
-# Generate an e-/h+ pair per event for 10 events 
+# Generate 10 single h+ per event
+/gun/particle G4CMPDriftHole
+/gun/direction 0 0 1
+/gun/energy 0.000001 eV
+/gun/position 0 0 -0.000001 mm
 /gun/number 1
 /run/beamOn 10
 #

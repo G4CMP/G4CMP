@@ -21,6 +21,7 @@
 // 20251024  G4CMP-519: Protect against possible zero energy in DoAbsorption()
 // 20251028  G4CMP-527: Move CheckStepBoundary() to ApplyBoundaryAction()
 // 20260209  G4CMP-580: Multiply refl in DoElectronReflection() by ptrk.mag()
+// 20260818  G4CMP-609: No-op implementation of DoTransmission()
 
 #include "G4CMPDriftBoundaryProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -80,6 +81,7 @@ G4CMPDriftBoundaryProcess::PostStepDoIt(const G4Track& aTrack,
   // NOTE:  G4VProcess::SetVerboseLevel is not virtual!  Can't overload it
   G4CMPBoundaryUtils::SetVerboseLevel(verboseLevel);
 
+  // G4cout<<"SQD-- G4CMPDriftBoundaryProcess::PostStepDoIt()"<<G4endl;
   aParticleChange.Initialize(aTrack);
   if (!IsGoodBoundary(aStep))
     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
@@ -287,27 +289,27 @@ DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
 void G4CMPDriftBoundaryProcess::
 DoTransmission(const G4Track& aTrack, const G4Step& aStep,
       G4ParticleChange& aParticleChange) {
-    std::cout<<"SQD: G4CMPDriftBoundaryProcess::DoTransmission() is called. "<<std::endl;
+  // G4cout << "SQD: G4CMPDriftBoundaryProcess::DoTransmission() is called"<<G4endl;
   //Debugging
   if (verboseLevel > 5) {
-    std::cout << "-- G4CMPDriftBoundaryProcess::DoTransmission --" << std::endl;
-    std::cout << "DT Function Point A | aTrack getposition: "
-           << aTrack.GetPosition() << std::endl;
-    std::cout << "DT Function Point A | aStep poststepposition: "
-           << aStep.GetPostStepPoint()->GetPosition() << std::endl;
-    std::cout << "DT Function Point A | aStep pre-step touchable: "
+    G4cout << "-- G4CMPDriftBoundaryProcess::DoTransmission --" << G4endl;
+    G4cout << "DriftDT Function Point A | aTrack getposition: "
+           << aTrack.GetPosition() << G4endl;
+    G4cout << "DriftDT Function Point A | aStep poststepposition: "
+           << aStep.GetPostStepPoint()->GetPosition() << G4endl;
+    G4cout << "DriftDT Function Point A | aStep pre-step touchable: "
            << aStep.GetPreStepPoint()->GetTouchable()->GetVolume()->GetName()
-           << std::endl;
-    std::cout << "DT Function Point A | aStep post-step touchable: "
+           << G4endl;
+    G4cout << "DriftDT Function Point A | aStep post-step touchable: "
            << aStep.GetPostStepPoint()->GetTouchable()->GetVolume()->GetName()
-           << std::endl;
-    std::cout << "DT Function Point A | current touchable: "
-           << GetCurrentTouchable()->GetVolume()->GetName() << std::endl;
-    std::cout << "DT Function Point A | Lattice manager current lattice: "
+           << G4endl;
+    G4cout << "DriftDT Function Point A | current touchable: "
+           << GetCurrentTouchable()->GetVolume()->GetName() << G4endl;
+    G4cout << "DriftDT Function Point A | Lattice manager current lattice: "
            << G4LatticeManager::GetLatticeManager()->GetLattice(aStep.GetPreStepPoint()->GetPhysicalVolume())
            << ", lattice manager post step point lattice: "
            << G4LatticeManager::GetLatticeManager()->GetLattice(aStep.GetPostStepPoint()->GetPhysicalVolume())
-           << std::endl;
+           << G4endl;
   }
 
   //First, check the different materials involved. If one of them does not have
@@ -327,8 +329,8 @@ DoTransmission(const G4Track& aTrack, const G4Step& aStep,
   //Since the lattice hasn't changed yet, change it here. 
   // this->SetLattice(G4LatticeManager::GetLatticeManager()->GetLattice(aStep.GetPostStepPoint()->GetPhysicalVolume()));
   if( verboseLevel > 5 ){
-    G4cout << "DT Function Point B | the lattice at the end of doTransmission: " 
-           << theLattice << std::endl;
+    G4cout << "DriftDT Function Point B | the lattice at the end of doTransmission: " 
+           << theLattice << G4endl;
   }
   
   //SQD: If we don't do anything to the track, will it transmit?

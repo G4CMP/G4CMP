@@ -28,6 +28,7 @@
 // 20250927  Add override version of new DoFinalReflection(), to support
 //           proper recombination.
 // 20251013  Add functions for specular and diffuse electron reflection.
+// 20260818  G4CMP-609: No-op implementation of DoTransmission().
 
 #ifndef G4CMPDriftBoundaryProcess_h
 #define G4CMPDriftBoundaryProcess_h 1

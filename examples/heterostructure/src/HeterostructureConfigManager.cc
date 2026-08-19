@@ -28,7 +28,8 @@ HeterostructureConfigManager* HeterostructureConfigManager::Instance() {
 
 HeterostructureConfigManager::HeterostructureConfigManager()
   : Hit_file(getenv("G4CMP_HIT_FILE")?getenv("G4CMP_HIT_FILE"):"Heterostructure_hits.txt"),
-    fQAbsProbGeSi(0), fQAbsProbSiGe(0), fQReflProbGeSi(0), fQReflProbSiGe(0),
+  step_file("StepInformationFile.txt"),  
+  fQAbsProbGeSi(0), fQAbsProbSiGe(0), fQReflProbGeSi(0), fQReflProbSiGe(0),
     messenger(new HeterostructureConfigMessenger(this)) {;}
 
 HeterostructureConfigManager::~HeterostructureConfigManager() {

@@ -21,7 +21,10 @@ HeterostructureConfigMessenger::HeterostructureConfigMessenger(HeterostructureCo
   : G4UImessenger("/g4cmp/", "User configuration for G4CMP Heterostructure example"),
     theManager(mgr), hitsCmd(0) {
   hitsCmd = CreateCommand<G4UIcmdWithAString>("HitsFile",
-			      "Set filename for output of Heterostructure hit locations");
+			      "Set filename for output of hit locations");
+
+  stepCmd = CreateCommand<G4UIcmdWithAString>("StepFile",
+			      "Set filename for output of step locations");
 
   qAbsProbGeSiCmd = CreateCommand<G4UIcmdWithADouble> ("qAbsProbGeSi", 
             "Set the qAbsProb parameter from Ge to Si, between 0 and 1");
@@ -47,6 +50,7 @@ HeterostructureConfigMessenger::HeterostructureConfigMessenger(HeterostructureCo
 
 HeterostructureConfigMessenger::~HeterostructureConfigMessenger() {
   delete hitsCmd; hitsCmd=0;
+  delete stepCmd; stepCmd=0;
   delete qAbsProbGeSiCmd; qAbsProbGeSiCmd=0;
   delete qAbsProbSiGeCmd; qAbsProbSiGeCmd=0;
   delete qReflProbGeSiCmd; qReflProbGeSiCmd=0;
@@ -58,6 +62,7 @@ HeterostructureConfigMessenger::~HeterostructureConfigMessenger() {
 
 void HeterostructureConfigMessenger::SetNewValue(G4UIcommand* cmd, G4String value) {
   if (cmd == hitsCmd) theManager->SetHitOutput(value);
+  if (cmd == stepCmd) theManager->SetStepOutput(value);
   if (cmd == qAbsProbGeSiCmd) theManager->SetQAbsProbGeSi(StoD(value));
   if (cmd == qAbsProbSiGeCmd) theManager->SetQAbsProbSiGe(StoD(value));
   if (cmd == qReflProbGeSiCmd) theManager->SetQReflProbGeSi(StoD(value));

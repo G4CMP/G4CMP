@@ -46,6 +46,7 @@ set(heterostructure_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HeterostructureDetectorConstruction.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HeterostructurePrimaryGeneratorAction.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HeterostructureSensitivity.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HeterostructureSteppingAction.cc
     )
     
 if(USE_GEANT4_STATIC_LIBS)

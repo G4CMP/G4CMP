@@ -22,6 +22,10 @@ int main(int argc,char** argv) {
  // Construct the run manager
  //
  G4RunManager * runManager = new G4RunManager;
+ 
+ // Create configuration managers to ensure macro commands exist
+ G4CMPConfigManager::Instance();
+ HeterostructureConfigManager::Instance();
 
  // Set mandatory initialization classes
  //
@@ -36,9 +40,9 @@ int main(int argc,char** argv) {
  //
  runManager->SetUserInitialization(new HeterostructureActionInitialization);
 
- // Create configuration managers to ensure macro commands exist
- G4CMPConfigManager::Instance();
- HeterostructureConfigManager::Instance();
+//  // Create configuration managers to ensure macro commands exist
+//  G4CMPConfigManager::Instance();
+//  HeterostructureConfigManager::Instance();
 
  // Visualization manager
  //
