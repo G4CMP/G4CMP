@@ -38,6 +38,7 @@
 //		Also, add long missing accessors for Miller orientation
 // 20250905  G4CMP-500 -- Removing non-fundamental superconductor parameters
 //              from logical lattice and making them physical lattice members
+// 20260825  G4CMP-612 -- implemented DOS and fermi energy calculations
 
 #ifndef G4LatticePhysical_h
 #define G4LatticePhysical_h 1

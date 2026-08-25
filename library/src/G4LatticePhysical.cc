@@ -29,6 +29,7 @@
 // 20250507  G4CMP-480 -- Swap rotation matrix for local<-->lattice transforms.
 // 20250905  G4CMP-500 -- Remove non-fundamental superconductor parameters
 // 20260131  G4CMP-572 -- Restore behaviour from G4CMP-480, lost by G4CMP-500.
+// 20260825  G4CMP-612 -- implemented DOS and fermi energy calculations
 
 #include "G4LatticePhysical.hh"
 #include "G4CMPConfigManager.hh"
