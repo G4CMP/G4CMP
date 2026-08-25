@@ -219,6 +219,13 @@ public:
   const std::vector<G4double>& GetIVDeform() const { return fLattice->GetIVDeform(); }
   const std::vector<G4double>& GetIVEnergy() const { return fLattice->GetIVEnergy(); }
 
+  // Fermi energy calculations
+  G4double GetElectronDOS() const;
+  G4double GetHoleDOS() const;
+
+  // https://lampz.tugraz.at/~hadley/psd/weblectures/Ef_intrinsic/index.php
+  G4double GetFermiEnergy() const;
+
   // Dump logical lattice, with additional info about physical
   void Dump(std::ostream& os) const;
   
