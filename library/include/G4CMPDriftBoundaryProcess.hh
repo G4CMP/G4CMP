@@ -28,6 +28,8 @@
 // 20250927  Add override version of new DoFinalReflection(), to support
 //           proper recombination.
 // 20251013  Add functions for specular and diffuse electron reflection.
+// 20260825  G4CMP-611 -- Implementing electron boundary crossing valley
+// reassignment
 
 #ifndef G4CMPDriftBoundaryProcess_h
 #define G4CMPDriftBoundaryProcess_h 1
@@ -78,6 +80,10 @@ protected:
   // Called when maximum bounces have been recorded; does recombination
   virtual void DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
 				 G4ParticleChange& aParticleChange);
+
+  // implementing valley reassignment
+  virtual void DoTransmission(const G4Track& aTrack, const G4Step& aStep,
+                              G4ParticleChange& aParticleChange) override;
 
 private:
   G4CMPEnergyPartition* partitioner;
