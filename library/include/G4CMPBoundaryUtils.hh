@@ -21,6 +21,8 @@
 //	     to validate step trajectory to boundary.
 // 20250927  Add overloadable function to kill track when max-reflections.
 // 20251028  G4CMP-527: Move CheckStepBoundary() here from DriftBoundaryProcess
+// 20260826  G4CMP-662: Add a non-const overloaded ReflectTrack() so that QPs
+//       can update their lattice while determining reflection probability
 #ifndef G4CMPBoundaryUtils_hh
 #define G4CMPBoundaryUtils_hh 1
 
@@ -70,6 +72,7 @@ public:
 			    G4ParticleChange& aParticleChange);
 
   virtual G4bool ReflectTrack(const G4Track& aTrack, const G4Step& aStep) const;
+  virtual G4bool ReflectTrack(const G4Track& aTrack, const G4Step& aStep);
   virtual void DoReflection(const G4Track& aTrack, const G4Step& aStep,
 			    G4ParticleChange& aParticleChange);
 

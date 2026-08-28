@@ -13,7 +13,16 @@
 #include "G4CMPConfigManager.hh"
 #include "G4CMPGeometryUtils.hh"
 #include "G4CMPPhononTrackInfo.hh"
+#include "G4CMPQPDiffusionTimeStepperProcess.hh"
+#include "G4CMPQPDiffusionTimeStepperRate.hh"
+#include "G4CMPQPLocalTrappingProcess.hh"
+#include "G4CMPQPLocalTrappingRate.hh"
+#include "G4CMPQPRadiatesPhononProcess.hh"
+#include "G4CMPQPRadiatesPhononRate.hh"
+#include "G4CMPQPRecombinationProcess.hh"
+#include "G4CMPQPRecombinationRate.hh"
 #include "G4CMPSurfaceProperty.hh"
+#include "G4CMPVScatteringRate.hh"
 #include "G4CMPTrackUtils.hh"
 #include "G4CMPVTrackInfo.hh"
 #include "G4CMPUtils.hh"
@@ -22,6 +31,8 @@
 #include "G4ParallelWorldProcess.hh"
 #include "G4ParticleChange.hh"
 #include "G4PhysicalConstants.hh"
+#include "G4ProcessManager.hh"
+#include "G4ProcessVector.hh"
 #include "G4LatticeManager.hh"
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
@@ -245,20 +256,290 @@ G4CMPQPBoundaryProcess::PostStepDoIt(const G4Track& aTrack,
 
 
 
-// Do a reflection depending on the gap conditions between multiple lattices,
-//and also depending on the assigned reflection probability given to the
-//boundary. Note that here the "gap contition" is now bundled into the
+// Do a reflection based on the gap conditions between multiple lattices, and
+// based on a reflection probability rooted in an approximate technique that
+// we're applying to un-bias the boundary behavior induced by WoS.
+// Note that here the "gap contition" is now bundled into the
 //"postQPVolume" variable. Any volume without a postQPVolume (no lattice,
-//default gap, or gap>qpEnergy) will induce reflection.
-G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& /*aTrack*/,
-                                            const G4Step&) const {
+// default gap, or gap>qpEnergy) will induce reflection.
+// Note: this function is now updated to CHANGE the lattice to the "far side"
+// volume lattice -- this is okay since we're either going to transmit fully
+// or transmit into a zero-length step, which will update the lattice to that
+// anyway (temporarily)
+G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
+                                            const G4Step& aStep) {
+
+  G4cout << "Beginning reflectTrack for QPBoundaryProcess." << G4endl;
   
-  //Note that this is still just blindly copied from the phononboundary action
-  // this needs to be customized for QP dynamics ...
+  //Take human-installed reflProb
   G4double reflProb = GetMaterialProperty("reflProb");
-  if (verboseLevel>2) G4cout << " ReflectTrack: reflProb " << reflProb << G4endl;
+  if (verboseLevel>2) G4cout << " ReflectTrack: reflProb " << reflProb
+                             << G4endl;
+  
   //  check if the next volume is a QP lattice if not reflect
-  if (!postQPVolume) reflProb =1;
+  if (!postQPVolume) { return (G4UniformRand() <= 1); }
+
+  //Now, we are going to attempt to undo the bias at transparent interfaces
+  //caused by the walk-on-spheres algorithm. The prescription is as follows.
+  //1. Assuming we have valid QP volumes in both the pre- and post-step
+  //   volumes, we can compute geometrical safeties in both of these. Do so.
+  //2. Also compute "effective diffusion distances" for the other potentially-
+  //   step-limiting processes on BOTH sides of the interface.
+  //3. On each side of the interface, take the shortest of the geometrical
+  //   safety and the other diffusion-limiting processes, and compute a
+  //   "generalized safety" from the winner: if the geo safety, take it
+  //   straight, if something else, use diffusion constant to compute an avg
+  //   displacement.
+  //   a.) Note that this isn't perfect for the non-geo processes. The "right"
+  //       way to do this is to get access to the "number of taus" left for this
+  //       process in the process race, but it's hard/janky enough just to get
+  //       the (energy dependent) average tau for a process while in a
+  //       completely different process class, so I'm going to accept however
+  //       this biases us.
+  //4. For each generalized safety, estimate the number of *microphysical*
+  //   returns to the boundary (on both sides). This is not particularly
+  //   intuitive but there is documentation that motivates an approximate
+  //   analytical form for this on the G4CMP Confluence (as of a future date).
+  //5. Using the relative number of returns-to-interface on both sides of the
+  //   interface, we compute an adaptive p_abs, which we weight with the
+  //   user's parameter to compute the reflection probability.
+
+  //Start by generating useful information from both sides: position, surface
+  //normals, and lattices  
+  G4ThreeVector pos = aStep.GetPostStepPoint()->GetPosition();
+  G4ThreeVector post_vol_norm =
+    aStep.GetPostStepPoint()->GetMomentumDirection(); //Outward
+  G4ThreeVector pre_vol_norm = post_vol_norm * -1; //Inward
+  const G4LatticePhysical * postLattice = G4LatticeManager::GetLatticeManager()
+    ->GetLattice(aStep.GetPostStepPoint()->GetPhysicalVolume());
+  const G4LatticePhysical * preLattice = G4LatticeManager::GetLatticeManager()
+    ->GetLattice(aStep.GetPreStepPoint()->GetPhysicalVolume());
+  
+  //Generate the geometrical safeties on both sides of the boundary
+  double preStepSafety =
+    G4CMP::Get2DSafety(aStep.GetPreStepPoint()->GetTouchable(), pos,
+                       aStep.GetPreStepPoint()->GetMomentumDirection(),
+                       true, true, pre_vol_norm);
+  double postStepSafety =
+    G4CMP::Get2DSafety(aStep.GetPostStepPoint()->GetTouchable(), pos,
+                       aStep.GetPreStepPoint()->GetMomentumDirection(),
+                       true, true, post_vol_norm);
+
+  //Get the other active processes' mean free paths.
+
+  //First, grab the process vector for the current QP and pick out the relevant
+  //processes we care about.
+  G4ProcessVector pl =
+    *(aTrack.GetParticleDefinition()->GetProcessManager()->GetProcessList());
+
+  //Second, check to see which processes are active. Here the convention is
+  //0 = qpRadiatesPhonon
+  //1 = qpRecombination
+  //2 = qpDiffusionTimeStepper
+  //3 = qpLocalTrapping
+  const int nRelevProcs = 4;
+  bool relevantQPProcessesActive[nRelevProcs] = {false,false,false,false};
+  int relevantQPProcessIDs[nRelevProcs] = {-1,-1,-1,-1};
+  for (int iL = 0; iL < pl.size(); ++iL) {
+    G4cout << "Process name: " << pl[iL]->GetProcessName() << G4endl;
+    if (pl[iL]->GetProcessName() == "qpRadiatesPhonon") {
+      relevantQPProcessesActive[0] = aTrack.GetParticleDefinition()
+        ->GetProcessManager()->GetProcessActivation(pl[iL]);
+      relevantQPProcessIDs[0] = iL;
+    }    
+    if (pl[iL]->GetProcessName() == "qpRecombination") {
+      relevantQPProcessesActive[1] = aTrack.GetParticleDefinition()
+        ->GetProcessManager()->GetProcessActivation(pl[iL]);
+      relevantQPProcessIDs[1] = iL;
+    }
+    if (pl[iL]->GetProcessName() == "qpDiffusionTimeStepper") {
+      relevantQPProcessesActive[2] = aTrack.GetParticleDefinition()
+        ->GetProcessManager()->GetProcessActivation(pl[iL]);
+      relevantQPProcessIDs[2] = iL;
+    }
+    if (pl[iL]->GetProcessName() == "qpLocalTrapping") {
+      relevantQPProcessesActive[3] = aTrack.GetParticleDefinition()
+        ->GetProcessManager()->GetProcessActivation(pl[iL]);
+      relevantQPProcessIDs[3] = iL;
+    }
+  }
+
+  //Now for active processes, loop through and compute two quantities: the
+  //pre-step rates, followed by an update to the lattice, then the post-step
+  //rates.
+  G4double preVolRates[nRelevProcs] = {-1,-1,-1,-1};
+  if (relevantQPProcessesActive[0]) {
+    preVolRates[0] = dynamic_cast<G4CMPQPRadiatesPhononProcess*>
+      (pl[relevantQPProcessIDs[0]])->GetRateModel()->Rate(aTrack);
+  }
+  if (relevantQPProcessesActive[1]) {
+    preVolRates[1] = dynamic_cast<G4CMPQPRecombinationProcess*>
+      (pl[relevantQPProcessIDs[1]])->GetRateModel()->Rate(aTrack);
+  }
+  if (relevantQPProcessesActive[2]) {
+    preVolRates[2] = dynamic_cast<G4CMPQPDiffusionTimeStepperProcess*>
+      (pl[relevantQPProcessIDs[2]])->GetRateModel()->Rate(aTrack);
+  }
+  if (relevantQPProcessesActive[3]) {
+    preVolRates[3] = dynamic_cast<G4CMPQPLocalTrappingProcess*>
+      (pl[relevantQPProcessIDs[3]])->GetRateModel()->Rate(aTrack);
+  }
+  
+  //Do the transition to the new lattice (used to be in DoTransmission)
+  //Since the lattice hasn't changed yet, change it here. (This also happens
+  //at the MFP calc point at the beginning of the next step, but it's nice to
+  //have it here so we can use the new lattice info to help figure out vdir,
+  //etc.) REL SHOULD CHECK TO MAKE SURE THIS DOES NOT CAUSE WEIRD BEHAVIOR
+  this->SetLattice(postLattice);
+  UpdateSCAfterLatticeChange();
+
+  //------ progress to here -------
+
+  //Now, after the lattice update, we compute the post-volume rates for the
+  //new lattice. For the ones that require energy dependence, we have to do
+  //something a bit janky to get the updated energy dependence. If we're
+  //entering a lattice we have never entered before, the rate-vs-energy array
+  //has to be calculated. A few notes:
+  //1. Usually this happens in GetMFP for that process, where the process has
+  //   full permissions to update itself and its data members (i.e. rate models)
+  //2. However, we're outside of all of those classes, accessing them via the
+  //   processManager, which only allows access through const functions which
+  //   don't allow us to update the "longitudinally-used" rate model for
+  //   this particle. Hence, can't "just" call rate model rate.
+  //3. To circumvent this problem, we accept a small CPU hit, and create a
+  //   new rate model function, fill it with the new lattice, and query ITS
+  //   rate. It then gets destroyed but we have the information, which is what
+  //   matters. Once the subsequent turnaround (or transmission) step happens
+  //   the real process will have the next lattice in its lookup table map,
+  //   which means that if a QP is the first thing to enter a physical lattice,
+  //   we duplicate work a bit.
+  //   a.) Note that in the scenario where we move away from the "compute as
+  //       needed" lookup tables, (as we have said we're going to do in a
+  //       ticket) then this condition will nominally be eliminated.
+  //4. However, if the Lattice info has already been calculated, then we just
+  //   use the lookup table's entry for that map. Trivial.
+  //Again, apologies for making this kind of janky, and I too hate this with
+  //all of my soul. But this adaptive bias correction, much like the entire
+  //Walk-on-spheres diffusion algorithm itself, is far enough outside of what
+  //G4 is meant to do that doing this this way is the only way I can think to
+  //do it...
+
+  G4double postVolRates[nRelevProcs] = {-1,-1,-1,-1};
+
+  /*
+  // Phonon radiation
+  if (relevantQPProcessesActive[0]) {
+    
+    //Check if rateModel for phonon radiation has a lookup table for this lat.
+    //If not, do the janky thing
+    if (dynamic_cast<G4CMPQPRadiatesPhononRate*>
+        (dynamic_cast<G4CMPQPRadiatesPhononProcess*>
+         (pl[relevantQPProcessIDs[0]])->GetRateModel())
+        ->CheckLookupTableForLat(postLattice) ) {
+
+      //Debugging
+      G4cout << "In ReflectTrack, rate array is available in post-step "
+             << "lattice, so we'll just use that." << G4endl;              
+      postVolRates[0] =
+        dynamic_cast<G4CMPQPRadiatesPhononRate*>
+        (dynamic_cast<G4CMPQPRadiatesPhononProcess*>
+         (pl[relevantQPProcessIDs[0]])->GetRateModel())
+        ->Rate(aTrack,postLattice);
+    } else {
+      
+      //Debugging
+      G4cout << "In ReflectTrack, radiation rate array is not available in "
+             << "post-step lattice, so we'll need create." << G4endl;        
+
+      //Create a new rate model object, have it generate its info for the
+      //new lattice set above. Have to do a few operations to load data in
+      //successfully, but since those functions only talk to this object,
+      //the "longitudinal" rate model that follows the QP shouldn't be affected.
+      G4CMPQPRadiatesPhononRate tempQPRadiatesPhononRateObj;
+      if (GetCurrentTrack()){
+        tempQPRadiatesPhononRateObj.LoadDataForTrack(GetCurrentTrack());
+        tempQPRadiatesPhononRateObj.LoadLatticeInfoIntoSCUtils(postLattice);
+        tempQPRadiatesPhononRateObj.UpdateLookupTable(postLattice);
+      }
+      postVolRates[0] = tempQPRadiatesPhononRateObj.Rate(aTrack);
+      G4cout << "Finished doing the temp phonon radiation rate calc." << G4endl;
+    }    
+  }
+  */
+
+  
+  // Recombination
+  if (relevantQPProcessesActive[1]) {
+    
+    //Check if rateModel for phonon radiation has a lookup table for this lat.
+    //If not, do the janky thing
+    if (dynamic_cast<G4CMPQPRecombinationRate*>
+        (dynamic_cast<G4CMPQPRecombinationProcess*>
+         (pl[relevantQPProcessIDs[1]])->GetRateModel())
+        ->CheckLookupTableForLat(postLattice) ) {
+
+      //Debugging
+      G4cout << "In ReflectTrack, rate array is available in post-step "
+             << "lattice, so we'll just use that." << G4endl;              
+      postVolRates[1] =
+        dynamic_cast<G4CMPQPRecombinationRate*>
+        (dynamic_cast<G4CMPQPRecombinationProcess*>
+         (pl[relevantQPProcessIDs[1]])->GetRateModel())
+        ->Rate(aTrack,postLattice);
+    } else {
+      
+      //Debugging
+      G4cout << "In ReflectTrack, recomb rate array is not available in "
+             << "post-step lattice, so we'll need create." << G4endl;        
+
+      //Create a new rate model object, have it generate its info for the
+      //new lattice set above. Have to do a few operations to load data in
+      //successfully, but since those functions only talk to this object,
+      //the "longitudinal" rate model that follows the QP shouldn't be affected.
+      G4CMPQPRecombinationRate tempQPRecombinationRateObj;
+      if (GetCurrentTrack()){
+        tempQPRecombinationRateObj.LoadDataForTrack(GetCurrentTrack());
+        tempQPRecombinationRateObj.LoadLatticeInfoIntoSCUtils(postLattice);
+        tempQPRecombinationRateObj.UpdateLookupTable(postLattice);
+      }
+      postVolRates[1] = tempQPRecombinationRateObj.Rate(aTrack);
+      G4cout << "Finished doing the temp phonon radiation rate calc." << G4endl;
+    }    
+  }
+
+  // QPDiffusionTimeStepper
+  // This one is not as hard, since there is not energy dependence. Can pull
+  // the value directly from the lattice information, and don't need to
+  // do any muckery with dynamic casting.
+  if (relevantQPProcessesActive[2]) {
+    postVolRates[2] = 1.0 / postLattice->GetSCQPDiffusionStepTau();
+  }
+
+  // QPLocalTrapping
+  // This one is also energy-independent (for now). Can pull the value directly
+  // from the lattice information
+  if (relevantQPProcessesActive[3]) {
+    postVolRates[3] = 1.0 / postLattice->GetSCQPLocalTrappingTau();
+  }
+
+  //For now, let's just print these and see what we get
+  //  if (verboseLevel > 5) {
+  
+  G4cout << "In ReflectTrack: "
+         << "\n pos: " << pos
+         << ",\n pre-vol norm: " << pre_vol_norm
+         << ",\n post-vol norm: " << post_vol_norm
+         << ",\n pre-momentumDir: "
+         << aStep.GetPreStepPoint()->GetMomentumDirection()
+         << "\n, preStepSafety: " << preStepSafety
+         << "\n, postStepSafety: " << postStepSafety
+         << "\n, pre-vol qpRecombination rate: " << preVolRates[1]
+         << "\n, post-vol qpRecombination rate: " << postVolRates[1]
+         << G4endl;
+  
+    //}
+      
+
   
   return (G4UniformRand() <= reflProb);
 }
@@ -333,6 +614,9 @@ void G4CMPQPBoundaryProcess::DoReflection(const G4Track& aTrack,
 
 
 // Do transmission of a quasiparticle
+//REL: We need to be absolutely sure that nothing here depends on the old,
+//i.e. pre-step lattice, because at this point the lattice info has been
+//updated
 void G4CMPQPBoundaryProcess::DoTransmission(const G4Track& aTrack,
                                             const G4Step& aStep,
                                             G4ParticleChange& /*particleChange*/) {
@@ -362,14 +646,20 @@ void G4CMPQPBoundaryProcess::DoTransmission(const G4Track& aTrack,
                 "QPBoundaryProcess003",JustWarning, msg);
     DoSimpleKill(aTrack, aStep, aParticleChange);
   }
-    
+
+  //We'll note here that the lattice changeover that USED to be here
+  //should now be in ReflectTrack(), which also needs this information...
+
+  /*  
+  // THIS IS NOW DONE IN REFLECTTRACK
   //Since the lattice hasn't changed yet, change it here. (This also happens
   //at the MFP calc point at the beginning of the next step, but it's nice to
   //have it here so we can use the new lattice info to help figure out vdir,
   //etc.)
   this->SetLattice(G4LatticeManager::GetLatticeManager()->GetLattice(aStep.GetPostStepPoint()->GetPhysicalVolume()));
   UpdateSCAfterLatticeChange();
-    
+  */      
+  
   G4ThreeVector vdir = aTrack.GetMomentumDirection();
   G4ThreeVector norm = G4CMP::GetSurfaceNormal(aStep,vdir);
   aParticleChange.ProposeMomentumDirection(norm); 

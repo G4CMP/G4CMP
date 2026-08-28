@@ -16,19 +16,33 @@
 #include <map>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+G4double G4CMPQPRecombinationRate::Rate(const G4Track& aTrack) const {
+  return Rate(aTrack,0);
+}
 
 // Recombination rate is computed using energy and the G4SCUtils class, upon
-// which this is based
-G4double G4CMPQPRecombinationRate::Rate(const G4Track& aTrack) const
-{
+// which this is based. If there is an additional lattice provided, then compute
+// the rate based on that lattice
+G4double G4CMPQPRecombinationRate::
+Rate(const G4Track& aTrack,const G4LatticePhysical * theLat) const {
+
   //Debugging
   if (verboseLevel > 5) {
     G4cout << "-- G4CMPQPRecombinationRate::Rate --" << G4endl;
   }
   
+  //First, check to see if the input lattice is zero. If it is, then we're
+  //going to use the "current" lattice to do the rate calculation.
+  bool useInputLat = false;
+  if (theLat != 0) useInputLat = true;
+
   //Put checks to see if parameters are defined HERE -- this happens before
   //the calls to the vector but has access to tau0_qp, etc.
-  if (!CheckToSeeSCParametersSet()) return 0;
+  if (useInputLat) {
+    if (!CheckToSeeSCParametersSet(theLat)) return 0;
+  } else {
+    if (!CheckToSeeSCParametersSet()) return 0;
+  }
 
   //Boolean for checking to see if we're trying to access below our minimum
   //energy (in the case of a turnaround step)
@@ -36,9 +50,40 @@ G4double G4CMPQPRecombinationRate::Rate(const G4Track& aTrack) const
   
   //Compute tau for recombination, and invert for rate
   G4double energy = GetKineticEnergy(aTrack);
-  G4double tau_recombination = fTau0_qp*
-    (this->GetTauAsAFunctionOfEnergy(fCurrentNormalizedTauRecombinationVsEnergy,
-                                     "QP",energy,thisEnergyBelowUsableRange));
+
+  //Compute the tau using either the current lattice's information or the
+  //lattice information of the lattice provided as an argument.
+  G4double tau_recombination = DBL_MAX;
+  if (!useInputLat) {
+    tau_recombination = fTau0_qp*
+      (this->GetTauAsAFunctionOfEnergy(fCurrentNormalizedTauRecombinationVsEnergy,
+                                       "QP",energy,thisEnergyBelowUsableRange));
+  }
+  else {
+
+    //As a sanity check, make SURE that we have this lattice in our map of
+    //vectors that give tau vs energy
+    if (fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.count(theLat)
+        == 0) {
+      G4ExceptionDescription msg;
+      msg << "For the input lattice, " << theLat->GetLattice()->GetName()
+          << ", we noticed that we don't have an already-built normalized tau"
+          << " versus energy. This is problematic. Fix.";
+      G4Exception("G4CMPQPRecombinationRate::Rate",
+                  "QPRecombinationRate000",FatalException, msg);
+      return 0;
+    }
+    G4cout << "The count, " <<
+      "fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.count(theLat): "
+           <<
+      fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.count(theLat)
+           << G4endl;
+    tau_recombination = theLat->GetSCTau0qp()*
+      (this->GetTauAsAFunctionOfEnergy(fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.at(theLat),
+                                       "QP",energy,thisEnergyBelowUsableRange));
+  }
+
+  //If we're below the usable range
   if (thisEnergyBelowUsableRange) {
 
     //Debugging
@@ -60,36 +105,71 @@ G4double G4CMPQPRecombinationRate::Rate(const G4Track& aTrack) const
   return (1.0/tau_recombination);
 }
 
-
 //This is meant to ensure that when we attempt to calculate a rate, we actually
 //have the correct parameters set for this material, so that we exercise some
 //control over the rate calculation.
-bool G4CMPQPRecombinationRate::CheckToSeeSCParametersSet() const {
-  
-  //Check for the gap0energy, Tcrit, Teff, and Tau0qp. If all of these aren't
-  //set, return false. However, if any subset of them are set, then throw a
-  //flag--means that someone may just have forgot one of them.
-  if (fGap0Energy==0 || fTau0_qp == DBL_MAX || fTcrit == 0 || fTeff == 0) {
-    
-    //Means the whole material likely not set -- this is sometimes expected
-    //during normal operation, so don't worry too much here.
-    if (fGap0Energy==0 && fTau0_qp == DBL_MAX && fTcrit == 0 && fTeff == 0) {
-      return false;
-    } else {
-      //^Means that the material is partially set -- this is probably a mistake
-      G4ExceptionDescription msg;
-      msg << "Noticed that in the rate calculation step for the QP "
-          << "recombination process, you have incorrectly defined or omitted "
-          << "the Gap0Energy parameter, the Tcrit parameter, the Teff "
-          << "parameter, or the Tau0qp parameter. In other words, you don't "
-          << "have enough input information in your config.txt file to run the "
-          << "recombination physics correctly.";
-      G4Exception("G4CMPQPRecombinationRate::CheckToSeeSCParametersSet",
-                  "QPRecombinationRate001",JustWarning, msg);
-      return false;
+bool G4CMPQPRecombinationRate::
+CheckToSeeSCParametersSet(const G4LatticePhysical * theLat) const {
+
+  //If a lattice is provided, we want to ask about that lattice info. If one is
+  //not, we want to ask about the lattice info currently loaded in
+  if (theLat == 0) {
+
+    //Check for the gap0energy, Tcrit, Teff, and Tau0qp. If all of these aren't
+    //set, return false. However, if any subset of them are set, then throw a
+    //flag--means that someone may just have forgot one of them.
+    if (fGap0Energy==0 || fTau0_qp == DBL_MAX || fTcrit == 0 || fTeff == 0) {
+
+      //Means the whole material likely not set -- this is sometimes expected
+      //during normal operation, so don't worry too much here.
+      if (fGap0Energy==0 && fTau0_qp == DBL_MAX && fTcrit == 0 && fTeff == 0) {
+        return false;
+      } else {
+        //^Means that the material is partially set -- this is probably a
+        //mistake
+        G4ExceptionDescription msg;
+        msg << "Noticed that in the rate calculation step for the QP "
+            << "recombination process, you have incorrectly defined or omitted "
+            << "the Gap0Energy parameter, the Tcrit parameter, the Teff "
+            << "parameter, or the Tau0qp parameter. In other words, you don't "
+            << "have enough input information in your config.txt file to run "
+            << "the recombination physics correctly.";
+        G4Exception("G4CMPQPRecombinationRate::CheckToSeeSCParametersSet",
+                    "QPRecombinationRate001",JustWarning, msg);
+        return false;
+      }
     }
+    return true;
   }
-  return true;
+  else {
+    //Check for the gap0energy, Tcrit, Teff, and Tau0qp. If all of these aren't
+    //set, return false. However, if any subset of them are set, then throw a
+    //flag--means that someone may just have forgot one of them.
+    if (theLat->GetSCDelta0()==0 || theLat->GetSCTau0qp() == DBL_MAX ||
+        theLat->GetSCTcrit() == 0 || theLat->GetSCTeff() == 0) {
+
+      //Means the whole material likely not set -- this is sometimes expected
+      //during normal operation, so don't worry too much here.
+      if (theLat->GetSCDelta0()==0 && theLat->GetSCTau0qp() == DBL_MAX &&
+          theLat->GetSCTcrit() == 0 && theLat->GetSCTeff() == 0) {
+        return false;
+      } else {
+        //^Means that the material is partially set -- this is probably a
+        //mistake
+        G4ExceptionDescription msg;
+        msg << "Noticed that in the rate calculation step for the QP "
+            << "recombination process, you have incorrectly defined or omitted "
+            << "the Gap0Energy parameter, the Tcrit parameter, the Teff "
+            << "parameter, or the Tau0qp parameter. In other words, you don't "
+            << "have enough input information in your config.txt file to run "
+            << "the recombination physics correctly.";
+        G4Exception("G4CMPQPRecombinationRate::CheckToSeeSCParametersSet",
+                    "QPRecombinationRate002",JustWarning, msg);
+        return false;
+      }
+    }
+    return true;
+  }
 }
 
 // If we arrive in a new lattice, either compute the recombination and then
@@ -108,8 +188,7 @@ G4CMPQPRecombinationRate::UpdateLookupTable(const G4LatticePhysical * theLat) {
   //1. If the lattice doesn't exist in the lattice container associated with
   //   this process yet, add it and do the full calculation of the curves we
   //   care about, storing them in a map
-  if (fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.count(theLat)
-      == 0) {
+  if (!CheckLookupTableForLat(theLat)) {
     if (verboseLevel > 5) {
       G4cout << "Computing new lookup table for recombination process, lattice "
              << "name: " << theLat->GetLattice()->GetName() << G4endl;
@@ -123,6 +202,15 @@ G4CMPQPRecombinationRate::UpdateLookupTable(const G4LatticePhysical * theLat) {
     fCurrentNormalizedTauRecombinationVsEnergy =
       fMap_physicalLattice_NormalizedTauRecombinationVsEnergy[theLat];
   }  
+}
+
+bool G4CMPQPRecombinationRate::
+CheckLookupTableForLat(const G4LatticePhysical * theLat) const {
+  //1. If the lattice doesn't exist in the lattice container associated with
+  //   this process yet, throw a flag
+  if(fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.count(theLat)
+     == 0){ return false; }
+  return true;
 }
 
 
@@ -190,3 +278,4 @@ G4CMPQPRecombinationRate::ComputeNormalizedTauRecombinationVsEnergy() {
 }
 
 
+ 

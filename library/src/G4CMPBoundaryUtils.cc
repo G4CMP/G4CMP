@@ -868,6 +868,17 @@ G4bool G4CMPBoundaryUtils::ReflectTrack(const G4Track& /*aTrack*/, const G4Step&
   return (rand <= reflProb);
 }
 
+//Overloaded to service the QP boundary class reflect track function, which is
+//not const. This is needed for the QP class's new reflectTrack function, which
+//is quasi-convoluted to un-bias the effect of WoS acting at transparent (or
+//quasi-transparent) boundaries.
+G4bool G4CMPBoundaryUtils::ReflectTrack(const G4Track& /*aTrack*/,
+                                        const G4Step&) {
+  G4Exception("G4CMPBoundaryUtils::ReflectTrack","Boundary015",FatalException,
+              "Non-const base class ReflectTrack() is running? Problematic!");
+  return false;
+}
+
 G4bool G4CMPBoundaryUtils::MaximumReflections(const G4Track& aTrack) const {
   auto trackInfo = G4CMP::GetTrackInfo<G4CMPVTrackInfo>(aTrack);
   if (buVerboseLevel>2) {

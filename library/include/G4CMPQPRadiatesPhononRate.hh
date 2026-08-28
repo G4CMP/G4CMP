@@ -27,7 +27,6 @@ public:
   virtual G4double Rate(const G4Track& aTrack) const;
   virtual void UpdateLookupTable(const G4LatticePhysical * theLat);
   
-
 private:
   
   //Lookup tables for calculated quantities
