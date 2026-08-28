@@ -1,24 +1,19 @@
+# G4CMP Phonon propagation
 
+> Daniel Brandt - SLAC (dbrandt@slac.stanford.edu)
 
- =================================================================
-                     Phonon propagation in Geant4
- =================================================================
-                         Daniel Brandt - SLAC
-                       dbrandt@slac.stanford.edu
 
 This example demonstrates how phonon propagation in cryogenic crystals
-can be simulated in Geant4.
+can be simulated in G4CMP.
 
-1.INTRODUCTION
+## Introduction
 
 Phonon propagation is different from most other Geant4 propagation
 simulations in a number of respects:
 
--Phonons are massless particles moving slower than the speed of light
-
--Phonon propagation and momentum vectors are not parallel
-
--Events isotropic in phonon-momentum space are not isotropic in real
+- Phonons are massless particles moving slower than the speed of light
+- Phonon propagation and momentum vectors are not parallel
+- Events isotropic in phonon-momentum space are not isotropic in real
  space.
 
 This example will simulate the propagation of acoustic phonons through
@@ -28,66 +23,83 @@ anharmonic downconversion (phonon splitting). As such it provides all
 the physics required to realistically simulate phonon propagation in
 cryogenically cold semiconductor crystals.
 
-2. GEOMETRY
+## Geometry
 
 In this example the geometry is a cylindrical Germanium crystal
 centered at (0,0,0) with Almuninium end caps. Phonons absorbed in the
 Al end caps are counted by the sensitive detector.
 
-3. PRIMARY EVENT
+## Primary event
 
 The primary event is a single phonon of energy 7.5 meV at the center of
 the Ge crystal. The polarization type (fast transvere, slow transverse or
 longitudinal) is determined randomly according to the density of states
-in Germanium. The direction of propagation is than determined by by the
-User Stacking Action class XPhononStackingAction.
+in Germanium. The direction of propagation is chosen randomly by the
+Primary Generator Action class PhononPrimaryGeneratorAction.
 
-4. EXECUTION & OUTPUT
+## Execution and output
 
-The executable must be run from within the source directory of the example
-to ensure that it can find the path for crystal data files.
-Alternatively the search path for the crystal maps can be set in the
-setting the CRYSTALMAPS environment variable. If this variable does not
-exist, it defaults to ./CrystalMaps.
+Source the G4CMP environment script, which sets the G4LATTICEDATA environment
+variable so the crystal data files can be found.
 
-Upon execution, the vis.mac visualization macro will automatically be
-executed. For the visualization to work, OpenGL support must be installed.
+```
+source </path/to/your/G4CMP/install/share/G4CMP/g4cmp_env.sh>     # For SH/BASH users
+source </path/to/your/G4CMP/install/share/G4CMP/g4cmp_env.csh>    # For CSH/TCSH users
+```
+Run the executable with one of the following commands.
+```
+./g4cmpPhonon                                                     # within the install directory
+</path/to/your/Phonon_install/bin/g4cmpPhonon>                    # outside of the install directory
+```
+
+Upon execution, the usual Geant4 Qt interface opens. Run the macro `vis.mac` to
+get a visualization of the Germanium detector. For the visualization to work,
+OpenGL support must be installed.
 The macro will automatically generate a single Primary Event (7.5 meV phonon)
 at the center of the crystal.
 
 The trajectory colour will indicate the polarization state of the phonon:
-Longitudinal:    blue
-Fast Transverse: green
-Slow Transverse: red
+
+- Longitudinal (phononL):    blue
+- Fast Transverse (phononTF): green
+- Slow Transverse (phononTS): red
 
 A small circle will be drawn wherever a phonon is absorbed into the 
-Aluminium. All events within the Aluminium are written into plain-text
-space-sparated-value (ssv) files.
+Aluminium. All hits within the Aluminium are written into a
+comma-separated-value (csv) file `phonon_hits.csv`, which can be opened with any
+Calculator program (e.g. Excel, Libre office Calc) or with a plain text editor.
 
-timing.ssv
-------------
-COLUMN 1: Time phonon was absorbed in ns since start of run
-COLUMN 2: Energy of phonon absorbed
+For these hits, the start energy, coordinates and time of the track is stored.
+Also, the energy deposited into the Aluminium in the last step of the track is
+listed together with the final coordinates and time of the post step point.
 
-caustic.ssv
-------------
-COLUMN 1: x-position of absobrtion in mm
-COLUMN 2: y-position of absobrtion in mm
-COLUMN 3: z-position of absobrtion in mm
+Every time a phonon is simulated, the information is appended to
+`phonon_hits.csv`. If the file does not exist it will be created.
 
-Every time a phonon is simulated, the information is appended to timing.ssv
-and caustic.ssv. If the files do not exist they will be created.
+When running the `vis.mac`, screenshots of top and side of the Germanium crystal
+are automatically saved in `g4cmpPhonon_0000.eps` and `g4cmpPhonon_0001.eps`.
 
-5. TESTING
+The macro `single.mac` can be run either in the Geant4 Qt interface after
+`vis.mac` to visualize 100 phonons (this might take a moment) or in batch mode
+without visualization:
 
-In order to test the example, it can be run as
-   ./XGeBox run.in > test.out
+```
+./g4cmpPhonon single.mac
+```
 
-This will create a single primary event and then cause the example to
-terminate automatically, with all screen output redirected to test.out.
+Note that in `single.mac` the processes for phonon scattering (phononScattering)
+and downconversion (phononDownconversion) are inactivated by default and can be
+activated by commenting the corresponding macro commands by preceding the number
+sign `#`. Be aware that activating phonon scattering increases the simulation
+runtime significantly and a visualization may demand a lot of computing
+resources.
 
-If all went well, test.out should be identical to run.out provided with
-this example. Also, the files caustic.ssv and timing.ssv should have been 
-created and be identical to caustic.out and timing.out respectively.
+In `single.mac` also the macro command `/tracking/verbose 1` is set, which lists
+each step of each particle. This can produce a lot of output in the terminal.
 
-After the first time the example runs, it will append to caustic.ssv and timing.ssv. If the testing should be re-run, then caustic.ssv and timing.ssv will have to be deleted.
+## Visualization of an animation
+
+If you would like to see an animation of the detector turning by 360 degrees,
+open the Geant4 Qt interface, run `vis.mac` and afterwards `play.mac`. The
+latter calls `loop.mac` which changes the viewing angle `theta` by steps of one
+degree.
