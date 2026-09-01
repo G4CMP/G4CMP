@@ -7,10 +7,9 @@
 #define G4CMPConfigMessenger_hh 1
 
 // $Id$
-// File:  G4CMPConfigMessenger.hh
-//
-// Description:	Macro command defitions to set user configuration in
-//		G4CMPConfigManager.
+/// \file library/include/G4CMPConfigMessenger.hh
+/// \brief Macro command defitions to set user configuration in
+///        G4CMPConfigManager.
 //
 // 20140904  Michael Kelsey
 // 20141029  Add command to set output e/h positions file
@@ -46,7 +45,10 @@
 // 20241224  G4CMP-419: Add macro command to set LukeScattering debug file.
 // 20250209  G4CMP-457: Add short names for empirical Lindhard NIEL.
 // 20250213  G4CMP-457: Add empirical Lindhard NIEL parameters.
-// 20250325  G4CMP-463:  Add parameter for phonon surface step size & limit.
+// 20250325  G4CMP-463: Add parameter for phonon surface step size & limit.
+// 20250502  G4CMP-358: Add macro command for maximum steps (stuck tracks).
+// 20260429  G4CMP-598: Add macro command for minimum particle generation.
+// 20260606  G4CMP-578: Add macro command for pprimary phonon energy.
 
 
 #include "G4UImessenger.hh"
@@ -77,12 +79,15 @@ private:
   G4UIcmdWithAnInteger* ehBounceCmd;
   G4UIcmdWithAnInteger* pBounceCmd;
   G4UIcmdWithAnInteger* qpBounceCmd;
+  G4UIcmdWithAnInteger* maxStepsCmd;
   G4UIcmdWithAnInteger* maxLukeCmd;
   G4UIcmdWithAnInteger* pSurfStepLimitCmd;
+  G4UIcmdWithAnInteger* safetyNSweep2DCmd;
   G4UIcmdWithADoubleAndUnit* clearCmd;
   G4UIcmdWithADoubleAndUnit* minEPhononCmd;
   G4UIcmdWithADoubleAndUnit* minEChargeCmd;
   G4UIcmdWithADoubleAndUnit* sampleECmd;
+  G4UIcmdWithADoubleAndUnit* phonEprimCmd;
   G4UIcmdWithADoubleAndUnit* comboStepCmd;
   G4UIcmdWithADoubleAndUnit* trapEMFPCmd;
   G4UIcmdWithADoubleAndUnit* trapHMFPCmd;
@@ -104,8 +109,8 @@ private:
   G4UIcmdWithABool*   fanoStatsCmd;
   G4UIcmdWithABool*   kaplanKeepCmd;
   G4UIcmdWithABool*   ehCloudCmd;
-  G4UIcmdWithAnInteger * safetyNSweep2DCmd;
   G4UIcmdWithABool*   recordMinECmd;
+  G4UIcmdWithAnInteger* minParCmd;
 
   // Empirical Lindhard Model Macro Commands
   G4UIcmdWithABool* EmpEDepKCmd;

@@ -143,6 +143,7 @@ add_definitions(-DG4DIGI_ALLOC_EXPORT)		## Needed for hits collection
 
 set(library_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPAnharmonicDecay.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPAnisotropicInterfaceSolver.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPBiLinearInterp.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPBoundaryUtils.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPChargeCloud.cc
@@ -172,6 +173,8 @@ set(library_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPIVRateLinear.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPIVRateQuadratic.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPImpactTunlNIEL.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPInterfaceTable.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPInterfaceTableGenerator.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPInterValleyRate.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPInterValleyScattering.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPInterpolator.cc
@@ -219,17 +222,18 @@ set(library_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4LatticeManager.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4LatticePhysical.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4LatticeReader.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4PhysicsModelCatalog.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4PhononDownconversion.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4PhononLong.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4PhononPolarization.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4PhononScattering.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4PhononPolycrystalElasticScattering.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPPhononPolycrystalElasticScattering.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4PhononTransFast.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4PhononTransSlow.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4VNIELPartition.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4VPhononProcess.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4QP.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4VQPProcess.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPBogoliubovQP.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPVQPProcess.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPQPRecombinationProcess.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPQPRecombinationRate.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPQPRadiatesPhononProcess.cc
@@ -248,6 +252,7 @@ set(library_SOURCES
  
 set(library_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPAnharmonicDecay.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPAnisotropicInterfaceSolver.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPBiLinearInterp.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPBlockData.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPBlockData.icc
@@ -280,6 +285,8 @@ set(library_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPIVRateLinear.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPIVRateQuadratic.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPImpactTunlNIEL.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPInterfaceTable.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPInterfaceTableGenerator.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPInterValleyRate.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPInterValleyScattering.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPInterpolator.hh
@@ -336,13 +343,14 @@ set(library_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4PhononLong.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4PhononPolarization.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4PhononScattering.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4PhononPolycrystalElasticScattering.hh	
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPPhononPolycrystalElasticScattering.hh	
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4PhononTransFast.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4PhononTransSlow.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4StrUtil.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4VNIELPartition.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4VPhononProcess.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4QP.hh
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4VQPProcess.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPBogoliubovQP.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPVQPProcess.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPQPRecombinationProcess.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPQPRecombinationRate.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPQPRadiatesPhononProcess.hh
@@ -357,6 +365,7 @@ set(library_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPQPLocalTrappingRate.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPQPDiffusionTimeStepperProcess.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPQPDiffusionTimeStepperRate.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPParticleChangeForQPDiffusion.icc
     )
 
 set(config_FILES

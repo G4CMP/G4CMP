@@ -9,9 +9,9 @@
 //
 
 #include "G4CMPQPLocalTrappingProcess.hh"
+#include "G4CMPBogoliubovQP.hh"
 #include "G4CMPQPLocalTrappingRate.hh"
 #include "G4CMPSCUtils.hh"
-#include "G4QP.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4VParticleChange.hh"
@@ -25,7 +25,7 @@
 
 // Constructor and destructor 
 G4CMPQPLocalTrappingProcess::G4CMPQPLocalTrappingProcess(const G4String& aName)
-  : G4VQPProcess(aName,fQPLocalTrappingProcess) {  
+  : G4CMPVQPProcess(aName,fQPLocalTrappingProcess) {  
   UseRateModel(new G4CMPQPLocalTrappingRate);
 }
 
@@ -53,11 +53,11 @@ PostStepDoIt(const G4Track& aTrack,const G4Step& aStep) {
   if (verboseLevel>1) {
     G4StepPoint* preStepPoint = aStep.GetPreStepPoint();
     G4cout << " Track " << aTrack.GetDefinition()->GetParticleName()
-	   << " vol " << aTrack.GetTouchable()->GetVolume()->GetName()
-	   << " prePV " << preStepPoint->GetPhysicalVolume()->GetName()
-	   << " postPV " << postStepPoint->GetPhysicalVolume()->GetName()
-	   << " step-length " << aStep.GetStepLength()
-	   << G4endl;
+           << " vol " << aTrack.GetTouchable()->GetVolume()->GetName()
+           << " prePV " << preStepPoint->GetPhysicalVolume()->GetName()
+           << " postPV " << postStepPoint->GetPhysicalVolume()->GetName()
+           << " step-length " << aStep.GetStepLength()
+           << G4endl;
   }
 
   //Since this local trapping, this is very simple -- we just kill the track.

@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------
 # Setup the project
 #
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 project(G4CMP)
 
 # User can provide version string in case build is not from Git source
@@ -24,13 +24,25 @@ include(FindGeant4.cmake)
 #----------------------------------------------------------------------------
 # Set up compiler flags for various build types
 #
-# Always need to build against C++11
-set(CMAKE_CXX_STANDARD 11)
 
 # Set default build type as "Release"
 if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Set build type to Release")
 endif()
+
+# Use same C++ version as was used for Geant4 (v10 or v11)
+if (NOT DEFINED CMAKE_CXX_STANDARD)	# Only if user did not specify
+    if (DEFINED Geant4_CXXSTD)			# For G4 v10, value is "c++NN"
+        string(REPLACE "c++" "" CMAKE_CXX_STANDARD ${Geant4_CXXSTD})
+    elseif (DEFINED Geant4_CXX_STANDARD)	# For G4 v11, value is "NN"
+        set(CMAKE_CXX_STANDARD ${Geant4_CXX_STANDARD})
+    endif()
+endif()
+
+# Store actual value of c++NN derived from above or set by user
+set(G4CMP_CXX_STANDARD ${CMAKE_CXX_STANDARD} CACHE STRING
+   "C++ version used for building G4CMP")
+message(STATUS "Setting G4CMP_CXX_STANDARD: ${G4CMP_CXX_STANDARD}")
 
 #----------------------------------------------------------------------------
 # Utility function to define simple executables in subdirectories
@@ -39,16 +51,19 @@ function(make_binaries)
     foreach(bin IN LISTS ARGV)
         add_executable(${bin} ${bin}.cc)
         target_link_libraries(${bin} G4cmp)
-	install(TARGETS ${bin} DESTINATION bin)
+        install(TARGETS ${bin} DESTINATION bin)
     endforeach()
 endfunction()
 
 #----------------------------------------------------------------------------
 # Options to build examples and other directories
 #
+option(INSTALL_VALIDATION "Copy validation directory to installation area.  Default: ON" ON)
+option(INSTALL_EXAMPLES "Copy examples directories to installation area. Default: OFF" OFF)
+
 option(BUILD_G4CMP_TOOLS "Build utility and support programs.  Default: ON" ON)
 option(BUILD_G4CMP_TESTS "Build unit tests for classes.  Default: OFF" OFF)
-option(INSTALL_EXAMPLES "Copy examples directories to installation area. Default: OFF" OFF)
+option(BUILD_G4CMP_VALIDATION "Build validation after installation.  Default: OFF" OFF)
 
 #-----------------------------------------------------------------------------
 # Add subdirectories based on options selected
@@ -64,34 +79,69 @@ if (BUILD_G4CMP_TESTS)
 endif()
 
 #-----------------------------------------------------------------------------
-# Create a version file as part of the "make all" procedure
+# Extract G4CMP version and create a version file during configuration
 #
-set(version_FILE .g4cmp-version)
+set(VERSION_FILE .g4cmp-version)
 
-find_program(SH sh HINTS /bin)
-add_custom_target(version ALL
-    COMMENT Building version identification file
-    VERBATIM			# Allows for parentheses and redirection below
-    COMMAND ${CMAKE_COMMAND} -E env ${SH}
-        -c "(cd ${PROJECT_SOURCE_DIR};\
-        [ -d .git ] && git describe --always || echo ${G4CMP_VERSION}) > ${version_FILE}"
+if (NOT G4CMP_VERSION)
+    # Locate git
+    find_package(Git REQUIRED)
+    # Execute git describe
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" describe --always
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        OUTPUT_VARIABLE G4CMP_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
     )
+endif()
 
-install(FILES ${PROJECT_BINARY_DIR}/${version_FILE} DESTINATION share/G4CMP
+# Fallback if git describe fails and user did not specify version
+if (NOT G4CMP_VERSION)
+    set(G4CMP_VERSION "unknown")
+endif()
+
+message(STATUS "Build G4CMP: ${G4CMP_VERSION}")
+
+# Write version to file
+file(WRITE ${PROJECT_BINARY_DIR}/${VERSION_FILE} ${G4CMP_VERSION})
+
+# Copy version file to install area
+install(FILES ${PROJECT_BINARY_DIR}/${VERSION_FILE} DESTINATION share/G4CMP
         COMPONENT config)
+
+#-----------------------------------------------------------------------------
+# Create local UseG4CMP.cmake from template
+#
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/UseG4CMP.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/UseG4CMP.cmake"
+    @ONLY
+)
 
 #-----------------------------------------------------------------------------
 # Install CMake config files
 #
 install(FILES ${PROJECT_SOURCE_DIR}/cmake/G4CMPConfig.cmake
         DESTINATION cmake)
-install(FILES ${PROJECT_SOURCE_DIR}/cmake/UseG4CMP.cmake
+install(FILES ${PROJECT_BINARY_DIR}/UseG4CMP.cmake
         DESTINATION cmake)
 
 #-----------------------------------------------------------------------------
 # Install example applications if requested
 #
-if(INSTALL_EXAMPLES)
+if (INSTALL_EXAMPLES)
     install(DIRECTORY examples DESTINATION . COMPONENT examples
-	    PATTERN ".git" EXCLUDE)
+        PATTERN ".git" EXCLUDE)
+endif()
+
+if (INSTALL_VALIDATION)
+    install(DIRECTORY validation DESTINATION . COMPONENT validation
+        PATTERN ".git" EXCLUDE)
+endif()
+
+#-----------------------------------------------------------------------------
+# Build validation as "external" project if requested
+#
+if(BUILD_G4CMP_VALIDATION)
+    message(WARNING "BUILD_G4CMP_VALIDATION is not yet implemented.")
 endif()

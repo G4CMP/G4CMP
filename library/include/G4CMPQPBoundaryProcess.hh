@@ -9,31 +9,27 @@
 #ifndef G4CMPQPBoundaryProcess_h
 #define G4CMPQPBoundaryProcess_h 1
 
-#include "G4VQPProcess.hh"
-#include "G4CMPSCUtils.hh"
+#include "G4CMPVQPProcess.hh"
 #include "G4CMPBoundaryUtils.hh"
 
 class G4CMPProcessUtils;
 
-class G4CMPQPBoundaryProcess : public G4VQPProcess, public G4CMPBoundaryUtils {
+class G4CMPQPBoundaryProcess : public G4CMPVQPProcess, public G4CMPBoundaryUtils {
 public:
   G4CMPQPBoundaryProcess(const G4String& processName="G4CMPQPBoundaryProcess");
   
   virtual ~G4CMPQPBoundaryProcess();
 
-  //  // Configure for current track including AnharmonicDecay utility
-  //  virtual void LoadDataForTrack(const G4Track* track);
   virtual G4double PostStepGetPhysicalInteractionLength(const G4Track& track,
 							G4double previousStepSize,
 							G4ForceCondition* condition);
 
   virtual G4VParticleChange* PostStepDoIt(const G4Track& aTrack,
                                           const G4Step& aStep);
-                    
                        
   G4bool CheckQPVolumes(const G4Step& aStep);
   G4bool IsValidQPVolume(G4VPhysicalVolume* volume,
-			 G4double qpEKin );
+			 G4double qpEKin);
 
 protected:
   virtual G4double GetMeanFreePath(const G4Track& aTrack,
@@ -49,19 +45,15 @@ protected:
   virtual void DoTransmission(const G4Track& aTrack, const G4Step& aStep,
 			      G4ParticleChange& aParticleChange);
 
-  G4ThreeVector GetLambertianVector(const G4ThreeVector& surfNorm) const;
-  
   //Boolean to indicate whether the pre/post-step volumes have valid material
   //properties for QP transport
   G4bool preQPVolume;
   G4bool postQPVolume;
    
   G4String procName;
-  G4CMPProcessUtils* procUtils; //REL what happens to inherited procUtils?
   G4int verboseLevel;
    
 private:
-
   // hide assignment operator as private
   G4CMPQPBoundaryProcess(G4CMPQPBoundaryProcess&);
   G4CMPQPBoundaryProcess(G4CMPQPBoundaryProcess&&);

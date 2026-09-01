@@ -8,7 +8,7 @@ processes in Geant4.  Developed for the low-temperature community, the
 package support production and propagation of acoustic phonons and
 electron-hole pairs through solid crystals such as germanium.
 
-Website: https://confluence.slac.stanford.edu/browse/G4CMP/
+Website: https://confluence.slac.stanford.edu/spaces/G4CMP/overview
 
 Papers:	https://doi.org/10.1016/j.nima.2023.168473
 	https://arxiv.org/abs/2302.05998
@@ -85,7 +85,7 @@ developers should check the source code in
 | G4LATTICEDATA [P1:P2...] | /g4cmp/LatticeData	[P1:P2:...] | Paths with lattice configs            |
 | G4CMP\_DEBUG	          | /g4cmp/verbose [L] >0:        | Enable diagnostic messages              |
 | G4CMP\_CLEARANCE [L]    | /g4cmp/clearance [L] mm       | Minimum distance of tracks from boundaries |
-| G4CMP\_VOLTAGE [V]      | /g4cmp/voltage [V]	volt !=0:  | Apply uniform +Z voltage                |
+| G4CMP\_VOLTAGE [V]      | /g4cmp/voltage [V]	volt !=0: | Apply uniform +Z voltage                |
 | G4CMP\_EPOT\_FILE [F]   | /g4cmp/EPotFile [F] V=0:      | Read mesh field file "F"                |
 | G4CMP\_EPOT\_SCALE [F]  | /g4cmp/scaleEPot [M] V=0:     | Scale the potentials in EPotFile by factor m|
 | G4CMP\_MIN\_STEP [S]    | /g4cmp/minimumStep [S] S>0:   | Force minimum step S\*L0                |
@@ -93,11 +93,14 @@ developers should check the source code in
 | G4CMP\_PHON\_BOUNCES [N]  | /g4cmp/phononBounces [N]      | Maximum phonon reflections              |
 | G4CMP\_PHON\_SURFSTEP [L] | /g4cmp/phononSurfStepSize [L] um  | Specular reflection surface displacement step size |
 | G4CMP\_PHON\_SURFLIMIT [N]  | /g4cmp/phononSurfStepLimit [N]  | Specular reflection surface displacement step limit |
+| G4CMP\_EH\_MAX\_STEPS [N] | /g4mp/maximumSteps [N]      | Maximum allowed charged track steps     |
 | G4CMP\_MAKE\_PHONONS [R] | /g4cmp/producePhonons [R]     | Fraction of phonons from energy deposit   |
 | G4CMP\_MAKE\_CHARGES [R] | /g4cmp/produceCharges [R]     | Fraction of charge pairs from energy deposit |
+| G4CMP\_MIN\_GENPARTICLES [N] | /g4cmp/minParticles [N]     | Minimum particles from energy deposit   |
 | G4CMP\_LUKE\_SAMPLE [R] | /g4cmp/sampleLuke [R]         | Fraction of generated Luke phonons |
 | G4CMP\_MAX\_LUKE [N] | /g4cmp/maxLukePhonons [N] | Soft maximum Luke phonons per event |
 | G4CMP\_SAMPLE\_ENERGY [E] | /g4cmp/samplingEnergy [E] eV  | Energy above which to downsample |
+| G4CMP\_EPRIM\_PHOBNONS [E] | /g4cmp/primaryPhononEnergy [E] eV | Energy to assign to primary phonons |
 | G4CMP\_COMBINE\_STEPLEN [L] | /g4cmp/combiningStepLength [L] mm | Combine hits below step length |
 | G4CMP\_EMIN\_PHONONS [E] | /g4cmp/minEPhonons [E] eV     | Minimum energy to track phonons         |
 | G4CMP\_EMIN\_CHARGES [E] | /g4cmp/minECharges [E] eV     | Minimum energy to track charges         |
@@ -105,15 +108,15 @@ developers should check the source code in
 | G4CMP\_USE\_KVSOLVER    | /g4mcp/useKVsolver [t\|f]     | Use eigensolver for K-Vg mapping        |
 | G4CMP\_FANO\_ENABLED    | /g4cmp/enableFanoStatistics [t\|f] | Apply Fano statistics to input ionization |
 | G4CMP\_KAPLAN\_KEEP     | /g4cmp/kaplanKeepPhonons [t\|f] | Reflect or iterate all phonons in KaplanQP |
-| G4CMP\_IV\_RATE\_MODEL  | /g4cmp/IVRateModel [IVRate\|Linear\|Quadratic] | Select intervalley rate parametrization |
-| G4CMP\_LUKE\_FILE | /g4cmp/LukeDebugFile [S] | LukeScattering debug filename |
-| G4CMP\_ETRAPPING\_MFP   | /g4cmp/eTrappingMFP [L] mm        | Mean free path for electron trapping |
-| G4CMP\_HTRAPPING\_MFP   | /g4cmp/hTrappingMFP [L] mm        | Mean free path for charge hole trapping |
-| G4CMP\_EDTRAPION\_MFP | /g4cmp/eDTrapIonizationMFP [L] mm | MFP for e-trap ionization by e- |
-| G4CMP\_EATRAPION\_MFP | /g4cmp/eATrapIonizationMFP [L] mm | MFP for h-trap ionization by e- |
-| G4CMP\_HDTRAPION\_MFP | /g4cmp/hDTrapIonizationMFP [L] mm | MFP for e-trap ionization by h+ |
-| G4CMP\_HATRAPION\_MFP | /g4cmp/hATrapIonizationMFP [L] mm | MFP for h-trap ionization by h+ |
-| G4CMP\_TEMPERATURE   | /g4cmp/temperature [T] K | Device/substrate/etc. temperature |
+| G4CMP\_IV\_RATE\_MODEL | /g4cmp/IVRateModel [IVRate\|Linear\|Quadratic] | Select intervalley rate parametrization |
+| G4CMP\_LUKE\_FILE       | /g4cmp/LukeDebugFile [S]      | LukeScattering debug filename           |
+| G4CMP\_ETRAPPING\_MFP   | /g4cmp/eTrappingMFP [L] mm    | Mean free path for electron trapping    |
+| G4CMP\_HTRAPPING\_MFP   | /g4cmp/hTrappingMFP [L] mm    | Mean free path for charge hole trapping |
+| G4CMP\_EDTRAPION\_MFP | /g4cmp/eDTrapIonizationMFP [L] mm | MFP for e-trap ionization by e-       |
+| G4CMP\_EATRAPION\_MFP | /g4cmp/eATrapIonizationMFP [L] mm | MFP for h-trap ionization by e-       |
+| G4CMP\_HDTRAPION\_MFP | /g4cmp/hDTrapIonizationMFP [L] mm | MFP for e-trap ionization by h+       |
+| G4CMP\_HATRAPION\_MFP | /g4cmp/hATrapIonizationMFP [L] mm | MFP for h-trap ionization by h+       |
+| G4CMP\_TEMPERATURE    | /g4cmp/temperature [T] K        | Device/substrate/etc. temperature       |
 | G4CMP\_NIEL\_FUNCTION | /g4cmp/NIELPartition [model] | Select NIEL partitioning function. See below |
 | G4CMP\_EMPIRICAL\_KLOW | /g4cmp/NIELPartition/Empirical/klow [k] | k lower bound of dk/dE for energy dependent K |
 | G4CMP\_EMPIRICAL\_KHIGH | /g4cmp/NIELPartition/Empirical/khigh [k] | k high bound of dk/dE for energy dependent K |
@@ -136,20 +139,26 @@ The environment variable `$G4CMP_NIEL_FUNCTION` allows the user to specify
 a particular model for non-ionizing energy loss ("nuclear recoil"), from 
 the set of models provided in G4CMP:
 
-    LewinSmith                      # Lewin & Smith's implementation of Lindhard NIEL
-    Lindhard                        # Robinson's implementation of Lindhard NIEL
-    Empirical                       # Energy dependent (or variable) k Lindhard NIEL       
-    Impact@TUNL                     # IMPACT@TUNL Si NIEL measurements
-    Sarkis                          # Lindhard NIEL modified by Sarkis 2022     
+    LewinSmith       # Lewin & Smith's implementation of Lindhard NIEL
+    Lindhard         # Robinson's implementation of Lindhard NIEL
+    Empirical        # Energy dependent (or variable) k Lindhard NIEL       
+    Impact@TUNL      # IMPACT@TUNL Si NIEL measurements
+    Sarkis           # Lindhard NIEL modified by Sarkis 2022     
+
+"Primary" phonons, either from non-ionizing energy loss or from
+electron-hole recombination, are produced all at the same energy, the Debye
+energy set in the material's config.txt file.  The environment variable
+`$G4CMP_EPRIM_PHONONS` may be set (in eV) to override the material value,
+typically to something much lower, just a few eV.
 
 The environment variable `$G4CMP_MAKE_CHARGES` controls the rate (R) as a
 fraction of total interactions, at which electron-hole pairs are produced
 by energy partitioning.  Secondaries will be
 produced with a track weight set to 1/R:
 ```
-	unsetenv G4CMP_MAKE_CHARGES     # No new charge pairs generated
-	setenv G4CMP_MAKE_CHARGES 1     # Generate e/h pair at every occurrence
-	setenv G4CMP_MAKE_CHARGES 0.001 # Generate e/h pair 1:1000 occurrences
+  unsetenv G4CMP_MAKE_CHARGES     # No new charge pairs generated
+  setenv G4CMP_MAKE_CHARGES 1     # Generate e/h pair at every occurrence
+  setenv G4CMP_MAKE_CHARGES 0.001 # Generate e/h pair 1:1000 occurrences
 ```
 When secondary phonons are not produced, the equivalent energy is recorded as
 non-ionizing energy loss (NIEL) on the track.  Generating seconary phonons
@@ -160,12 +169,14 @@ fraction of total interactions, at which "primary" phonons are produced (by
 energy partitioning or recombination).  Secondaries will be produced with a
 track weight set to 1/R:
 ```
-	unsetenv G4CMP_MAKE_PHONONS     # No secondary phonons generated
-	setenv G4CMP_MAKE_PHONONS 1     # Generate phonon at every occurrence
-	setenv G4CMP_MAKE_PHONONS 0.001 # Generate phonon 1:1000 occurrences
+  unsetenv G4CMP_MAKE_PHONONS     # No secondary phonons generated
+  setenv G4CMP_MAKE_PHONONS 1     # Generate phonon at every occurrence
+  setenv G4CMP_MAKE_PHONONS 0.001 # Generate phonon 1:1000 occurrences
 ```
 When primary phonons are not produced, the equivalent energy is recorded as
-non-ionizing energy loss (NIEL) on the track.  
+non-ionizing energy loss (NIEL) on the track. 
+
+The environment variable `$G4CMP_MIN_GENPARTICLES` (default value: 10) controls the minimum number of particles produced due to energy partitioning. This ensures that very low values for `$G4CMP_MAKE_PHONONS`/`$G4CMP_MAKE_CHARGES` will not result in zero secondary production.
 
 Secondary phonons may be produced either by downconversion of higher energy
 phonons, or by emission of Luke-Neganov phonons from charge carriers.
@@ -390,6 +401,9 @@ emission of phonons and intervalley scattering.
 record phonon energy by absorption on superconducting TES-style surface
 sensors.
 
+* The `g4beginner` example shows how to adapt an existing Geant4 model
+to a G4CMP-capable model as well as simple demonstrations of G4CMP features.
+
 Users may copy any of the individual example directories to their own work
 area and adapt them as necessary, or use them as inspiration in developing a
 more complex experimental model application.
@@ -540,7 +554,7 @@ the crystal system.
 | valley  | theta phi psi unit | Euler angles     | angle (deg/rad)    |
 | **InterValley scattering with matrix elements** |
 | epsilon | e/e0      | Relative permittivity     |                    |
-| neutDens | N        | Number density of neutron impurities | /volume |
+| neutDens | N        | Number density of neutral impurities | /volume |
 | alpha   |  val      | Non-parabolicity of valleys | energy^-1 (/eV)  |
 | acDeform_e | val | electron acoustic deformation potential | energy (eV)|
 | acDeform_h | val | hole acoustic deformation potential  | energy (eV)|
@@ -657,39 +671,13 @@ individual sensor shapes are not implemented, this parameter may also
 include geometric coverage.
 
 ## Tracked Film Response (Experimental -- Temporary Documentation)
-This branch in particular attempts to handle the dynamics of phonons and quasiparticles in thin films. This feature attempts to add the following set of physics:
-* Phonon transmission through interfaces: (distributed across classes)
-	* Now, `G4CMPSurfaceProperties` must be defined with an additional two parameters: `qpAbsProb` (QP Absorption probability) and `qpReflProb`, but once these are defined, you can enable passage of phonons through a surface by setting `pAbsProb` and `pReflProb` to values less than 1.
-  	* Boundary surfaces must be applied in both directions for a given interface!
-	* Currently, no "physics" is done at these interfaces -- phonons pass straight through if they pass through. Specular vs. diffuse reflection is handled as it was in the previous version.
+Recently-added physics processes attempt to handle the dynamics of phonons and quasiparticles in thin films. The following set of physics is included:
+* Phonon transmission through interfaces
 * Cooper-pair breaking by phonons: `G4CMPSCPairBreakingProcess.cc`
-  	* The rate of this is given by a dedicated rate function, but is ultimately dictated by parameters set in the `CrystalMaps/Al/config.txt` file. Only a few of them should be tweaked by a user at the moment: one is an effective temperature `sc_Teff`, which should be less than Tc for a given crystal.
-  	* This will produce two BogoliubovQP particles from a phonon above 2*delta
-* Phonon radiation by QPs: `G4CMPBogoliubovQPRadiatesPhononProcess.cc`
- 	* This will radiate phonons from QPs above delta. The rate is again dictated by that effective temperature in `CrystalMaps/Al/config.txt`.
-* QP Recombination: `G4CMPBogoliubovQPRecombinationProcess.cc`
-	* This will take a QP and "recombine" it with an ambient quasiparticle that is implicitly in the environment due to some ambient density. A phonon will emerge half of the time, to conserve energy.
- 	* This does *not* do n^2 recombination. This recombination is linear in the density of quasiparticles and is a good approximation in the limit of low density of QPs. We'll put back-of-the-envelope numbers to this regime soon. Again, this does *not* do n^2 recombination.
- 	* This rate is *strongly* dependent on the Teff you use in `CrystalMaps/Al/config.txt`. If you set this to below about 10% of Tc for a given superconductor, you be waiting *forever* for these QPs to recombine. 
-* QP Local Trapping: `G4CMPBogoliubovQPLocalTrappingProcess.cc`
- 	* This is a generic linear loss term that kills QPs after they exist for some characteristic lifetime. Notionally this is from trapping on shallow trapping sites
-   	* This is another crystal parameter, `sc_tau_qptrap` at the moment, located in `CrystalMaps/Al/config.txt`.
-* QP Diffusion: `G4CMPBogoliubovRandomWalkTransport.cc`
- 	* This is a doozy of a function. It uses an efficient MC approach to diffusion in a generalized geometry called Walk-on-Spheres to do diffusion steps of QPs in thin films. Currently only implemented in 2D, and moreover only currently implemented in XY specifically. Will expand to direction agnostic form in a future release.
-  	* For fine geometries (like coplanar waveguides), this will take some time to run. The execution time is dependent on the relationship between typical length scales traveled before hitting a boundary and the overall lifetime of the QP (either via recombination, absorption, or local trapping).
-  	* If you intend to have QPs in your simulation, this must be turned on for anything to be accurate.
-* Gap Engineering: `G4CMPBogoliubovQPRandomWalkBoundary.cc`
- 	* QPs can also move between superconducting volumes that are all in-plane, but are prevented from entering a superconductor whose gap is higher than the QP's energy.
+* Phonon radiation by QPs: `G4CMPQPRadiatesPhononProcess.cc`
+* QP Recombination: `G4CMPQPRecombinationProcess.cc`
+* QP Local Trapping: `G4CMPQPLocalTrappingProcess.cc`
+* QP Diffusion: `G4CMPQPDiffusion.cc`
+* Gap Engineering: `G4CMPQPBoundaryProcess.cc`
 
-
-General other tips: 
-* For now, need one G4LatticeLogical and G4LatticePhysical for every physical superconducting volume. This may incur a slight calculational cost at the beginning of a given run, since for each there is a calculation of the QP scattering/recombination taus as a function of energy relative to the gap. The more dedicated volumes you have, the longer you should expect the startup to take.
-* For now, need to define boundaries between not only substrate and thin film, but also between different volumes in the thin film. This includes boundaries between mother and daughter volumes
-* There is now a `quasiparticle` example that shows examples of a few geometries you can build with this and how to properly write down boundary relations for those. Very much a work in progress.
-* Right now, the CrystalMaps config.txt files are only effective:
- 	* For Al, the "boilerplate" phonon parameters are equivalent to that of Si. We'll update these to accurate values for Al in the next week or so. The superconducting parameters (the last 8 parameters in the file) are the ones that contain the new physics.
-	* For Nb, the parameters are basically equivalent to Al, which is factually incorrect. For the moment, the difference is effectively just Teff, Tc, and the energy gap. Would not really recommend using Nb for now, until we flesh this out better.
-  
-
-
-
+More description, including parameters to use for these, can be found in the quasiparticle example.  

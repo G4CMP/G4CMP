@@ -25,14 +25,24 @@ namespace QuasiparticleDetectorParameters
   //Misc
   //----------------------------------------------------------------
   constexpr double dp_eps = 0.0001*CLHEP::mm;
+  constexpr double dp_largeEpsilon = 1.0 * CLHEP::um;
   constexpr double pi = 3.141592654;
+
+  //----------------------------------------------------------------
+  //Superconductor info
+  constexpr double dp_polycryElScatMFP_Al = 10 * CLHEP::nm;
+  constexpr double dp_scDelta0_Al = 0.000176 * CLHEP::eV;
+  constexpr double dp_scTeff_Al = 0.2 * CLHEP::kelvin;
+  constexpr double dp_scDn_Al = 6 * CLHEP::um*CLHEP::um / CLHEP::ns;
+  constexpr double dp_scTauQPTrap_Al = 0.2 * CLHEP::ms;
+
   
   //----------------------------------------------------------------
   //Silicon chip dimensions
   constexpr double dp_siliconChipDimX = 8.0 * CLHEP::mm;
   constexpr double dp_siliconChipDimY = 8.0 * CLHEP::mm;
   constexpr double dp_siliconChipDimZ = 0.381 * CLHEP::mm;
-
+ 
 
   //----------------------------------------------------------------
   //Parameters of the qubit housing (currently copper)
@@ -284,13 +294,13 @@ namespace QuasiparticleDetectorParameters
 
 
   /*
-  constexpr double dp_fluxLineEmptyDimX = 22 * CLHEP::um;
-  constexpr double dp_fluxLineEmptyDimY = 1140.498 * CLHEP::um;
-  constexpr double dp_fluxLineEmptyDimZ = dp_groundPlaneDimZ;
-  constexpr double dp_fluxLineLineOffsetY = 0.5*dp_fluxLineBaseNbLayerDimY - dp_padEmptyPart1DimX - dp_padEmptyPart2TrdZ - 0.5*dp_fluxLineEmptyDimY;
-  constexpr double dp_fluxLineConductorDimX = 10.15* CLHEP::um;
-  constexpr double dp_fluxLineConductorDimY = dp_fluxLineEmptyDimY;
-  constexpr double dp_fluxLineConductorDimZ = dp_groundPlaneDimZ;
+    constexpr double dp_fluxLineEmptyDimX = 22 * CLHEP::um;
+    constexpr double dp_fluxLineEmptyDimY = 1140.498 * CLHEP::um;
+    constexpr double dp_fluxLineEmptyDimZ = dp_groundPlaneDimZ;
+    constexpr double dp_fluxLineLineOffsetY = 0.5*dp_fluxLineBaseNbLayerDimY - dp_padEmptyPart1DimX - dp_padEmptyPart2TrdZ - 0.5*dp_fluxLineEmptyDimY;
+    constexpr double dp_fluxLineConductorDimX = 10.15* CLHEP::um;
+    constexpr double dp_fluxLineConductorDimY = dp_fluxLineEmptyDimY;
+    constexpr double dp_fluxLineConductorDimZ = dp_groundPlaneDimZ;
   */
 
 

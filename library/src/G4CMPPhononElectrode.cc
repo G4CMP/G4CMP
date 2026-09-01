@@ -38,6 +38,9 @@
 // 20250124  G4CMP-447 -- Add FillParticleChange() to update phonon track info
 // 20250422  N. Tenpas -- Add position arguments for PhononVelocityIsInward.
 // 20250423  N. Tenpas -- Replace duplicated GetLambertianVector() code.
+// 20251115  G4CMP-539 -- Replace AddConstProperty() with UpdateMPT().
+// 20260212  G4CMP-581 -- Skip invalid phonons (null pointers), report skips.
+// 20260218  G4CMP-588 -- Fix change above by presenting secondary buffer.
 
 #include "G4CMPPhononElectrode.hh"
 #include "G4CMPGeometryUtils.hh"
@@ -47,6 +50,8 @@
 #include "G4CMPSurfaceProperty.hh"
 #include "G4CMPTrackUtils.hh"
 #include "G4CMPUtils.hh"
+#include "G4Exception.hh"
+#include "G4ExceptionSeverity.hh"
 #include "G4LatticeManager.hh"
 #include "G4LatticePhysical.hh"
 #include "G4ParticleChange.hh"
@@ -55,6 +60,7 @@
 #include "G4Track.hh"
 #include "G4VTouchable.hh"
 #include "Randomize.hh"
+#include <sstream>
 
 
 // Constructor and destructor
@@ -90,8 +96,8 @@ AbsorbAtElectrode(const G4Track& track, const G4Step& step,
   if (!kaplanQP) {
     // Pass temperture through to KaplanQP if no already included
     if (!theSurfaceTable->ConstPropertyExists("temperature"))
-      theSurfaceTable->AddConstProperty("temperature",
-					theLattice->GetTemperature());
+      G4CMP::UpdateMPT(theSurfaceTable, "temperature",
+		       theLattice->GetTemperature());
 
     kaplanQP = new G4CMPKaplanQP(theSurfaceTable, verboseLevel);
   }
@@ -132,28 +138,45 @@ ProcessAbsorption(const G4Track& track, const G4Step& step, G4double EDep,
   particleChange.ProposeNonIonizingEnergyDeposit(EDep);
 
   // Secondaries are emitted with cos(theta) distribution inward
-  G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(step);
-
-  // Create secondaries for all of the generated phonon energies
-  particleChange.SetNumberOfSecondaries(phononEnergies.size());
-
+  //We'll need to eventually calculate the generalized surface norm
+  //based on the above surface norm and the track's velocity, so
+  //give track velocity
+  G4ThreeVector vDir = track.GetMomentumDirection();
+  G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(step,vDir);
+  
   G4double Ekin = GetKineticEnergy(track);
   G4ThreeVector k = GetLocalWaveVector(track);
 
+  // Preset size of secondaries buffer, then reduce it later if needed
+  particleChange.SetNumberOfSecondaries(phononEnergies.size());
+
   G4ThreeVector reflectedKDir;
+  size_t nsec = 0;
   for (G4double E : phononEnergies) {
     G4double kmag = k.mag()*E/Ekin;	// Scale k vector by energy
     G4int pol = ChoosePhononPolarization();
-    reflectedKDir = G4CMP::GetLambertianVector(theLattice, surfNorm, pol,
-                                               track.GetPosition());
+    reflectedKDir = G4CMP::GetLambertianVector(theLattice,
+					       surfNorm, pol,
+					       track.GetPosition());
 
     G4Track* phonon = G4CMP::CreatePhonon(GetCurrentTouchable(),
 					  pol, kmag*reflectedKDir,
 					  E, track.GetGlobalTime(),
 					  track.GetPosition());
+    if (!phonon) continue;
+
     particleChange.AddSecondary(phonon);
+    nsec++;
   }	// for (E : ...)
 
+  if (nsec < phononEnergies.size()) {
+    std::stringstream msg;
+    msg << "Created " << nsec << " phonons vs. " << phononEnergies.size()
+	<< " expected.";
+    G4Exception("G4CMPPhononElectrode", "Electrode001", JustWarning,
+		msg.str().c_str());
+  }
+		
   // Sanity check: secondaries' energy should equal assigned E
   if (verboseLevel>1) {
     G4double Esum = 0.;
@@ -178,13 +201,19 @@ ProcessAbsorption(const G4Track& track, const G4Step& step, G4double EDep,
 void G4CMPPhononElectrode::
 ProcessReflection(const G4Track& track, const G4Step& step,
 		  G4ParticleChange& particleChange) const {
-  // Reflection is relative to inward surface normal
-  G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(step);
 
+  // Reflection is relative to inward surface normal
+  //We'll need to eventually calculate the generalized surface norm
+  //based on the above surface norm and the track's velocity, so
+  //give track velocity
+  G4ThreeVector vDir = track.GetMomentumDirection();
+  G4ThreeVector surfNorm = G4CMP::GetSurfaceNormal(step,vDir);
+  
   G4int pol = GetPolarization(track);
 
   G4ThreeVector reflectedKDir = G4CMP::GetLambertianVector(theLattice, surfNorm,
-                                                           pol, track.GetPosition());
+                                                           pol,
+							   track.GetPosition());
 
   FillParticleChange(particleChange, track, reflectedKDir);
 

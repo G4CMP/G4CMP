@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12)
 project(g4cmpCharge)
 
 #----------------------------------------------------------------------------
@@ -21,6 +21,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${G4CMP_INCLUDE_DIRS})
 include(${G4CMP_USE_FILE})
 include(${Geant4_USE_FILE})
+
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Use same C++ version as was used for G4CMP
+if (NOT DEFINED CMAKE_CXX_STANDARD) # Only if user did not specify
+    set(CMAKE_CXX_STANDARD ${G4CMP_CXX_STANDARD})
+endif()
+
+message(STATUS "Found G4CMP: ${G4CMP_VERSION}")
+message(STATUS "Setting CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}")
 
 #----------------------------------------------------------------------------
 # RPATH stuff

@@ -43,6 +43,8 @@
 // 20250124  Add FillParticleChange() to update phonon wavevector and Vg.
 // 20250423  Add FillParticleChange() to update phonon position and touchable.
 // 20250512  Use tempvec2 for Vg in LoadDataForTrack to improve performance.
+// 20250814  Add UpdatePhononWavevector() to update phonon wavevector and Vg.
+// 20251116  For G4 11, use #include "G4VTouchable.hh"
 
 #ifndef G4CMPProcessUtils_hh
 #define G4CMPProcessUtils_hh 1
@@ -52,6 +54,7 @@
 #include "G4RotationMatrix.hh"
 #include "G4ThreeVector.hh"
 #include "G4Track.hh"
+#include "G4VTouchable.hh"
 
 class G4CMPDriftTrackInfo;
 class G4CMPParticleChangeForPhonon;
@@ -61,7 +64,6 @@ class G4LatticePhysical;
 class G4ParticleChange;
 class G4ParticleDefinition;
 class G4VPhysicalVolume;
-class G4VTouchable;
 
 
 class G4CMPProcessUtils {
@@ -76,7 +78,8 @@ public:
   G4CMPProcessUtils& operator=(G4CMPProcessUtils&&) = default;
 
   // Configure for current track
-  virtual void LoadDataForTrack(const G4Track* track);
+  virtual void LoadDataForTrack(const G4Track* track,
+				const G4bool overrideMomentumReset=false);
   virtual void SetCurrentTrack(const G4Track* track);
   virtual void SetLattice(const G4Track* track);
 
@@ -87,6 +90,9 @@ public:
   // Update particleChange's position and touchable
   void FillParticleChange(G4CMPParticleChangeForPhonon& particleChange,
               const G4Step& step, const G4ThreeVector& position) const;
+
+  // Update phonon wavevector, group velocity, and momentum
+  void UpdatePhononWavevector(G4Track& track, const G4ThreeVector& wavevector) const;
 
   virtual void ReleaseTrack();
   // NOTE:  Subclasses may overload these, but be sure to callback to base
@@ -99,11 +105,6 @@ public:
   G4bool IsQP() const;
   
   // Set configuration manually, without a track
-  //virtual void FindLattice(const G4VPhysicalVolume* volume);
-  //virtual void SetLattice(const G4LatticePhysical* lat) { theLattice = lat; }
-  //virtual const G4LatticePhysical* GetLattice() const { return theLattice; }
-
-  //REL: From NT
   void FindLattice(const G4VPhysicalVolume* volume);
   void SetLattice(const G4LatticePhysical* lat) { theLattice = lat; }
   const G4LatticePhysical* GetLattice() const { return theLattice; }

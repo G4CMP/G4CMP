@@ -10,15 +10,17 @@
 #include "G4PhysicalConstants.hh"
 #include "G4Track.hh"
 #include "G4LatticePhysical.hh"
+#include "G4CMPSCUtils.hh"
 
-// Pairbreaking rate is computed using energy and the G4SCUtils class, upon which this is based
+// Pairbreaking rate is computed using energy and the G4SCUtils class, upon
+// which this is based
 G4double G4CMPSCPairBreakingRate::Rate(const G4Track& aTrack) const {
 
   //Debugging  
   if (verboseLevel > 5) {
     G4cout << "-- G4CMPSCPairBreakingRate::Rate --" << G4endl;
     G4cout << "R Function Point A | SCDelta for this lattice: "
-	   << (this->GetLattice())->GetSCDelta0() << G4endl;
+           << (this->GetLattice())->GetSCDelta0() << G4endl;
   }
   if (!CheckToSeeSCParametersSet()) {
     return 0;
@@ -31,7 +33,7 @@ G4double G4CMPSCPairBreakingRate::Rate(const G4Track& aTrack) const {
   //Need to check to see if the current lattice has a gap (i.e. IS a
   //superconductor). If not, then we need return infinite for this process,
   //since it can in principle/code it can still run in the non-SC crystals.
-  if ((this->GetLattice())->GetSCDelta0() <= 0.0){
+  if ((this->GetLattice())->GetSCDelta0() <= 0.0) {
     return 0.0;
   } else {
 
@@ -43,7 +45,7 @@ G4double G4CMPSCPairBreakingRate::Rate(const G4Track& aTrack) const {
     
     G4double tau_pairbreaking = fTau0_ph*
       GetTauAsAFunctionOfEnergy(fCurrentNormalizedTauPairBreakingVsEnergy,
-				"Phonon",energy,thisEnergyBelowUsableRange);
+                                "Phonon",energy,thisEnergyBelowUsableRange);
     
     if (verboseLevel > 5) {
       G4cout << "R Function Point C | HereC_SCPairBreakingRate" << G4endl;
@@ -62,19 +64,19 @@ bool G4CMPSCPairBreakingRate::CheckToSeeSCParametersSet() const {
   if (fGap0Energy==0 || fTau0_ph == DBL_MAX || fTcrit == 0 || fTeff == 0) {
     //Means the whole material likely not set -- this is sometimes expected
     //during normal operation, so don't worry too much here.
-    if(fGap0Energy==0 && fTau0_ph == DBL_MAX && fTcrit == 0 && fTeff == 0) {
+    if (fGap0Energy==0 && fTau0_ph == DBL_MAX && fTcrit == 0 && fTeff == 0) {
       return false;
     } else {
       //^Means that the material is partially set -- this is probably a mistake
       G4ExceptionDescription msg;
       msg << "Noticed that in the rate calculation step for the SC Pairbreaking"
-	  << "process, you have incorrectly defined or omitted the Gap0Energy "
-	  << "parameter, the Tcrit parameter, the Teff parameter, or the Tau0ph"
-	  << " parameter. In other words, you don't have enough input "
-	  << "information in your config.txt file to run the pairbreaking "
-	  << "physics correctly.";
+          << "process, you have incorrectly defined or omitted the Gap0Energy "
+          << "parameter, the Tcrit parameter, the Teff parameter, or the Tau0ph"
+          << " parameter. In other words, you don't have enough input "
+          << "information in your config.txt file to run the pairbreaking "
+          << "physics correctly.";
       G4Exception("G4CMPSCPairbreakingRate::CheckToSeeSCParametersSet",
-		  "SCPairbreakingRate001",JustWarning, msg);
+                  "SCPairbreakingRate001",JustWarning, msg);
       return false;
     }
   }
@@ -95,10 +97,12 @@ G4CMPSCPairBreakingRate::UpdateLookupTable(const G4LatticePhysical * theLat) {
   //1. If the lattice doesn't exist in the lattice container associated with
   //   this process yet, add it and do the full calculation of the curves we
   //   care about, storing them in a map
-  if(fMap_physicalLattice_NormalizedTauPairBreakingVsEnergy.count(theLat)
+  if (fMap_physicalLattice_NormalizedTauPairBreakingVsEnergy.count(theLat)
       == 0) {
-    G4cout << "Computing new lookup table for SC pairbreaking process."
-	   << G4endl;
+    if (verboseLevel > 5) {
+      G4cout << "Computing new lookup table for SC pairbreaking process."
+             << G4endl;
+    }
     fMap_physicalLattice_NormalizedTauPairBreakingVsEnergy.emplace(theLat,ComputeNormalizedTauPairBreakingVsEnergy());
     fCurrentNormalizedTauPairBreakingVsEnergy =
       fMap_physicalLattice_NormalizedTauPairBreakingVsEnergy[theLat];
@@ -117,7 +121,7 @@ G4CMPSCPairBreakingRate::ComputeNormalizedTauPairBreakingVsEnergy() {
   //Debugging
   if (verboseLevel > 5) {
     G4cout << "-- G4CMPSCPairBreakingRate::"
-	   << "ComputeNormalizedTauPairBreakingVsEnergy --" << G4endl;
+           << "ComputeNormalizedTauPairBreakingVsEnergy --" << G4endl;
   }
   std::vector<std::vector<G4double> > output;
   G4double deltaPhononEnergyDivGap =
@@ -150,9 +154,9 @@ G4CMPSCPairBreakingRate::ComputeNormalizedTauPairBreakingVsEnergy() {
       double omega = minomega + (iW+0.5)*deltaomega;
       double energyTerm1 = 1.0 / pow(omega*omega - fGapEnergy*fGapEnergy,0.5);
       double energyTerm2 = (omega*(phononEnergy-omega) + fGapEnergy*fGapEnergy)
-	/ pow( pow(phononEnergy-omega,2) - fGapEnergy*fGapEnergy, 0.5 );
+        / pow( pow(phononEnergy-omega,2) - fGapEnergy*fGapEnergy, 0.5 );
       double integrand = energyTerm1 * energyTerm2 *
-	(1-FermiFactor(phononEnergy-omega,fTeff) - FermiFactor(omega,fTeff));
+        (1-FermiFactor(phononEnergy-omega,fTeff) - FermiFactor(omega,fTeff));
       integral += integrand * deltaomega;
     }
     double inverseTau = prefactor * integral;
@@ -168,26 +172,5 @@ G4CMPSCPairBreakingRate::ComputeNormalizedTauPairBreakingVsEnergy() {
     element.push_back(normalizedTau);
     output.push_back(element);
   }
-
-
-  //This is only for debugging, and is temporary.
-  //  SavePairBreakingRateVsPhononEnergyToLogFile(output);
-
   return output;
 }
-
-// Construct the lookup table for normalized tau for pairbreaking vs phonon
-// energy
-void G4CMPSCPairBreakingRate::SavePairBreakingRateVsPhononEnergyToLogFile(std::vector<std::vector<G4double> > theFunc) {
-  std::ofstream outfile;
-  outfile.open("/Users/ryanlinehan/QSC/Sims/Geant4/scRebuild-build/SCPairBreakingTauVsEnergy.txt");
-  for( int iE = 0; iE < theFunc.size(); ++iE ){
-    outfile << theFunc[iE][0] << " " << theFunc[iE][1] << std::endl;
-  }
-  outfile.close();
-  return;
-}
-
-
-
-//REL NEED TO SWAP DIRECT CALLS TO PROTECTED DATA MEMBERS WITH CONST ACCESS FUNCTIONS

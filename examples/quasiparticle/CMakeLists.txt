@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12)
 project(g4cmpQuasiparticle)
 
 #----------------------------------------------------------------------------
@@ -21,6 +21,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${G4CMP_INCLUDE_DIRS})
 include(${G4CMP_USE_FILE})
 include(${Geant4_USE_FILE})
+
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Use same C++ version as was used for G4CMP
+if (NOT DEFINED CMAKE_CXX_STANDARD) # Only if user did not specify
+    set(CMAKE_CXX_STANDARD ${G4CMP_CXX_STANDARD})
+endif()
+
+message(STATUS "Found G4CMP: ${G4CMP_VERSION}")
+message(STATUS "Setting CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}")
 
 #----------------------------------------------------------------------------
 # RPATH stuff
@@ -49,7 +58,8 @@ set(quasiparticle_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QuasiparticleSteppingAction.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QuasiparticleQubitHousing.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QuasiparticlePad.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/QuasiparticleTransmissionLine.cc	
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/QuasiparticleTransmissionLine.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/QuasiparticleResonatorAssembly.cc
     )
     
 if(USE_GEANT4_STATIC_LIBS)

@@ -1,0 +1,78 @@
+#-------------------------------------
+# quasiparticle_geometry_vis.mac
+#
+# This just visualizes the geometry that we will
+# use in the quasiparticle example.
+#-------------------------------------
+
+# Initialize the run
+/run/initialize
+
+# We'll use an OpenGL viewer here, and load
+# a specific angle and zoom. Note that one can
+# also use OGLSQt for additional visualization
+# options.
+/vis/open OGL
+/vis/viewer/set/upVector 0 1 0
+/vis/viewer/set/viewpointThetaPhi 30 150
+/vis/viewer/zoom 40
+/vis/viewer/pan 0.6 0.2 mm
+/vis/drawVolume
+
+/run/printProgress 1
+
+# for drawing the tracks
+/tracking/verbose 2
+/tracking/storeTrajectory 1
+/vis/scene/endOfEventAction accumulate
+/vis/scene/add/trajectories
+
+# Trajectory coloring by particle type
+/vis/modeling/trajectories/create/drawByParticleID
+/vis/modeling/trajectories/drawByParticleID-0/set phononTS Green 
+/vis/modeling/trajectories/drawByParticleID-0/set phononTF Green
+/vis/modeling/trajectories/drawByParticleID-0/set phononL Green
+/vis/modeling/trajectories/drawByParticleID-0/set BogoliubovQP White
+
+# Trajectory filtering by particle type
+/vis/filtering/trajectories/create/particleFilter
+#/vis/filtering/trajectories/particleFilter-0/add phononTS
+#/vis/filtering/trajectories/particleFilter-0/add phononTF
+#/vis/filtering/trajectories/particleFilter-0/add phononL
+#/vis/filtering/trajectories/particleFilter-0/add BogoliubovQP
+
+# Toggle phononBounces depending on whether
+# you want to see a full event or not.
+/g4cmp/phononBounces 0
+/g4cmp/qpBounces 1000000000
+
+#/process/inactivate phononScattering
+#/process/inactivate phononDownconversion
+#/process/inactivate phononPolycrystalElasticScattering
+#/process/inactivate qpRecombination
+#/process/inactivate qpRadiatesPhonon
+#/process/inactivate scPairBreaking
+#/process/inactivate qpDiffusion 
+#/process/inactivate qpLocalTrapping
+#/process/inactivate qpDiffusionTimeStepper
+
+# Generate 1 phonon per event. Place right under the Nb film
+/gps/number 1
+/gps/particle phononTF
+/gps/pos/type Volume
+/gps/pos/shape Para
+/gps/pos/centre -2.09302 1.0 4.900 mm
+
+#These spawn phonons from a parallelepiped with the following
+#half-dimensions (i.e. very small, 10nm box)
+/gps/pos/halfx 0.00001 mm
+/gps/pos/halfy 0.00001 mm
+/gps/pos/halfz 0.00001 mm
+
+/random/setSeeds 123456 567890
+
+#Spawn phonons with 4 meV in random directions (isotropically)
+/gps/ang/type iso
+/gps/ene/type Mono
+/gps/energy 0.0040 eV
+/run/beamOn 1

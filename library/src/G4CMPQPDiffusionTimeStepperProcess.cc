@@ -10,9 +10,9 @@
 //
 
 #include "G4CMPQPDiffusionTimeStepperProcess.hh"
+#include "G4CMPBogoliubovQP.hh"
 #include "G4CMPQPDiffusionTimeStepperRate.hh"
 #include "G4CMPSCUtils.hh"
-#include "G4QP.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4VParticleChange.hh"
@@ -25,7 +25,7 @@
 // Constructor and destructor 
 G4CMPQPDiffusionTimeStepperProcess::
 G4CMPQPDiffusionTimeStepperProcess(const G4String& aName)
-  : G4VQPProcess(aName,fQPDiffusionTimeStepper) {
+  : G4CMPVQPProcess(aName,fQPDiffusionTimeStepper) {
   UseRateModel(new G4CMPQPDiffusionTimeStepperRate);
 }
 
@@ -51,10 +51,10 @@ PostStepDoIt(const G4Track& aTrack,const G4Step& aStep) {
       postStepPoint->GetStepStatus() == fWorldBoundary) {
     G4ExceptionDescription msg;
     msg << "For some reason we're running post-step do it for the "
-	<< "QPDiffusionTimeStepper process and we find ourselves on a boundary."
-	<< "Should this ever happen?";
+        << "QPDiffusionTimeStepper process and we find ourselves on a boundary."
+        << "Should this ever happen?";
     G4Exception("G4CMPQPDiffusionTimeStepperProcess::PostStepDoIt",
-		"QPDiffusionTimeStepper001",EventMustBeAborted,msg);
+                "QPDiffusionTimeStepper001",EventMustBeAborted,msg);
     return &aParticleChange;		
   }
    
@@ -73,11 +73,6 @@ PostStepDoIt(const G4Track& aTrack,const G4Step& aStep) {
   
   //5. Return the particle change
   return &aParticleChange;
-}
-
-G4bool G4CMPQPDiffusionTimeStepperProcess::
-IsApplicable(const G4ParticleDefinition& aPD) {   
-  return G4VQPProcess::IsApplicable(aPD);
 }
 
 //Pass-through to G4CMPVProcess class

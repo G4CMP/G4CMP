@@ -13,12 +13,16 @@
 // 20220809  [ For M. Hui ] -- Add frequency dependent surface properties.
 // 20221006  Remove unused features; add phonon sensor pad with use of
 //		G4CMPPhononElectrode to demonstrate KaplanQP.
+// 20251116  G4CMP-539 -- Use UpdateMPT wrapper function to set properties.
+// 20251117  G4CMP-541 -- For G4 v11, replace ::Invisible w/::GetInvisible()
+// 20260816  G4CMP-657 -- Fix typo in specCoeffs vector.
 
 #include "PhononDetectorConstruction.hh"
 #include "PhononSensitivity.hh"
 #include "G4CMPLogicalBorderSurface.hh"
 #include "G4CMPPhononElectrode.hh"
 #include "G4CMPSurfaceProperty.hh"
+#include "G4CMPUtils.hh"
 #include "G4Box.hh"
 #include "G4Colour.hh"
 #include "G4GeometryManager.hh"
@@ -172,7 +176,7 @@ void PhononDetectorConstruction::SetupGeometry()
     const std::vector<G4double> diffCoeffs =
       {5.88e-2, 7.83e-4, -2.47e-6, 1.71e-8, -2.98e-11};
     const std::vector<G4double> specCoeffs =
-      {0,928, -2.03e-4, -3.21e-6, 3.1e-9, 2.9e-13};
+      {0.928, -2.03e-4, -3.21e-6, 3.1e-9, 2.9e-13};
 
     const G4double anhCutoff = 520., reflCutoff = 350.;   // Units external
 
@@ -208,7 +212,7 @@ void PhononDetectorConstruction::SetupGeometry()
   //                                        
   // Visualization attributes
   //
-  worldLogical->SetVisAttributes(G4VisAttributes::Invisible);
+  worldLogical->SetVisAttributes(G4VisAttributes::GetInvisible());
   G4VisAttributes* simpleBoxVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
   simpleBoxVisAtt->SetVisibility(true);
   fGermaniumLogical->SetVisAttributes(simpleBoxVisAtt);
@@ -228,14 +232,14 @@ AttachPhononSensor(G4CMPSurfaceProperty *surfProp) {
 
   // Properties must be added to existing surface-property table
   auto sensorProp = surfProp->GetPhononMaterialPropertiesTablePointer();
-  sensorProp->AddConstProperty("filmAbsorption", 0.20);    // True sensor area
-  sensorProp->AddConstProperty("filmThickness", 600.*nm);
-  sensorProp->AddConstProperty("gapEnergy", 173.715e-6*eV);
-  sensorProp->AddConstProperty("lowQPLimit", 3.);
-  sensorProp->AddConstProperty("phononLifetime", 242.*ps);
-  sensorProp->AddConstProperty("phononLifetimeSlope", 0.29);
-  sensorProp->AddConstProperty("vSound", 3.26*km/s);
-  sensorProp->AddConstProperty("subgapAbsorption", 0.1);
+  G4CMP::UpdateMPT(sensorProp, "filmAbsorption", 0.20);    // True sensor area
+  G4CMP::UpdateMPT(sensorProp, "filmThickness", 600.*nm);
+  G4CMP::UpdateMPT(sensorProp, "gapEnergy", 173.715e-6*eV);
+  G4CMP::UpdateMPT(sensorProp, "lowQPLimit", 3.);
+  G4CMP::UpdateMPT(sensorProp, "phononLifetime", 242.*ps);
+  G4CMP::UpdateMPT(sensorProp, "phononLifetimeSlope", 0.29);
+  G4CMP::UpdateMPT(sensorProp, "vSound", 3.26*km/s);
+  G4CMP::UpdateMPT(sensorProp, "subgapAbsorption", 0.1);
 
   // Attach electrode object to handle KaplanQP interface
   surfProp->SetPhononElectrode(new G4CMPPhononElectrode);
