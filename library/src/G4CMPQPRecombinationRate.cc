@@ -7,6 +7,10 @@
 /// \brief Compute rate for QP recombining with ambient bath QP into 2Delta
 ///  phonon
 //
+// 20260826  G4CMP-662: Splitting off functionality to check rate lookup table
+//       for a given input lattice
+
+
 #include "G4CMPQPRecombinationRate.hh"
 #include "G4LatticePhysical.hh"
 #include "G4PhysicalConstants.hh"
@@ -48,7 +52,7 @@ Rate(const G4Track& aTrack,const G4LatticePhysical * theLat) const {
   //energy (in the case of a turnaround step)
   bool thisEnergyBelowUsableRange = false;
   
-  //Compute tau for recombination, and invert for rate
+  //Get the energy of the quasiparticle
   G4double energy = GetKineticEnergy(aTrack);
 
   //Compute the tau using either the current lattice's information or the
@@ -56,8 +60,9 @@ Rate(const G4Track& aTrack,const G4LatticePhysical * theLat) const {
   G4double tau_recombination = DBL_MAX;
   if (!useInputLat) {
     tau_recombination = fTau0_qp*
-      (this->GetTauAsAFunctionOfEnergy(fCurrentNormalizedTauRecombinationVsEnergy,
-                                       "QP",energy,thisEnergyBelowUsableRange));
+      (this->GetTauAsAFunctionOfEnergy
+       (fCurrentNormalizedTauRecombinationVsEnergy,
+        "QP",energy,thisEnergyBelowUsableRange));
   }
   else {
 
@@ -73,14 +78,15 @@ Rate(const G4Track& aTrack,const G4LatticePhysical * theLat) const {
                   "QPRecombinationRate000",FatalException, msg);
       return 0;
     }
-    G4cout << "The count, " <<
-      "fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.count(theLat): "
-           <<
-      fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.count(theLat)
-           << G4endl;
+    //G4cout << "The count, " <<
+    //  "fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.count(theLat): "
+    //       <<
+    //  fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.count(theLat)
+    //       << G4endl;
     tau_recombination = theLat->GetSCTau0qp()*
-      (this->GetTauAsAFunctionOfEnergy(fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.at(theLat),
-                                       "QP",energy,thisEnergyBelowUsableRange));
+      (this->GetTauAsAFunctionOfEnergy
+       (fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.at(theLat),
+        "QP",energy,thisEnergyBelowUsableRange));
   }
 
   //If we're below the usable range
@@ -180,10 +186,9 @@ G4CMPQPRecombinationRate::UpdateLookupTable(const G4LatticePhysical * theLat) {
 
   //Debugging
   if (verboseLevel > 5) {
-    G4cout << "-- G4CMPQPRadiatesPhononRate::UpdateLookupTable --" << G4endl;
+    G4cout << "-- G4CMPQPRecombinationRate::UpdateLookupTable --" << G4endl;
     G4cout << "ULT Function Point A | QP recombination." << G4endl;
   } 
-
   
   //1. If the lattice doesn't exist in the lattice container associated with
   //   this process yet, add it and do the full calculation of the curves we
@@ -221,7 +226,7 @@ G4CMPQPRecombinationRate::ComputeNormalizedTauRecombinationVsEnergy() {
   
   //Debugging
   if (verboseLevel > 5) {
-    G4cout << "-- G4CMPQPRadiatesPhononRate::"
+    G4cout << "-- G4CMPQPRecombinationRate::"
            << "ComputeNormalizedTauRecombinationVsEnergy --" << G4endl;
     G4cout << "CNTRVE Function Point A | In the calculation of a normalized "
            << "tauQP vs energyQP, recombination." << G4endl;

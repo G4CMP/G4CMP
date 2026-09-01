@@ -71,10 +71,9 @@ public:
   virtual void DoAbsorption(const G4Track& aTrack, const G4Step& aStep,
 			    G4ParticleChange& aParticleChange);
 
-  virtual G4bool ReflectTrack(const G4Track& aTrack, const G4Step& aStep) const;
   virtual G4bool ReflectTrack(const G4Track& aTrack, const G4Step& aStep);
   virtual void DoReflection(const G4Track& aTrack, const G4Step& aStep,
-			    G4ParticleChange& aParticleChange);
+                            G4ParticleChange& aParticleChange);
 
   virtual G4bool MaximumReflections(const G4Track& aTrack) const;
   virtual void DoFinalReflection(const G4Track& aTrack, const G4Step& aStep,

@@ -79,6 +79,12 @@ protected:
   virtual void DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
 				 G4ParticleChange& aParticleChange);
 
+  //Force the reflectTrack function to pick the "const" one since we now have
+  //two options in the base class.
+  virtual G4bool ReflectTrack(const G4Track& aTrack, const G4Step& aStep)
+    const { return this->ReflectTrack(aTrack,aStep); }
+
+
 private:
   G4CMPEnergyPartition* partitioner;
 
