@@ -22,7 +22,7 @@
 g4min := 10.4
 
 .PHONY : library examples tests tools validation	# Directory targets
-.PHONY : phonon charge sensors caustics quasiparticle
+.PHONY : phonon charge sensors caustics quasiparticle g4beginner
 .PHONY : all lib dist clean qhull
 
 # Initial target provides guidance if user tries bare |make|
@@ -40,6 +40,7 @@ help :
 	 echo "sensors       Builds FET digitization sensor example" ;\
 	 echo "caustics      Builds example to show phonon caustics picture" ;\
 	 echo "quasiparticle Builds example to show superconductor model" ;\
+	 echo "g4beginner Builds example to show Geant4-G4CMP adaptation" ;\
 	 echo "tools         Builds support utilities (lookup table maker)" ;\
 	 echo "tests         Builds small test programs for classes" ;\
 	 echo "validation    Builds validation directory (QP only)" ;\
@@ -56,7 +57,7 @@ help :
 
 # User targets
 
-EXAMPLES := phonon charge sensors caustics quasiparticle
+EXAMPLES := phonon charge sensors caustics quasiparticle g4beginner
 all : lib examples tests tools validation
 lib : library
 examples : $(EXAMPLES)
@@ -110,7 +111,8 @@ phonon.% \
 charge.% \
 sensors.% \
 caustics.% \
-quasiparticle.% :
+quasiparticle.% \
+g4beginner.% :
 	-$(MAKE) -C examples/$(basename $@) $(subst .,,$(suffix $@))
 
 # FIXME: These should work with dependencies, but don't

@@ -63,11 +63,12 @@ public:
   // Also includes setting of SC parameters. No longer ambiguous with
   // the previous one
   G4LatticePhysical(const G4LatticeLogical* Lat,
-		    G4double polycrystalElasticScatteringMFP,
-		    G4double scDelta0, G4double scTeff,
-		    G4double scDn,
-		    G4double scQPLocalTrappingTau,		    
-		    G4int h=0, G4int k=0, G4int l=0, G4double rot=0.);
+                    G4double polycrystalElasticScatteringMFP,
+                    G4double scDelta0, G4double scTeff,
+                    G4double scDn,
+                    G4double scQPLocalTrappingTau,
+                    G4double scQPDiffusionStepTau=DBL_MAX,
+                    G4int h=0, G4int k=0, G4int l=0, G4double rot=0.);
 
   
   void SetVerboseLevel(G4int vb) const {
@@ -93,6 +94,7 @@ public:
   void SetSCTeff(G4double val) { fSCTeff = val; }
   void SetSCDn(G4double val) { fSCDn = val; }
   void SetSCQPLocalTrappingTau(G4double val) { fSCQPLocalTrappingTau = val; }
+  void SetSCQPDiffusionStepTau(G4double val) { fSCQPDiffusionStepTau = val; }
 
   // Rotate input vector between lattice and solid orientations
   // Returns new vector value for convenience
@@ -170,6 +172,7 @@ public:
   G4double GetSCTeff() const { return fSCTeff; }
   G4double GetSCDn() const { return fSCDn; }
   G4double GetSCQPLocalTrappingTau() const { return fSCQPLocalTrappingTau; }
+  G4double GetSCQPDiffusionStepTau() const { return fSCQPDiffusionStepTau; }
   
   // Charge carriers have effective mass
   G4double GetHoleMass() const { return fLattice->GetHoleMass(); }
@@ -241,7 +244,8 @@ private:
   G4double fSCTcrit;                         //Critical temp, linked to SCDelta0
   G4double fSCTeff;                          //Effective *QP* temperature
   G4double fSCDn;                            //Normal-state diffusion constant
-  G4double fSCQPLocalTrappingTau;            //Local trapping tau  
+  G4double fSCQPLocalTrappingTau;            //Local trapping tau
+  G4double fSCQPDiffusionStepTau;            //QP Diffusion Stepper Tau
 };
 
 // Write lattice structure to output stream

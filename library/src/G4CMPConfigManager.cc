@@ -52,6 +52,8 @@
 // 20251116  G4CMP-526: Add function to encapsulate physics ID extraction.
 // 20260121  G4CMP-567: Change charge bounces default to zero.
 // 20260429  G4CMP-598: Add minGenParticles parameter.
+// 20260606  G4CMP-578: Add primaryPhononEnergy parameter for partitioning.
+// 20260707  G4CMP-641: Use new RegisterCustomModel() for Physics in G4 11.4.2+
 
 #include "G4CMPConfigManager.hh"
 #include "G4CMPConfigMessenger.hh"
@@ -119,6 +121,7 @@ G4CMPConfigManager::G4CMPConfigManager()
     genCharges(getenv("G4CMP_MAKE_CHARGES")?strtod(getenv("G4CMP_MAKE_CHARGES"),0):1.),
     minGenParticles(getenv("G4CMP_MIN_GENPARTICLES")?atoi(getenv("G4CMP_MIN_GENPARTICLES")):10),
     lukeSample(getenv("G4CMP_LUKE_SAMPLE")?strtod(getenv("G4CMP_LUKE_SAMPLE"),0):1.),
+    EprimPhonons(getenv("G4CMP_EPRIM_PHONONS")?strtod(getenv("G4CMP_EPRIM_PHONONS"),0)*eV:-1.),
     combineSteps(getenv("G4CMP_COMBINE_STEPLEN")?strtod(getenv("G4CMP_COMBINE_STEPLEN"),0):0.),
     EminPhonons(getenv("G4CMP_EMIN_PHONONS")?strtod(getenv("G4CMP_EMIN_PHONONS"),0)*eV:0.),
     EminCharges(getenv("G4CMP_EMIN_CHARGES")?strtod(getenv("G4CMP_EMIN_CHARGES"),0)*eV:0.),
@@ -167,7 +170,8 @@ G4CMPConfigManager::G4CMPConfigManager(const G4CMPConfigManager& master)
     stepScale(master.stepScale), sampleEnergy(master.sampleEnergy), 
     genPhonons(master.genPhonons), genCharges(master.genCharges),
     minGenParticles(master.minGenParticles),
-    lukeSample(master.lukeSample), combineSteps(master.combineSteps),
+    lukeSample(master.lukeSample), EprimPhonons(master.EprimPhonons),
+    combineSteps(master.combineSteps),
     EminPhonons(master.EminPhonons), EminCharges(master.EminCharges),
     pSurfStepSize(master.pSurfStepSize), useKVsolver(master.useKVsolver),
     fanoEnabled(master.fanoEnabled), kaplanKeepPh(master.kaplanKeepPh),
@@ -202,10 +206,15 @@ void G4CMPConfigManager::setVersion() {
 G4int G4CMPConfigManager::setPhysicsModelID() const {
 #if G4VERSION_NUMBER < 1100
   return G4PhysicsModelCatalog::Register("G4CMP process");
+#elif G4VERSION_NUMBER < 1142
+  G4PhysicsModelCatalog::Initialize();	// Uses G4CMP local hack of function
+  return G4PhysicsModelCatalog::GetModelID("G4CMP process");
 #else
-  G4PhysicsModelCatalog::Initialize();
+  G4PhysicsModelCatalog::RegisterCustomModel("G4CMP process");
   return G4PhysicsModelCatalog::GetModelID("G4CMP process");
 #endif
+
+  return 0;		// Should never get here
 }
 
 
@@ -256,7 +265,8 @@ void G4CMPConfigManager::printConfig(std::ostream& os) const {
      << "\n/g4cmp/minParticles " << minGenParticles << "\t\t\t\t# G4CMP_MIN_GENPARTICLES"
      << "\n/g4cmp/sampleLuke " << lukeSample << "\t\t\t\t# G4CMP_LUKE_SAMPLE"
      << "\n/g4cmp/maxLukePhonons " << maxLukePhonons << "\t\t\t# G4CMP_MAX_LUKE"
-     << "\n/g4cmp/combiningStepLength " << combineSteps/mm << " mm\t\t\t# G4CMP_COMBINE_STEPLEN"
+     << "\n/g4cmp/primaryPhononEnergy " << EprimPhonons/eV << " eV\t\t# G4CMP_EPRIM_PHONONS"
+     << "\n/g4cmp/combiningStepLength " << combineSteps/mm << " mm\t\t# G4CMP_COMBINE_STEPLEN"
      << "\n/g4cmp/minEPhonons " << EminPhonons/eV << " eV\t\t\t\t# G4CMP_EMIN_PHONONS"
      << "\n/g4cmp/minECharges " << EminCharges/eV << " eV\t\t\t\t# G4CMP_EMIN_CHARGES"
      << "\n/g4cmp/useKVsolver " << useKVsolver << "\t\t\t\t# G4CMP_USE_KVSOLVER"

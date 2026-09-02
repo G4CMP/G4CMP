@@ -17,6 +17,33 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 2025-12-15  G4CMP-518 : Make PhononVelocityIsInward() generic.
 2025-12-09  G4CMP-511 : Create parallel Lambertian reflection code for charges.
 
+2026-08-17  g4cmp-V10-05-00  Variety of fixes to builds, examples, tracking.
+2026-08-17  G4CMP-642 : Derive c++ version dynamically in G4CMP examples.
+2026-08-16  G4CMP-657 : Fix typo in specCoeffs vector in phonon example.
+2026-08-11  G4CMP-643 : E-field has incorrect HV transform in G4CMPIVRate.
+2026-08-10  G4CMP-654 : Avoid lattice FatalExceptions if no charge parameters.
+2026-08-08  G4CMP-653 : Apply Lindhard yield to steps within HitMerging.
+2026-07-27  G4CMP-650 : Add missing file to library/CMakeLists.txt header list
+2026-07-21  G4CMP-649 : Protect against missing touchable in SurfaceClearance.
+2026-07-07  G4CMP-641 : Update PhysicsModelCatalog usage for G4 11.4.2.
+
+2026-06-19  g4cmp-V10-04-01  Fixes and sanity checks for partial charge params.
+2026-06-18  G4CMP-628 : If ValleyDir 0 0 0, then AddValley Identity Matrix.
+2026-06-18  G4CMP-634 : Clean up check on valley index for new tracks.
+2026-06-18  G4CMP-633 : Validate consistency of charge parameters in config.txt.
+2026-06-18  G4CMP-636 : Protect IV Threshold() from empty ivEnergy list.
+2026-06-18  G4CMP-637 : Move calculation of L0 from acDeform into LatticeLogical
+2026-06-16  G4CMP-601 : Protect e-h production for undefined bandgap or Epair.
+
+2026-06-12  g4cmp-V10-04-00  New tutorials/examples for RISQ 2026 Workshop.
+2026-06-12  G4CMP-626 : New Geant4-G4CMP adaptation example "g4beginner"
+2026-06-12  G4CMP-620 : Expanded quasiparticle example for use at RISQ 2026.
+2026-06-06  G4CMP-578 : New parameter for primary phonon energy partitioning.
+
+2026-06-05  g4cmp-V10-03-00  Avoid FatalExceptions, add QPDiffusion setting.
+2026-06-03  G4CMP-619 : Softened some exception types in Boundary/GeometryUtils
+2026-06-01  G4CMP-593 : Add diffusion time stepper tau for individual lattices
+
 2026-05-28  g4cmp-V10-02-00 Several bug fixes and EnergyPartition improvements
 2026-05-28  G4CMP-617 : Simplify nParticlesMinimum tests in EnergyPartition
 2026-05-23  G4CMP-608 : Address initializer compiler warnings from G4CMP-598.

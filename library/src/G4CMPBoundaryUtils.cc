@@ -560,7 +560,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
         //it's in the local coordinate system)
         if (preSolid->Inside(surfacePoint) != kSurface) {
           G4Exception((procName+"::CheckStepBoundary").c_str(),
-                      "Boundary006", FatalException /*EventMustBeAborted*/,
+                      "Boundary006", EventMustBeAborted,
                       "Boundary-limited step cannot find boundary surface point"
                       );
           return false;

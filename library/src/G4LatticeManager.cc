@@ -21,6 +21,7 @@
 // 20170928  Replace "polarizationState" with "mode"
 // 20250905  G4CMP-500 -- Added warning comment about RegisterLattice
 //                 use with tracked film response
+// 20260618  G4CMP-637 -- Move calculation of L0 into G4LatticeLogical
 
 #include "G4LatticeManager.hh"
 #include "G4CMPConfigManager.hh"
@@ -126,8 +127,6 @@ G4LatticeLogical* G4LatticeManager::LoadLattice(const G4Material* Mat,
   G4LatticeLogical* newLat = latReader.MakeLattice(latDir+"/config.txt");
   if (newLat) {
     newLat->SetDensity(Mat->GetDensity());
-    if (newLat->GetElectronScatter()==0) {newLat->SetElectronScatter(newLat->ComputeL0(true));}
-    if (newLat->GetHoleScatter()==0) {newLat->SetHoleScatter(newLat->ComputeL0(false));}
     newLat->Initialize(latDir);
     if (verboseLevel>1)
       G4cout << " Created newLat " << newLat << "\n" << *newLat << G4endl;
