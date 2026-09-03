@@ -475,34 +475,34 @@ SphericalToEllipsoidalTranformation(G4int iv, const G4ThreeVector& v) const {
 
 // Fermi energy calculations
 G4double G4LatticePhysical::GetElectronDOS() const {
-  G4double ne = 0.;
+  G4double edos = 0.;
   // this doesn't seem right
-  const G4double me = GetElectronDOSMass() * GetElectronMass();
-  const G4double num = 2. * pi * me * k_Boltzmann * GetTemperature();
+  const G4double meff = GetElectronDOSMass() * GetElectronMass();
+  const G4double num = 2. * pi * meff * k_Boltzmann * GetTemperature();
   const G4double paren = num / (CLHEP::h_Planck * CLHEP::h_Planck);
-  ne = 2. * std::sqrt(paren * paren * paren);
-  return ne;
+  edos = 2. * std::sqrt(paren * paren * paren);
+  return edos;
 }
 
 G4double G4LatticePhysical::GetHoleDOS() const {
-  G4double nh = 0.;
+  G4double hdos = 0.;
   // this doesn't seem right
-  const G4double mh = GetElectronDOSMass() * GetHoleMass();
-  const G4double num = 2. * pi * mh * k_Boltzmann * GetTemperature();
+  const G4double meff = GetElectronDOSMass() * GetHoleMass();
+  const G4double num = 2. * pi * meff * k_Boltzmann * GetTemperature();
   const G4double paren = num / (CLHEP::h_Planck * CLHEP::h_Planck);
-  nh = 2. * std::sqrt(paren * paren * paren);
-  return nh;
+  hdos = 2. * std::sqrt(paren * paren * paren);
+  return hdos;
 }
 
 // https://lampz.tugraz.at/~hadley/psd/weblectures/Ef_intrinsic/index.php
 G4double G4LatticePhysical::GetFermiEnergy() const {
   G4double ef = 0.;
-  const G4double nc = GetElectronDOS();
-  const G4double nv = GetHoleDOS();
-  if (nc <= 0. || nv <= 0.) return ef;
+  const G4double edos = GetElectronDOS();
+  const G4double hdos = GetHoleDOS();
+  if (edos <= 0. || hdos <= 0.) return ef;
   const G4double kT = k_Boltzmann * GetTemperature();
   const G4double term1 = GetBandGapEnergy() / 2.;
-  const G4double term2 = kT * std::log(nv / nc) / 2.;
+  const G4double term2 = kT * std::log(hdos / edos) / 2.;
   ef = term1 + term2;
   return ef;
 }
