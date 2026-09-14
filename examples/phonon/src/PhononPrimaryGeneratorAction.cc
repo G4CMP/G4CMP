@@ -7,7 +7,7 @@
 /// \brief Implementation of the PhononPrimaryGeneratorAction class
 //
 // 20140519  Allow the user to specify phonon type by name in macro; if
-//	     "geantino" is set, use random generator to select.
+//           "geantino" is set, use random generator to select.
 
 #include "PhononPrimaryGeneratorAction.hh"
 

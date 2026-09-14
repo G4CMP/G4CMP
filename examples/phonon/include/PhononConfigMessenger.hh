@@ -32,7 +32,7 @@ private:
   G4UIcmdWithAString* hitsCmd;
 
 private:
-  PhononConfigMessenger(const PhononConfigMessenger&);	// Copying is forbidden
+  PhononConfigMessenger(const PhononConfigMessenger&);  // Copying is forbidden
   PhononConfigMessenger& operator=(const PhononConfigMessenger&);
 };
 

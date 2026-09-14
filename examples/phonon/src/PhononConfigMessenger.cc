@@ -21,7 +21,7 @@ PhononConfigMessenger::PhononConfigMessenger(PhononConfigManager* mgr)
   : G4UImessenger("/g4cmp/", "User configuration for G4CMP phonon example"),
     theManager(mgr), hitsCmd(0) {
   hitsCmd = CreateCommand<G4UIcmdWithAString>("HitsFile",
-			      "Set filename for output of phonon hit locations");
+            "Set filename for output of phonon hit locations");
 }
 
 

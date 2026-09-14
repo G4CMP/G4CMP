@@ -10,11 +10,11 @@
 // 20211207  Replace G4Logical*Surface with G4CMP-specific versions.
 // 20220809  [ For M. Hui ] -- Add frequency dependent surface properties.
 // 20221006  Remove unused features; add phonon sensor pad with use of
-//		G4CMPPhononElectrode to demonstrate KaplanQP.
+//              G4CMPPhononElectrode to demonstrate KaplanQP.
 // 20251116  G4CMP-539 -- Use UpdateMPT wrapper function to set properties.
 // 20251117  G4CMP-541 -- For G4 v11, replace ::Invisible w/::GetInvisible()
 // 20260816  G4CMP-657 -- Fix typo in specCoeffs vector.
-// 20260827  B. Zatschler -- Add new function ConstructSDandField().
+// 20260827  G4CMP-663 -- Add new function ConstructSDandField().
 //              Move sensitive detector attachment code in there.
 //              Remove data member electrodeSensitivity.
 
@@ -187,21 +187,21 @@ void PhononDetectorConstruction::SetupGeometry() {
     const G4double anhCutoff = 520., reflCutoff = 350.;   // Units external
 
     topSurfProp = new G4CMPSurfaceProperty("TopAlSurf", 1.0, 0.0, 0.0, 0.0,
-					  	        0.3, 1.0, 0.0, 0.0);
+                                                        0.3, 1.0, 0.0, 0.0);
     topSurfProp->AddScatteringProperties(anhCutoff, reflCutoff, anhCoeffs,
-					 diffCoeffs, specCoeffs, GHz, GHz, GHz);
+                                         diffCoeffs, specCoeffs, GHz, GHz, GHz);
     AttachPhononSensor(topSurfProp);
 
     botSurfProp = new G4CMPSurfaceProperty("BotAlSurf", 1.0, 0.0, 0.0, 0.0,
-					   	        0.3, 1.0, 0.0, 0.0);
+                                                        0.3, 1.0, 0.0, 0.0);
     botSurfProp->AddScatteringProperties(anhCutoff, reflCutoff, anhCoeffs,
-					 diffCoeffs, specCoeffs, GHz, GHz, GHz);
+                                         diffCoeffs, specCoeffs, GHz, GHz, GHz);
     AttachPhononSensor(botSurfProp);
 
     wallSurfProp = new G4CMPSurfaceProperty("WallSurf", 0.0, 1.0, 0.0, 0.0,
-					    	          0.0, 1.0, 0.0, 0.0);
+                                                        0.0, 1.0, 0.0, 0.0);
     wallSurfProp->AddScatteringProperties(anhCutoff, reflCutoff, anhCoeffs,
-					  diffCoeffs, specCoeffs, GHz, GHz,GHz);
+                                          diffCoeffs, specCoeffs, GHz, GHz,GHz);
 
   }
 
@@ -209,11 +209,11 @@ void PhononDetectorConstruction::SetupGeometry() {
   // Separate surfaces for sensors vs. bare sidewall
   //
   new G4CMPLogicalBorderSurface("detTop", GePhys, aluminumTopPhysical,
-				topSurfProp);
+                                topSurfProp);
   new G4CMPLogicalBorderSurface("detBot", GePhys, aluminumBotPhysical,
-				botSurfProp);
+                                botSurfProp);
   new G4CMPLogicalBorderSurface("detWall", GePhys, fWorldPhys,
-				wallSurfProp);
+                                wallSurfProp);
 
   //                                        
   // Visualization attributes
@@ -231,7 +231,7 @@ void PhononDetectorConstruction::SetupGeometry() {
 
 void PhononDetectorConstruction::
 AttachPhononSensor(G4CMPSurfaceProperty *surfProp) {
-  if (!surfProp) return;		// No surface, nothing to do
+  if (!surfProp) return;                // No surface, nothing to do
 
   // Specify properties of aluminum sensor, same on both detector faces
   // See G4CMPPhononElectrode.hh or README.md for property keys

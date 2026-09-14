@@ -18,4 +18,4 @@ public:
   virtual void Build() const;
 };
 
-#endif	/* PhononActionInitialization_hh */
+#endif  /* PhononActionInitialization_hh */

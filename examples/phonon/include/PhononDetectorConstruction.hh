@@ -7,8 +7,8 @@
 /// \brief Definition of the PhononDetectorConstruction class
 //
 // 20221006  M. Kelsey -- Remove "IsField" flag, unnecessary with phonons.
-//		Add material properties for aluminum phonon sensors
-// 20260827  B. Zatschler -- Add new function ConstructSDandField().
+//              Add material properties for aluminum phonon sensors
+// 20260827  G4CMP-663 -- Add new function ConstructSDandField().
 //              Remove data member electrodeSensitivity.
 
 #ifndef PhononDetectorConstruction_h
@@ -46,7 +46,7 @@ private:
   G4CMPSurfaceProperty* botSurfProp;
   G4CMPSurfaceProperty* wallSurfProp;
 
-  G4bool fConstructed;		// Flag to not re-recreate surface properties
+  G4bool fConstructed;          // Flag to not re-recreate surface properties
 };
 
 #endif  /* PhononDetectorConstruction_h */

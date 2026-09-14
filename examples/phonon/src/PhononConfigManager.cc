@@ -7,7 +7,7 @@
 /// \brief Implementation of the PhononConfigManager class.
 ///
 /// Singleton container class for user configuration of G4CMP
-/// phonon example. Looks for environment variables	at
+/// phonon example. Looks for environment variables at
 /// initialization to set default values; active values may be
 /// changed via macro commands (see PhononConfigMessenger).
 //
