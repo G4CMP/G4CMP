@@ -86,7 +86,7 @@ Rate(const G4Track& aTrack,const G4LatticePhysical * theLat) const {
     tau_recombination = theLat->GetSCTau0qp()*
       (this->GetTauAsAFunctionOfEnergy
        (fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.at(theLat),
-        "QP",energy,thisEnergyBelowUsableRange));
+        "QP",energy,thisEnergyBelowUsableRange,theLat));
   }
 
   //If we're below the usable range

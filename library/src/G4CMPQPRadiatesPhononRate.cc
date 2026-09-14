@@ -54,7 +54,7 @@ Rate(const G4Track& aTrack, const G4LatticePhysical * theLat) const {
 
   //Compute the tau using either the current lattice's information or the
   //lattice information of the lattice provided as an argument.
-  G4double tau_scattering = DBL_MAX; 
+  G4double tau_scattering = DBL_MAX;
   if (!useInputLat) {
     tau_scattering = fTau0_qp*
       (this->GetTauAsAFunctionOfEnergy
@@ -62,7 +62,6 @@ Rate(const G4Track& aTrack, const G4LatticePhysical * theLat) const {
         "QP",energy,thisEnergyBelowUsableRange));
   }
   else {
-
     //As a sanity check, make SURE that we have this lattice in our map of
     //vectors that give tau vs energy
     if (fMap_physicalLattice_NormalizedTauQPRadiatesPhononVsEnergy.count(theLat)
@@ -83,7 +82,7 @@ Rate(const G4Track& aTrack, const G4LatticePhysical * theLat) const {
     tau_scattering = theLat->GetSCTau0qp()*
       (this->GetTauAsAFunctionOfEnergy
        (fMap_physicalLattice_NormalizedTauQPRadiatesPhononVsEnergy.at(theLat),
-        "QP",energy,thisEnergyBelowUsableRange));
+        "QP",energy,thisEnergyBelowUsableRange,theLat));
   }
   
   //Compute tau for phonon radiation, and invert for rate

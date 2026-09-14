@@ -269,8 +269,6 @@ G4CMPQPBoundaryProcess::PostStepDoIt(const G4Track& aTrack,
 G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
                                             const G4Step& aStep) {
 
-  //G4cout << "Beginning reflectTrack for QPBoundaryProcess." << G4endl;
-  
   //Take human-installed reflProb
   G4double reflProb = GetMaterialProperty("reflProb");
   if (verboseLevel>2) G4cout << " ReflectTrack: reflProb " << reflProb
@@ -342,7 +340,6 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
   bool relevantQPProcessesActive[nRelevProcs] = {false,false,false,false};
   int relevantQPProcessIDs[nRelevProcs] = {-1,-1,-1,-1};
   for (int iL = 0; iL < pl.size(); ++iL) {
-    //G4cout << "Process name: " << pl[iL]->GetProcessName() << G4endl;
     if (pl[iL]->GetProcessName() == "qpRadiatesPhonon") {
       relevantQPProcessesActive[0] = aTrack.GetParticleDefinition()
         ->GetProcessManager()->GetProcessActivation(pl[iL]);
@@ -385,6 +382,7 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
     preVolRates[3] = dynamic_cast<G4CMPQPLocalTrappingProcess*>
       (pl[relevantQPProcessIDs[3]])->GetRateModel()->Rate(aTrack);
   }
+
   
   //Do the transition to the new lattice (used to be in DoTransmission)
   //Since the lattice hasn't changed yet, change it here. (This also happens
@@ -425,10 +423,11 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
 
   G4double postVolRates[nRelevProcs] = {-1,-1,-1,-1};
 
+
   
   // Phonon radiation
   if (relevantQPProcessesActive[0]) {
-    
+
     //Check if rateModel for phonon radiation has a lookup table for this lat.
     //If not, do the janky thing
     if (dynamic_cast<G4CMPQPRadiatesPhononRate*>
@@ -436,9 +435,6 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
          (pl[relevantQPProcessIDs[0]])->GetRateModel())
         ->CheckLookupTableForLat(postLattice) ) {
 
-      //Debugging
-      //G4cout << "In ReflectTrack, rate array is available in post-step "
-      //       << "lattice, so we'll just use that." << G4endl;              
       postVolRates[0] =
         dynamic_cast<G4CMPQPRadiatesPhononRate*>
         (dynamic_cast<G4CMPQPRadiatesPhononProcess*>
@@ -446,29 +442,23 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
         ->Rate(aTrack,postLattice);
     } else {
       
-      //Debugging
-      //G4cout << "In ReflectTrack, radiation rate array is not available in "
-      //<< "post-step lattice, so we'll need create." << G4endl;        
-
       //Create a new rate model object, have it generate its info for the
       //new lattice set above. Have to do a few operations to load data in
       //successfully, but since those functions only talk to this object,
       //the "longitudinal" rate model that follows the QP shouldn't be affected.
       G4CMPQPRadiatesPhononRate tempQPRadiatesPhononRateObj;
       if (GetCurrentTrack()){
-        //G4cout << "Getting current track runs in radiatePhonon block." << G4endl;
         tempQPRadiatesPhononRateObj.LoadDataForTrack(GetCurrentTrack());
         tempQPRadiatesPhononRateObj.LoadLatticeInfoIntoSCUtils(postLattice);
         tempQPRadiatesPhononRateObj.UpdateLookupTable(postLattice);
       }
       postVolRates[0] = tempQPRadiatesPhononRateObj.Rate(aTrack);
-      //G4cout << "Finished doing the temp phonon radiation rate calc." << G4endl;
-    }    
+    }
   }
 
   // Recombination
   if (relevantQPProcessesActive[1]) {
-    
+
     //Check if rateModel for phonon radiation has a lookup table for this lat.
     //If not, do the janky thing
     if (dynamic_cast<G4CMPQPRecombinationRate*>
@@ -476,9 +466,6 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
          (pl[relevantQPProcessIDs[1]])->GetRateModel())
         ->CheckLookupTableForLat(postLattice) ) {
 
-      //Debugging
-      //G4cout << "In ReflectTrack, recomb rate array is available in post-step "
-      //       << "lattice, so we'll just use that." << G4endl;              
       postVolRates[1] =
         dynamic_cast<G4CMPQPRecombinationRate*>
         (dynamic_cast<G4CMPQPRecombinationProcess*>
@@ -486,24 +473,18 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
         ->Rate(aTrack,postLattice);
     } else {
       
-      //Debugging
-      //G4cout << "In ReflectTrack, recomb rate array is not available in "
-      //       << "post-step lattice, so we'll need create." << G4endl;        
-
       //Create a new rate model object, have it generate its info for the
       //new lattice set above. Have to do a few operations to load data in
       //successfully, but since those functions only talk to this object,
       //the "longitudinal" rate model that follows the QP shouldn't be affected.
       G4CMPQPRecombinationRate tempQPRecombinationRateObj;
       if (GetCurrentTrack()){
-        //G4cout << "Getting current track runs in recomb block." << G4endl;
         tempQPRecombinationRateObj.LoadDataForTrack(GetCurrentTrack());
         tempQPRecombinationRateObj.LoadLatticeInfoIntoSCUtils(postLattice);
         tempQPRecombinationRateObj.UpdateLookupTable(postLattice);
       }
       postVolRates[1] = tempQPRecombinationRateObj.Rate(aTrack);
-      //G4cout << "Finished doing the temp recombination rate calc." << G4endl;
-    }    
+    }
   }
 
   // QPDiffusionTimeStepper
@@ -533,8 +514,6 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
     postLattice->GetSCDelta0() / aTrack.GetKineticEnergy();
   G4double preVol_D = preVol_Dn * sqrt(1-preVol_Erat*preVol_Erat);
   G4double postVol_D = postVol_Dn * sqrt(1-postVol_Erat*postVol_Erat);
-
-
 
   //Now do the competition for the pre-step volume, computing displacements
   //from rates using 1/rate plugged into the diffusion equation
@@ -596,7 +575,7 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
 
   //Now we compute our statistical probability for reflection.
   //If pre_attemptedReturns is larger, then it means that we need to favor
-  //transmission. Reflect with 50% probability
+  //transmission. Reflect with 100% probability
   if (pre_attReturns > post_attReturns) {
     return (G4UniformRand() < 0.0);
   }
