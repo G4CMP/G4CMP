@@ -65,7 +65,7 @@ protected:
   G4ThreeVector GetSpecularVector(const G4ThreeVector& waveVector,
                                   G4ThreeVector& surfNorm, G4int mode,
                                   G4ThreeVector& surfacePoint);
-
+  
   // Update navigator volume when position is changed
   void UpdateNavigatorVolume(const G4Step&, const G4ThreeVector& position,
                              const G4ThreeVector& vDir) const;
