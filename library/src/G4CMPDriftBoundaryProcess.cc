@@ -20,17 +20,14 @@
 // 20251015  Resolve shadowed declaration in DoFinalReflection()
 // 20251024  G4CMP-519: Protect against possible zero energy in DoAbsorption()
 // 20251028  G4CMP-527: Move CheckStepBoundary() to ApplyBoundaryAction()
-<<<<<<< HEAD
-// 20260209  G4CMP-580: Multiply refl in DoElectronReflection() by ptrk.mag()
-// 20260825  G4CMP-611 -- Implementing electron boundary crossing valley
-// reassignment
-=======
 // 20251204  G4CMP-511 -- Create parallel Lambertian reflection code for charges.
 // 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
 // 20250219  G4CMP-513 : Provide separate specular and diffuse reflection for charges.
 // 20260430  W. Lamberson -- Update debugging printouts.
 // 20260507  G4CMP-603 : Use specular reflection material property.
->>>>>>> develop
+// 20260209  G4CMP-580: Multiply refl in DoElectronReflection() by ptrk.mag()
+// 20260825  G4CMP-611 -- Implementing electron boundary crossing valley
+// reassignment
 
 #include "G4CMPDriftBoundaryProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -328,45 +325,21 @@ DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
   DoAbsorption(aTrack, aStep, particleChange);
 }
 
-// implementing valley reassignment
+// implementing valley reassignment ONLY
 void G4CMPDriftBoundaryProcess::DoTransmission(
     const G4Track& aTrack, const G4Step& aStep,
     G4ParticleChange& /*particleChange*/) {
   auto* LM = G4LatticeManager::GetLatticeManager();
   auto* post_vol = aStep.GetPostStepPoint()->GetPhysicalVolume();
-  const G4bool can_transmit = LM->HasLattice(post_vol);
-  if (!can_transmit) {
-    aParticleChange.ProposeTrackStatus(fStopAndKill);
-    return;
-  }
   // drift track info has no wavevector member... keep transport direction
   // constant instead
   G4ThreeVector p = G4CMPProcessUtils::GetLocalMomentum(aTrack);
-  G4int old_valley = G4CMPProcessUtils::GetValleyIndex(aTrack);
-  p = theLattice->MapPtoK(old_valley, p);
-  p = theLattice->RotateToValley(old_valley, p);
-  G4CMPProcessUtils::SetLattice(LM->GetLattice(post_vol));
-  G4int new_valley = G4CMP::FindNearestValley(theLattice, p);
+  auto* lattice = LM->GetLattice(post_vol);
+  G4int new_valley = G4CMP::FindNearestValley(lattice, p);
   // make sure the new valley isn't out of range
-  const G4int nv = theLattice->NumberOfValleys();
+  const G4int nv = lattice->NumberOfValleys();
   if (new_valley >= nv || new_valley < -1) new_valley = G4UniformRand() * nv;
-  p = theLattice->RotateFromValley(new_valley, p);
-  p = theLattice->MapKtoP(new_valley, p);
+  p = lattice->RotateFromValley(new_valley, p);
   G4CMPProcessUtils::RotateToGlobalDirection(p);
   aParticleChange.ProposeMomentumDirection(p.unit());
-  // calculate electron outgoing energy
-  G4double energy = 0.;
-  if (G4CMPProcessUtils::IsElectron()) {
-    energy = theLattice->MapPtoEkin(new_valley,
-                                    G4CMPProcessUtils::GetLocalDirection(p));
-    aParticleChange.ProposeMass(
-        theLattice->GetElectronEffectiveMass(
-            new_valley, G4CMPProcessUtils::GetLocalDirection(p)) *
-        CLHEP::c_squared);
-  } else {
-    G4double massc2 =
-        G4CMPProcessUtils::GetCurrentTrack()->GetDynamicParticle()->GetMass();
-    energy = std::sqrt(p.mag2() + massc2 * massc2) - massc2;
-  }
-  aParticleChange.ProposeEnergy(energy);
 }
