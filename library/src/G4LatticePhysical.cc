@@ -476,8 +476,7 @@ SphericalToEllipsoidalTranformation(G4int iv, const G4ThreeVector& v) const {
 // Fermi energy calculations
 G4double G4LatticePhysical::GetElectronDOS() const {
   G4double edos = 0.;
-  // this doesn't seem right
-  const G4double meff = GetElectronDOSMass() * GetElectronMass();
+  const G4double meff = GetElectronDOSMass() / CLHEP::c_squared;
   const G4double num = 2. * pi * meff * k_Boltzmann * GetTemperature();
   const G4double paren = num / (CLHEP::h_Planck * CLHEP::h_Planck);
   edos = 2. * std::sqrt(paren * paren * paren);
@@ -486,8 +485,7 @@ G4double G4LatticePhysical::GetElectronDOS() const {
 
 G4double G4LatticePhysical::GetHoleDOS() const {
   G4double hdos = 0.;
-  // this doesn't seem right
-  const G4double meff = GetElectronDOSMass() * GetHoleMass();
+  const G4double meff = GetElectronDOSMass() / CLHEP::c_squared;
   const G4double num = 2. * pi * meff * k_Boltzmann * GetTemperature();
   const G4double paren = num / (CLHEP::h_Planck * CLHEP::h_Planck);
   hdos = 2. * std::sqrt(paren * paren * paren);
