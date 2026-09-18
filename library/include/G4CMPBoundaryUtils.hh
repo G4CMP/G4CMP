@@ -23,7 +23,7 @@
 // 20251028  G4CMP-527: Move CheckStepBoundary() here from DriftBoundaryProcess
 // 20251204  G4CMP-511 -- Create parallel Lambertian reflection code for charges.
 // 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
-// 20260826  G4CMP-662: Make ReflectTrack() non-const so that QPs
+// 20260826  G4CMP-662 -- Make ReflectTrack() non-const so that QPs
 //       can update their lattice while determining reflection probability
 
 #ifndef G4CMPBoundaryUtils_hh

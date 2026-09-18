@@ -796,11 +796,8 @@ void
 G4CMPBoundaryUtils::ApplyBoundaryAction(const G4Track& aTrack,
 					const G4Step& aStep,
 					G4ParticleChange& aParticleChange) {
-  //G4cout << "ABA: Function Point 0" << G4endl;
   aParticleChange.Initialize(aTrack);
 
-  //G4cout << "ABA: Function Point A" << G4endl;
-  
   //Debugging
   if (buVerboseLevel > 5) {
     G4cout << "---------- G4CMPBoundaryUtils::ApplyBoundaryAction ----------\n"
@@ -808,44 +805,33 @@ G4CMPBoundaryUtils::ApplyBoundaryAction(const G4Track& aTrack,
            << G4endl;
   }
 
-  //G4cout << "ABA: Function Point B" << G4endl;
-  
   // Check whether step has proper boundary-stopped geometry
   surfacePoint = aStep.GetPostStepPoint()->GetPosition();
-  //G4cout << "ABA: Function Point BA" << G4endl;
   if (!CheckStepBoundary(aStep, surfacePoint)) {
     if (buVerboseLevel>2)
-      //G4cout << "ABA: Function Point BB" << G4endl;
       G4cout << " Boundary point moved to " << surfacePoint << G4endl;
 
     aParticleChange.ProposePosition(surfacePoint);
   }
 
-  //G4cout << "ABA: Function Point BC" << G4endl;
   
   if (!matTable) {
-    //G4cout << "ABA: Function Point C" << G4endl;
     if (buVerboseLevel>2) G4cout << "BU::Apply: !matTable" << G4endl;
     DoSimpleKill(aTrack, aStep, aParticleChange);
   } else if (electrode && electrode->IsNearElectrode(aStep) ) {
-    //G4cout << "ABA: Function Point D" << G4endl;
     if (buVerboseLevel>2) G4cout << "BU::Apply: absorb at electrode" << G4endl;
     electrode->AbsorbAtElectrode(aTrack, aStep, aParticleChange);
   } else if (AbsorbTrack(aTrack, aStep)) {
-    //G4cout << "ABA: Function Point E" << G4endl;
     if (buVerboseLevel>2) G4cout << "BU::Apply: Absorption" << G4endl;
     DoAbsorption(aTrack, aStep, aParticleChange);
   } else if (MaximumReflections(aTrack)) {
-    //G4cout << "ABA: Function Point F" << G4endl;
     if (buVerboseLevel>2) G4cout << "BU::Apply: maxRef" << G4endl;
     DoFinalReflection(aTrack, aStep, aParticleChange);
   } else if (ReflectTrack(aTrack, aStep)) {
-    //    G4cout << "ABA: Function Point G" << G4endl;
     if (buVerboseLevel>2) G4cout << "BU::Apply: Reflection" << G4endl;
     IncrementReflectionCount(aTrack);
     DoReflection(aTrack, aStep, aParticleChange);
   } else {
-    //G4cout << "ABA: Function Point E" << G4endl;
     if (buVerboseLevel>2) G4cout << "BU::Apply: Transmission" << G4endl;
     DoTransmission(aTrack, aStep, aParticleChange);
   }
@@ -887,19 +873,6 @@ G4bool G4CMPBoundaryUtils::ReflectTrack(const G4Track& /*aTrack*/, const G4Step&
   //  G4cout << "RT Function Point B" << G4endl;
   return (rand <= reflProb);
 }
-
-/*
-//Overloaded to service the QP boundary class reflect track function, which is
-//not const. This is needed for the QP class's new reflectTrack function, which
-//is quasi-convoluted to un-bias the effect of WoS acting at transparent (or
-//quasi-transparent) boundaries.
-G4bool G4CMPBoundaryUtils::ReflectTrack(const G4Track& aTrack,
-                                        const G4Step&) {
-  G4Exception("G4CMPBoundaryUtils::ReflectTrack","Boundary015",FatalException,
-              "Non-const base class ReflectTrack() is running? Problematic!");
-  return false;
-}
-*/
 
 G4bool G4CMPBoundaryUtils::MaximumReflections(const G4Track& aTrack) const {
   //G4cout << "MR Function Point A" << G4endl;

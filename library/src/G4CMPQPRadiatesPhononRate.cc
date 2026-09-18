@@ -74,11 +74,6 @@ Rate(const G4Track& aTrack, const G4LatticePhysical * theLat) const {
                   "QPRadiatesPhononRate000",FatalException, msg);
       return 0;
     }
-    //G4cout << "The count, " <<
-    //  "fMap_physicalLattice_NormalizedTauQPRadiatesPhononVsEnergy.count(theLat): "
-    //       <<
-    //  fMap_physicalLattice_NormalizedTauQPRadiatesPhononVsEnergy.count(theLat)
-    //       << G4endl;
     tau_scattering = theLat->GetSCTau0qp()*
       (this->GetTauAsAFunctionOfEnergy
        (fMap_physicalLattice_NormalizedTauQPRadiatesPhononVsEnergy.at(theLat),
@@ -210,8 +205,8 @@ bool G4CMPQPRadiatesPhononRate::
 CheckLookupTableForLat(const G4LatticePhysical * theLat) const {
   //1. If the lattice doesn't exist in the lattice container associated with
   //   this process yet, throw a flag
-  if(fMap_physicalLattice_NormalizedTauQPRadiatesPhononVsEnergy.count(theLat)
-     == 0){ return false; }
+  if (fMap_physicalLattice_NormalizedTauQPRadiatesPhononVsEnergy.count(theLat)
+     == 0) { return false; }
   return true;
 }
 

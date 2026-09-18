@@ -28,7 +28,7 @@ G4double G4CMPQPRecombinationRate::Rate(const G4Track& aTrack) const {
 // which this is based. If there is an additional lattice provided, then compute
 // the rate based on that lattice
 G4double G4CMPQPRecombinationRate::
-Rate(const G4Track& aTrack,const G4LatticePhysical * theLat) const {
+Rate(const G4Track& aTrack, const G4LatticePhysical* theLat) const {
 
   //Debugging
   if (verboseLevel > 5) {
@@ -78,11 +78,6 @@ Rate(const G4Track& aTrack,const G4LatticePhysical * theLat) const {
                   "QPRecombinationRate000",FatalException, msg);
       return 0;
     }
-    //G4cout << "The count, " <<
-    //  "fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.count(theLat): "
-    //       <<
-    //  fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.count(theLat)
-    //       << G4endl;
     tau_recombination = theLat->GetSCTau0qp()*
       (this->GetTauAsAFunctionOfEnergy
        (fMap_physicalLattice_NormalizedTauRecombinationVsEnergy.at(theLat),

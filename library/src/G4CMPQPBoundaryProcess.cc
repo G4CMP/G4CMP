@@ -388,7 +388,7 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
   //Since the lattice hasn't changed yet, change it here. (This also happens
   //at the MFP calc point at the beginning of the next step, but it's nice to
   //have it here so we can use the new lattice info to help figure out vdir,
-  //etc.) REL SHOULD CHECK TO MAKE SURE THIS DOES NOT CAUSE WEIRD BEHAVIOR
+  //etc.) 
   this->SetLattice(postLattice);
   UpdateSCAfterLatticeChange();
 
@@ -423,8 +423,6 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
 
   G4double postVolRates[nRelevProcs] = {-1,-1,-1,-1};
 
-
-  
   // Phonon radiation
   if (relevantQPProcessesActive[0]) {
 
@@ -527,11 +525,11 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
     (preVolRates[2] < 0 ? DBL_MAX : sqrt(2*preVol_D*(1.0/preVolRates[2])));
   double pre_disp_qpltr =
     (preVolRates[3] < 0 ? DBL_MAX : sqrt(2*preVol_D*(1.0/preVolRates[3])));  
-  if( pre_disp_geom < pre_disp_winner ) pre_disp_winner = pre_disp_geom;
-  if( pre_disp_qprad < pre_disp_winner) pre_disp_winner = pre_disp_qprad;
-  if( pre_disp_qprec < pre_disp_winner) pre_disp_winner = pre_disp_qprec;
-  if( pre_disp_qpdts < pre_disp_winner) pre_disp_winner = pre_disp_qpdts;
-  if( pre_disp_qpltr < pre_disp_winner) pre_disp_winner = pre_disp_qpltr;
+  if (pre_disp_geom < pre_disp_winner ) pre_disp_winner = pre_disp_geom;
+  if (pre_disp_qprad < pre_disp_winner) pre_disp_winner = pre_disp_qprad;
+  if (pre_disp_qprec < pre_disp_winner) pre_disp_winner = pre_disp_qprec;
+  if (pre_disp_qpdts < pre_disp_winner) pre_disp_winner = pre_disp_qpdts;
+  if (pre_disp_qpltr < pre_disp_winner) pre_disp_winner = pre_disp_qpltr;
 
   //Now do competition for the post-step volume, computing displacements
   //from rates using 1/rate plugged into the diffusion equation
@@ -545,11 +543,11 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
     (postVolRates[2] < 0 ? DBL_MAX : sqrt(2*postVol_D*(1.0/postVolRates[2])));
   double post_disp_qpltr =
     (postVolRates[3] < 0 ? DBL_MAX : sqrt(2*postVol_D*(1.0/postVolRates[3])));  
-  if( post_disp_geom < post_disp_winner ) post_disp_winner = post_disp_geom;
-  if( post_disp_qprad < post_disp_winner) post_disp_winner = post_disp_qprad;
-  if( post_disp_qprec < post_disp_winner) post_disp_winner = post_disp_qprec;
-  if( post_disp_qpdts < post_disp_winner) post_disp_winner = post_disp_qpdts;
-  if( post_disp_qpltr < post_disp_winner) post_disp_winner = post_disp_qpltr;
+  if (post_disp_geom < post_disp_winner ) post_disp_winner = post_disp_geom;
+  if (post_disp_qprad < post_disp_winner) post_disp_winner = post_disp_qprad;
+  if (post_disp_qprec < post_disp_winner) post_disp_winner = post_disp_qprec;
+  if (post_disp_qpdts < post_disp_winner) post_disp_winner = post_disp_qpdts;
+  if (post_disp_qpltr < post_disp_winner) post_disp_winner = post_disp_qpltr;
 
   //Now we have "winning" processes' diffusion circle length scales for the two
   //sides to the interface. For each of them we compute the number of returns
@@ -586,32 +584,25 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
   }
   
   //For now, let's just print these and see what we get
-  //  if (verboseLevel > 5) {
-
-      /*
-  G4cout << "In ReflectTrack: "
-         << "\n pos: " << pos
-         << ",\n pre-vol norm: " << pre_vol_norm
-         << ",\n post-vol norm: " << post_vol_norm
-         << ",\n pre-momentumDir: "
-         << aStep.GetPreStepPoint()->GetMomentumDirection()
-         << "\n, preStepSafety: " << preStepSafety
-         << "\n, postStepSafety: " << postStepSafety
-         << "\n, pre-vol qpRadiatesPhonon rate: " << preVolRates[0]
-         << "\n, post-vol qpRadiatesPhonon rate: " << postVolRates[0]
-         << "\n, pre-vol qpRecombination rate: " << preVolRates[1]
-         << "\n, post-vol qpRecombination rate: " << postVolRates[1]
-         << "\n, pre-vol qpDiffusionTimeStepper rate: " << preVolRates[2]
-         << "\n, post-vol qpDiffusionTimeStepper rate: " << postVolRates[2]
-         << "\n, pre-vol qpLocalTrapping rate: " << preVolRates[3]
-         << "\n, post-vol qpLocalTrapping rate: " << postVolRates[3]    
-         << G4endl;
-  
-    //}
-    */      
-
-  
-      //return (G4UniformRand() <= reflProb);
+  if (verboseLevel > 5) {
+    G4cout << "In ReflectTrack: "
+           << "\n pos: " << pos
+           << ",\n pre-vol norm: " << pre_vol_norm
+           << ",\n post-vol norm: " << post_vol_norm
+           << ",\n pre-momentumDir: "
+           << aStep.GetPreStepPoint()->GetMomentumDirection()
+           << "\n, preStepSafety: " << preStepSafety
+           << "\n, postStepSafety: " << postStepSafety
+           << "\n, pre-vol qpRadiatesPhonon rate: " << preVolRates[0]
+           << "\n, post-vol qpRadiatesPhonon rate: " << postVolRates[0]
+           << "\n, pre-vol qpRecombination rate: " << preVolRates[1]
+           << "\n, post-vol qpRecombination rate: " << postVolRates[1]
+           << "\n, pre-vol qpDiffusionTimeStepper rate: " << preVolRates[2]
+           << "\n, post-vol qpDiffusionTimeStepper rate: " << postVolRates[2]
+           << "\n, pre-vol qpLocalTrapping rate: " << preVolRates[3]
+           << "\n, post-vol qpLocalTrapping rate: " << postVolRates[3]    
+           << G4endl;   
+  }
 }
 
 
@@ -718,18 +709,8 @@ void G4CMPQPBoundaryProcess::DoTransmission(const G4Track& aTrack,
   }
 
   //We'll note here that the lattice changeover that USED to be here
-  //should now be in ReflectTrack(), which also needs this information...
-
-  /*  
-  // THIS IS NOW DONE IN REFLECTTRACK
-  //Since the lattice hasn't changed yet, change it here. (This also happens
-  //at the MFP calc point at the beginning of the next step, but it's nice to
-  //have it here so we can use the new lattice info to help figure out vdir,
-  //etc.)
-  this->SetLattice(G4LatticeManager::GetLatticeManager()->GetLattice(aStep.GetPostStepPoint()->GetPhysicalVolume()));
-  UpdateSCAfterLatticeChange();
-  */      
-  
+  //is now be in ReflectTrack(), which always runs unless an absorption
+  //happens.  
   G4ThreeVector vdir = aTrack.GetMomentumDirection();
   G4ThreeVector norm = G4CMP::GetSurfaceNormal(aStep,vdir);
   aParticleChange.ProposeMomentumDirection(norm); 
