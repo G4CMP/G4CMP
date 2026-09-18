@@ -850,7 +850,6 @@ void G4CMPBoundaryUtils::IncrementReflectionCount(const G4Track& aTrack) {
 // Default conditions for absorption or reflection
 
 G4bool G4CMPBoundaryUtils::AbsorbTrack(const G4Track&, const G4Step&) const {
-  //G4cout << "AT Function Point A" << G4endl;
   G4double absProb = GetMaterialProperty("absProb");
   G4double rand = G4UniformRand();
   if (buVerboseLevel>2) {
@@ -862,7 +861,6 @@ G4bool G4CMPBoundaryUtils::AbsorbTrack(const G4Track&, const G4Step&) const {
 }
 
 G4bool G4CMPBoundaryUtils::ReflectTrack(const G4Track& /*aTrack*/, const G4Step&) {
-  //G4cout << "RT Function Point A" << G4endl;
   G4double reflProb = GetMaterialProperty("reflProb");
   G4double rand = G4UniformRand();
   if (buVerboseLevel>2) {
@@ -870,12 +868,10 @@ G4bool G4CMPBoundaryUtils::ReflectTrack(const G4Track& /*aTrack*/, const G4Step&
 	   << (rand<=reflProb?" (pass)":" (fail)") << G4endl;
   }
 
-  //  G4cout << "RT Function Point B" << G4endl;
   return (rand <= reflProb);
 }
 
 G4bool G4CMPBoundaryUtils::MaximumReflections(const G4Track& aTrack) const {
-  //G4cout << "MR Function Point A" << G4endl;
   auto trackInfo = G4CMP::GetTrackInfo<G4CMPVTrackInfo>(aTrack);
   if (buVerboseLevel>2) {
     G4cout << " MaximumReflections: max " << maximumReflections

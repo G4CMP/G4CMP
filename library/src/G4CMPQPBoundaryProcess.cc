@@ -573,14 +573,21 @@ G4bool G4CMPQPBoundaryProcess::ReflectTrack(const G4Track& aTrack,
 
   //Now we compute our statistical probability for reflection.
   //If pre_attemptedReturns is larger, then it means that we need to favor
-  //transmission. Reflect with 100% probability
+  //transmission. Reflect with 0% probability, unless the user has specified
+  //an additional reflection coefficient. If so, reflect with that.
   if (pre_attReturns > post_attReturns) {
-    return (G4UniformRand() < 0.0);
+    G4double reflProb = GetMaterialProperty("reflProb");
+    return (G4UniformRand() < reflProb);
   }
   //Otherwise, we're coming from the smaller-<N> side, and need to favor
-  //reflection
+  //reflection. Here, we modulate user reflection by saying:
+  //1. Run proper dynamic reflection, and if you DON'T reflect...
+  //2. Try again, reflecting with user-specified reflection probability  
   else{
-    return (G4UniformRand() < (1-pre_attReturns/post_attReturns));
+    if (G4UniformRand() < (1-pre_attReturns/post_attReturns) ) return true;
+    else{
+      return( G4UniformRand() < GetMaterialProperty("reflProb") );
+    }
   }
   
   //For now, let's just print these and see what we get
