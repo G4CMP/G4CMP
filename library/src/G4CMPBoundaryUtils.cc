@@ -814,14 +814,14 @@ G4CMPBoundaryUtils::ApplyBoundaryAction(const G4Track& aTrack,
     aParticleChange.ProposePosition(surfacePoint);
   }
 
-  
+
   if (!matTable) {
     if (buVerboseLevel>2) G4cout << "BU::Apply: !matTable" << G4endl;
     DoSimpleKill(aTrack, aStep, aParticleChange);
   } else if (electrode && electrode->IsNearElectrode(aStep) ) {
     if (buVerboseLevel>2) G4cout << "BU::Apply: absorb at electrode" << G4endl;
     electrode->AbsorbAtElectrode(aTrack, aStep, aParticleChange);
-  } else if (AbsorbTrack(aTrack, aStep)) {
+  } else if (AbsorbTrack(aTrack, aStep)) {    
     if (buVerboseLevel>2) G4cout << "BU::Apply: Absorption" << G4endl;
     DoAbsorption(aTrack, aStep, aParticleChange);
   } else if (MaximumReflections(aTrack)) {

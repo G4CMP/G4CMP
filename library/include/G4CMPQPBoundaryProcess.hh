@@ -6,8 +6,8 @@
 /// \file library/include/G4CMPQPBoundaryProcess.hh
 /// \brief Definition of the  G4CMPQPBoundaryProcess class
 
-// 20260826  G4CMP-662: Change ReflectTrack() to non-const form so that we can
-//       update our lattice while determining reflection probability
+// 20260826  G4CMP-662 -- Change ReflectTrack() to non-const form so that we can
+//           update our lattice while determining reflection probability
 
 #ifndef G4CMPQPBoundaryProcess_h
 #define G4CMPQPBoundaryProcess_h 1

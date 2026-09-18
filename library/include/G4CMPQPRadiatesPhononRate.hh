@@ -11,8 +11,8 @@
 //
 // 20250922  G4CMP-219 -- First addition to this history (done at time
 //                        of merge to develop)
-// 20260826  G4CMP-662: Splitting off functionality to check rate lookup table
-//       for a given input lattice
+// 20260826  G4CMP-662 -- Splitting off functionality to check rate lookup table
+//                        for a given input lattice
 
 
 #ifndef G4CMPQPRadiatesPhononRate_hh

@@ -7,7 +7,7 @@
 /// \brief Compute rate for QP recombining with ambient bath QP into 2Delta phonon
 //
 // 20260826  G4CMP-662: Splitting off functionality to check rate lookup table
-//       for a given input lattice
+//           for a given input lattice
 
 
 #ifndef G4CMPQPRecombinationRate_hh
