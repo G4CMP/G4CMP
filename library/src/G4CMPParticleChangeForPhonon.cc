@@ -14,6 +14,8 @@
 // 20251128 Discard touchable contents after updating.
 // 20260212 G4CMP-585 Only discard touchable if it was modified (fix mem leak)
 // 20260901 G4CMP-655: Fix memory leak caused by theTouchableHandle.
+// 20260921 G4CMP-655: Remove G4TouchableHandle to avoid memory leak and seg
+//          faults.
 
 #include "G4CMPParticleChangeForPhonon.hh"
 #include "G4VTouchable.hh"
@@ -23,12 +25,12 @@
 #include "G4StepPoint.hh"
 #include "G4VPhysicalVolume.hh"
 
-
 // Ensure that local flags are initialized at each step
 
 void G4CMPParticleChangeForPhonon::Initialize(const G4Track& track) {
-  updateVol = false;
+  // Use base class's method first.
   G4ParticleChange::Initialize(track);
+  updateVol = false;
 }
 
 
@@ -36,11 +38,11 @@ void G4CMPParticleChangeForPhonon::Initialize(const G4Track& track) {
   
 G4Step* G4CMPParticleChangeForPhonon::UpdateStepForPostStep(G4Step* pStep) {
   if (updateVol) {    // Update next volume if touchable has been proposed
-    G4LogicalVolume* LV = pStep->GetTrack()->GetTouchableHandle()
-                          ->GetVolume()->GetLogicalVolume();
+    G4LogicalVolume* LV = pStep->GetPreStepPoint()->GetTouchableHandle()
+                               ->GetVolume()->GetLogicalVolume();
 
     G4StepPoint* pPostStepPoint = pStep->GetPostStepPoint();
-    pPostStepPoint->SetTouchableHandle(pStep->GetTrack()->GetTouchableHandle());
+    pPostStepPoint->SetTouchableHandle(pStep->GetPreStepPoint()->GetTouchableHandle());
     pPostStepPoint->SetMaterial(LV->GetMaterial());
     pPostStepPoint->SetMaterialCutsCouple(LV->GetMaterialCutsCouple());
     pPostStepPoint->SetSensitiveDetector(LV->GetSensitiveDetector());
@@ -60,8 +62,4 @@ void G4CMPParticleChangeForPhonon::DumpInfo() const {
   G4ParticleChange::DumpInfo();
 
   G4cout << "        updateVol : " << updateVol << G4endl;
-  if (updateVol) {
-    G4cout << "        theTouchableHandle for PV "
-	   << theTouchableHandle->GetVolume()->GetName() << G4endl;
-  }
 }

@@ -11,9 +11,11 @@
 //
 // 20250410 Implement ParticleChange for phonons to handle displaced reflections
 // 20250413 Add Initialize() implementation to reset updateVol flag, add
-//		missing copy operations, may be needed
+//          missing copy operations, may be needed
 // 20251116 For G4 11, explicitly remove the copy operators to match base.
 // 20251128 Implement empty destructor to avoid deleting G4TouchableHandle.
+// 20260921 G4CMP-655: Remove G4TouchableHandle to avoid memory leak and seg
+//          faults.
 
 #ifndef G4CMPParticleChangeForPhonon_hh
 #define G4CMPParticleChangeForPhonon_hh 1
@@ -38,20 +40,14 @@ public:
   G4Step* UpdateStepForPostStep(G4Step* pStep) final;
   
   // --- Methods for proposing PostStep volume ---
-  void ProposeTouchableHandle(const G4TouchableHandle& nextTouchableHandle) {
-    theTouchableHandle = nextTouchableHandle;
+  void ProposeNewTouchableHandle() {
     updateVol = true;
-  }
-  
-  const G4TouchableHandle& GetTouchableHandle() const {
-    return theTouchableHandle;
   }
 
   // Include local information in printout
   virtual void DumpInfo() const override;
   
 private:
-  G4TouchableHandle theTouchableHandle = 0;
   G4bool updateVol = false;		// Only set if touchable is changed
 };
 
