@@ -23,6 +23,7 @@
 // 20251028  G4CMP-527: Move CheckStepBoundary() here from DriftBoundaryProcess
 // 20251204  G4CMP-511 -- Create parallel Lambertian reflection code for charges.
 // 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
+// 20260922  G4CMP-673 -- Reconfigure surface action selection procedure
 
 #ifndef G4CMPBoundaryUtils_hh
 #define G4CMPBoundaryUtils_hh 1
@@ -43,6 +44,9 @@ class G4Track;
 class G4VPhysicalVolume;
 class G4VProcess;
 
+enum class SurfaceAction {
+  Kill = 1, Absorb, Reflect, Transmit, Electrode,
+}; // enum class SurfaceAction
 
 class G4CMPBoundaryUtils {
 public:
@@ -69,6 +73,8 @@ public:
 				   G4ParticleChange& aParticleChange);
 
   // Decide and apply different surface actions; subclasses may override
+  virtual SurfaceAction SelectSurfaceAction(const G4Track& aTrack,
+                                            const G4Step& aStep) const;
   virtual G4bool AbsorbTrack(const G4Track& aTrack, const G4Step& aStep) const;
   virtual void DoAbsorption(const G4Track& aTrack, const G4Step& aStep,
 			    G4ParticleChange& aParticleChange);

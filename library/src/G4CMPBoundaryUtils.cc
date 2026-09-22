@@ -40,6 +40,7 @@
 // 20260111  G4CMP-567 -- Use geometric tolerance prescribed by G4VSolid
 // 20260112  G4CMP-567 -- Fix G4Exception numbering and function names.
 // 20260121  G4CMP-567 -- Ensure that MaxReflections() handles max<=0 case
+// 20260922  G4CMP-673 -- Reconfigure surface action selection procedure
 
 #include "G4CMPBoundaryUtils.hh"
 #include "G4CMPConfigManager.hh"
@@ -814,23 +815,38 @@ G4CMPBoundaryUtils::ApplyBoundaryAction(const G4Track& aTrack,
     aParticleChange.ProposePosition(surfacePoint);
   }
 
-  if (!matTable) {
-    if (buVerboseLevel>2) G4cout << "BU::Apply: !matTable" << G4endl;
+  const auto surf_act = SelectSurfaceAction(aTrack, aStep);
+  if (surf_act == SurfaceAction::Kill)
+  {
+    if (buVerboseLevel>2) G4cout << "BU::Apply: Kill" << G4endl;
     DoSimpleKill(aTrack, aStep, aParticleChange);
-  } else if (electrode && electrode->IsNearElectrode(aStep) ) {
+  }
+  else if (surf_act == SurfaceAction::Electrode)
+  {
     if (buVerboseLevel>2) G4cout << "BU::Apply: absorb at electrode" << G4endl;
     electrode->AbsorbAtElectrode(aTrack, aStep, aParticleChange);
-  } else if (AbsorbTrack(aTrack, aStep)) {    
+  }
+  else if (surf_act == SurfaceAction::Absorb)
+  {
     if (buVerboseLevel>2) G4cout << "BU::Apply: Absorption" << G4endl;
     DoAbsorption(aTrack, aStep, aParticleChange);
-  } else if (MaximumReflections(aTrack)) {
-    if (buVerboseLevel>2) G4cout << "BU::Apply: maxRef" << G4endl;
-    DoFinalReflection(aTrack, aStep, aParticleChange);
-  } else if (ReflectTrack(aTrack, aStep)) {
-    if (buVerboseLevel>2) G4cout << "BU::Apply: Reflection" << G4endl;
-    IncrementReflectionCount(aTrack);
-    DoReflection(aTrack, aStep, aParticleChange);
-  } else {
+  }
+  else if (surf_act == SurfaceAction::Reflect)
+  {
+    if (MaximumReflections(aTrack))
+    {
+      if (buVerboseLevel>2) G4cout << "BU::Apply: maxRef" << G4endl;
+      DoFinalReflection(aTrack, aStep, aParticleChange);
+    }
+    else
+    {
+      if (buVerboseLevel>2) G4cout << "BU::Apply: Reflection" << G4endl;
+      IncrementReflectionCount(aTrack);
+      DoReflection(aTrack, aStep, aParticleChange);
+    }
+  }
+  else if (surf_act == SurfaceAction::Transmit)
+  {
     if (buVerboseLevel>2) G4cout << "BU::Apply: Transmission" << G4endl;
     DoTransmission(aTrack, aStep, aParticleChange);
   }
@@ -844,6 +860,27 @@ G4CMPBoundaryUtils::ApplyBoundaryAction(const G4Track& aTrack,
 void G4CMPBoundaryUtils::IncrementReflectionCount(const G4Track& aTrack) {
   auto trackInfo = G4CMP::GetTrackInfo<G4CMPVTrackInfo>(aTrack);
   trackInfo->IncrementReflectionCount();
+}
+
+SurfaceAction G4CMPBoundaryUtils::SelectSurfaceAction(const G4Track&, const G4Step& aStep) const
+{
+  SurfaceAction act = SurfaceAction::Kill;
+  if (!matTable) return act;
+  if (electrode && electrode->IsNearElectrode(aStep))
+  {
+    act = SurfaceAction::Electrode;
+  }
+  else
+  {
+    const G4double absProb = GetMaterialProperty("absProb");
+    const G4double reflProb = GetMaterialProperty("reflProb");
+    const G4double transProb = 1. - absProb - reflProb;
+    const G4double rand = G4UniformRand();
+    if (rand <= absProb) act = SurfaceAction::Absorb;
+    else if (rand <= absProb + reflProb) act = SurfaceAction::Reflect;
+    else act = SurfaceAction::Transmit;
+  }
+  return act;
 }
 
 // Default conditions for absorption or reflection
