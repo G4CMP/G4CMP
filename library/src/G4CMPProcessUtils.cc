@@ -64,7 +64,7 @@
 // 20251007  Bug fix for G4CMP-497 fix just above.
 // 20260110  G4CMP-567:  Add missing else-IsHole() block in GetKineticEnergy.
 // 20260120  G4CMP-558: Add array dimension in Get*VelocityVector().
-// 20260921  G4CMP-655: Change ProposeNewTouchableHandle to take no argument.
+// 20260921  G4CMP-665: Change ProposeNewTouchableHandle to take no argument.
 
 #include "G4CMPProcessUtils.hh"
 #include "G4CMPDriftElectron.hh"

@@ -13,8 +13,8 @@
 // 20251116 For G4 11, explicitly remove the copy operators to match base.
 // 20251128 Discard touchable contents after updating.
 // 20260212 G4CMP-585 Only discard touchable if it was modified (fix mem leak)
-// 20260901 G4CMP-655: Fix memory leak caused by theTouchableHandle.
-// 20260921 G4CMP-655: Remove G4TouchableHandle to avoid memory leak and seg
+// 20260901 G4CMP-665: Fix memory leak caused by theTouchableHandle.
+// 20260921 G4CMP-665: Remove G4TouchableHandle to avoid memory leak and seg
 //          faults.
 
 #include "G4CMPParticleChangeForPhonon.hh"

@@ -7,7 +7,7 @@
 /// \brief Definition of the G4CMPParticleChangeForQPDiffusion class
 //
 //  20260107  G4CMP-563: Delete copy operations for G4 v11 compatibility.
-//  20260901  G4CMP-655: Remove unnecessary include
+//  20260901  G4CMP-665: Remove unnecessary include
 
 #ifndef G4CMPParticleChangeForQPDiffusion_h
 #define G4CMPParticleChangeForQPDiffusion_h 1
