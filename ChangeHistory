@@ -6,6 +6,7 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-09-24  G4CMP-673 : Fixing surface action selection in BoundaryUtils
 2026-09-22  G4CMP-663 : Phonon example clean-up.
 2026-09-08  G4CMP-517 : Support charge recombination below NTL threshold.
 2026-09-08  G4CMP-515 : Expand charge reflection for both specular and diffuse.
