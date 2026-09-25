@@ -18,25 +18,25 @@
 // 20170710  Look for skin surface (LV) if border surface not found
 // 20170713  Report undefined surfaces only once per job, not a failure
 // 20171215  Change 'CheckStepStatus()' to 'IsBoundaryStep()', add function
-//	     to validate step trajectory to boundary.
+//       to validate step trajectory to boundary.
 // 20201112  Add warning message to base DoTransmission() function (c.f.
-//	     warning message in base DoReflection()).  Pass verbosity through
-//	     to electrode.
+//       warning message in base DoReflection()).  Pass verbosity through
+//       to electrode.
 // 20210923  Use >= in maximum reflections check.
 // 20211207  Replace G4Logical*Surface with G4CMP-specific versions.
 // 20250413  Protect debugging messages with verbosity.
 // 20250415  Suppress error for same PV if starting at boundary.
 // 20250423  Remove error suppression for starting at boundary.
 // 20250927  Increase verbosity for IsGoodBoundary() related messages; add
-//	       overloadable function to kill track when max-reflections.
+//         overloadable function to kill track when max-reflections.
 // 20251028  G4CMP-527:  Use CheckStepBoundary() in ApplyBoundaryAction(),
-//	       add warning (G4cerr) message for points that need adjustment.
+//         add warning (G4cerr) message for points that need adjustment.
 // 20251204  G4CMP-511 -- Create parallel Lambertian reflection code for charges.
 // 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
 // 20251220  G4CMP-219:  IncrementReflectionCount() added to if-ReflectTrack
-//	       block, should be removed from MaximumReflections().  This will
-//	       change random number sequence (due to additional step(s) after
-//	       final reflection).
+//         block, should be removed from MaximumReflections().  This will
+//         change random number sequence (due to additional step(s) after
+//         final reflection).
 // 20260111  G4CMP-567 -- Use geometric tolerance prescribed by G4VSolid
 // 20260112  G4CMP-567 -- Fix G4Exception numbering and function names.
 // 20260121  G4CMP-567 -- Ensure that MaxReflections() handles max<=0 case
@@ -79,7 +79,7 @@ G4CMPBoundaryUtils::G4CMPBoundaryUtils(G4VProcess* process)
   procUtils = dynamic_cast<G4CMPProcessUtils*>(process);
   if (!procUtils) {
     G4Exception("G4CMPBoundaryUtils::G4CMPBoundaryUtils", "Boundary000",
-		FatalException, "Must be passed a G4CMP process!");
+    FatalException, "Must be passed a G4CMP process!");
   }
 }
 
@@ -89,19 +89,19 @@ G4CMPBoundaryUtils::~G4CMPBoundaryUtils() {;}
 
 G4bool G4CMPBoundaryUtils::IsGoodBoundary(const G4Step& aStep) {
   const G4ParticleDefinition* pd = aStep.GetTrack()->GetParticleDefinition();
-  maximumReflections = 
+  maximumReflections =
     (G4CMP::IsChargeCarrier(pd) ? G4CMPConfigManager::GetMaxChargeBounces()
      : G4CMP::IsPhonon(pd) ? G4CMPConfigManager::GetMaxPhononBounces()
      : G4CMP::IsQP(pd) ? G4CMPConfigManager::GetMaxQPBounces() : -1);
 
   if (buVerboseLevel>3) {
     G4cout << procName << "::IsGoodBoundary maxRefl " << maximumReflections
-	   << G4endl;
+     << G4endl;
   }
 
   return (IsBoundaryStep(aStep) &&
-	  GetBoundingVolumes(aStep) &&
-	  GetSurfaceProperty(aStep));
+    GetBoundingVolumes(aStep) &&
+    GetSurfaceProperty(aStep));
 }
 
 G4bool G4CMPBoundaryUtils::IsBoundaryStep(const G4Step& aStep) {
@@ -112,11 +112,11 @@ G4bool G4CMPBoundaryUtils::IsBoundaryStep(const G4Step& aStep) {
     G4cout << "IBS Function Point A | The step status is "
            << aStep.GetPostStepPoint()->GetStepStatus() << G4endl;
   }
-  
+
   if (buVerboseLevel>3) {
     G4cout << procName << "::IsBoundaryStep status "
-	   << aStep.GetPostStepPoint()->GetStepStatus()
-	   << " length " << aStep.GetStepLength() << G4endl;
+     << aStep.GetPostStepPoint()->GetStepStatus()
+     << " length " << aStep.GetStepLength() << G4endl;
   }
 
   // do nothing if the current step is not limited by a volume boundary,
@@ -132,7 +132,7 @@ G4bool G4CMPBoundaryUtils::GetBoundingVolumes(const G4Step& aStep) {
            << G4endl;
   }
 
-  
+
   prePV = aStep.GetPreStepPoint()->GetPhysicalVolume();
   postPV = aStep.GetPostStepPoint()->GetPhysicalVolume();
 
@@ -174,7 +174,7 @@ G4bool G4CMPBoundaryUtils::GetBoundingVolumes(const G4Step& aStep) {
     if (buVerboseLevel > 5) {
       G4cout << "GBV Function Point C | prePV lattice is zero." << G4endl;
     }
-    
+
     //First: if the current (i.e. pre-step, procUtils->GetLattice()) lattice is
     //the same as post-step volume lattice. This occurs, if, for example, the
     //current volume is World/vacuum, and a lattice changeover/update failed
@@ -186,7 +186,7 @@ G4bool G4CMPBoundaryUtils::GetBoundingVolumes(const G4Step& aStep) {
         G4cout << "GBV Function Point D | Current (procUtils) Lattice is "
                << "equal to post-PV lattice." << G4endl;
       }
-      
+
       //If the step length is below tolerance, we need to return false so we
       //don't try to "double-count" the boundary action. The small step sizes
       //occur when the phonon "turns around" on a boundary with a volume that
@@ -223,7 +223,7 @@ G4bool G4CMPBoundaryUtils::GetBoundingVolumes(const G4Step& aStep) {
       return true; //TBD, but set to be consistent with older version
     }
   }
-  
+
   //Second scenario: we DO have a lattice in the pre-step point. In this case,
   //we have two options. The initial step is one in which a phonon from
   //lattice 1 is approaching lattice 2, and has a finite step length. Here the
@@ -234,18 +234,18 @@ G4bool G4CMPBoundaryUtils::GetBoundingVolumes(const G4Step& aStep) {
   //see if you do a transmission or reflection, etc.
   // - For transmission, that's all she wrote: there is no turnaround step,
   //   and the phonon is transferred to the next lattice (see doTransmission
-  //   in the phononBoundaryProcess class).  
+  //   in the phononBoundaryProcess class).
   // - For reflection, there is an additional "infinitesimal" step, in which
   //   lattice 2 becomes the "current" lattice and lattice 1 becomes the "far"
   //   lattice. The same (second) if statement triggers, but now the step
   //   length is tiny, which we can flag. For this step, we don't want to
   //   trigger any of the doTransmission/doReflection logic (as it would be
-  //   "double-counting" that physics), so we return false. 
+  //   "double-counting" that physics), so we return false.
   if (G4LatticeManager::GetLatticeManager()->GetLattice(prePV) != 0 ) {
     if (buVerboseLevel > 5) {
       G4cout << "GBV Function Point H | Current lattice is not zero." << G4endl;
     }
-    
+
     //If the current (i.e. pre-step, procUtils->GetLattice()) lattice is
     //different from the post-step volume lattice, then this is where
     //some important logic must happen.
@@ -263,7 +263,7 @@ G4bool G4CMPBoundaryUtils::GetBoundingVolumes(const G4Step& aStep) {
       //another boundary process action for this turnaround step -- that has
       //already been done
       if (aStep.GetStepLength() <= stepLengthTolerance) {
-        if (buVerboseLevel > 5) {	  
+        if (buVerboseLevel > 5) {
           G4cout << "GBV Function Point J | Step length, "
                  << aStep.GetStepLength()*1.0e9
                  << " (mult x 1e9), is below step length tolerance." << G4endl;
@@ -304,55 +304,55 @@ G4bool G4CMPBoundaryUtils::GetBoundingVolumes(const G4Step& aStep) {
            << "\n PostStep momentum direction"<< aStep.GetPostStepPoint()->GetMomentumDirection()
            << G4endl;
   }
-  
+
   return true;
 }
 
 G4bool G4CMPBoundaryUtils::GetSurfaceProperty(const G4Step& aStep) {
-  surfProp = nullptr;				// Avoid stale cache!
+  surfProp = nullptr;       // Avoid stale cache!
   matTable = nullptr;
   electrode = nullptr;
-  
+
   // Look for specific surface between pre- and post-step points first
   G4LogicalSurface* surface =
     G4CMPLogicalBorderSurface::GetSurface(prePV, postPV);
-  if (!surface) {			// Then for generic pre-setp surface
+  if (!surface) {     // Then for generic pre-setp surface
     surface = G4CMPLogicalSkinSurface::GetSurface(prePV->GetLogicalVolume());
   }
 
-  BoundaryPV bound(prePV,postPV);	// Avoid multiple temporaries below
+  BoundaryPV bound(prePV,postPV); // Avoid multiple temporaries below
 
   // Report missing surface once per boundary
   if ((hasSurface.find(bound) == hasSurface.end())
       && !surface) {
     G4Exception((procName+"::GetSurfaceProperty").c_str(), "Boundary001",
                 JustWarning, ("No surface defined between " +
-			      prePV->GetName() + " and " +
-			      postPV->GetName()).c_str());
+            prePV->GetName() + " and " +
+            postPV->GetName()).c_str());
   }
 
-  hasSurface[bound] = false;		// Remember this boundary
+  hasSurface[bound] = false;    // Remember this boundary
 
-  if (!surface) return true;			// Can handle undefined surfaces
+  if (!surface) return true;      // Can handle undefined surfaces
 
   G4SurfaceProperty* baseSP = surface->GetSurfaceProperty();
   if (!baseSP) {
     G4Exception((procName+"::GetSurfaceProperty").c_str(),
-		"Boundary002", JustWarning,
-		("No surface property defined for "+surface->GetName()).c_str()
-		);
-    return true;			// Can handle undefined surfaces
+    "Boundary002", JustWarning,
+    ("No surface property defined for "+surface->GetName()).c_str()
+    );
+    return true;      // Can handle undefined surfaces
   }
 
   // Verify that surface property is G4CMP compatible
   surfProp = dynamic_cast<G4CMPSurfaceProperty*>(baseSP);
   if (!surfProp) {
     G4Exception((procName+"::GetSurfaceProperty").c_str(),
-		"Boundary003", EventMustBeAborted,
-		"Surface property is not G4CMP compatible");
-    return false;			// Badly defined, not undefined!
+    "Boundary003", EventMustBeAborted,
+    "Surface property is not G4CMP compatible");
+    return false;     // Badly defined, not undefined!
   }
-    
+
   // Extract particle-specific information for later
   const G4ParticleDefinition* pd = aStep.GetTrack()->GetParticleDefinition();
   if (G4CMP::IsChargeCarrier(pd)) {
@@ -369,10 +369,10 @@ G4bool G4CMPBoundaryUtils::GetSurfaceProperty(const G4Step& aStep) {
   }
   if (!matTable) {
     G4Exception((procName+"::GetSurfaceProperty").c_str(),
-		"Boundary004", JustWarning,
-		(pd->GetParticleName()+" has no surface properties").c_str()
-		);
-    return true;			// Can handle undefined surfaces
+    "Boundary004", JustWarning,
+    (pd->GetParticleName()+" has no surface properties").c_str()
+    );
+    return true;      // Can handle undefined surfaces
   }
 
   // Initialize electrode for current track
@@ -381,7 +381,7 @@ G4bool G4CMPBoundaryUtils::GetSurfaceProperty(const G4Step& aStep) {
     electrode->LoadDataForTrack(aStep.GetTrack());
   }
 
-  hasSurface[bound] = true;		// Record good surface defined
+  hasSurface[bound] = true;   // Record good surface defined
 
   return true;
 }
@@ -398,7 +398,7 @@ G4bool G4CMPBoundaryUtils::GetSurfaceProperty(const G4Step& aStep) {
 //    that is currently done there.
 
 G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
-					     G4ThreeVector& surfPoint) {
+               G4ThreeVector& surfPoint) {
   //Debugging
   if (buVerboseLevel > 5) {
     G4cout << "---------- G4CMPBoundaryUtils::CheckStepBoundary ----------"
@@ -408,8 +408,8 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
   G4StepPoint* preP = aStep.GetPreStepPoint();
   G4StepPoint* postP = aStep.GetPostStepPoint();
   GetBoundingVolumes(aStep);
-  surfPoint = postP->GetPosition();		// Correct if valid boundary
-  
+  surfPoint = postP->GetPosition();   // Correct if valid boundary
+
   // Get pre- and post-step positions in pre-step volume coordinates
   G4VSolid* preSolid = prePV->GetLogicalVolume()->GetSolid();
   G4ThreeVector prePos = preP->GetPosition();
@@ -430,7 +430,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
     G4cout << "CSB Function Point B | surfPoint, post-rotation = "
            << surfPoint << G4endl;
   }
-  
+
   //Get pre- and post-step positions in post-step volume coordinates (for
   //good measure)
   G4VSolid* postSolid = postPV->GetLogicalVolume()->GetSolid();
@@ -452,7 +452,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
     G4cout << "CSB Function Point D | surfPoint, post-rotation = "
            << surfPoint << G4endl;
   }
-  
+
   if (buVerboseLevel>2) {
     G4cout << "CheckStepBoundary: in prePV (" << prePV->GetName() << ") frame"
            << "\n  preStep @ " << prePos << "\n postStep @ " << postPos
@@ -466,7 +466,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
   //mother and daughter volumes, since we may have nested geometry.
   EInside postIn = preSolid->Inside(postPos);
   EInside postIn_postPV = postSolid->Inside(postPos_postPV);
-  
+
   if (buVerboseLevel>2) {
     G4cout << "\n Is postStep location on surface of preStep Volume? "
            << (postIn==kOutside ? "outside" :
@@ -483,7 +483,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
   if (postIn == kSurface || postIn_postPV == kSurface) {
     return true;
   }
-  
+
   //Otherwise, we need a bit of logic to handle the adjustment, since it's not
   //obvious which boundary it should be targeting. This is really nasty. Can
   //we do the following logicking in a way that's more transparent? Basically,
@@ -494,8 +494,8 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
   //Unfortunately this gives a nested loop with 2^3 potential options, which
   //is gross and error-prone. Is there a nicer way to get this information so
   //we can do the adjustments if we're not on a surface?
-  
-  
+
+
   //-------------------------------------------------------------------------
   //If we're outside the pre-step volume, check whether we're inside or outside the post-step volume
   if (postIn == kOutside) {
@@ -507,7 +507,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
                    prePV->GetName() +
                    " and the post-step volume, " +
                    postPV->GetName()).c_str());
-      
+
       return false;
     }
 
@@ -527,10 +527,10 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
       G4double post_distToOut = postSolid->DistanceToOut(postPos_postPV);
 
       if (buVerboseLevel>5) {
-	G4cout << "CSB Function Point E |  pre_distToIn " << pre_distToIn/nm
-	       << " nm" << G4endl
-	       << "CSB Function Point E | post_distToOut " << post_distToOut/nm
-	       << " nm" << G4endl;
+  G4cout << "CSB Function Point E |  pre_distToIn " << pre_distToIn/nm
+         << " nm" << G4endl
+         << "CSB Function Point E | post_distToOut " << post_distToOut/nm
+         << " nm" << G4endl;
       }
 
       //------------
@@ -542,19 +542,19 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
         //distanceToIn with the right direction.
         //The post-step point is outside the pre-PV and "along" points out.
         //Need to subtract off outward vector (hence minus sign)
-        G4ThreeVector along = (postPos-prePos).unit(); // Trajectory direction	
+        G4ThreeVector along = (postPos-prePos).unit(); // Trajectory direction
         surfacePoint = postPos
-          - fabs(preSolid->DistanceToIn(postPos,-along)) * along; 
+          - fabs(preSolid->DistanceToIn(postPos,-along)) * along;
 
-	if (buVerboseLevel>5) {
-	  G4double distAlong = preSolid->DistanceToIn(postPos,along);
-	  G4double antiAlong = preSolid->DistanceToIn(postPos,-along);
+  if (buVerboseLevel>5) {
+    G4double distAlong = preSolid->DistanceToIn(postPos,along);
+    G4double antiAlong = preSolid->DistanceToIn(postPos,-along);
 
-	  G4cout << "CSB Function Point E' | postPos distAlong "
-		 << distAlong/nm << " nm" << G4endl
-		 << "CSB Function Point E' | postPos antiAlong "
-		 << antiAlong/nm << " nm" << G4endl;
-	}
+    G4cout << "CSB Function Point E' | postPos distAlong "
+     << distAlong/nm << " nm" << G4endl
+     << "CSB Function Point E' | postPos antiAlong "
+     << antiAlong/nm << " nm" << G4endl;
+  }
 
         //Check that the surface point is good (now that we've modified it,
         //it's in the local coordinate system)
@@ -578,10 +578,10 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
         //We're inside the post-PV volume and the along vector points out. Add
         //a positive along vector to get to extrenal boundary
         G4ThreeVector along
-          = (postPos_postPV-prePos_postPV).unit(); // Trajectory direction	
+          = (postPos_postPV-prePos_postPV).unit(); // Trajectory direction
         surfacePoint = postPos_postPV
-          + fabs(postSolid->DistanceToOut(postPos_postPV,along)) * along; 
-	
+          + fabs(postSolid->DistanceToOut(postPos_postPV,along)) * along;
+
         //Check that the surface point is good (now that we've modified it,
         //it's in the local coordinate system)
         if (postSolid->Inside(surfacePoint) != kSurface) {
@@ -594,7 +594,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
 
         //Rotate back to global using rotation of the post-step volume
         G4CMP::RotateToGlobalPosition(postP->GetTouchable(), surfacePoint);
-      }	
+      }
     }
 
     //-------------------------------
@@ -628,15 +628,15 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
       G4double post_distToIn = postSolid->DistanceToIn(postPos_postPV);
 
       if (buVerboseLevel>5) {
-	G4cout << "CSB Function Point F |  pre_distToOut " << pre_distToOut/nm
-	       << " nm" << G4endl
-	       << "CSB Function Point F | post_distToIn " << post_distToIn/nm
-	       << " nm" << G4endl;
+  G4cout << "CSB Function Point F |  pre_distToOut " << pre_distToOut/nm
+         << " nm" << G4endl
+         << "CSB Function Point F | post_distToIn " << post_distToIn/nm
+         << " nm" << G4endl;
       }
 
       //------------
       //If we're closer to the pre-step volume, then put the point on that
-      //surface      
+      //surface
       if (fabs(pre_distToOut) < fabs(post_distToIn)) {
 
         //Put point onto the pre-step volume surface
@@ -646,7 +646,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
         G4ThreeVector along = (postPos-prePos).unit();
         //^ Trajectory direction points in the direction of the step
         surfacePoint = postPos
-          - fabs(preSolid->DistanceToOut(postPos,along)) * along; 
+          - fabs(preSolid->DistanceToOut(postPos,along)) * along;
 
         //Check that the surface point is good (now that we've modified it,
         //it's in the local coordinate system)
@@ -660,7 +660,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
 
         //Rotate back to global using rotation of the post-step volume
         G4CMP::RotateToGlobalPosition(preP->GetTouchable(), surfacePoint);
-	
+
       }
       //------------
       //If we're closer to the post-step volume, then put the point on that
@@ -671,9 +671,9 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
         //We're outside the post-step volume and want to get closer to its
         //surface. Along step points inward. Need a plus.
         G4ThreeVector along
-          = (postPos_postPV-prePos_postPV).unit(); // Trajectory direction	
+          = (postPos_postPV-prePos_postPV).unit(); // Trajectory direction
         surfacePoint = postPos_postPV
-          + fabs(postSolid->DistanceToIn(postPos_postPV,along)) * along; 
+          + fabs(postSolid->DistanceToIn(postPos_postPV,along)) * along;
 
         //Check that the surface point is good (now that we've modified it,
         //it's in the local coordinate system)
@@ -687,7 +687,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
 
         //Rotate back to global using rotation of the post-step volume
         G4CMP::RotateToGlobalPosition(postP->GetTouchable(), surfacePoint);
-      }	
+      }
     }
 
     //-------------------------------
@@ -702,10 +702,10 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
       G4double post_distToOut = postSolid->DistanceToOut(postPos_postPV);
 
       if (buVerboseLevel>5) {
-	G4cout << "CSB Function Point G |  pre_distToOut " << pre_distToOut/nm
-	       << " nm" << G4endl
-	       << "CSB Function Point G | post_distToOut " << post_distToOut/nm
-	       << " nm" << G4endl;
+  G4cout << "CSB Function Point G |  pre_distToOut " << pre_distToOut/nm
+         << " nm" << G4endl
+         << "CSB Function Point G | post_distToOut " << post_distToOut/nm
+         << " nm" << G4endl;
       }
 
       //Here, the post-PV is internal to the pre-PV
@@ -716,7 +716,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
         //volume, and want to land on the post-step surface. Along step points
         //inward. Need a minus to get to post-step surface.
         G4ThreeVector along
-          = (postPos_postPV-prePos_postPV).unit(); // Trajectory direction	
+          = (postPos_postPV-prePos_postPV).unit(); // Trajectory direction
         surfacePoint = postPos_postPV
           - fabs(postSolid->DistanceToOut(postPos_postPV,along)) * along;
 
@@ -729,21 +729,21 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
                       );
           return false;
         }
-        
+
         //Rotate back to global using rotation of the post-step volume
         G4CMP::RotateToGlobalPosition(postP->GetTouchable(), surfacePoint);
       }
       //Here, the pre-PV is internal to the post-PV
       else {
-	
+
         //Put the point on the pre-PV volume, since it's smaller/internal
         //We're inside the pre-step volume, which is inside the post-step
         //volume, and want to land on the pre-step surface. Along step points
         //outward. Need a plus to get to pre-step surface.
         G4ThreeVector along
-          = (postPos-prePos).unit(); // Trajectory direction	
+          = (postPos-prePos).unit(); // Trajectory direction
         surfacePoint = postPos
-          + fabs(preSolid->DistanceToOut(postPos,along)) * along; 
+          + fabs(preSolid->DistanceToOut(postPos,along)) * along;
 
         //Check that the surface point is good (now that we've modified it,
         //it's in the local coordinate system)
@@ -774,7 +774,7 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
 
   //---------------------------------------------------------------------------
   //Otherwise, we have an invalid thing?
-  else {    
+  else {
     G4Exception((procName+"::CheckStepBoundary").c_str(),
                 "Boundary014", EventMustBeAborted,
                 "Somehow the post-step point for this step is neither inside,"
@@ -782,8 +782,8 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
                 );
     return false;
   }
-  
-	    
+
+
   //If we reach this point, we can return true
   return true;
 }
@@ -792,50 +792,73 @@ G4bool G4CMPBoundaryUtils::CheckStepBoundary(const G4Step& aStep,
 
 // Implement PostStepDoIt() in a common way; processes should call through
 
-void 
-G4CMPBoundaryUtils::ApplyBoundaryAction(const G4Track& aTrack,
-					const G4Step& aStep,
-					G4ParticleChange& aParticleChange) {
+void G4CMPBoundaryUtils::ApplyBoundaryAction(
+    const G4Track& aTrack, const G4Step& aStep,
+    G4ParticleChange& aParticleChange) {
   aParticleChange.Initialize(aTrack);
 
-  //Debugging
+  // Debugging
   if (buVerboseLevel > 5) {
     G4cout << "---------- G4CMPBoundaryUtils::ApplyBoundaryAction ----------\n"
-	   << "Track momentum direction: " << aTrack.GetMomentumDirection()
+           << "Track momentum direction: " << aTrack.GetMomentumDirection()
            << G4endl;
   }
 
   // Check whether step has proper boundary-stopped geometry
   surfacePoint = aStep.GetPostStepPoint()->GetPosition();
   if (!CheckStepBoundary(aStep, surfacePoint)) {
-    if (buVerboseLevel>2)
+    if (buVerboseLevel > 2)
       G4cout << " Boundary point moved to " << surfacePoint << G4endl;
 
     aParticleChange.ProposePosition(surfacePoint);
   }
 
-  if (!matTable) {
-    if (buVerboseLevel>2) G4cout << "BU::Apply: !matTable" << G4endl;
+  const auto surf_act = SelectSurfaceAction(aTrack, aStep);
+  if (surf_act == SurfaceAction::Kill) {
+    if (buVerboseLevel > 2) G4cout << "BU::Apply: Kill" << G4endl;
     DoSimpleKill(aTrack, aStep, aParticleChange);
-  } else if (electrode && electrode->IsNearElectrode(aStep) ) {
-    if (buVerboseLevel>2) G4cout << "BU::Apply: absorb at electrode" << G4endl;
+  } else if (surf_act == SurfaceAction::Electrode) {
+    if (buVerboseLevel > 2)
+      G4cout << "BU::Apply: absorb at electrode" << G4endl;
     electrode->AbsorbAtElectrode(aTrack, aStep, aParticleChange);
-  } else if (AbsorbTrack(aTrack, aStep)) {    
-    if (buVerboseLevel>2) G4cout << "BU::Apply: Absorption" << G4endl;
+  } else if (surf_act == SurfaceAction::Absorb) {
+    if (buVerboseLevel > 2) G4cout << "BU::Apply: Absorption" << G4endl;
     DoAbsorption(aTrack, aStep, aParticleChange);
-  } else if (MaximumReflections(aTrack)) {
-    if (buVerboseLevel>2) G4cout << "BU::Apply: maxRef" << G4endl;
-    DoFinalReflection(aTrack, aStep, aParticleChange);
-  } else if (ReflectTrack(aTrack, aStep)) {
-    if (buVerboseLevel>2) G4cout << "BU::Apply: Reflection" << G4endl;
-    IncrementReflectionCount(aTrack);
-    DoReflection(aTrack, aStep, aParticleChange);
-  } else {
-    if (buVerboseLevel>2) G4cout << "BU::Apply: Transmission" << G4endl;
+  } else if (surf_act == SurfaceAction::Reflect) {
+    if (MaximumReflections(aTrack)) {
+      if (buVerboseLevel > 2) G4cout << "BU::Apply: maxRef" << G4endl;
+      DoFinalReflection(aTrack, aStep, aParticleChange);
+    } else {
+      if (buVerboseLevel > 2) G4cout << "BU::Apply: Reflection" << G4endl;
+      IncrementReflectionCount(aTrack);
+      DoReflection(aTrack, aStep, aParticleChange);
+    }
+  } else if (surf_act == SurfaceAction::Transmit) {
+    if (buVerboseLevel > 2) G4cout << "BU::Apply: Transmission" << G4endl;
     DoTransmission(aTrack, aStep, aParticleChange);
   }
 }
 
+SurfaceAction G4CMPBoundaryUtils::SelectSurfaceAction(
+const G4Track&, const G4Step& aStep) const {
+  SurfaceAction act = SurfaceAction::Kill;
+  if (!matTable) return act;
+  if (electrode && electrode->IsNearElectrode(aStep)) {
+    act = SurfaceAction::Electrode;
+  } else {
+    const G4double absProb = GetMaterialProperty("absProb");
+    const G4double reflProb = GetMaterialProperty("reflProb");
+    const G4double transProb = 1. - absProb - reflProb;
+    const G4double rand = G4UniformRand();
+    if (rand <= absProb)
+      act = SurfaceAction::Absorb;
+    else if (rand <= absProb + reflProb)
+      act = SurfaceAction::Reflect;
+    else
+      act = SurfaceAction::Transmit;
+  }
+  return act;
+}
 
 //Dedicated function for doing this. I don't think this should exist in the
 //"check" functions, since it will run even if there is no reflection at a
@@ -853,7 +876,7 @@ G4bool G4CMPBoundaryUtils::AbsorbTrack(const G4Track&, const G4Step&) const {
   G4double rand = G4UniformRand();
   if (buVerboseLevel>2) {
     G4cout << " AbsorbTrack: absProb " << absProb << " rand " << rand
-	   << (rand<=absProb?" (pass)":" (fail)") << G4endl;
+     << (rand<=absProb?" (pass)":" (fail)") << G4endl;
   }
 
   return (rand <= absProb);
@@ -864,7 +887,7 @@ G4bool G4CMPBoundaryUtils::ReflectTrack(const G4Track& /*aTrack*/, const G4Step&
   G4double rand = G4UniformRand();
   if (buVerboseLevel>2) {
     G4cout << " ReflectTrack: reflProb " << reflProb << " rand " << rand
-	   << (rand<=reflProb?" (pass)":" (fail)") << G4endl;
+     << (rand<=reflProb?" (pass)":" (fail)") << G4endl;
   }
 
   return (rand <= reflProb);
@@ -874,7 +897,7 @@ G4bool G4CMPBoundaryUtils::MaximumReflections(const G4Track& aTrack) const {
   auto trackInfo = G4CMP::GetTrackInfo<G4CMPVTrackInfo>(aTrack);
   if (buVerboseLevel>2) {
     G4cout << " MaximumReflections: max " << maximumReflections
-	   << " vs. " << trackInfo->ReflectionCount() << G4endl;
+     << " vs. " << trackInfo->ReflectionCount() << G4endl;
   }
 
   return (maximumReflections <= 0 ||
@@ -884,8 +907,8 @@ G4bool G4CMPBoundaryUtils::MaximumReflections(const G4Track& aTrack) const {
 // Simple absorption deposits non-ionizing energy
 
 void G4CMPBoundaryUtils::DoAbsorption(const G4Track& aTrack,
-				      const G4Step& /*aStep*/,
-				      G4ParticleChange& aParticleChange) {
+              const G4Step& /*aStep*/,
+              G4ParticleChange& aParticleChange) {
   if (buVerboseLevel>1) G4cout << procName << ": Track absorbed" << G4endl;
 
   G4double ekin = procUtils->GetKineticEnergy(aTrack);
@@ -895,48 +918,48 @@ void G4CMPBoundaryUtils::DoAbsorption(const G4Track& aTrack,
 }
 
 void G4CMPBoundaryUtils::DoReflection(const G4Track& aTrack,
-				      const G4Step& aStep,
-				      G4ParticleChange& aParticleChange) {
+              const G4Step& aStep,
+              G4ParticleChange& aParticleChange) {
   G4cerr << procName << " WARNING!  G4CMPBoundaryUtils::DoReflection invoked."
-	 << "\n Process should have overridden this version!"
-	 << "  Results may be non-physical" << G4endl;
+   << "\n Process should have overridden this version!"
+   << "  Results may be non-physical" << G4endl;
 
   if (buVerboseLevel>1) {
     G4cout << procName << ": Track reflected "
            << G4CMP::GetTrackInfo<G4CMPVTrackInfo>(aTrack)->ReflectionCount()
-	   << " times." << G4endl;
+     << " times." << G4endl;
   }
 
   G4ThreeVector pdir = aTrack.GetMomentumDirection();
   G4ThreeVector norm = G4CMP::GetSurfaceNormal(aStep,pdir); // Outward normal
-  pdir -= 2.*(pdir.dot(norm))*norm;			// Reverse along normal
+  pdir -= 2.*(pdir.dot(norm))*norm;     // Reverse along normal
 
   aParticleChange.ProposeMomentumDirection(pdir);
 }
 
 // Subclass may/should override this to take alternative action
 void G4CMPBoundaryUtils::DoFinalReflection(const G4Track& aTrack,
-					   const G4Step& aStep,
-					   G4ParticleChange& aParticleChange) {
+             const G4Step& aStep,
+             G4ParticleChange& aParticleChange) {
   DoSimpleKill(aTrack, aStep, aParticleChange);
 }
 
 void G4CMPBoundaryUtils::DoSimpleKill(const G4Track& /*aTrack*/,
-				      const G4Step& /*aStep*/,
-				      G4ParticleChange& aParticleChange) {
+              const G4Step& /*aStep*/,
+              G4ParticleChange& aParticleChange) {
   if (buVerboseLevel>1) G4cout << procName << ": Track killed" << G4endl;
 
   aParticleChange.ProposeTrackStatus(fStopAndKill);
 }
 
-void 
+void
 G4CMPBoundaryUtils::DoTransmission(const G4Track& aTrack,
-				   const G4Step& aStep,
-				   G4ParticleChange& aParticleChange) {
+           const G4Step& aStep,
+           G4ParticleChange& aParticleChange) {
 
   G4cerr << procName << " WARNING!  G4CMPBoundaryUtils::DoTransmission invoked."
-	 << "\n Process should have overridden this version!"
-	 << "  Track will be killed as leaving volume" << G4endl;
+   << "\n Process should have overridden this version!"
+   << "  Track will be killed as leaving volume" << G4endl;
 
   if (buVerboseLevel>1)
     G4cout << procName << ": Track transmission requested" << G4endl;

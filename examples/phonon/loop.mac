@@ -1,1 +1,5 @@
-/vis/viewer/set/viewpointThetaPhi {theta} 20 deg # theta phi unit
+#/vis/ogl/set/startTime {startTime} ms 0.003 ms
+#/control/multiply phi {startTime} 0
+/control/multiply theta {startTime} 1
+/vis/viewer/set/viewpointThetaPhi {theta} 20 deg
+#/vis/ogl/export
