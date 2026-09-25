@@ -25,6 +25,8 @@
 //
 //
 
+// 20260925  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
+
 //Includes (basic)
 #include "G4RunManager.hh"
 #include "G4NistManager.hh"
@@ -91,10 +93,10 @@ ConstructPad(G4RotationMatrix * pRot,const G4ThreeVector & tLate,
   G4LatticeLogical* AlLogical = logicalLatticeContainer["Aluminum"];
   
   //Set up the aluminum visualization
-  G4VisAttributes* aluminum_vis= new G4VisAttributes(G4Colour(0.0,1.0,1.0,0.5));
-  aluminum_vis->SetVisibility(true);
-  G4VisAttributes* air_vis= new G4VisAttributes(G4Colour(0.5,0.5,0.5,0.5));
-  air_vis->SetVisibility(true);
+  G4VisAttributes aluminum_vis(G4Colour(0.0,1.0,1.0,0.5));
+  aluminum_vis.SetVisibility(true);
+  G4VisAttributes air_vis(G4Colour(0.5,0.5,0.5,0.5));
+  air_vis.SetVisibility(true);
   
 
   //--------------------------------------------------------------------------

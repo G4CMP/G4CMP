@@ -23,12 +23,13 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// 20260109  M. Kelsey -- G4CMP-569: Remove unused local variables.
-// 20260128  M. Kelsey -- G4CMP-494: Use G4VisAtt::GetInvisible().
-
 /// \file ValidationResonatorAssembly.cc
 /// \brief Class implementing the resonator assembly geometry from a bunch
 ///  of little pieces
+
+// 20260109  M. Kelsey -- G4CMP-569: Remove unused local variables.
+// 20260128  M. Kelsey -- G4CMP-494: Use G4VisAtt::GetInvisible().
+// 20260925  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
 
 #include "ValidationResonatorAssembly.hh"
 #include "G4CMPLogicalBorderSurface.hh"
@@ -114,10 +115,10 @@ ConstructResonatorAssembly(G4RotationMatrix * pRot,
 
   
   //Set up the aluminum visualization
-  G4VisAttributes* aluminum_vis= new G4VisAttributes(G4Colour(0.0,1.0,1.0,0.5));
-  aluminum_vis->SetVisibility(true);
-  G4VisAttributes* air_vis= new G4VisAttributes(G4Colour(0.5,0.5,0.5,0.5));
-  air_vis->SetVisibility(true);
+  G4VisAttributes aluminum_vis(G4Colour(0.0,1.0,1.0,0.5));
+  aluminum_vis.SetVisibility(true);
+  G4VisAttributes air_vis(G4Colour(0.5,0.5,0.5,0.5));
+  air_vis.SetVisibility(true);
   
 
   //Confirm no issues with borders being present
@@ -221,10 +222,10 @@ MakeShuntCapacitorCross(G4String pName, G4LogicalVolume * log_baseAlLayer,
   G4LatticeLogical* AlLogical = logicalLatticeContainer["Aluminum"];
   
   //Set up the aluminum visualization
-  G4VisAttributes* aluminum_vis= new G4VisAttributes(G4Colour(0.0,1.0,1.0,0.5));
-  aluminum_vis->SetVisibility(true);
-  G4VisAttributes* air_vis= new G4VisAttributes(G4Colour(0.5,0.5,0.5,0.5));
-  air_vis->SetVisibility(true);
+  G4VisAttributes aluminum_vis(G4Colour(0.0,1.0,1.0,0.5));
+  aluminum_vis.SetVisibility(true);
+  G4VisAttributes air_vis(G4Colour(0.5,0.5,0.5,0.5));
+  air_vis.SetVisibility(true);
 
   //Confirm no issues with borders being present
   if (borderContainer.count("AlVac") == 0) {
@@ -345,10 +346,10 @@ MakeResonatorLine(G4String pName,
   G4LatticeLogical* AlLogical = logicalLatticeContainer["Aluminum"];
   
   //Set up the aluminum visualization
-  G4VisAttributes* aluminum_vis= new G4VisAttributes(G4Colour(0.0,1.0,1.0,0.5));
-  aluminum_vis->SetVisibility(true);
-  G4VisAttributes* air_vis= new G4VisAttributes(G4Colour(0.5,0.5,0.5,0.5));
-  air_vis->SetVisibility(true);
+  G4VisAttributes aluminum_vis(G4Colour(0.0,1.0,1.0,0.5));
+  aluminum_vis.SetVisibility(true);
+  G4VisAttributes air_vis(G4Colour(0.5,0.5,0.5,0.5));
+  air_vis.SetVisibility(true);
 
   //Confirm no issues with borders being present
   if (borderContainer.count("AlAl") == 0) {

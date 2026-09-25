@@ -27,6 +27,8 @@
 /// \file B1DetectorConstruction.cc
 /// \brief Implementation of the B1DetectorConstruction class
 
+//  20260925  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
+
 #include "B1DetectorConstruction.hh"
 
 #include "G4RunManager.hh"
@@ -304,10 +306,10 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
     fSiLogical = logicSi;
 
   //Visualization
-  G4VisAttributes* boxVisAtt1= new G4VisAttributes(G4Colour(0.2,1,0.2,.3)); //Ar Box (Solid green)
-  G4VisAttributes* boxVisAtt2= new G4VisAttributes(G4Colour(0,0,1,0.3)); //World (transparent blue)
-      // G4VisAttributes* boxVisAtt3= new G4VisAttributes(G4Colour(0,0,1,0.3)); //
-  G4VisAttributes* boxVisAtt4= new G4VisAttributes(G4Colour(1,0.1,0.1,0.3));
+  G4VisAttributes boxVisAtt1(G4Colour(0.2,1,0.2,.3)); //Air Box (Solid green)
+  G4VisAttributes boxVisAtt2(G4Colour(0,0,1,0.3)); //World (transparent blue)
+      // G4VisAttributes(G4Colour(0,0,1,0.3)); //
+  G4VisAttributes boxVisAtt4(G4Colour(1,0.1,0.1,0.3));
   logicSi ->SetVisAttributes(boxVisAtt1);
   logicCu ->SetVisAttributes(boxVisAtt4);
   //    logicAl ->SetVisAttributes(boxVisAtt3);

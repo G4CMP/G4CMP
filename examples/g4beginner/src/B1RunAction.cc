@@ -27,6 +27,8 @@
 /// \file B1RunAction.cc
 /// \brief Implementation of the B1RunAction class
 
+// 20260925  G4CMP-676 -- Fix end of run seg fault (dtor is empty now).
+
 #include "B1RunAction.hh"
 #include "B1PrimaryGeneratorAction.hh"
 #include "B1DetectorConstruction.hh"
@@ -61,7 +63,7 @@ B1RunAction::B1RunAction()
   new G4UnitDefinition("nanogray" , "nanoGy"  , "Dose", nanogray);
   new G4UnitDefinition("picogray" , "picoGy"  , "Dose", picogray); 
 
-  auto analysisManager = G4AnalysisManager::Instance();
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   analysisManager->SetVerboseLevel(1);
   analysisManager->SetNtupleMerging(true);
 
@@ -98,12 +100,6 @@ B1RunAction::B1RunAction()
   analysisManager->FinishNtuple(2);
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-B1RunAction::~B1RunAction()
-{
-  delete G4AnalysisManager::Instance();
-}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

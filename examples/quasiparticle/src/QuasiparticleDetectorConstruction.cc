@@ -9,6 +9,7 @@
 // $Id: a2016d29cc7d1e75482bfc623a533d20b60390da $
 //
 // 20260109  M. Kelsey -- G4CMP-569:  Address compiler warnings
+// 20260925  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
 
 #include "QuasiparticleDetectorConstruction.hh"
 #include "QuasiparticleDetectorParameters.hh"
@@ -232,10 +233,9 @@ void QuasiparticleDetectorConstruction::SetupGeometry() {
     new G4PVPlacement(0,siliconChipTranslate,log_siliconChip,"SiliconChip",
                       worldLogical,false,0,checkOverlaps);
     
-  G4VisAttributes* siliconChipVisAtt =
-    new G4VisAttributes(G4Colour(0.5,0.5,0.5));
+  G4VisAttributes siliconChipVisAtt(G4Colour(0.5,0.5,0.5));
 
-  siliconChipVisAtt->SetVisibility(true);
+  siliconChipVisAtt.SetVisibility(true);
   log_siliconChip->SetVisAttributes(siliconChipVisAtt);
 
   // G4LatticePhysical assigns G4LatticeLogical a physical orientation
@@ -303,9 +303,8 @@ void QuasiparticleDetectorConstruction::SetupGeometry() {
       new G4PVPlacement(0,groundPlaneTranslate,log_groundPlane,"GroundPlane", 
                         worldLogical,false,0,checkOverlaps);
       
-    G4VisAttributes* groundPlaneVisAtt =
-      new G4VisAttributes(G4Colour(0.0,1.0,1.0,0.5));
-    groundPlaneVisAtt->SetVisibility(true);
+    G4VisAttributes groundPlaneVisAtt(G4Colour(0.0,1.0,1.0,0.5));
+    groundPlaneVisAtt.SetVisibility(true);
     log_groundPlane->SetVisAttributes(groundPlaneVisAtt);  
     
     G4LatticePhysical* phys_groundPlaneLattice =

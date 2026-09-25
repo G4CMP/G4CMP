@@ -17,6 +17,7 @@
 // 20260827  G4CMP-663 -- Add new function ConstructSDandField().
 //              Move sensitive detector attachment code in there.
 //              Remove data member electrodeSensitivity.
+// 20260925  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
 
 #include "PhononDetectorConstruction.hh"
 #include "PhononSensitivity.hh"
@@ -219,8 +220,8 @@ void PhononDetectorConstruction::SetupGeometry() {
   // Visualization attributes
   //
   worldLogical->SetVisAttributes(G4VisAttributes::GetInvisible());
-  G4VisAttributes* simpleBoxVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-  simpleBoxVisAtt->SetVisibility(true);
+  G4VisAttributes simpleBoxVisAtt(G4Colour(1.0,1.0,1.0));
+  simpleBoxVisAtt.SetVisibility(true);
   fGermaniumLogical->SetVisAttributes(simpleBoxVisAtt);
   fAluminumLogical->SetVisAttributes(simpleBoxVisAtt);
 }

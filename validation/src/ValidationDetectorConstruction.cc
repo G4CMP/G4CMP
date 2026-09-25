@@ -8,6 +8,7 @@
 //
 //  20260109  M. Kelsey -- G4CMP-569: Remove unused local variables.
 //  20260128  M. Kelsey -- G4CMP-494: Use G4VisAtt::GetInvisible().
+//  20260925  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
 
 #include "ValidationDetectorConstruction.hh"
 #include "G4CMPLogicalBorderSurface.hh"
@@ -461,34 +462,29 @@ void ValidationDetectorConstruction::SetupGeometry() {
     
     //Set visualization attributes
     worldLogical->SetVisAttributes(G4VisAttributes::GetInvisible());
-    G4VisAttributes* vacuumBoxVisAtt
-      = new G4VisAttributes(G4Colour(1.0,1.0,1.0));
+    G4VisAttributes vacuumBoxVisAtt(G4Colour(1.0,1.0,1.0));
     
-    vacuumBoxVisAtt->SetVisibility(true);    
-    G4VisAttributes* siliconBoxVisAtt
-      = new G4VisAttributes(G4Colour(0.5,0.5,0.5,0.5));
+    vacuumBoxVisAtt.SetVisibility(true);
+    G4VisAttributes siliconBoxVisAtt(G4Colour(0.5,0.5,0.5,0.5));
     
     siliconLogical->SetVisAttributes(siliconBoxVisAtt);
-    siliconBoxVisAtt->SetVisibility(true);    
-    G4VisAttributes* germaniumBoxVisAtt
-      = new G4VisAttributes(G4Colour(0.5,0.5,0.5,0.5));
+    siliconBoxVisAtt.SetVisibility(true);
+    G4VisAttributes germaniumBoxVisAtt(G4Colour(0.5,0.5,0.5,0.5));
     
     germaniumLogical->SetVisAttributes(germaniumBoxVisAtt);
-    germaniumBoxVisAtt->SetVisibility(true);    
-    G4VisAttributes* aluminumBoxVisAtt
-      = new G4VisAttributes(G4Colour(1.0,0.0,1.0,0.5));
+    germaniumBoxVisAtt.SetVisibility(true);
+    G4VisAttributes aluminumBoxVisAtt(G4Colour(1.0,0.0,1.0,0.5));
     
     aluminum1Logical->SetVisAttributes(aluminumBoxVisAtt);
     aluminum2Logical->SetVisAttributes(aluminumBoxVisAtt);
     aluminum3Logical->SetVisAttributes(aluminumBoxVisAtt);
-    aluminumBoxVisAtt->SetVisibility(true);    
-    G4VisAttributes* niobiumBoxVisAtt
-      = new G4VisAttributes(G4Colour(0.0,1.0,1.0,0.5));
+    aluminumBoxVisAtt.SetVisibility(true);
+    G4VisAttributes niobiumBoxVisAtt(G4Colour(0.0,1.0,1.0,0.5));
     
     niobiumAForAluminum2Logical->SetVisAttributes(niobiumBoxVisAtt);
     niobiumBForAluminum2Logical->SetVisAttributes(niobiumBoxVisAtt);
     niobiumForAluminum3Logical->SetVisAttributes(niobiumBoxVisAtt);
-    niobiumBoxVisAtt->SetVisibility(true);
+    niobiumBoxVisAtt.SetVisibility(true);
     
     
   } else if (geometryID == 2) {
@@ -610,9 +606,8 @@ void ValidationDetectorConstruction::SetupGeometry() {
       = new G4PVPlacement(0,siliconChipTranslate,log_siliconChip,"SiliconChip",
                           worldLogical,false,0,checkOverlaps);
     
-    G4VisAttributes* siliconChipVisAtt
-      = new G4VisAttributes(G4Colour(0.5,0.5,0.5));
-    siliconChipVisAtt->SetVisibility(true);
+    G4VisAttributes siliconChipVisAtt(G4Colour(0.5,0.5,0.5));
+    siliconChipVisAtt.SetVisibility(true);
     log_siliconChip->SetVisAttributes(siliconChipVisAtt);
 
 
@@ -676,9 +671,8 @@ void ValidationDetectorConstruction::SetupGeometry() {
         = new G4PVPlacement(0,groundPlaneTranslate,log_groundPlane,
                             "GroundPlane",worldLogical,false,0,checkOverlaps);
       
-      G4VisAttributes* groundPlaneVisAtt
-        = new G4VisAttributes(G4Colour(0.0,1.0,1.0,0.5));
-      groundPlaneVisAtt->SetVisibility(true);
+      G4VisAttributes groundPlaneVisAtt(G4Colour(0.0,1.0,1.0,0.5));
+      groundPlaneVisAtt.SetVisibility(true);
       log_groundPlane->SetVisAttributes(groundPlaneVisAtt);
 
       G4LatticePhysical* phys_groundPlaneLattice

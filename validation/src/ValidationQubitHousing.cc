@@ -23,11 +23,12 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// 20260109  M. Kelsey -- G4CMP-569: Remove unused local variables.
-
 /// \file ValidationPad.cc
 /// \brief Class implementation for the qubit housing in the validation
 ///		example.
+
+// 20260109  M. Kelsey -- G4CMP-569: Remove unused local variables.
+// 20260925  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
 
 #include "ValidationQubitHousing.hh"
 #include "ValidationDetectorParameters.hh"
@@ -306,9 +307,8 @@ ConstructQubitHousing(G4RotationMatrix * pRot,const G4ThreeVector & tLate,
 
 
 
-  G4VisAttributes* simpleBoxVisAtt
-    = new G4VisAttributes(G4Colour(1.0,0.647,0.0,0.9));
-  simpleBoxVisAtt->SetVisibility(true);
+  G4VisAttributes simpleBoxVisAtt(G4Colour(1.0,0.647,0.0,0.9));
+  simpleBoxVisAtt.SetVisibility(true);
   log_QubitHousing->SetVisAttributes(simpleBoxVisAtt);
   
   // Lastly, make the logical volume and physical volume accessible data members

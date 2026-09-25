@@ -12,6 +12,7 @@
 // 20251117  G4CMP-541 -- For G4 v11, replace ::Invisible w/::GetInvisible()
 // 20260112  G4CMP-514 -- Modify G4CMPSurfaceProperty for specular reflection.
 // 20260513  G4CMP-604 -- Add surface property UI commands to charge example.
+// 20260925  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
 
 #include "ChargeDetectorConstruction.hh"
 #include "ChargeConfigManager.hh"
@@ -250,8 +251,8 @@ void ChargeDetectorConstruction::SetupGeometry()
 
   // Visualization attributes
   worldLogical->SetVisAttributes(G4VisAttributes::GetInvisible());
-  G4VisAttributes* simpleBoxVisAtt = new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-  simpleBoxVisAtt->SetVisibility(true);
+  G4VisAttributes simpleBoxVisAtt(G4Colour(1.0,1.0,1.0));
+  simpleBoxVisAtt.SetVisibility(true);
   germaniumLogical->SetVisAttributes(simpleBoxVisAtt);
   aluminumLogical->SetVisAttributes(simpleBoxVisAtt);
 }

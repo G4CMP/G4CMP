@@ -1,6 +1,7 @@
 G4CMP phonon example Change History
 ===================================
 
+2026-09-25  G4CMP-676 : Fix local lost pointers from "new G4VisAttributes".
 2026-09-14  G4CMP-663 : Phonon example clean-up.
 2026-08-17  G4CMP-642 : Inherit C++ version from G4CMP build.
 2026-08-16  G4CMP-657 : Fix typo in specCoeffs vector.

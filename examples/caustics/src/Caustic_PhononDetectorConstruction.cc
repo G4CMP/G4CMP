@@ -7,6 +7,7 @@
 // 20250101 Michael Kelsey -- Instantiate SD in ConstructSDandField();
 //	      remove many unnecessary blank lines.
 // 20251117 G4CMP-541 -- For G4 v11, replace ::Invisible w/::GetInvisible()
+// 20260925 G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
 
 #include "Caustic_PhononDetectorConstruction.hh"
 #include "Caustic_PhononSensitivity.hh"
@@ -164,9 +165,9 @@ void Caustic_PhononDetectorConstruction::Caustic_SetupGeometry()
 
   // Visualization attributes
   worldLogical->SetVisAttributes(G4VisAttributes::GetInvisible());
-  G4VisAttributes* simpleBoxVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-  G4VisAttributes* simpleDetectorAtt= new G4VisAttributes(G4Colour(0.0,0.0,1.0));
-  simpleBoxVisAtt->SetVisibility(true);
+  G4VisAttributes simpleBoxVisAtt(G4Colour(1.0,1.0,1.0));
+  G4VisAttributes simpleDetectorAtt(G4Colour(0.0,0.0,1.0));
+  simpleBoxVisAtt.SetVisibility(true);
   SubstrateLogical1->SetVisAttributes(simpleBoxVisAtt);
   BolometerLogical->SetVisAttributes(simpleDetectorAtt);
 }

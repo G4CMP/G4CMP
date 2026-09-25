@@ -27,6 +27,8 @@
 /// \file B1RunAction.hh
 /// \brief Definition of the B1RunAction class
 
+// 20260925  G4CMP-676 -- Fix end of run seg fault (dtor is empty now).
+
 #ifndef B1RunAction_h
 #define B1RunAction_h 1
 
@@ -45,7 +47,7 @@ class B1RunAction : public G4UserRunAction
 {
   public:
     B1RunAction();
-    virtual ~B1RunAction();
+    virtual ~B1RunAction() {;}
 
     // virtual G4Run* GenerateRun();
     virtual void BeginOfRunAction(const G4Run*);

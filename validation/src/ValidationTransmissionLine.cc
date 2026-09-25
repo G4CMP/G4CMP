@@ -23,12 +23,13 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// 20260109  M. Kelsey -- G4CMP-569: Remove unused local variables.
-// 20260128  M. Kelsey -- G4CMP-494: Replace .contains() w/G4StrUtil.
-
 /// \file ValidationTransmissionLine.cc
 /// \brief Class implementation for the transmission line in the validation
 ///		example.
+
+// 20260109  M. Kelsey -- G4CMP-569: Remove unused local variables.
+// 20260128  M. Kelsey -- G4CMP-494: Replace .contains() w/G4StrUtil.
+// 20260925  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
 
 //Includes (basic)
 #include "ValidationTransmissionLine.hh"
@@ -112,10 +113,10 @@ ConstructTransmissionLine(G4RotationMatrix * pRot,const G4ThreeVector & tLate,
   G4LatticeLogical* AlLogical = logicalLatticeContainer["Aluminum"];
   
   //Set up the aluminum visualization
-  G4VisAttributes* aluminum_vis= new G4VisAttributes(G4Colour(0.0,1.0,1.0,0.5));
-  aluminum_vis->SetVisibility(true);
-  G4VisAttributes* air_vis= new G4VisAttributes(G4Colour(0.5,0.5,0.5,0.5));
-  air_vis->SetVisibility(true);
+  G4VisAttributes aluminum_vis(G4Colour(0.0,1.0,1.0,0.5));
+  aluminum_vis.SetVisibility(true);
+  G4VisAttributes air_vis(G4Colour(0.5,0.5,0.5,0.5));
+  air_vis.SetVisibility(true);
   
 
   
