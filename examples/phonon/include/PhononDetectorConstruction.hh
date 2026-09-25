@@ -3,13 +3,13 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
-/// \file PhononDetectorConstruction.hh
+/// \file exoticphysics/phonon/include/PhononDetectorConstruction.hh
 /// \brief Definition of the PhononDetectorConstruction class
 //
+// $Id: 4c06153e9ea08f2a90b22c53e5c39bde4b847c07 $
+//
 // 20221006  M. Kelsey -- Remove "IsField" flag, unnecessary with phonons.
-//              Add material properties for aluminum phonon sensors
-// 20260827  G4CMP-663 -- Add new function ConstructSDandField().
-//              Remove data member electrodeSensitivity.
+//		Add material properties for aluminum phonon sensors
 
 #ifndef PhononDetectorConstruction_h
 #define PhononDetectorConstruction_h 1
@@ -29,7 +29,6 @@ public:
   
 public:
   virtual G4VPhysicalVolume* Construct();
-  virtual void ConstructSDandField();
   
 private:
   void DefineMaterials();
@@ -45,8 +44,10 @@ private:
   G4CMPSurfaceProperty* topSurfProp;
   G4CMPSurfaceProperty* botSurfProp;
   G4CMPSurfaceProperty* wallSurfProp;
+  G4CMPElectrodeSensitivity* electrodeSensitivity;
 
-  G4bool fConstructed;          // Flag to not re-recreate surface properties
+  G4bool fConstructed;		// Flag to not re-recreate surface properties
 };
 
-#endif  /* PhononDetectorConstruction_h */
+#endif
+

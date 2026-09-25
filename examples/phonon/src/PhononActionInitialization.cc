@@ -3,11 +3,7 @@
  * License version 3 or later. See G4CMP/LICENSE for the full license. *
 \***********************************************************************/
 
-/// \file PhononActionInitialization.cc
-/// \brief Implementation of the PhononActionInitialization class.
-///
-/// Creates PrimaryGenerator and StackingAction instances, following Geant4
-/// requirements.  Additional UserAction classes should be added as needed.
+// $Id: 539f524339ae53ad098a07cfa3bebd07784d23dd $
 
 #include "PhononActionInitialization.hh"
 #include "PhononPrimaryGeneratorAction.hh"

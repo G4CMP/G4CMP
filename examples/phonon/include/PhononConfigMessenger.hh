@@ -6,10 +6,11 @@
 #ifndef PhononConfigMessenger_hh
 #define PhononConfigMessenger_hh 1
 
-/// \file PhononConfigMessenger.hh
-/// \brief Definition of the PhononConfigMessenger class.
-///
-/// Macro command definitions to set user configuration in PhononConfigManager.
+// $Id$
+// File:  PhononConfigMessenger.hh
+//
+// Description:	Macro command defitions to set user configuration in
+//		PhononConfigManager.
 //
 // 20170816  Michael Kelsey
 
@@ -32,7 +33,7 @@ private:
   G4UIcmdWithAString* hitsCmd;
 
 private:
-  PhononConfigMessenger(const PhononConfigMessenger&);  // Copying is forbidden
+  PhononConfigMessenger(const PhononConfigMessenger&);	// Copying is forbidden
   PhononConfigMessenger& operator=(const PhononConfigMessenger&);
 };
 
