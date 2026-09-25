@@ -102,7 +102,7 @@ G4CMPConfigManager::G4CMPConfigManager()
     pBounces(getenv("G4CMP_PHON_BOUNCES")?atoi(getenv("G4CMP_PHON_BOUNCES")):100),
     qpBounces(getenv("G4CMP_QP_BOUNCES")?atoi(getenv("G4CMP_QP_BOUNCES")):100),
     ehMaxSteps(getenv("G4CMP_EH_MAX_STEPS")?atoi(getenv("G4CMP_EH_MAX_STEPS")):-1),
-    maxLukePhonons(getenv("G4MP_MAX_LUKE")?atoi(getenv("G4MP_MAX_LUKE")):-1),
+    maxLukePhonons(getenv("G4CMP_MAX_LUKE")?atoi(getenv("G4CMP_MAX_LUKE")):-1),
     pSurfStepLimit(getenv("G4CMP_PHON_SURFLIMIT")?strtod(getenv("G4CMP_PHON_SURFLIMIT"),0):-1),
     safetyNSweep2D(getenv("G4CMP_SAFETYNSWEEP2D")?atoi(getenv("G4CMP_SAFETYNSWEEP2D")):140),
     LatticeDir(getenv("G4LATTICEDATA")?getenv("G4LATTICEDATA"):"./CrystalMaps"),
