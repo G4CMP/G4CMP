@@ -1088,7 +1088,6 @@ G4ThreeVector G4CMP::ApplySurfaceClearance(const G4VTouchable* touch,
 
   G4double near_surf_dist = solid->DistanceToOut(pos, norm);
   const G4double volume_thickness = near_surf_dist + solid->DistanceToOut(pos, -norm);
-  // this block isn't triggering even when I would have expected it to...
   if (volume_thickness < clearance * 4.)
   {
     pos -= norm*volume_thickness/2.;
