@@ -14,6 +14,7 @@
 // 20220216  Add "stepID" to provide full identification.  Add printout.
 // 20220821  G4CMP-308 -- Define step-info container to avoid needing G4Step
 // 20220914  G4CMP-322 -- Add explicit Accumulator::operator=()
+// 20260809  G4CMP-653 -- Compute NIEL for step using registered model
 
 #ifndef G4CMPStepAccumulator_hh
 #define G4CMPStepAccumulator_hh 1
@@ -51,6 +52,9 @@ public:
 
   // Dump content for diagnostics
   virtual void Print(std::ostream& os) const;
+
+  // Compute NIEL for particle and material, to supersede G4Step value
+  G4double ComputeNIEL(const G4Step& step) const;
 
 public:
   G4int trackID;		  // Track ID for sanity checking in Add()

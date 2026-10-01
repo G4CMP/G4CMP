@@ -23,6 +23,7 @@
 //	       boundary surfaces.
 // 20240721  G4CMP-649 -- In SurfaceClearance(), create touchable from
 //		position if not available
+// 20240808  G4CMP-653 -- Compute NIEL for nuclear recoil steps.
 
 #include "G4CMPHitMerging.hh"
 #include "G4CMPConfigManager.hh"

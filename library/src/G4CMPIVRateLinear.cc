@@ -16,6 +16,7 @@
 //	       Multiplication in HV transformation
 // 20260618  G4CMP-636 -- Protect Threshold() from empty IVEnergy list.
 // 20260618  G4CMP-628 -- Skip IV scattering (MFP=0) for single valley case.
+// 20260811  G4CMP-643 -- E-field does not need HV transformation.
 
 #include "G4CMPIVRateLinear.hh"
 #include "G4CMPFieldUtils.hh"
@@ -46,11 +47,6 @@ G4double G4CMPIVRateLinear::Rate(const G4Track& aTrack) const {
 	   << fieldVector.cosTheta() << " z" << G4endl;
   }
 
-  // Find E-field in HV space: in lattice frame, rotate into valley,
-  // then apply HV tansform.
-  // NOTE:  Separate steps to avoid matrix-matrix multiplications
-  fieldVector = theLattice->EllipsoidalToSphericalTranformation(GetValleyIndex(aTrack), fieldVector);
-  // fieldVector *= sqrt(theLattice->GetElectronMass()/(electron_mass_c2/c_squared));
   fieldVector /= volt/cm;			// Strip units for MFP below
   if (verboseLevel > 1) {
     G4cout << " in HV space " << fieldVector << " ("
