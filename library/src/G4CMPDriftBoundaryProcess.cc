@@ -336,10 +336,21 @@ void G4CMPDriftBoundaryProcess::DoTransmission(
   G4ThreeVector p = G4CMPProcessUtils::GetLocalMomentum(aTrack);
   auto* lattice = LM->GetLattice(post_vol);
   G4int new_valley = G4CMP::FindNearestValley(lattice, p);
-  // make sure the new valley isn't out of range
-  const G4int nv = lattice->NumberOfValleys();
-  if (new_valley >= nv || new_valley < -1) new_valley = G4UniformRand() * nv;
-  p = lattice->RotateFromValley(new_valley, p);
-  G4CMPProcessUtils::RotateToGlobalDirection(p);
-  aParticleChange.ProposeMomentumDirection(p.unit());
+  // G4CMPVDriftProcess::FillParticleChange currently uses the old lattice,
+  // not the new one. If theLattice is updated before we get here, we can
+  // use this signature.
+  // G4CMPVDriftProcess::FillParticleChange(new_valley, p);
+  // If the lattice is NOT updated before we get here, we need to convert
+  // from momentum to energy before we can pass to the base
+  // FillParticleChange signature. We can just copy the G4CMPVDriftProcess
+  // signature but using the updated lattice.
+  G4double energy = 0.;
+  if (IsElectron()){
+    energy = lattice->MapPtoEkin(new_valley, GetLocalDirection(p));
+  } else {
+    // Geant4 returns the mass in energy units, with the c_squared already included
+    G4double massc2 = GetCurrentTrack()->GetDynamicParticle()->GetMass();
+    energy = sqrt(p.mag2() + massc2*massc2) - massc2;
+  }
+  G4CMPVDriftProcess::FillParticleChange(new_valley, energy, p);
 }
