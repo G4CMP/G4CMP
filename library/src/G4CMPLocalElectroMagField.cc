@@ -131,11 +131,11 @@ GetPotential(const G4double Point[4]) const {
       G4cout << "LocalEMField::GetPotential pos " << pos << " e0 " << e0
 	     << " toVpos " << toVpos << " toVneg " << toVneg
 	     << " emag " << evec.mag()
-	     << " : V = " << 0.5*(toVpos-toVneg)*evec.mag()
+	     << " : V = " << 0.5*(toVneg-toVpos)*evec.mag()
 	     << G4endl;
     }
 
-    return 0.5*(toVpos-toVneg)*evec.mag();	// [-V/2,V/2] interpolation
+    return 0.5*(toVneg-toVpos)*evec.mag();	// [-V/2,V/2] interpolation
   }
 
   // Arbitrary field configurations must be integrated
