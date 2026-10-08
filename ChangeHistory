@@ -6,6 +6,7 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-10-08  G4CMP-612 : Add Fermi energy calculation to G4LatticePhysical.
 2026-10-01  G4CMP-647 : Institute base class for phonon-qp interactions.
 2026-09-29  G4CMP-674 : GetBiasThroughPosition short-circuit for zero field.
 2026-09-29  G4CMP-665 : Fix memory leak in G4CMPParticleChangeForPhonon.
