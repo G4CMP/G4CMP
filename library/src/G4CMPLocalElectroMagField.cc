@@ -10,7 +10,7 @@
 //
 // 20180711  Provide interpolator to return potential at point in volume,
 //	       assuming "mid-plane" is at ground.
-// 20261008  Swap the uniform-field GetPotential subtraction so E = −∇V.
+// 20261008  Swap the uniform-field GetPotential subtraction so E = −grad V.
 
 #include "G4CMPLocalElectroMagField.hh"
 #include "G4CMPMeshElectricField.hh"
