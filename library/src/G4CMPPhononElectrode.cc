@@ -44,6 +44,7 @@
 // 20260212  G4CMP-581 -- Skip invalid phonons (null pointers), report skips.
 // 20260218  G4CMP-588 -- Fix change above by presenting secondary buffer.
 // 20260710  G4CMP-647 -- Replace G4CMPKaplanQP member with G4CMPVKaplanQP
+// 20261006  G4CMP-681 -- Remove kaplanqp initialization in ctor
 
 #include "G4CMPPhononElectrode.hh"
 #include "G4CMPGeometryUtils.hh"
@@ -71,7 +72,7 @@
 
 G4CMPPhononElectrode::G4CMPPhononElectrode()
   : G4CMPVElectrodePattern(),
-    kaplanQP(new G4CMPKaplanQP(theSurfaceTable, verboseLevel))
+    kaplanQP(0)
 {}
 
 G4CMPPhononElectrode::~G4CMPPhononElectrode() {
