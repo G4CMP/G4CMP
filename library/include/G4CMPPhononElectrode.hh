@@ -60,16 +60,16 @@ public:
   G4CMPPhononElectrode& operator=(const G4CMPPhononElectrode&) = default;
   G4CMPPhononElectrode& operator=(G4CMPPhononElectrode&&) = default;
 
-  virtual G4CMPVElectrodePattern* Clone() const {
+  virtual G4CMPVElectrodePattern* Clone() const override {
     return new G4CMPPhononElectrode(*this);
   }
 
   // Assumes that user has configured a border surface only at sensor pads
-  virtual G4bool IsNearElectrode(const G4Step&) const;
+  virtual G4bool IsNearElectrode(const G4Step&) const override;
 
   virtual void AbsorbAtElectrode(const G4Track&,
                                  const G4Step&,
-                                 G4ParticleChange&) const;
+                                 G4ParticleChange&) const override;
 
   // define phonon-qp interaction mechanism via string identifier;
   // G4CMPKaplanQP default
