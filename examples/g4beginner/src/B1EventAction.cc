@@ -39,7 +39,12 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
+#if G4VERSION_NUMBER >= 1100
 #include "G4AnalysisManager.hh"
+#else // G4VERSION_NUMBER >= 1100
+#include "g4root.hh"
+// #include "g4csv.hh"
+#endif // G4VERSION_NUMBER >= 1100
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

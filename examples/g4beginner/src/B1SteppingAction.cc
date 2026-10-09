@@ -37,7 +37,12 @@
 #include "G4LogicalVolume.hh"
 
 // Start new for application
+#if G4VERSION_NUMBER >= 1100
 #include "G4AnalysisManager.hh"
+#else // G4VERSION_NUMBER >= 1100
+#include "g4root.hh"
+// #include "g4csv.hh"
+#endif // G4VERSION_NUMBER >= 1100
 #include "G4Track.hh"
 #include "G4StepPoint.hh"
 #include "G4ParticleDefinition.hh"
