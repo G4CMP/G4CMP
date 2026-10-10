@@ -13,6 +13,7 @@
 // 20241024  I. Hernandez -- Add an if statement to include a rhombohedral Crystal group
 // 20241024  I. Hernandez -- Fixing the function FillOrthorhombic()
 // 20251116  M. Kelsey -- Replace G4String.index() with string.find().
+// 20261010  G4CMP-675 (M. Kelsey) -- Hexagonal should not have Cij[4][5] filled
 
 #include "G4CMPCrystalGroup.hh"
 #include "G4PhysicalConstants.hh"
@@ -85,7 +86,7 @@ G4bool G4CMPCrystalGroup::FillElReduced(G4double Cij[6][6]) const {
 										 [[fallthrough]];
   case cubic:        return FillCubic(Cij); break;
   case hexagonal:    Cij[0][5] = 0.;			// Tetragonal, C16=0
-                     Cij[4][5] = 0.5*(Cij[0][0] - Cij[0][1]);
+                     Cij[5][5] = 0.5*(Cij[0][0] - Cij[0][1]);	// C66
 										 [[fallthrough]];
   case tetragonal:   return FillTetragonal(Cij); break;
   case orthorhombic: return FillOrthorhombic(Cij); break;
