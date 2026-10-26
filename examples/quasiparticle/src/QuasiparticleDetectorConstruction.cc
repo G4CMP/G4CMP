@@ -9,7 +9,8 @@
 // $Id: a2016d29cc7d1e75482bfc623a533d20b60390da $
 //
 // 20260109  M. Kelsey -- G4CMP-569:  Address compiler warnings
-// 20260925  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
+// 20261026  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
+//              Remove unnecessary G4UserLimits since it has no effect.
 
 #include "QuasiparticleDetectorConstruction.hh"
 #include "QuasiparticleDetectorParameters.hh"
@@ -39,7 +40,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4TransportationManager.hh"
 #include "G4Tubs.hh"
-#include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 
 
@@ -106,7 +106,6 @@ void QuasiparticleDetectorConstruction::SetupGeometry() {
   G4VSolid* worldSolid = new G4Box("World",16.*cm,16.*cm,16.*cm);
   G4LogicalVolume* worldLogical =
     new G4LogicalVolume(worldSolid,fLiquidHelium,"World");
-  worldLogical->SetUserLimits(new G4UserLimits(100*mm, DBL_MAX, DBL_MAX, 0, 0));
   fWorldPhys = new G4PVPlacement(0,G4ThreeVector(),worldLogical,"World",0,
                                  false,0);
 

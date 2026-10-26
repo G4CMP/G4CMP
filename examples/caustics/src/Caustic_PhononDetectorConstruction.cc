@@ -5,9 +5,10 @@
 
 // 20241024 Israel Hernandez -- IIT, QSC and Fermilab
 // 20250101 Michael Kelsey -- Instantiate SD in ConstructSDandField();
-//	      remove many unnecessary blank lines.
+//            remove many unnecessary blank lines.
 // 20251117 G4CMP-541 -- For G4 v11, replace ::Invisible w/::GetInvisible()
-// 20260925 G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
+// 20261026 G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
+//            Remove unnecessary G4UserLimits since it has no effect.
 
 #include "Caustic_PhononDetectorConstruction.hh"
 #include "Caustic_PhononSensitivity.hh"
@@ -33,7 +34,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4TransportationManager.hh"
 #include "G4Tubs.hh"
-#include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "Caustic_PhononConfigManager.hh"
 
@@ -115,7 +115,6 @@ void Caustic_PhononDetectorConstruction::Caustic_SetupGeometry()
   G4VSolid* worldSolid = new G4Box("World",6.*cm,6.*cm,6.*cm);
   G4LogicalVolume* worldLogical =
     new G4LogicalVolume(worldSolid,fLiquidHelium,"World");
-  worldLogical->SetUserLimits(new G4UserLimits(10*mm, DBL_MAX, DBL_MAX, 0, 0));
   fWorldPhys = new G4PVPlacement(0,G4ThreeVector(),worldLogical,"World",0,
                                  false,0);
 

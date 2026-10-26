@@ -47,6 +47,7 @@
 //              flips
 // 20240712 M. Kelsey -- Protect minimum MFP calculation for zero field.
 // 20250616 M. Kelsey -- Rename MFP variables to be more descriptive.
+// 20261026 G4CMP-676 -- Remove unnecessary include of G4UserLimits.
 
 #include "G4CMPTimeStepper.hh"
 #include "G4CMPConfigManager.hh"
@@ -69,7 +70,6 @@
 #include "G4ProcessVector.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Track.hh"
-#include "G4UserLimits.hh"
 #include "G4VParticleChange.hh"
 #include "G4VPhysicalVolume.hh"
 #include <math.h>

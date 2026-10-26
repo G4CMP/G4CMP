@@ -8,7 +8,8 @@
 //
 //  20260109  M. Kelsey -- G4CMP-569: Remove unused local variables.
 //  20260128  M. Kelsey -- G4CMP-494: Use G4VisAtt::GetInvisible().
-//  20260925  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
+//  20261026  G4CMP-676 -- Fix local lost pointers from "new G4VisAttributes".
+//            Remove unnecessary G4UserLimits since it has no effect.
 
 #include "ValidationDetectorConstruction.hh"
 #include "G4CMPLogicalBorderSurface.hh"
@@ -39,7 +40,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4TransportationManager.hh"
 #include "G4Tubs.hh"
-#include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 
 using namespace ValidationDetectorParameters;
@@ -115,7 +115,6 @@ void ValidationDetectorConstruction::SetupGeometry() {
   G4VSolid* worldSolid = new G4Box("World",16.*cm,16.*cm,16.*cm);
   G4LogicalVolume* worldLogical =
     new G4LogicalVolume(worldSolid,fLiquidHelium,"World");
-  worldLogical->SetUserLimits(new G4UserLimits(100*mm, DBL_MAX, DBL_MAX, 0, 0));
   fWorldPhys = new G4PVPlacement(0,G4ThreeVector(),worldLogical,"World",0,
                                  false,0);
 
