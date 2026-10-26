@@ -6,6 +6,20 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-10-21  G4CMP-675 : Fix reduced stress tensor for hexagonal crystals
+2026-10-14  G4CMP-685 : Eliminate some unused local variables in QP example.
+2026-10-14  G4CMP-684 : Remove obsolete G4PhononTrackMap.hh before G4 11.5.
+2026-10-09  G4CMP-618 : Pull default track class. from stack mgr for G4 11.2+.
+2026-10-09  G4CMP-645 : Add version checks to g4beginner analysis manager use.
+2026-10-09  G4CMP-630 : Making g4beginner analysis config thread-local.
+
+2026-10-09  g4cmp-V10-06-00  Improve charge reflection/recombination; bug fixes.
+2026-10-09  G4CMP-600 : Check geometry dimensions against surface clearance.
+2026-10-08  G4CMP-682 : Swap uniform-field GetPotential so E=−grad V.
+2026-10-06  G4CMP-681 : Remove KaplanQP initialization in PhononElectrode ctor
+2026-10-01  G4CMP-647 : Institute base class for phonon-qp interactions.
+2026-09-29  G4CMP-674 : GetBiasThroughPosition short-circuit for zero field.
+2026-09-29  G4CMP-665 : Fix memory leak in G4CMPParticleChangeForPhonon.
 2026-09-22  G4CMP-663 : Phonon example clean-up.
 2026-09-08  G4CMP-517 : Support charge recombination below NTL threshold.
 2026-09-08  G4CMP-515 : Expand charge reflection for both specular and diffuse.
@@ -53,7 +67,7 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
                         non G4CMP carrier and holes.
 2026-05-18  G4CMP-598 : Make G4CMPEnergyPartition respect nParticlesMinimum
 2026-05-06  G4CMP-592 : Replace FatalExceptions in QPDiffusion with warnings
-2026-04-28  G4CMP-496 : Test for zero energy before generating charge pairs.
+2026-04-28  G4CMP-596 : Test for zero energy before generating charge pairs.
 2026-04-28  G4CMP-599 : Add track ID and name to G4CMPTrackLimiter output.
 2026-04-22  G4CMP-597 : Make fileCmd optional and provide default value.
 
