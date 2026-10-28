@@ -8,6 +8,7 @@
 //
 // $Id$
 //
+// 20261028  G4CMP-690 -- Propagating phonon track weight to QP secondaries.
 
 #include "G4CMPSCPairBreakingProcess.hh"
 #include "G4CMPBogoliubovQP.hh"
@@ -196,6 +197,7 @@ GenerateQPPair(std::pair<G4double,G4double> QPEnergies, const G4Track& aTrack,
   }
 
   //Finally, create the secondaries and return
+  aParticleChange.ProposeWeight(aTrack.GetWeight());
   aParticleChange.SetNumberOfSecondaries(2);
   aParticleChange.AddSecondary(sec2);
   aParticleChange.AddSecondary(sec1);
