@@ -476,11 +476,11 @@ SphericalToEllipsoidalTranformation(G4int iv, const G4ThreeVector& v) const {
 
 // Fermi energy calculations
 G4double G4LatticePhysical::GetElectronDOS() const {
-  return fLattice->GetElectronDOS(GetTemperature());
+  return fLattice->GetElectronDOS();
 }
 
 G4double G4LatticePhysical::GetHoleDOS() const {
-  return fLattice->GetHoleDOS(GetTemperature());
+  return fLattice->GetHoleDOS();
 }
 
 G4double G4LatticePhysical::GetFermiEnergy() const {
