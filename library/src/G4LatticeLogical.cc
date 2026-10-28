@@ -1215,25 +1215,15 @@ void G4LatticeLogical::CheckLatticeForSCCompleteness() const {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 // Fermi energy calculations
-G4double G4LatticeLogical::GetElectronDOS(const G4double& temperature) const {
-  G4double edos = 0.;
-  G4double temp = temperature;
-  if (temperature <= 0.) temp = G4CMPConfigManager::GetTemperature();
-  const G4double meff = GetElectronDOSMass() / CLHEP::c_squared;
-  const G4double num = 2. * pi * meff * k_Boltzmann * temp;
-  const G4double paren = num / (CLHEP::h_Planck * CLHEP::h_Planck);
-  edos = 2. * std::sqrt(paren * paren * paren);
+G4double G4LatticeLogical::GetElectronDOS() const {
+  const G4double meff = GetElectronDOSMass();
+  G4double edos = meff / (pi * CLHEP::h_Planck * CLHEP::h_Planck);
   return edos;
 }
 
-G4double G4LatticeLogical::GetHoleDOS(const G4double& temperature) const {
-  G4double hdos = 0.;
-  G4double temp = temperature;
-  if (temperature <= 0.) temp = G4CMPConfigManager::GetTemperature();
-  const G4double meff = GetElectronDOSMass() / CLHEP::c_squared;
-  const G4double num = 2. * pi * meff * k_Boltzmann * temp;
-  const G4double paren = num / (CLHEP::h_Planck * CLHEP::h_Planck);
-  hdos = 2. * std::sqrt(paren * paren * paren);
+G4double G4LatticeLogical::GetHoleDOS() const {
+  const G4double meff = GetHoleMass() * GetElectronDOSMass() / mElectron;
+  G4double hdos = meff / (pi * CLHEP::h_Planck * CLHEP::h_Planck);
   return hdos;
 }
 
@@ -1242,8 +1232,8 @@ G4double G4LatticeLogical::GetFermiEnergy(const G4double& temperature) const {
   G4double ef = 0.;
   G4double temp = temperature;
   if (temperature <= 0.) temp = G4CMPConfigManager::GetTemperature();
-  const G4double edos = GetElectronDOS(temp);
-  const G4double hdos = GetHoleDOS(temp);
+  const G4double edos = GetElectronDOS();
+  const G4double hdos = GetHoleDOS();
   if (edos <= 0. || hdos <= 0.) return ef;
   const G4double kT = k_Boltzmann * temp;
   const G4double term1 = GetBandGapEnergy() / 2.;

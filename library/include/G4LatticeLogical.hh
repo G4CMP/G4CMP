@@ -294,8 +294,10 @@ public:
   }
 
   // Fermi energy calculations
-  G4double GetElectronDOS(const G4double& temperature) const;
-  G4double GetHoleDOS(const G4double& temperature) const;
+  // https://web.eecs.umich.edu/~fredty/public_html/EECS320_SP12/DOS_Derivation.pdf
+  // no energy/temperature dependence -- use 2D DOS
+  G4double GetElectronDOS() const;
+  G4double GetHoleDOS() const;
 
   // https://lampz.tugraz.at/~hadley/psd/weblectures/Ef_intrinsic/index.php
   G4double GetFermiEnergy(const G4double& temperature) const;
