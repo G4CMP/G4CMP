@@ -29,6 +29,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(G4CMP_CXX_STANDARD ${CMAKE_CXX_STANDARD} CACHE STRING
    "C++ version used for building G4CMP")
 
+# Set compiler options to print all kinds of warnings
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall)
+endif()
+
 #----------------------------------------------------------------------------
 # RPATH stuff
 #

@@ -37,6 +37,11 @@ endif()
 message(STATUS "Found G4CMP: ${G4CMP_VERSION}")
 message(STATUS "Setting CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}")
 
+# Set compiler options to print all kinds of warnings
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall)
+endif()
+
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
