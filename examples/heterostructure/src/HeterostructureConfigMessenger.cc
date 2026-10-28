@@ -12,7 +12,10 @@
 
 #include "HeterostructureConfigMessenger.hh"
 #include "HeterostructureConfigManager.hh"
+#include "G4UIcmdWithADouble.hh"
+#include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWithAString.hh"
+#include "G4UIdirectory.hh"
 
 
 // Constructor and destructor
@@ -20,6 +23,8 @@
 HeterostructureConfigMessenger::HeterostructureConfigMessenger(HeterostructureConfigManager* mgr)
   : G4UImessenger("/g4cmp/", "User configuration for G4CMP Heterostructure example"),
     theManager(mgr), hitsCmd(0) {
+  geomTopDirectory = new G4UIdirectory("/geometry/top/");
+  geomBotDirectory = new G4UIdirectory("/geometry/bottom/");
   hitsCmd = CreateCommand<G4UIcmdWithAString>("HitsFile",
 			      "Set filename for output of Heterostructure hit locations");
 
@@ -42,6 +47,24 @@ HeterostructureConfigMessenger::HeterostructureConfigMessenger(HeterostructureCo
             "Set the pReflProb parameter from Si to Ge, between 0 and 1");
   qReflProbSiGeCmd->SetParameterName("value", false);
   qReflProbSiGeCmd->SetRange("value >= 0. && value <= 1.");
+  topMatCmd = new G4UIcmdWithAString("/material/top", this);
+  topMatCmd->SetGuidance("Set top volume material");
+  topMatCmd->SetDefaultValue("Si");
+  botMatCmd = new G4UIcmdWithAString("/material/bottom", this);
+  botMatCmd->SetGuidance("Set bottom volume material");
+  botMatCmd->SetDefaultValue("Ge");
+  topThickCmd = new G4UIcmdWithADoubleAndUnit( "/geometry/top/thickness", this);
+  topThickCmd->SetGuidance("Set top volume thickness");
+  topThickCmd->SetParameterName("value", true, false);
+  topThickCmd->SetDefaultValue(5.e-03);
+  topThickCmd->SetDefaultUnit("mm");
+  topThickCmd->SetUnitCategory("Length");
+  botThickCmd = new G4UIcmdWithADoubleAndUnit( "/geometry/bottom/thickness", this);
+  botThickCmd->SetGuidance("Set bottom volume thickness");
+  botThickCmd->SetParameterName("value", true, false);
+  botThickCmd->SetDefaultValue(5.e-03);
+  botThickCmd->SetDefaultUnit("mm");
+  botThickCmd->SetUnitCategory("Length");
 }
 
 
@@ -51,6 +74,10 @@ HeterostructureConfigMessenger::~HeterostructureConfigMessenger() {
   delete qAbsProbSiGeCmd; qAbsProbSiGeCmd=0;
   delete qReflProbGeSiCmd; qReflProbGeSiCmd=0;
   delete qReflProbSiGeCmd; qReflProbSiGeCmd=0;
+  delete topMatCmd; topMatCmd=0;
+  delete botMatCmd; botMatCmd=0;
+  delete topThickCmd; topThickCmd=0;
+  delete botThickCmd; botThickCmd=0;
 }
 
 
@@ -62,4 +89,8 @@ void HeterostructureConfigMessenger::SetNewValue(G4UIcommand* cmd, G4String valu
   if (cmd == qAbsProbSiGeCmd) theManager->SetQAbsProbSiGe(StoD(value));
   if (cmd == qReflProbGeSiCmd) theManager->SetQReflProbGeSi(StoD(value));
   if (cmd == qReflProbSiGeCmd) theManager->SetQReflProbSiGe(StoD(value));
+  if (cmd == topMatCmd) theManager->SetTopMaterial(value);
+  if (cmd == botMatCmd) theManager->SetBottomMaterial(value);
+  if (cmd == topThickCmd) theManager->SetTopThickness(StoD(value));
+  if (cmd == botThickCmd) theManager->SetBottomThickness(StoD(value));
 }

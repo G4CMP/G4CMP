@@ -30,6 +30,8 @@
 // reassignment
 // 20261016  G4CMP-686 -- Implement new G4VDriftProcess::FillParticleChange
 //         signature in DoTransmission
+// 20261028  G4CMP-686 -- Implemented CanTransmitBoundary to short-circuit
+//         cases where transmission is not energetically possible
 
 #include "G4CMPDriftBoundaryProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -142,8 +144,14 @@ G4bool G4CMPDriftBoundaryProcess::AbsorbTrack(const G4Track& aTrack,
 	   <<" >? absMinK " << absMinK << G4endl;
   }
 
-  return ( (kvec*surfNorm > absMinK) &&
+  G4bool result = ( (kvec*surfNorm > absMinK) &&
 	   G4CMPBoundaryUtils::AbsorbTrack(aTrack, aStep) );
+  if (!result) {
+    if (!CanTransmitBoundary(aTrack, aStep)) {
+      result = !ReflectTrack(aTrack, aStep);
+    }
+  }
+  return result;
 }
 
 
@@ -331,31 +339,35 @@ DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
 void G4CMPDriftBoundaryProcess::DoTransmission(
     const G4Track& aTrack, const G4Step& aStep,
     G4ParticleChange& /*particleChange*/) {
-  auto* LM = G4LatticeManager::GetLatticeManager();
-  auto* post_vol = aStep.GetPostStepPoint()->GetPhysicalVolume();
-  const G4int current_valley = G4CMPProcessUtils::GetCurrentValley();
   // drift track info has no wavevector member... keep transport direction
   // constant instead
   G4ThreeVector p = G4CMPProcessUtils::GetLocalMomentum(aTrack);
-  auto* lattice = LM->GetLattice(post_vol);
+  auto* lattice = G4LatticeManager::GetLatticeManager()->GetLattice(postPV);
   G4int new_valley = G4CMP::FindNearestValley(lattice, p);
   // G4CMPVDriftProcess::FillParticleChange currently uses the old lattice,
   // not the new one. If theLattice is updated before we get here, we can
   // use this signature.
   // G4CMPVDriftProcess::FillParticleChange(new_valley, p);
-  // If the lattice is NOT updated before we get here, we need to convert
-  // from momentum to energy before we can pass to the base
-  // FillParticleChange signature. We can just copy the G4CMPVDriftProcess
-  // signature but using the updated lattice.
-  // G4double energy = 0.;
-  // if (IsElectron()){
-  //   energy = lattice->MapPtoEkin(new_valley, GetLocalDirection(p));
-  // } else {
-  //   // Geant4 returns the mass in energy units, with the c_squared already included
-  //   G4double massc2 = GetCurrentTrack()->GetDynamicParticle()->GetMass();
-  //   energy = sqrt(p.mag2() + massc2*massc2) - massc2;
-  // }
-  // G4CMPVDriftProcess::FillParticleChange(new_valley, energy, p);
-  // Let's try the new FillParticleChange signature created for this scenario.
+  // If the lattice is NOT updated before we get here, let's try the new
+  // FillParticleChange signature created for this scenario.
   G4CMPVDriftProcess::FillParticleChange(lattice, new_valley, p);
+  // this is temporary. actual lattice changeover will happen elsewhere
+  // SetLattice(lattice);
+}
+
+G4bool G4CMPDriftBoundaryProcess::CanTransmitBoundary(
+    const G4Track& aTrack, const G4Step& /*aStep*/) const {
+  auto* LM = G4LatticeManager::GetLatticeManager();
+  auto* pre_lattice = LM->GetLattice(prePV);
+  auto* post_lattice = LM->GetLattice(postPV);
+  if (!pre_lattice || !post_lattice) return false;
+  const G4double ke = G4CMPProcessUtils::GetKineticEnergy(aTrack);
+  const G4double pre_fermi = pre_lattice->GetFermiEnergy();
+  const G4double pre_bandgap = pre_lattice->GetBandGapEnergy();
+  const G4double post_fermi = post_lattice->GetFermiEnergy();
+  const G4double post_bandgap = post_lattice->GetBandGapEnergy();
+  const G4double pre_energy_above_gap = ke + pre_bandgap/2. + pre_fermi;
+  const G4double post_energy_threshold = post_bandgap/2. + post_fermi;
+  G4bool val = pre_energy_above_gap > post_energy_threshold;
+  return val;
 }

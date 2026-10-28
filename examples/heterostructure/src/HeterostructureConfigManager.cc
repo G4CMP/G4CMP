@@ -15,20 +15,39 @@
 #include "HeterostructureConfigManager.hh"
 #include "HeterostructureConfigMessenger.hh"
 #include "G4RunManager.hh"
+#include "G4Threading.hh"
 #include <stdlib.h>
 
-// Constructor and Singleton Initializer
-
-HeterostructureConfigManager* HeterostructureConfigManager::theInstance = 0;
-
+// Singleton Initializer
 HeterostructureConfigManager* HeterostructureConfigManager::Instance() {
-  if (!theInstance) theInstance = new HeterostructureConfigManager;
+  static const HeterostructureConfigManager* masterInstance = 0;
+  static G4ThreadLocal HeterostructureConfigManager* theInstance = 0;
+
+  if (!theInstance) {
+    if (!G4Threading::IsWorkerThread()) { // Master or sequential
+      theInstance = new HeterostructureConfigManager;
+      masterInstance = theInstance;
+    } else {          // Workers copy from master
+      theInstance = new HeterostructureConfigManager(*masterInstance);
+    }
+  }
+
   return theInstance;
 }
 
 HeterostructureConfigManager::HeterostructureConfigManager()
   : Hit_file(getenv("G4CMP_HIT_FILE")?getenv("G4CMP_HIT_FILE"):"Heterostructure_hits.txt"),
     fQAbsProbGeSi(0), fQAbsProbSiGe(0), fQReflProbGeSi(0), fQReflProbSiGe(0),
+    fTopMaterial("Si"), fBottomMaterial("Ge"),
+    fTopThickness(5.e-03), fBottomThickness(5.e-03),
+    messenger(new HeterostructureConfigMessenger(this)) {;}
+
+HeterostructureConfigManager::HeterostructureConfigManager(const HeterostructureConfigManager& master)
+  : Hit_file(master.GetHitOutput()),
+    fQAbsProbGeSi(master.GetQAbsProbGeSi()), fQAbsProbSiGe(master.GetQAbsProbSiGe()),
+    fQReflProbGeSi(master.GetQReflProbGeSi()), fQReflProbSiGe(master.GetQReflProbSiGe()),
+    fTopMaterial(master.GetTopMaterial()), fBottomMaterial(master.GetBottomMaterial()),
+    fTopThickness(master.GetTopThickness()), fBottomThickness(master.GetBottomThickness()),
     messenger(new HeterostructureConfigMessenger(this)) {;}
 
 HeterostructureConfigManager::~HeterostructureConfigManager() {

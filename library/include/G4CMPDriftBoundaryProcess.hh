@@ -83,6 +83,9 @@ protected:
   virtual void DoTransmission(const G4Track& aTrack, const G4Step& aStep,
                               G4ParticleChange& aParticleChange) override;
 
+  // calculate whether transmission is energetically possible
+  virtual G4bool CanTransmitBoundary(const G4Track& aTrack, const G4Step& aStep) const;
+
 private:
   G4CMPEnergyPartition* partitioner;
 

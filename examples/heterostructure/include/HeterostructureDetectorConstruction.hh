@@ -34,8 +34,8 @@ private:
 
 private:
   G4Material* fLiquidHelium;
-  G4Material* fGermanium;
-  G4Material* fSilicon;
+  G4Material* fBottomMaterial;
+  G4Material* fTopMaterial;
   G4VPhysicalVolume* fWorldPhys;
   G4CMPSurfaceProperty* fGeSiInterface;
   G4CMPSurfaceProperty* fSiGeInterface;

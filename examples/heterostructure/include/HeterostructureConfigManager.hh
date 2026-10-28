@@ -31,6 +31,10 @@ public:
   static double GetQReflProbGeSi() { return Instance()->fQReflProbGeSi; }
   static double GetQAbsProbSiGe() { return Instance()->fQAbsProbSiGe; }
   static double GetQReflProbSiGe() { return Instance()->fQReflProbSiGe; }
+  static G4String GetTopMaterial() { return Instance()->fTopMaterial; }
+  static G4String GetBottomMaterial() { return Instance()->fBottomMaterial; }
+  static G4double GetTopThickness() { return Instance()->fTopThickness; }
+  static G4double GetBottomThickness() { return Instance()->fBottomThickness; }
 
   // Change values (e.g., via Messenger)
   static void SetHitOutput(const G4String& name) { Instance()->Hit_file=name; UpdateGeometry(); }
@@ -38,17 +42,19 @@ public:
   static void SetQReflProbGeSi(const double qReflProbGeSi) { Instance()->fQReflProbGeSi=qReflProbGeSi; UpdateGeometry(); }
   static void SetQAbsProbSiGe(const double qAbsProbSiGe) { Instance()->fQAbsProbSiGe=qAbsProbSiGe; UpdateGeometry(); }
   static void SetQReflProbSiGe(const double qReflProbSiGe) { Instance()->fQReflProbSiGe=qReflProbSiGe; UpdateGeometry(); }
+  static void SetTopMaterial(const G4String& val) { Instance()->fTopMaterial=val; UpdateGeometry(); }
+  static void SetBottomMaterial(const G4String& val) { Instance()->fBottomMaterial=val; UpdateGeometry(); }
+  static void SetTopThickness(const G4double& val) { Instance()->fTopThickness=val; UpdateGeometry(); }
+  static void SetBottomThickness(const G4double& val) { Instance()->fBottomThickness=val; UpdateGeometry(); }
 
   static void UpdateGeometry();
 
 private:
   HeterostructureConfigManager();		// Singleton: only constructed on request
-  HeterostructureConfigManager(const HeterostructureConfigManager&) = delete;
+  HeterostructureConfigManager(const HeterostructureConfigManager&); // To clone from master
   HeterostructureConfigManager(HeterostructureConfigManager&&) = delete;
   HeterostructureConfigManager& operator=(const HeterostructureConfigManager&) = delete;
   HeterostructureConfigManager& operator=(HeterostructureConfigManager&&) = delete;
-
-  static HeterostructureConfigManager* theInstance;
 
 private:
   G4String Hit_file;	// Output file of e/h hits ($G4CMP_HIT_FILE)
@@ -56,6 +62,10 @@ private:
   G4double fQReflProbGeSi;
   G4double fQAbsProbSiGe;
   G4double fQReflProbSiGe;
+  G4String fTopMaterial;
+  G4String fBottomMaterial;
+  G4double fTopThickness;
+  G4double fBottomThickness;
 
   HeterostructureConfigMessenger* messenger;
 };

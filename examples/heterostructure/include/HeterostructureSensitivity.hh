@@ -25,12 +25,12 @@ public:
   HeterostructureSensitivity(HeterostructureSensitivity&&) = delete;
   HeterostructureSensitivity& operator=(HeterostructureSensitivity&&) = delete;
 
-  virtual void EndOfEvent(G4HCofThisEvent*);
+  virtual void EndOfEvent(G4HCofThisEvent*) override;
 
   void SetOutputFile(const G4String& fn);
 
 protected:
-  virtual G4bool IsHit(const G4Step*, const G4TouchableHistory*) const;
+  virtual G4bool IsHit(const G4Step*, const G4TouchableHistory*) const override;
 
 private:
   std::ofstream output;

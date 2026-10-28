@@ -39,7 +39,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 HeterostructureDetectorConstruction::HeterostructureDetectorConstruction()
-  : fLiquidHelium(0), fGermanium(0), fSilicon(0), fWorldPhys(0), 
+  : fLiquidHelium(0), fBottomMaterial(0), fTopMaterial(0), fWorldPhys(0),
     fGeSiInterface(0), fSiGeInterface(0), fGeVacInterface(0), fSiVacInterface(0), 
     fConstructed(false) {;}
 
@@ -84,32 +84,37 @@ void HeterostructureDetectorConstruction::DefineMaterials()
   G4NistManager* nistManager = G4NistManager::Instance();
 
   fLiquidHelium = nistManager->FindOrBuildMaterial("G4_AIR"); // to be corrected
-  fGermanium = nistManager->FindOrBuildMaterial("G4_Ge");
-  fSilicon = nistManager->FindOrBuildMaterial("G4_Si");
+  G4String mstr = "G4_" + HeterostructureConfigManager::GetBottomMaterial();
+  fBottomMaterial = nistManager->FindOrBuildMaterial(mstr);
+  mstr = "G4_" + HeterostructureConfigManager::GetTopMaterial();
+  fTopMaterial = nistManager->FindOrBuildMaterial(mstr);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 void HeterostructureDetectorConstruction::SetupGeometry()
 {
+  const G4double bot_thick = HeterostructureConfigManager::GetBottomThickness();
+  const G4double top_thick = HeterostructureConfigManager::GetTopThickness();
+  const G4String bn = HeterostructureConfigManager::GetBottomMaterial();
+  const G4String tn = HeterostructureConfigManager::GetTopMaterial();
   //     
   // World
   //
-  G4VSolid* worldSolid = new G4Box("World",16.*cm,16.*cm,16.*cm);
+  G4VSolid* worldSolid = new G4Box("World",1.*cm,1.*cm,1.*mm);
   G4LogicalVolume* worldLogical =
     new G4LogicalVolume(worldSolid,fLiquidHelium,"World");
-  worldLogical->SetUserLimits(new G4UserLimits(10*mm, DBL_MAX, DBL_MAX, 0, 0));
   fWorldPhys = new G4PVPlacement(0,G4ThreeVector(),worldLogical,"World",0,
                                  false,0);
   
   //
   // Germanium layer -- should change to SiGe in the future!
   // 
-  G4VSolid* fGermaniumSolid = new G4Box("fGermaniumSolid", 10.*mm, 10.*mm, 5.*mm);
-  G4LogicalVolume* fGermaniumLogical =
-    new G4LogicalVolume(fGermaniumSolid,fGermanium,"fGermaniumLogical");
-  G4VPhysicalVolume* GePhys =
-    new G4PVPlacement(0,G4ThreeVector(),fGermaniumLogical,"fGermaniumPhysical",
+  G4VSolid* BottomSolid = new G4Box("BottomSolid", 1.*mm, 1.*mm,bot_thick);
+  G4LogicalVolume* BottomLog =
+    new G4LogicalVolume(BottomSolid,fBottomMaterial,"BottomLogical");
+  G4VPhysicalVolume* BottomPhys =
+    new G4PVPlacement(0,G4ThreeVector(),BottomLog,"BottomPhysical",
                       worldLogical,false,0);
 
   //
@@ -117,31 +122,31 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   //
   // G4LatticeManager gives physics processes access to lattices by volume
   G4LatticeManager* LM = G4LatticeManager::GetLatticeManager();
-  G4LatticeLogical* GeLogical = LM->LoadLattice(fGermanium, "Ge");
+  G4LatticeLogical* BottomLogical = LM->LoadLattice(fBottomMaterial, bn);
 
   // G4LatticePhysical assigns G4LatticeLogical a physical orientation
-  G4LatticePhysical* GePhysical = new G4LatticePhysical(GeLogical);
-  GePhysical->SetMillerOrientation(1,0,0);
-  LM->RegisterLattice(GePhys, GePhysical);
+  G4LatticePhysical* BottomPhysical = new G4LatticePhysical(BottomLogical);
+  BottomPhysical->SetMillerOrientation(1,0,0);
+  LM->RegisterLattice(BottomPhys, BottomPhysical);
 
   //
   // Silicon layer
   //
-  G4VSolid* fSiliconSolid = new G4Box("fSiliconSolid",10.*mm,10.*mm,5.*mm);
-  G4LogicalVolume* fSiliconLogical =
-    new G4LogicalVolume(fSiliconSolid,fSilicon,"fSiliconLogical");
-  G4VPhysicalVolume* SiPhys = new G4PVPlacement(0,
-    G4ThreeVector(0.,0.,10.*mm), fSiliconLogical, "fSiliconPhysical",
+  G4VSolid* TopSolid = new G4Box("TopSolid",1.*mm,1.*mm,top_thick);
+  G4LogicalVolume* TopLog =
+    new G4LogicalVolume(TopSolid,fTopMaterial,"TopLogical");
+  G4VPhysicalVolume* TopPhys = new G4PVPlacement(0,
+    G4ThreeVector(0.,0.,bot_thick + top_thick), TopLog, "TopPhysical",
     worldLogical,false,0);
 
   //
   //Silicon lattice information
   //
-  G4LatticeLogical* SiLogical = LM->LoadLattice(fSilicon, "Si");
+  G4LatticeLogical* TopLogical = LM->LoadLattice(fTopMaterial, tn);
   // G4LatticePhysical assigns G4LatticeLogical a physical orientation
-  G4LatticePhysical* SiPhysical = new G4LatticePhysical(SiLogical);
-  SiPhysical->SetMillerOrientation(1,0,0);
-  LM->RegisterLattice(SiPhys, SiPhysical);
+  G4LatticePhysical* TopPhysical = new G4LatticePhysical(TopLogical);
+  TopPhysical->SetMillerOrientation(1,0,0);
+  LM->RegisterLattice(TopPhys, TopPhysical);
 
   double qAbsProbGeSi  = HeterostructureConfigManager::GetQAbsProbGeSi();
   double qReflProbGeSi = HeterostructureConfigManager::GetQReflProbGeSi();
@@ -162,37 +167,37 @@ void HeterostructureDetectorConstruction::SetupGeometry()
                                           0.0, 0.0);
 
     fGeVacInterface = new G4CMPSurfaceProperty("GeVacInterface", 
-                                            1.0, 1.0, 0.0, 0.0,
-					    	                            1.0, 1.0, 0.0, 0.0,
-                                            1.0, 1.0);
+                                            0.0, 1.0, 0.0, 0.0,
+					    	                            0.0, 1.0, 0.0, 0.0,
+                                            0.0, 1.0);
 
     fSiVacInterface = new G4CMPSurfaceProperty("SiVacInterface", 
-                                            1.0, 1.0, 0.0, 0.0,
-                                            1.0, 1.0, 0.0, 0.0,      
-                                            1.0, 1.0);
+                                            0.0, 1.0, 0.0, 0.0,
+                                            0.0, 1.0, 0.0, 0.0,
+                                            0.0, 1.0);
   }
 
   //
   // Border surfaces
   //
-  new G4CMPLogicalBorderSurface("GeSi", GePhys, SiPhys,
+  new G4CMPLogicalBorderSurface("GeSi", BottomPhys, TopPhys,
         fGeSiInterface);
-  new G4CMPLogicalBorderSurface("SiGe", SiPhys, GePhys, 
+  new G4CMPLogicalBorderSurface("SiGe", TopPhys, BottomPhys,
         fSiGeInterface);
 
-  // new G4CMPLogicalSkinSurface("SiLogicalSkinSurface", fSiliconLogical,
+  // new G4CMPLogicalSkinSurface("SiLogicalSkinSurface", fTopMaterialLogical,
   //          fSiVacInterface);
-  // new G4CMPLogicalSkinSurface("GeLogicalSkinSurface", fGermaniumLogical,
+  // new G4CMPLogicalSkinSurface("GeLogicalSkinSurface", fBottomMaterialLogical,
   //          fGeVacInterface);
 
-  new G4CMPLogicalBorderSurface("GeVac", GePhys, fWorldPhys,
+  new G4CMPLogicalBorderSurface("GeVac", BottomPhys, fWorldPhys,
 				fGeVacInterface);
-  new G4CMPLogicalBorderSurface("VacGe", fWorldPhys, GePhys, 
+  new G4CMPLogicalBorderSurface("VacGe", fWorldPhys, BottomPhys,
         fGeVacInterface);
 
-  new G4CMPLogicalBorderSurface("SiVac", SiPhys, fWorldPhys,
+  new G4CMPLogicalBorderSurface("SiVac", TopPhys, fWorldPhys,
         fSiVacInterface);
-  new G4CMPLogicalBorderSurface("VacSi", fWorldPhys, SiPhys, 
+  new G4CMPLogicalBorderSurface("VacSi", fWorldPhys, TopPhys,
         fSiVacInterface);
 
   //                                        
@@ -203,8 +208,8 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   simpleBoxVisAtt->SetVisibility(true);
   G4VisAttributes* siVisAtt= new G4VisAttributes(G4Colour(1.0,0,1.0));
   siVisAtt->SetVisibility(true);
-  fGermaniumLogical->SetVisAttributes(simpleBoxVisAtt);
-  fSiliconLogical->SetVisAttributes(siVisAtt);
+  BottomLog->SetVisAttributes(simpleBoxVisAtt);
+  TopLog->SetVisAttributes(siVisAtt);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -219,12 +224,12 @@ void HeterostructureDetectorConstruction::ConstructSDandField()
     geSD = new HeterostructureSensitivity("GermaniumElectrode");
     sdman->AddNewDetector(geSD);
   }
-  SetSensitiveDetector("fGermaniumLogical",geSD);
+  SetSensitiveDetector("BottomLogical",geSD);
 
   G4VSensitiveDetector* siSD = sdman->FindSensitiveDetector("SiliconElectrode", false);
   if (!siSD) {
     siSD = new HeterostructureSensitivity("SiliconElectrode");
     sdman->AddNewDetector(siSD);
   }
-  SetSensitiveDetector("fSiliconLogical", siSD);
+  SetSensitiveDetector("TopLogical", siSD);
 }

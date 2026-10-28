@@ -1,13 +1,21 @@
 /run/printProgress 1
 /run/reinitializeGeometry
 
-/g4cmp/verbose 2
-/g4cmp/chargeBounces 1000
+# /g4cmp/verbose 2
+/g4cmp/temperature 0.002 K
+/g4cmp/chargeBounces 1
+/g4cmp/producePhonons 0
+/g4cmp/maxLukePhonons 0
+/g4cmp/sampleLuke 0
 
 /g4cmp/qAbsProbGeSi 0
-/g4cmp/qReflProbGeSi 0.5
+# /g4cmp/qReflProbGeSi 0.5
+/g4cmp/qReflProbGeSi 0.01
+# /g4cmp/qReflProbGeSi 0.
 /g4cmp/qAbsProbSiGe 0
-/g4cmp/qReflProbSiGe 0.5
+# /g4cmp/qReflProbSiGe 0.5
+/g4cmp/qReflProbSiGe 0.01
+# /g4cmp/qReflProbSiGe 0.
 
 
 /run/initialize
@@ -24,6 +32,7 @@
 #
 # for drawing the tracks
 # (if too many tracks cause core dump => storeTrajectory 0)
+/tracking/verbose 2
 /tracking/storeTrajectory 1
 /vis/scene/endOfEventAction accumulate
 /vis/scene/add/trajectories

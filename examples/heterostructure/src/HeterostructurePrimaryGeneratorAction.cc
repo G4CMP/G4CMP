@@ -10,6 +10,7 @@
 // 20260815  Selby Q. Dang (Stanford/SLAC)
 
 #include "HeterostructurePrimaryGeneratorAction.hh"
+#include "HeterostructureConfigManager.hh"
 #include "G4CMPDriftElectron.hh"
 #include "G4CMPDriftHole.hh"
 #include "G4Event.hh"
@@ -28,9 +29,7 @@ HeterostructurePrimaryGeneratorAction::HeterostructurePrimaryGeneratorAction() {
 
   // default particle kinematics 
   fParticleGun->SetParticleDefinition(G4Geantino::Definition());
-  fParticleGun->SetParticleMomentumDirection(G4RandomDirection());
-  fParticleGun->SetParticlePosition(G4ThreeVector(0.0,0.0,90.*nm));
-  fParticleGun->SetParticleEnergy(1e-6*eV);  
+  fParticleGun->SetParticleEnergy(1.e-9);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -43,14 +42,20 @@ HeterostructurePrimaryGeneratorAction::~HeterostructurePrimaryGeneratorAction() 
 
 void HeterostructurePrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   if (fParticleGun->GetParticleDefinition() == G4Geantino::Definition()) {
+    fParticleGun->SetParticlePosition(G4ThreeVector(0.0,0.0,HeterostructureConfigManager::GetBottomThickness() - 1.*nm));
+    if (fParticleGun->GetParticleEnergy() == 1.e-3*eV) {
+      fParticleGun->SetParticleEnergy(5.*eV);
+    }
     // Generate hole
     fParticleGun->SetParticleDefinition(G4CMPDriftHole::Definition());
-    fParticleGun->SetParticleMomentumDirection(G4RandomDirection());
+    // fParticleGun->SetParticleMomentumDirection(G4RandomDirection());
+    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0, 0, 1));
     fParticleGun->GeneratePrimaryVertex(anEvent);
     
     // Generate electron with different random direction
     fParticleGun->SetParticleDefinition(G4CMPDriftElectron::Definition());
-    fParticleGun->SetParticleMomentumDirection(G4RandomDirection());
+    // fParticleGun->SetParticleMomentumDirection(G4RandomDirection());
+    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0, 0, 1));
     fParticleGun->GeneratePrimaryVertex(anEvent);
 
     // Restore "not set" condition for next event

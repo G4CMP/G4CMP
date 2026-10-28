@@ -14,12 +14,13 @@
 #define HeterostructureConfigMessenger_hh 1
 
 #include "G4UImessenger.hh"
-#include "G4UIcmdWithADouble.hh"  
 
 class HeterostructureConfigManager;
 class G4UIcmdWithAString;
 class G4UIcmdWithADouble;
+class G4UIcmdWithADoubleAndUnit;
 class G4UIcommand;
+class G4UIdirectory;
 
 
 class HeterostructureConfigMessenger : public G4UImessenger {
@@ -31,11 +32,17 @@ public:
 
 private:
   HeterostructureConfigManager* theManager;
+  G4UIdirectory* geomTopDirectory;
+  G4UIdirectory* geomBotDirectory;
   G4UIcmdWithAString* hitsCmd;
   G4UIcmdWithADouble* qAbsProbGeSiCmd;
   G4UIcmdWithADouble* qReflProbGeSiCmd;
   G4UIcmdWithADouble* qAbsProbSiGeCmd;
   G4UIcmdWithADouble* qReflProbSiGeCmd;
+  G4UIcmdWithAString* topMatCmd;
+  G4UIcmdWithAString* botMatCmd;
+  G4UIcmdWithADoubleAndUnit* topThickCmd;
+  G4UIcmdWithADoubleAndUnit* botThickCmd;
 
 private:
   HeterostructureConfigMessenger(const HeterostructureConfigMessenger&);	// Copying is forbidden
