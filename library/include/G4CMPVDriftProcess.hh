@@ -17,14 +17,15 @@
 // 20150601  Inherit from new G4CMPVProcess
 // 20170806  Move ChargeCarrierTimeStep() to G4CMPProcessUtils
 // 20260514  Add InitializeParticleChange() without separate valley argument
+// 20261030  G4CMP-610 -- Add G4CMPParticleChangeForCharge member
 
 #ifndef G4CMPVDriftProcess_h
 #define G4CMPVDriftProcess_h 1
 
 #include "G4CMPVProcess.hh"
+#include "G4CMPParticleChangeForCharge.hh"
 #include "G4CMPProcessSubType.hh"
 #include "G4ThreeVector.hh"
-
 
 class G4CMPVDriftProcess : public G4CMPVProcess {
 public:
@@ -53,8 +54,8 @@ protected:
   void InitializeParticleChange(const G4Track& track);	// Keeps old valley
 
   G4double currentEkin;	// Caching the current track kinetic energy
+  G4CMPParticleChangeForCharge chParticleChange;
 
-private:
   // hide assignment operators as private 
   G4CMPVDriftProcess(G4CMPVDriftProcess&);
   G4CMPVDriftProcess& operator=(const G4CMPVDriftProcess& right);

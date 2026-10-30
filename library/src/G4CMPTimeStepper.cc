@@ -47,6 +47,7 @@
 //              flips
 // 20240712 M. Kelsey -- Protect minimum MFP calculation for zero field.
 // 20250616 M. Kelsey -- Rename MFP variables to be more descriptive.
+// 20261030  G4CMP-610 -- Use G4CMPParticleChangeForCharge member
 
 #include "G4CMPTimeStepper.hh"
 #include "G4CMPConfigManager.hh"
@@ -243,7 +244,7 @@ G4VParticleChange* G4CMPTimeStepper::PostStepDoIt(const G4Track& aTrack,
   }
 
   ClearNumberOfInteractionLengthLeft();		// All processes must do this!
-  return &aParticleChange;
+  return &chParticleChange;
 }
 
 

@@ -25,6 +25,7 @@
 // 20250219  G4CMP-513 : Provide separate specular and diffuse reflection for charges.
 // 20260430  W. Lamberson -- Update debugging printouts.
 // 20260507  G4CMP-603 : Use specular reflection material property.
+// 20261030  G4CMP-610 -- Use G4CMPParticleChangeForCharge member
 
 #include "G4CMPDriftBoundaryProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -85,7 +86,7 @@ G4CMPDriftBoundaryProcess::PostStepDoIt(const G4Track& aTrack,
   // NOTE:  G4VProcess::SetVerboseLevel is not virtual!  Can't overload it
   G4CMPBoundaryUtils::SetVerboseLevel(verboseLevel);
 
-  aParticleChange.Initialize(aTrack);
+  chParticleChange.Initialize(aTrack);
   if (!IsGoodBoundary(aStep))
     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
 
@@ -102,10 +103,10 @@ G4CMPDriftBoundaryProcess::PostStepDoIt(const G4Track& aTrack,
            << "\n P direction: " << GetLocalMomentum(aTrack).unit() << G4endl;
   }
 
-  ApplyBoundaryAction(aTrack, aStep, aParticleChange);
+  ApplyBoundaryAction(aTrack, aStep, chParticleChange);
 
   ClearNumberOfInteractionLengthLeft();		// All processes should do this!
-  return &aParticleChange;
+  return &chParticleChange;
 }
 
 
@@ -158,15 +159,15 @@ void G4CMPDriftBoundaryProcess::DoAbsorption(const G4Track& aTrack,
     // Compute direct-phonon downsampling here
     partitioner->ComputePhononSampling(eAbs);
     partitioner->DoPartition(0., eAbs);
-    partitioner->GetSecondaries(&aParticleChange);
+    partitioner->GetSecondaries(&chParticleChange);
     
-    if (aParticleChange.GetNumberOfSecondaries() == 0) {
-      aParticleChange.ProposeNonIonizingEnergyDeposit(eAbs);
+    if (chParticleChange.GetNumberOfSecondaries() == 0) {
+      chParticleChange.ProposeNonIonizingEnergyDeposit(eAbs);
     }
   }
 
-  aParticleChange.ProposeEnergy(0.);
-  aParticleChange.ProposeTrackStatus(fStopButAlive);
+  chParticleChange.ProposeEnergy(0.);
+  chParticleChange.ProposeTrackStatus(fStopButAlive);
 }
 
 
@@ -197,11 +198,11 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
   FillParticleChange(GetCurrentValley(), GetKineticEnergy(aTrack), reflP);
 
   if (verboseLevel>3) {
-    aParticleChange.DumpInfo();
+    chParticleChange.DumpInfo();
     G4ThreeVector pcp =
-      aParticleChange.CalcMomentum(aParticleChange.GetEnergy(),
+      chParticleChange.CalcMomentum(chParticleChange.GetEnergy(),
 				   *aParticleChange.GetMomentumDirection(),
-				   aParticleChange.GetMass());
+				   chParticleChange.GetMass());
 
     G4cout << " particleChange momentum " << pcp << G4endl;
   }
