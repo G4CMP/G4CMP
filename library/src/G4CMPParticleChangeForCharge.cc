@@ -52,7 +52,11 @@ void G4CMPParticleChangeForCharge::DumpInfo() const {
 
 void G4CMPParticleChangeForCharge::ProposeValley(const G4int& Vfinal)
 {
-  theValley = Vfinal;
+  G4int iv = Vfinal;
+  if (iv >= theLattice->NumberOfValleys()) {
+    iv = theLattice->NumberOfValleys() - 1;
+  }
+  theValley = iv;
 }
 
 const G4int* G4CMPParticleChangeForCharge::GetValley() const
@@ -67,7 +71,11 @@ const G4int* G4CMPParticleChangeForCharge::GetProposedValley() const
 
 void G4CMPParticleChangeForCharge::SetProposedValley(const G4int& Vfinal)
 {
-  theValley = Vfinal;
+  G4int iv = Vfinal;
+  if (iv >= theLattice->NumberOfValleys()) {
+    iv = theLattice->NumberOfValleys() - 1;
+  }
+  theValley = iv;
 }
 
 void G4CMPParticleChangeForCharge::ProposeLattice(G4LatticePhysical* lattice)
