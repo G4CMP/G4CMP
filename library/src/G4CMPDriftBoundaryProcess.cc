@@ -216,7 +216,7 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
     chParticleChange.DumpInfo();
     G4ThreeVector pcp =
       chParticleChange.CalcMomentum(chParticleChange.GetEnergy(),
-				   *aParticleChange.GetMomentumDirection(),
+				   *chParticleChange.GetMomentumDirection(),
 				   chParticleChange.GetMass());
 
     G4cout << " particleChange momentum " << pcp << G4endl;
