@@ -23,6 +23,7 @@
 // 20230210  I. Ataee -- Change energy-momentum relation to relativistic in FillParticleChange
 // 20261016  G4CMP-686 -- First implementation of new FillParticleChange
 //         signature
+// 20261030  G4CMP-610 -- Add G4CMPParticleChangeForCharge member
 
 #include "G4CMPVDriftProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -30,6 +31,7 @@
 #include "G4CMPDriftHole.hh"
 #include "G4CMPGeometryUtils.hh"
 #include "G4CMPDriftTrackInfo.hh"
+#include "G4CMPParticleChangeForCharge.hh"
 #include "G4CMPTrackUtils.hh"
 #include "G4CMPUtils.hh"
 #include "G4DynamicParticle.hh"
@@ -52,6 +54,7 @@ G4CMPVDriftProcess::G4CMPVDriftProcess(const G4String& processName,
                                        G4CMPProcessSubType stype)
   : G4CMPVProcess(processName, stype) {
   if (verboseLevel) G4cout << GetProcessName() << " is created " << G4endl;
+  pParticleChange = &chParticleChange;
 }
 
 G4CMPVDriftProcess::~G4CMPVDriftProcess() {;}
@@ -149,15 +152,15 @@ G4CMPVDriftProcess::FillParticleChange(G4int ivalley, const G4ThreeVector& p) {
 
 void G4CMPVDriftProcess::FillParticleChange(G4int ivalley, G4double Ekin,
 					    const G4ThreeVector& v) {
-  G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(GetCurrentTrack())->SetValleyIndex(ivalley);
+  chParticleChange.ProposeValley(ivalley);
 
-  aParticleChange.ProposeMomentumDirection(v.unit());
+  chParticleChange.ProposeMomentumDirection(v.unit());
   currentEkin = Ekin;
-  aParticleChange.ProposeEnergy(currentEkin);
+  chParticleChange.ProposeEnergy(currentEkin);
 
   if (IsElectron()) {		// Geant4 wants mc^2, not plain mass
     G4double meff = theLattice->GetElectronEffectiveMass(ivalley,GetLocalDirection(v));
-    aParticleChange.ProposeMass(meff*c_squared);
+    chParticleChange.ProposeMass(meff*c_squared);
   }
 }
 
@@ -166,7 +169,7 @@ void G4CMPVDriftProcess::FillParticleChange(G4int ivalley, G4double Ekin,
 
 void G4CMPVDriftProcess::InitializeParticleChange(G4int ivalley,
 						  const G4Track& track) {
-  aParticleChange.Initialize(track);
+  chParticleChange.Initialize(track);
 
   // NOTE: This passes momentum vector, effective mass gets recomputed
   FillParticleChange(ivalley, track.GetMomentum());
@@ -175,4 +178,3 @@ void G4CMPVDriftProcess::InitializeParticleChange(G4int ivalley,
 void G4CMPVDriftProcess::InitializeParticleChange(const G4Track& track) {
   InitializeParticleChange(GetValleyIndex(track), track);
 }
-

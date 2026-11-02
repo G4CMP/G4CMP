@@ -9,6 +9,7 @@
 // 20200504  G4CMP-195:  Reduce length of charge-trapping parameter names;
 //		provide static function for MFP access; remove unnecessary
 //		#includes.
+// 20261030  G4CMP-610 -- Add G4CMPParticleChangeForCharge member
 
 #include "G4CMPDriftTrappingProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -49,7 +50,7 @@ G4double G4CMPDriftTrappingProcess::GetMeanFreePath(const G4Track&, G4double,
 G4VParticleChange* 
 G4CMPDriftTrappingProcess::PostStepDoIt(const G4Track& aTrack,
 					const G4Step& /*aStep*/) {
-  aParticleChange.Initialize(aTrack);
+  chParticleChange.Initialize(aTrack);
 
   if (verboseLevel > 1) {
     G4cout << "G4CMPDriftTrappingProcess::PostStepDoIt: "
@@ -59,8 +60,8 @@ G4CMPDriftTrappingProcess::PostStepDoIt(const G4Track& aTrack,
   }
 
   // NOTE: If trap depth allows for energy release, use partitioner here
-  aParticleChange.ProposeTrackStatus(fStopAndKill);
+  chParticleChange.ProposeTrackStatus(fStopAndKill);
 
   ClearNumberOfInteractionLengthLeft();		// All processes should do this!
-  return &aParticleChange;
+  return &chParticleChange;
 }

@@ -48,6 +48,7 @@
 // 20250508  G4CMP-480 -- Pass global phonon wavevector to CreatePhonon.
 // 20260212  G4CMP-581 -- Check for valid secondary, use Edep if null.
 // 20260608  Fix debug-file FatalException message copied from LatticeReader
+// 20261030  G4CMP-610 -- Use G4CMPParticleChangeForCharge member
 
 #include "G4CMPLukeScattering.hh"
 #include "G4CMPConfigManager.hh"
@@ -152,7 +153,7 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
   } else {
     G4Exception("G4CMPLukeScattering::PostStepDoIt", "Luke002",
                 EventMustBeAborted, "Unknown charge carrier");
-    return &aParticleChange;
+    return &chParticleChange;
   }
 
   G4ThreeVector kdir = ktrk.unit();
@@ -161,7 +162,7 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
   G4double kSound = gammaSound * lat->GetSoundSpeed() * mass / hbar_Planck;
 
   // Sanity check: this should have been done in MFP already
-  if (kmag <= kSound) return &aParticleChange;
+  if (kmag <= kSound) return &chParticleChange;
 
   if (verboseLevel > 1) {
     G4cout << " E_track " << Etrk/eV << " eV"
@@ -307,7 +308,7 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
     G4cerr << GetProcessName() << " ERROR: Unable to generate phonon after "
 	   << iThrow << " attempts" << G4endl;
 
-    return &aParticleChange;	// Unable to generate phonon
+    return &chParticleChange;	// Unable to generate phonon
   } else if (verboseLevel && iThrow>1) {
     G4cout << GetProcessName() << " " << trkName << " phonon required "
 	   << iThrow << " attempts" << G4endl;
@@ -352,15 +353,15 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
 	     << "  thrown wt " << weight << G4endl;
     }
 
-    aParticleChange.SetSecondaryWeightByProcess(true);
-    aParticleChange.SetNumberOfSecondaries(1);
-    aParticleChange.AddSecondary(phonon);
+    chParticleChange.SetSecondaryWeightByProcess(true);
+    chParticleChange.SetNumberOfSecondaries(1);
+    chParticleChange.AddSecondary(phonon);
 
     // If user wants to track phonons immediately, put track back on stack
     if (secondariesFirst && aTrack.GetTrackStatus() == fAlive)
-      aParticleChange.ProposeTrackStatus(fSuspend);
+      chParticleChange.ProposeTrackStatus(fSuspend);
   } else {
-    aParticleChange.ProposeNonIonizingEnergyDeposit(Ephonon);
+    chParticleChange.ProposeNonIonizingEnergyDeposit(Ephonon);
   }
 
   RotateToGlobalDirection(precoil);	// Update track in world coordinates
@@ -372,5 +373,5 @@ G4VParticleChange* G4CMPLukeScattering::PostStepDoIt(const G4Track& aTrack,
   }
 
   ClearNumberOfInteractionLengthLeft();
-  return &aParticleChange;
+  return &chParticleChange;
 }
