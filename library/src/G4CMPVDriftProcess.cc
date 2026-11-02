@@ -118,15 +118,13 @@ void G4CMPVDriftProcess::FillParticleChange(G4LatticePhysical* lattice,
     msg << "Track energy in prior lattice did not exceed the new lattice's ";
     msg << "bandgap + Fermi energy! Setting track kinetic energy to zero.";
     G4Exception("G4CMPVDriftProcess::FillParticleChange", "DriftProcess000",
-    EventMustBeAborted, msg);
+    JustWarning, msg);
     energy = 0.;
   }
   G4int iv = ivalley;
   if (iv >= lattice->NumberOfValleys()) {
     iv = lattice->NumberOfValleys() - 1;
   }
-  // this is temporary. actual lattice changeover will happen elsewhere
-  // G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(GetCurrentTrack())->SetLattice(lattice);
   FillParticleChange(iv, energy, p);
 }
 
