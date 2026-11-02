@@ -124,11 +124,7 @@ void G4CMPVDriftProcess::FillParticleChange(G4LatticePhysical* lattice,
     JustWarning, msg);
     energy = 0.;
   }
-  G4int iv = ivalley;
-  if (iv >= lattice->NumberOfValleys()) {
-    iv = lattice->NumberOfValleys() - 1;
-  }
-  FillParticleChange(iv, energy, p);
+  FillParticleChange(ivalley, energy, p);
 }
 
 
