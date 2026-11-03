@@ -246,6 +246,8 @@ set(library_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPQPDiffusionTimeStepperProcess.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPQPDiffusionTimeStepperRate.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPVKaplanQP.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPQPHit.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPQPSensitivity.cc
     )
  
 set(library_HEADERS
@@ -362,6 +364,8 @@ set(library_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPQPDiffusionTimeStepperRate.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPVKaplanQP.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPParticleChangeForQPDiffusion.icc
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPQPHit.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPQPSensitivity.hh
     )
 
 set(config_FILES
