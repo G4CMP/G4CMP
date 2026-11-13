@@ -396,6 +396,10 @@ endif()
 
 target_compile_definitions(G4cmp PUBLIC ${LibDefs})
 
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  target_compile_options(G4cmp PUBLIC -Wall -Wshadow)
+endif()
+
 if(G4CMP_USE_SANITIZER)
     target_compile_options(G4cmp INTERFACE ${G4CMP_FLAGS_SANITIZE})
     set_property(TARGET G4cmp PROPERTY
