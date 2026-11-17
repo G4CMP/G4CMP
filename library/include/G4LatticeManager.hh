@@ -14,6 +14,7 @@
 // 20141008  Change to global singleton; must be shared across worker threads
 // 20250905  R. Linehan -- useful comments for people using RegisterLattice
 //              with tracked film response
+// 20261117  G4CMP-655 -- Copy local worker-thread instances from master.
 
 #ifndef G4LatticeManager_h
 #define G4LatticeManager_h 1
@@ -30,12 +31,11 @@ class G4VPhysicalVolume;
 
 
 class G4LatticeManager {
-private:
-  static G4LatticeManager* fLM;		// Singleton
-
 public:
-  static G4LatticeManager* GetLatticeManager(); 
-  static G4LatticeManager* Instance() { return GetLatticeManager(); }
+  static G4LatticeManager* GetLatticeManager() { return Instance(); }
+  static G4LatticeManager* Instance();
+
+  virtual ~G4LatticeManager();
 
   void SetVerboseLevel(G4int vb) { verboseLevel = vb; }
 
@@ -88,8 +88,13 @@ protected:
   LatticeVolMap fPLatticeList; 
 
 private:
-  G4LatticeManager();
-  virtual ~G4LatticeManager();
+  G4LatticeManager();   // Singleton: only constructed in master thread
+  G4LatticeManager(const G4LatticeManager&);  // To clone from master
+
+  // Suppress moving and assignment operations; cloning is done above
+  G4LatticeManager(G4LatticeManager&&) = delete;
+  G4LatticeManager& operator=(const G4LatticeManager&) = delete;
+  G4LatticeManager& operator=(G4LatticeManager&&) = delete;
 };
 
 #endif

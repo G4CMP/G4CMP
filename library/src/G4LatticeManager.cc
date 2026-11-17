@@ -22,6 +22,7 @@
 // 20250905  G4CMP-500 -- Added warning comment about RegisterLattice
 //                 use with tracked film response
 // 20260618  G4CMP-637 -- Move calculation of L0 into G4LatticeLogical
+// 20261117  G4CMP-655 -- Copy local worker-thread instances from master.
 
 #include "G4LatticeManager.hh"
 #include "G4CMPConfigManager.hh"
@@ -30,17 +31,34 @@
 #include "G4LatticeReader.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Material.hh"
-#include "G4VPhysicalVolume.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4Threading.hh"
+#include "G4VPhysicalVolume.hh"
 
-G4LatticeManager* G4LatticeManager::fLM = 0;
 
 #include "G4AutoLock.hh"
 namespace {
   G4Mutex latMutex = G4MUTEX_INITIALIZER;     // For thread protection
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+// Singleton Initializers for master and worker threads
+
+G4LatticeManager* G4LatticeManager::Instance() {
+  static const G4LatticeManager* masterInstance = 0;
+  static G4ThreadLocal G4LatticeManager* theInstance = 0;
+
+  if (!theInstance) {
+    if (!G4Threading::IsWorkerThread()) { // Master or sequential
+      theInstance = new G4LatticeManager;
+      masterInstance = theInstance;
+    } else {          // Workers copy from master
+      theInstance = new G4LatticeManager(*masterInstance);
+    }
+  }
+
+  return theInstance;
+}
 
 G4LatticeManager::G4LatticeManager()
   : verboseLevel(G4CMPConfigManager::GetVerboseLevel()) {
@@ -50,6 +68,13 @@ G4LatticeManager::G4LatticeManager()
 G4LatticeManager::~G4LatticeManager() {
   Reset();			// Deletes all lattices
 }
+
+
+// Duplicate existing master instance
+
+G4LatticeManager::G4LatticeManager(const G4LatticeManager& master)
+  : verboseLevel(master.verboseLevel) {;}
+
 
 // Delete all registered lattices and clear entries from lookup tables
 
@@ -77,15 +102,6 @@ void G4LatticeManager::Clear() {
   fLLattices.clear();
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-
-G4LatticeManager* G4LatticeManager::GetLatticeManager() {
-  G4AutoLock latLock(&latMutex);      // Protect before changing pointer
-
-  // if no lattice manager exists, create one.
-  if (!fLM) fLM = new G4LatticeManager();
-  return fLM;
-}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
