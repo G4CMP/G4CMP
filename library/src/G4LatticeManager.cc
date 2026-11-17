@@ -73,7 +73,9 @@ G4LatticeManager::~G4LatticeManager() {
 // Duplicate existing master instance
 
 G4LatticeManager::G4LatticeManager(const G4LatticeManager& master)
-  : verboseLevel(master.verboseLevel) {;}
+  : verboseLevel(master.verboseLevel), fLLattices(master.fLLattices),
+  fLLatticeList(master.fLLatticeList), fPLattices(master.fPLattices),
+  fPLatticeList(master.fPLatticeList) {;}
 
 
 // Delete all registered lattices and clear entries from lookup tables
