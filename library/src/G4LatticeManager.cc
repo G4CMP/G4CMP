@@ -22,7 +22,8 @@
 // 20250905  G4CMP-500 -- Added warning comment about RegisterLattice
 //                 use with tracked film response
 // 20260618  G4CMP-637 -- Move calculation of L0 into G4LatticeLogical
-// 20261117  G4CMP-655 -- Copy local worker-thread instances from master.
+// 20261118  G4CMP-655 -- Copy local worker-thread instances from master. Remove
+//                 mutexes which are not needed anymore.
 
 #include "G4LatticeManager.hh"
 #include "G4CMPConfigManager.hh"
@@ -34,12 +35,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4Threading.hh"
 #include "G4VPhysicalVolume.hh"
-
-
-#include "G4AutoLock.hh"
-namespace {
-  G4Mutex latMutex = G4MUTEX_INITIALIZER;     // For thread protection
-}
 
 
 // Singleton Initializers for master and worker threads
@@ -118,8 +113,6 @@ G4bool G4LatticeManager::RegisterLattice(const G4Material* Mat,
 	   << G4endl;
   }
 
-  G4AutoLock latLock(&latMutex);      // Protect before changing registry
-
   fLLattices.insert(Lat);		// Take ownership in registry
   fLLatticeList[Mat] = Lat;
 
@@ -190,8 +183,6 @@ G4LatticePhysical* G4LatticeManager::LoadLattice(const G4VPhysicalVolume* Vol,
 G4bool G4LatticeManager::RegisterLattice(const G4VPhysicalVolume* Vol,
 					 G4LatticePhysical* Lat) {
   if (!Vol || !Lat) return false;	// Don't register null pointers
-
-  G4AutoLock latLock(&latMutex);      // Protect before changing pointer
 
   // SPECIAL: Register first lattice with a null volume to act as default
   if (fPLatticeList.empty()) fPLatticeList[0] = Lat;

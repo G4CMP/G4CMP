@@ -6,7 +6,7 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
-2026-11-17  G4CMP-655 : Address G4CMP runtime deficiencies (sys time).
+2026-11-18  G4CMP-655 : Address G4CMP runtime deficiencies (sys time).
 
 2026-11-03  g4cmp-V10-07-00  Bug fixes, improvemements to examples.
 2026-10-21  G4CMP-675 : Fix reduced stress tensor for hexagonal crystals
