@@ -9,11 +9,13 @@
 // 20200504  G4CMP-195:  Reduce length of charge-trapping parameter names;
 //		provide static function for MFP access; remove unnecessary
 //		#includes.
+// 20261118  G4CMP-687:  Query lattice for crystal/volume trapping MFP.
 
 #include "G4CMPDriftTrappingProcess.hh"
 #include "G4CMPConfigManager.hh"
 #include "G4CMPEnergyPartition.hh"
 #include "G4CMPUtils.hh"
+#include "G4LatticePhysical.hh"
 #include "G4Track.hh"
 
 
@@ -39,9 +41,17 @@ G4CMPDriftTrappingProcess::GetMeanFreePath(const G4ParticleDefinition* pd) {
 	  : DBL_MAX);
 }
 
-G4double G4CMPDriftTrappingProcess::GetMeanFreePath(const G4Track&, G4double,
-						    G4ForceCondition*) {
-  return GetMeanFreePath(GetCurrentParticle());
+G4double G4CMPDriftTrappingProcess::GetMeanFreePath(const G4Track& aTrack,
+                                                    G4double,
+                                                    G4ForceCondition*) {
+  UpdateMeanFreePathForLatticeChangeover(aTrack);
+  const G4ParticleDefinition* pd = aTrack.GetParticleDefinition();
+  if (theLattice) {
+    return (G4CMP::IsElectron(pd) ? theLattice->GetETrappingMFP()
+            : G4CMP::IsHole(pd)   ? theLattice->GetHTrappingMFP()
+            : DBL_MAX);
+  }
+  return GetMeanFreePath(pd);
 }
 
 // Process actions

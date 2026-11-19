@@ -47,6 +47,7 @@
 //              lattice info
 // 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
 // 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
+// 20261118  G4CMP-687 -- Add lattice-dependent charge trapping/ionization MFPs.
 
 #ifndef G4LatticeLogical_h
 #define G4LatticeLogical_h
@@ -198,6 +199,12 @@ public:
   void SetElectronScatter(G4double l0) { fL0_e = l0; }
   void SetMassTensor(const G4RotationMatrix& etens);
   void SetMassTensor(G4double mXX, G4double mYY, G4double mZZ);
+  void SetETrappingMFP(G4double mfp) { fETrappingMFP = mfp; }
+  void SetHTrappingMFP(G4double mfp) { fHTrappingMFP = mfp; }
+  void SetEDTrapIonMFP(G4double mfp) { fEDTrapIonMFP = mfp; }
+  void SetEATrapIonMFP(G4double mfp) { fEATrapIonMFP = mfp; }
+  void SetHDTrapIonMFP(G4double mfp) { fHDTrapIonMFP = mfp; }
+  void SetHATrapIonMFP(G4double mfp) { fHATrapIonMFP = mfp; }
 
   G4double GetBandGapEnergy() const             { return fBandGap; }
   G4double GetPairProductionEnergy() const      { return fPairEnergy; }
@@ -213,6 +220,12 @@ public:
   const G4RotationMatrix& GetMInvTensor() const { return fMassInverse; }
   const G4RotationMatrix& GetSqrtTensor() const { return fMassRatioSqrt; }
   const G4RotationMatrix& GetSqrtInvTensor() const { return fMInvRatioSqrt; }
+  G4double GetETrappingMFP() const;
+  G4double GetHTrappingMFP() const;
+  G4double GetEDTrapIonMFP() const;
+  G4double GetEATrapIonMFP() const;
+  G4double GetHDTrapIonMFP() const;
+  G4double GetHATrapIonMFP() const;
 
   // Compute "effective mass" for electron to preserve E/p relationship
   G4double GetElectronEffectiveMass(G4int iv, const G4ThreeVector& p) const;
@@ -360,6 +373,12 @@ private:
   G4double fVTrans;	// Speed of sound (transverse phonon)
   G4double fL0_e;	// Scattering length for electrons
   G4double fL0_h;	// Scattering length for holes
+  G4double fETrappingMFP = DBL_MAX; // Electron trapping mean free path
+  G4double fHTrappingMFP = DBL_MAX; // Hole trapping mean free path
+  G4double fEDTrapIonMFP = DBL_MAX; // e- on D-trap ionization MFP
+  G4double fEATrapIonMFP = DBL_MAX; // e- on A-trap ionization MFP
+  G4double fHDTrapIonMFP = DBL_MAX; // h+ on D-trap ionization MFP
+  G4double fHATrapIonMFP = DBL_MAX; // h+ on A-trap ionization MFP
 
   const G4double mElectron;	 // Free electron mass (without G4's c^2)
   G4double fHoleMass;		 // Effective mass of +ve carrier

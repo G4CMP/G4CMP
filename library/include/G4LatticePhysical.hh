@@ -38,6 +38,7 @@
 //		Also, add long missing accessors for Miller orientation
 // 20250905  G4CMP-500 -- Removing non-fundamental superconductor parameters
 //              from logical lattice and making them physical lattice members
+// 20261118  G4CMP-687 -- Add volume-dependent charge trapping/ionization MFPs.
 
 #ifndef G4LatticePhysical_h
 #define G4LatticePhysical_h 1
@@ -87,6 +88,14 @@ public:
 
   // Set temperature of volume/lattice for use with thermalization processes
   void SetTemperature(G4double temp) { fTemperature = temp; }
+
+  // Set charge trapping and trap ionization mean free paths for this volume
+  void SetETrappingMFP(G4double mfp) { fETrappingMFP = mfp; }
+  void SetHTrappingMFP(G4double mfp) { fHTrappingMFP = mfp; }
+  void SetEDTrapIonMFP(G4double mfp) { fEDTrapIonMFP = mfp; }
+  void SetEATrapIonMFP(G4double mfp) { fEATrapIonMFP = mfp; }
+  void SetHDTrapIonMFP(G4double mfp) { fHDTrapIonMFP = mfp; }
+  void SetHATrapIonMFP(G4double mfp) { fHATrapIonMFP = mfp; }
 
   // Set Superconducting properties
   void SetSCDelta0(G4double val) { fSCDelta0 = val; }
@@ -163,6 +172,30 @@ public:
   G4double GetTransverseSoundSpeed() const { return fLattice->GetTransverseSoundSpeed(); }
   G4double GetElectronScatter() const { return fLattice->GetElectronScatter(); }
   G4double GetHoleScatter() const     { return fLattice->GetHoleScatter(); }
+  G4double GetETrappingMFP() const {
+    return (fETrappingMFP == DBL_MAX ? fLattice->GetETrappingMFP()
+            : fETrappingMFP);
+  }
+  G4double GetHTrappingMFP() const {
+    return (fHTrappingMFP == DBL_MAX ? fLattice->GetHTrappingMFP()
+            : fHTrappingMFP);
+  }
+  G4double GetEDTrapIonMFP() const {
+    return (fEDTrapIonMFP == DBL_MAX ? fLattice->GetEDTrapIonMFP()
+            : fEDTrapIonMFP);
+  }
+  G4double GetEATrapIonMFP() const {
+    return (fEATrapIonMFP == DBL_MAX ? fLattice->GetEATrapIonMFP()
+            : fEATrapIonMFP);
+  }
+  G4double GetHDTrapIonMFP() const {
+    return (fHDTrapIonMFP == DBL_MAX ? fLattice->GetHDTrapIonMFP()
+            : fHDTrapIonMFP);
+  }
+  G4double GetHATrapIonMFP() const {
+    return (fHATrapIonMFP == DBL_MAX ? fLattice->GetHATrapIonMFP()
+            : fHATrapIonMFP);
+  }
 
   // Superconducting properties
   G4double GetSCDelta0() const { return fSCDelta0; }
@@ -246,6 +279,12 @@ private:
   G4double fSCDn;                            //Normal-state diffusion constant
   G4double fSCQPLocalTrappingTau;            //Local trapping tau
   G4double fSCQPDiffusionStepTau;            //QP Diffusion Stepper Tau
+  G4double fETrappingMFP = DBL_MAX;          // Electron trapping MFP
+  G4double fHTrappingMFP = DBL_MAX;          // Hole trapping MFP
+  G4double fEDTrapIonMFP = DBL_MAX;          // e- on D-trap ionization MFP
+  G4double fEATrapIonMFP = DBL_MAX;          // e- on A-trap ionization MFP
+  G4double fHDTrapIonMFP = DBL_MAX;          // h+ on D-trap ionization MFP
+  G4double fHATrapIonMFP = DBL_MAX;          // h+ on A-trap ionization MFP
 };
 
 // Write lattice structure to output stream

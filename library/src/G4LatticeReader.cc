@@ -38,6 +38,7 @@
 // 20250904  R. Linehan -- Removed direct read of Tcrit from CrystalMap file
 // 20250905  G4CMP-500 -- Removed non-fundamental superconductor parameters
 // 20251116  M. Kelsey -- Replace G4String functions with G4StrUtil, for G4 v11
+// 20261118  G4CMP-687 -- Parse charge trapping and trap ionization MFPs.
 
 #include "G4LatticeReader.hh"
 #include "G4CMPConfigManager.hh"
@@ -225,6 +226,12 @@ G4bool G4LatticeReader::ProcessValue(const G4String& name) {
   else if (name == "ivlinexponent") pLattice->SetIVLinExponent(fValue);
   else if (name == "sc_tau0_qp" )   pLattice->SetSCTau0qp(fValue*ProcessUnits("Time"));
   else if (name == "sc_tau0_ph" )   pLattice->SetSCTau0ph(fValue*ProcessUnits("Time"));
+  else if (name == "etrappingmfp")        pLattice->SetETrappingMFP(fValue*ProcessUnits("Length"));
+  else if (name == "htrappingmfp")        pLattice->SetHTrappingMFP(fValue*ProcessUnits("Length"));
+  else if (name == "edtrapionizationmfp") pLattice->SetEDTrapIonMFP(fValue*ProcessUnits("Length"));
+  else if (name == "eatrapionizationmfp") pLattice->SetEATrapIonMFP(fValue*ProcessUnits("Length"));
+  else if (name == "hdtrapionizationmfp") pLattice->SetHDTrapIonMFP(fValue*ProcessUnits("Length"));
+  else if (name == "hatrapionizationmfp") pLattice->SetHATrapIonMFP(fValue*ProcessUnits("Length"));
   else {
     G4cerr << "G4LatticeReader: Unrecognized token " << name << G4endl;
     good = false;
