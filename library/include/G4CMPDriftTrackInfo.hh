@@ -44,7 +44,7 @@ public:
 
   virtual void Print() const override;
 
-private:
+protected:
   G4int valleyIdx;
 };
 

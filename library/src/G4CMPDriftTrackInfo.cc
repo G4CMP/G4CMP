@@ -39,5 +39,6 @@ void G4CMPDriftTrackInfo::SetValleyIndex(G4int valIdx) {
 }
 
 void G4CMPDriftTrackInfo::Print() const {
-//TODO
+  G4CMPVTrackInfo::Print();
+  G4cout << "  valley " << valleyIdx << G4endl;
 }

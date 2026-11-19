@@ -14,6 +14,8 @@
 //
 // 20161111 Initial commit - R. Agnese
 // 20170728 M. Kelsey -- Replace "k" function args with "theK" (-Wshadow)
+// 20260721 G4CMP-624 -- Move wavevector "k" to base class.  This leaves
+//	      nothing local, but will keep object type for clarity.
 
 #include "G4CMPPhononTrackInfo.hh"
 
@@ -21,8 +23,8 @@
 
 G4CMPPhononTrackInfo::G4CMPPhononTrackInfo(const G4LatticePhysical* lat,
                                            G4ThreeVector theK)
-  : G4CMPVTrackInfo(lat), waveVec(theK) {;}
+  : G4CMPVTrackInfo(lat, theK) {;}
 
 void G4CMPPhononTrackInfo::Print() const {
-//TODO
+  G4CMPVTrackInfo::Print();
 }

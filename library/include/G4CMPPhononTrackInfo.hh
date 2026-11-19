@@ -14,6 +14,8 @@
 //
 // 20161111 Initial commit - R. Agnese
 // 20170728 M. Kelsey -- Replace "k" function args with "theK" (-Wshadow)
+// 20260721 G4CMP-624 -- Move wavevector "k" to base class.  This leaves
+//	      nothing local, but will keep object type for clarity.
 
 #ifndef G4CMPPhononTrackInfo_hh
 #define G4CMPPhononTrackInfo_hh 1
@@ -43,17 +45,9 @@ public:
   }
 */
 
-  // Phonon wavevectors need to be passed in the global coordinate system
-  void SetK(G4ThreeVector theK)          { waveVec = theK; }
-  void SetWaveVector(G4ThreeVector theK) { waveVec = theK; }
-  // Phonon wavevectors will be returned in the global coordinate system
-  G4ThreeVector k() const                { return waveVec; }
-  G4ThreeVector WaveVector() const       { return waveVec; }
-
   virtual void Print() const override;
 
-private:
-  G4ThreeVector waveVec;
+protected:
 };
 
 #endif
