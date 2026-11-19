@@ -64,6 +64,7 @@
 // 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
 // 20260618  E. Michaud -- If ValleyDir 0 0 0, then AddValley Identity Matrix
 // 20260810  G4CMP-654 -- Avoid FatalException error if no charge transport.
+// 20261118  G4CMP-687 -- Add lattice-dependent charge trapping/ionization MFPs.
 
 #include "G4LatticeLogical.hh"
 #include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****
@@ -146,6 +147,12 @@ G4LatticeLogical& G4LatticeLogical::operator=(const G4LatticeLogical& rhs) {
   fVTrans = rhs.fVTrans;
   fL0_e = rhs.fL0_e;
   fL0_h = rhs.fL0_h;
+  fETrappingMFP = rhs.fETrappingMFP;
+  fHTrappingMFP = rhs.fHTrappingMFP;
+  fEDTrapIonMFP = rhs.fEDTrapIonMFP;
+  fEATrapIonMFP = rhs.fEATrapIonMFP;
+  fHDTrapIonMFP = rhs.fHDTrapIonMFP;
+  fHATrapIonMFP = rhs.fHATrapIonMFP;
   fHoleMass = rhs.fHoleMass;
   fElectronMass = rhs.fElectronMass;
   fElectronMDOS = rhs.fElectronMDOS;
@@ -953,6 +960,40 @@ void G4LatticeLogical::SetDebyeTemp(G4double temp) { fDebye = temp*k_Boltzmann;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
+// Return charge trapping/ionization MFPs, falling back to global config
+
+G4double G4LatticeLogical::GetETrappingMFP() const {
+  return (fETrappingMFP == DBL_MAX ? G4CMPConfigManager::GetETrappingMFP()
+          : fETrappingMFP);
+}
+
+G4double G4LatticeLogical::GetHTrappingMFP() const {
+  return (fHTrappingMFP == DBL_MAX ? G4CMPConfigManager::GetHTrappingMFP()
+          : fHTrappingMFP);
+}
+
+G4double G4LatticeLogical::GetEDTrapIonMFP() const {
+  return (fEDTrapIonMFP == DBL_MAX ? G4CMPConfigManager::GetEDTrapIonMFP()
+          : fEDTrapIonMFP);
+}
+
+G4double G4LatticeLogical::GetEATrapIonMFP() const {
+  return (fEATrapIonMFP == DBL_MAX ? G4CMPConfigManager::GetEATrapIonMFP()
+          : fEATrapIonMFP);
+}
+
+G4double G4LatticeLogical::GetHDTrapIonMFP() const {
+  return (fHDTrapIonMFP == DBL_MAX ? G4CMPConfigManager::GetHDTrapIonMFP()
+          : fHDTrapIonMFP);
+}
+
+G4double G4LatticeLogical::GetHATrapIonMFP() const {
+  return (fHATrapIonMFP == DBL_MAX ? G4CMPConfigManager::GetHATrapIonMFP()
+          : fHATrapIonMFP);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
 // Dump structure in format compatible with reading back
 
 void G4LatticeLogical::Dump(std::ostream& os) const {
@@ -985,6 +1026,12 @@ void G4LatticeLogical::Dump(std::ostream& os) const {
      << "\nvtrans " << fVTrans/(m/s) << " m/s"
      << "\nl0_e " << fL0_e/um << " um"
      << "\nl0_h " << fL0_h/um << " um"
+     << "\neTrappingMFP " << fETrappingMFP/mm << " mm"
+     << "\nhTrappingMFP " << fHTrappingMFP/mm << " mm"
+     << "\neDTrapIonizationMFP " << fEDTrapIonMFP/mm << " mm"
+     << "\neATrapIonizationMFP " << fEATrapIonMFP/mm << " mm"
+     << "\nhDTrapIonizationMFP " << fHDTrapIonMFP/mm << " mm"
+     << "\nhATrapIonizationMFP " << fHATrapIonMFP/mm << " mm"
      << std::endl;
 
   os << "# Charge carrier masses [m(electron) units]"

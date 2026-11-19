@@ -21,6 +21,6 @@ make_binaries("electron_Epv" "latticeVecs" "luke_dist" "testBlockData"
               "testCrystalGroup" "g4cmpEFieldTest"
               "testChargeCloud" "testPartition" "testHVtransform"
       	      "testFanoFactor" "testTemperature" "testNRyield"
-              "testSolidUtils")
+              "testSolidUtils" "testTrappingMFP")
 
 

@@ -8,12 +8,14 @@
 //		particle types
 // 20200604  G4CMP-208: Comment out unused function arguments
 // 20250929  G4CMP-478: Change secondary minimal energy from 1e-3 to 1e-6
+// 20261118  G4CMP-687: Query lattice for crystal/volume trap-ionization MFP.
 
 #include "G4CMPDriftTrapIonization.hh"
 #include "G4CMPConfigManager.hh"
 #include "G4CMPSecondaryUtils.hh"
 #include "G4CMPUtils.hh"
 #include "G4ExceptionSeverity.hh"
+#include "G4LatticePhysical.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4RandomDirection.hh"
 #include "G4SystemOfUnits.hh"
@@ -70,10 +72,22 @@ GetMeanFreePath(const G4ParticleDefinition* impactPD,
   return DBL_MAX;	// Should never get here
 }
 
-G4double 
+G4double
 G4CMPDriftTrapIonization::GetMeanFreePath(const G4Track& aTrack, G4double,
-					  G4ForceCondition* /*cond*/) {
+                                          G4ForceCondition* /*cond*/) {
   UpdateMeanFreePathForLatticeChangeover(aTrack);
+  if (theLattice) {
+    if (G4CMP::IsElectron(impactType)) {
+      return (G4CMP::IsElectron(trapType) ? theLattice->GetEDTrapIonMFP()
+              : G4CMP::IsHole(trapType)   ? theLattice->GetEATrapIonMFP()
+              : DBL_MAX);
+    } else if (G4CMP::IsHole(impactType)) {
+      return (G4CMP::IsElectron(trapType) ? theLattice->GetHDTrapIonMFP()
+              : G4CMP::IsHole(trapType)   ? theLattice->GetHATrapIonMFP()
+              : DBL_MAX);
+    }
+    return DBL_MAX;
+  }
   return GetMeanFreePath(impactType, trapType);
 }
 
