@@ -49,11 +49,21 @@ protected:
                const G4ThreeVector& p);
 
   // Fill ParticleChange energy and mass for charge carrier of given momentum
+  // moving into a new lattice with constant wavevector
+  void FillParticleChange(G4LatticePhysical* lattice, G4int ivalley,
+               const G4ThreeVector& p, const G4ThreeVector& k);
+
+  // Fill ParticleChange energy and mass for charge carrier of given momentum
   void FillParticleChange(G4int ivalley, const G4ThreeVector& p);
 
   // Fill ParticleChange energy and mass for charge carrier of given energy
   void FillParticleChange(G4int ivalley, G4double Ekin,
               const G4ThreeVector& v);
+
+  // Update ParticleChange energy and mass for charge carrier of given energy
+  // with wavevector
+  void UpdateDriftWavevector(G4int ivalley, G4double Ekin,
+              const G4ThreeVector& v, const G4ThreeVector& k);
 
   // Initializing ParticleChange and setting up the correct energy and
   // effective for the charge carrier

@@ -336,14 +336,15 @@ DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
   DoAbsorption(aTrack, aStep, particleChange);
 }
 
-// implementing valley reassignment ONLY
 void G4CMPDriftBoundaryProcess::DoTransmission(
     const G4Track& aTrack, const G4Step& aStep,
     G4ParticleChange& /*particleChange*/) {
-  // drift track info has no wavevector member... keep transport direction
-  // constant instead
+  // keep wavevector constant
+  auto* trackInfo = G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(aTrack);
+  const G4ThreeVector k = trackInfo->k();
   G4ThreeVector p = G4CMPProcessUtils::GetLocalMomentum(aTrack);
-  auto* lattice = G4LatticeManager::GetLatticeManager()->GetLattice(postPV);
+  G4LatticeManager* LM = G4LatticeManager::GetLatticeManager();
+  G4LatticePhysical* lattice = LM->GetLattice(postPV);
   G4int new_valley = G4CMP::FindNearestValley(lattice, p);
   // G4CMPVDriftProcess::FillParticleChange currently uses the old lattice,
   // not the new one. If theLattice is updated before we get here, we can
