@@ -89,7 +89,7 @@ protected:
 
 private:
   G4LatticeManager();   // Singleton: only constructed in master thread
-  G4LatticeManager(const G4LatticeManager&);  // To clone from master
+  G4LatticeManager(const G4LatticeManager&) = default;  // To clone from master
 
   // Suppress moving and assignment operations; cloning is done above
   G4LatticeManager(G4LatticeManager&&) = delete;
