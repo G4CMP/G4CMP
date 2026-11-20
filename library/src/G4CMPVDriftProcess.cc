@@ -24,6 +24,7 @@
 // 20261016  G4CMP-686 -- First implementation of new FillParticleChange
 //         signature
 // 20261030  G4CMP-610 -- Add G4CMPParticleChangeForCharge member
+// 20261120  G4CMP-686 -- Pass wavevector to FillParticleChange
 
 #include "G4CMPVDriftProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -160,7 +161,15 @@ void G4CMPVDriftProcess::FillParticleChange(G4LatticePhysical* lattice,
     JustWarning, msg);
     energy = 0.;
   }
-  UpdateDriftWavevector(ivalley, energy, p, k);
+  chParticleChange.ProposeLattice(lattice);
+  chParticleChange.ProposeValley(ivalley);
+  chParticleChange.ProposeWaveVector(k);
+  currentEkin = energy;
+  chParticleChange.ProposeEnergy(energy);
+  if (IsElectron()) {   // Geant4 wants mc^2, not plain mass
+    G4double meff = lattice->GetElectronEffectiveMass(ivalley,GetLocalDirection(p));
+    chParticleChange.ProposeMass(meff*c_squared);
+  }
 }
 
 
@@ -196,23 +205,6 @@ void G4CMPVDriftProcess::FillParticleChange(G4int ivalley, G4double Ekin,
   }
 }
 
-
-// Update ParticleChange energy and mass for charge carrier of given energy
-// with wavevector
-
-void G4CMPVDriftProcess::UpdateDriftWavevector(G4int ivalley, G4double Ekin,
-              const G4ThreeVector& v, const G4ThreeVector& k) {
-  chParticleChange.ProposeValley(ivalley);
-
-  chParticleChange.ProposeWaveVector(k);
-  currentEkin = Ekin;
-  chParticleChange.ProposeEnergy(currentEkin);
-
-  if (IsElectron()) {   // Geant4 wants mc^2, not plain mass
-    G4double meff = theLattice->GetElectronEffectiveMass(ivalley,GetLocalDirection(v));
-    chParticleChange.ProposeMass(meff*c_squared);
-  }
-}
 
 // Initializing ParticleChange and setting up the correct energy and
 // effective for the charge carrier; used after G4Transportation.

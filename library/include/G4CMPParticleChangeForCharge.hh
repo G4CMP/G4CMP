@@ -53,6 +53,9 @@ public:
   const G4int* GetProposedValley() const;
   void SetProposedValley(const G4int& Vfinal);
 
+  // Make sure you always have a valid valley for the current lattice
+  void CorrectValleyForLattice();
+
 private:
   G4LatticePhysical* theLattice;
   G4ThreeVector theWaveVector;

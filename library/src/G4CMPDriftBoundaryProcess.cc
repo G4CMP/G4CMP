@@ -352,7 +352,7 @@ void G4CMPDriftBoundaryProcess::DoTransmission(
   // G4CMPVDriftProcess::FillParticleChange(new_valley, p);
   // If the lattice is NOT updated before we get here, let's try the new
   // FillParticleChange signature created for this scenario.
-  G4CMPVDriftProcess::FillParticleChange(lattice, new_valley, p);
+  G4CMPVDriftProcess::FillParticleChange(lattice, new_valley, p, k);
 }
 
 G4bool G4CMPDriftBoundaryProcess::CanTransmitBoundary(

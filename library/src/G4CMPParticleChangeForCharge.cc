@@ -31,6 +31,7 @@ void G4CMPParticleChangeForCharge::Initialize(const G4Track& track) {
   
 G4Step* G4CMPParticleChangeForCharge::UpdateStepForPostStep(G4Step* pStep) {
   G4Track* track = pStep->GetTrack();
+  CorrectValleyForLattice();
   auto* trackInfo = G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(*track);
   if (theLattice) trackInfo->SetLattice(theLattice);
   trackInfo->SetWaveVector(theWaveVector);
@@ -49,75 +50,65 @@ void G4CMPParticleChangeForCharge::DumpInfo() const {
   G4cout << "        theValley : " << theValley << G4endl;
 }
 
-void G4CMPParticleChangeForCharge::ProposeValley(const G4int& Vfinal)
-{
-  G4int iv = Vfinal;
-  if (theLattice && iv >= theLattice->NumberOfValleys()) {
-    iv = theLattice->NumberOfValleys() - 1;
-  }
-  theValley = iv;
+void G4CMPParticleChangeForCharge::ProposeValley(const G4int& Vfinal) {
+  theValley = Vfinal;
 }
 
-const G4int* G4CMPParticleChangeForCharge::GetValley() const
-{
+const G4int* G4CMPParticleChangeForCharge::GetValley() const {
   return &theValley;
 }
 
-const G4int* G4CMPParticleChangeForCharge::GetProposedValley() const
-{
+const G4int* G4CMPParticleChangeForCharge::GetProposedValley() const {
   return &theValley;
 }
 
-void G4CMPParticleChangeForCharge::SetProposedValley(const G4int& Vfinal)
-{
-  G4int iv = Vfinal;
-  if (theLattice && iv >= theLattice->NumberOfValleys()) {
-    iv = theLattice->NumberOfValleys() - 1;
-  }
-  theValley = iv;
+void G4CMPParticleChangeForCharge::SetProposedValley(const G4int& Vfinal) {
+  theValley = Vfinal;
 }
 
-void G4CMPParticleChangeForCharge::ProposeLattice(G4LatticePhysical* lattice)
-{
+void G4CMPParticleChangeForCharge::ProposeLattice(G4LatticePhysical* lattice) {
   theLattice = lattice;
 }
 
-const G4LatticePhysical* G4CMPParticleChangeForCharge::GetLattice() const
-{
+const G4LatticePhysical* G4CMPParticleChangeForCharge::GetLattice() const {
   return theLattice;
 }
 
-const G4LatticePhysical* G4CMPParticleChangeForCharge::GetProposedLattice() const
-{
+const G4LatticePhysical* G4CMPParticleChangeForCharge::GetProposedLattice() const {
   return theLattice;
 }
 
-void G4CMPParticleChangeForCharge::SetProposedLattice(G4LatticePhysical* lattice)
-{
+void G4CMPParticleChangeForCharge::SetProposedLattice(
+                                                      G4LatticePhysical* lattice) {
   theLattice = lattice;
 }
 
-void G4CMPParticleChangeForCharge::ProposeWaveVector(const G4ThreeVector& Kfinal)
-{
+void G4CMPParticleChangeForCharge::ProposeWaveVector(const G4ThreeVector& Kfinal) {
   theWaveVector = Kfinal;
 }
 
-void G4CMPParticleChangeForCharge::ProposeWaveVector(G4double Kx, G4double Ky, G4double Kz)
-{
+void G4CMPParticleChangeForCharge::ProposeWaveVector(G4double Kx, G4double Ky,
+                                                     G4double Kz) {
   theWaveVector = G4ThreeVector(Kx, Ky, Kz);
 }
 
-const G4ThreeVector* G4CMPParticleChangeForCharge::GetWaveVector() const
-{
+const G4ThreeVector* G4CMPParticleChangeForCharge::GetWaveVector() const {
   return &theWaveVector;
 }
 
-const G4ThreeVector* G4CMPParticleChangeForCharge::GetProposedWaveVector() const
-{
+const G4ThreeVector* G4CMPParticleChangeForCharge::GetProposedWaveVector() const {
   return &theWaveVector;
 }
 
-void G4CMPParticleChangeForCharge::SetProposedWaveVector(const G4ThreeVector& Kfinal)
-{
+void G4CMPParticleChangeForCharge::SetProposedWaveVector(
+                                                         const G4ThreeVector& Kfinal) {
   theWaveVector = Kfinal;
+}
+
+void G4CMPParticleChangeForCharge::CorrectValleyForLattice() {
+  G4int iv = theValley;
+  if (theLattice && iv >= theLattice->NumberOfValleys()) {
+    iv = theLattice->NumberOfValleys() - 1;
+  }
+  ProposeValley(iv);
 }

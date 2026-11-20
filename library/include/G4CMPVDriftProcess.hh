@@ -60,11 +60,6 @@ protected:
   void FillParticleChange(G4int ivalley, G4double Ekin,
               const G4ThreeVector& v);
 
-  // Update ParticleChange energy and mass for charge carrier of given energy
-  // with wavevector
-  void UpdateDriftWavevector(G4int ivalley, G4double Ekin,
-              const G4ThreeVector& v, const G4ThreeVector& k);
-
   // Initializing ParticleChange and setting up the correct energy and
   // effective for the charge carrier
   void InitializeParticleChange(G4int ivalley, const G4Track& track);
