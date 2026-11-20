@@ -29,6 +29,9 @@ class G4CMPDriftTrackInfo: public G4CMPVTrackInfo {
 public:
   G4CMPDriftTrackInfo() = delete;
   G4CMPDriftTrackInfo(const G4LatticePhysical* lat, G4int valIdx);
+  G4CMPDriftTrackInfo(const G4LatticePhysical* lat,
+                      const G4ThreeVector& theK,
+                      G4int valIdx);
 
 /*
   void *operator new(size_t) noexcept {
@@ -44,7 +47,7 @@ public:
 
   virtual void Print() const override;
 
-private:
+protected:
   G4int valleyIdx;
 };
 

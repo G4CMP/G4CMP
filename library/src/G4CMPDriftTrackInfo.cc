@@ -26,12 +26,20 @@ G4CMPDriftTrackInfo::G4CMPDriftTrackInfo(const G4LatticePhysical* lat,
   SetValleyIndex(valIdx);
 }
 
+G4CMPDriftTrackInfo::G4CMPDriftTrackInfo(const G4LatticePhysical* lat,
+                                         const G4ThreeVector& theK,
+                                         G4int valIdx) :
+                                         G4CMPVTrackInfo(lat, theK) {
+  SetValleyIndex(valIdx);
+}
+
 void G4CMPDriftTrackInfo::SetValleyIndex(G4int valIdx) {
   // -1 is a valid value, and be careful comparing signed/unsigned.
   if (valIdx < -1 || valIdx >= (G4int)Lattice()->NumberOfValleys()) {
-    G4Exception("G4CMPDriftTrackInfo: Constructor", "DrfitTrackInfo001",
+    G4Exception("G4CMPDriftTrackInfo: Constructor", "DriftTrackInfo001",
                 EventMustBeAborted,
                 "valley index parameter is out of bounds for the lattice");
+    G4cout << __LINE__ << ": " << valIdx << ", " << Lattice()->NumberOfValleys() << G4endl;
     valIdx = -1;
   }
 
@@ -39,5 +47,6 @@ void G4CMPDriftTrackInfo::SetValleyIndex(G4int valIdx) {
 }
 
 void G4CMPDriftTrackInfo::Print() const {
-//TODO
+  G4CMPVTrackInfo::Print();
+  G4cout << "  valley " << valleyIdx << G4endl;
 }

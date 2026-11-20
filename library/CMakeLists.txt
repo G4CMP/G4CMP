@@ -184,6 +184,7 @@ set(library_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPLukeEmissionRate.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPLukeScattering.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPMeshElectricField.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPParticleChangeForCharge.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPParticleChangeForPhonon.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPPartitionData.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/G4CMPPartitionSummary.cc
@@ -296,6 +297,7 @@ set(library_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPMatrix.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPMatrix.icc
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPMeshElectricField.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPParticleChangeForCharge.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPParticleChangeForPhonon.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPPartitionData.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/include/G4CMPPartitionSummary.hh

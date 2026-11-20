@@ -8,6 +8,7 @@
 //		particle types
 // 20200604  G4CMP-208: Comment out unused function arguments
 // 20250929  G4CMP-478: Change secondary minimal energy from 1e-3 to 1e-6
+// 20261030  G4CMP-610 -- Use G4CMPParticleChangeForCharge member
 
 #include "G4CMPDriftTrapIonization.hh"
 #include "G4CMPConfigManager.hh"
@@ -83,7 +84,7 @@ G4CMPDriftTrapIonization::GetMeanFreePath(const G4Track& aTrack, G4double,
 G4VParticleChange* 
 G4CMPDriftTrapIonization::PostStepDoIt(const G4Track& aTrack,
 				       const G4Step& /*aStep*/) {
-  aParticleChange.Initialize(aTrack);
+  chParticleChange.Initialize(aTrack);
 
   if (verboseLevel > 1) {
     G4cout << GetProcessName() << "::PostStepDoIt: "
@@ -93,13 +94,13 @@ G4CMPDriftTrapIonization::PostStepDoIt(const G4Track& aTrack,
   }
 
   // NOTE: If secondary gets real energy/momentum transfer, we *MUST*
-  //       do the proper kinematics and update aParticleChange.
+  //       do the proper kinematics and update chParticleChange.
 
   // Create secondary with minimal energy, assuming no momentum transfer
   G4Track* knockon = G4CMP::CreateSecondary(aTrack, trapType,
 					    G4RandomDirection(), 1e-6*eV);
-  aParticleChange.AddSecondary(knockon);
+  chParticleChange.AddSecondary(knockon);
 
   ClearNumberOfInteractionLengthLeft();		// All processes should do this!
-  return &aParticleChange;
+  return &chParticleChange;
 }

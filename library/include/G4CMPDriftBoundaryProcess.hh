@@ -31,6 +31,8 @@
 // 20251204  G4CMP-511 -- Create parallel Lambertian reflection code for charges.
 // 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
 // 20250219  G4CMP-513 : Provide separate specular and diffuse reflection for charges.
+// 20260825  G4CMP-611 -- Implementing electron boundary crossing valley
+// reassignment
 
 #ifndef G4CMPDriftBoundaryProcess_h
 #define G4CMPDriftBoundaryProcess_h 1
@@ -76,6 +78,13 @@ protected:
   // Called when maximum bounces have been recorded; does recombination
   virtual void DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
 				 G4ParticleChange& aParticleChange);
+
+  // implementing valley reassignment
+  virtual void DoTransmission(const G4Track& aTrack, const G4Step& aStep,
+                              G4ParticleChange& aParticleChange) override;
+
+  // calculate whether transmission is energetically possible
+  virtual G4bool CanTransmitBoundary(const G4Track& aTrack, const G4Step& aStep) const;
 
 private:
   G4CMPEnergyPartition* partitioner;

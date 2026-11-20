@@ -28,6 +28,7 @@
 // 20231122  Remove 50% momentum flip (see G4CMP-375)
 // 20240823  Allow ConfigManager IVRateModel setting to override config.txt
 // 20251116  M. Kelsey -- Replace G4String functions with G4StrUtil, for G4 v11
+// 20261030  G4CMP-610 -- Use G4CMPParticleChangeForCharge member
 
 #include "G4CMPInterValleyScattering.hh"
 #include "G4CMPConfigManager.hh"
@@ -147,7 +148,7 @@ G4CMPInterValleyScattering::PostStepDoIt(const G4Track& aTrack,
   FillParticleChange(valley, p);
   
   ClearNumberOfInteractionLengthLeft();    
-  return &aParticleChange;
+  return &chParticleChange;
 }
 
 

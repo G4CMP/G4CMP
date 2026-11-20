@@ -15,6 +15,7 @@
 //	       threshold and energy-gain estimation for killing in flight.
 // 20260903  G4CMP-517 -- Use new "recombinationScale" to modulate setting
 //	       limits for "free flight" -- DBL_MAX restores old behaviour.
+// 20261030  G4CMP-610 -- Use G4CMPParticleChangeForCharge member
 
 #include "G4CMPDriftRecombinationProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -88,17 +89,17 @@ G4CMPDriftRecombinationProcess::PostStepDoIt(const G4Track& aTrack,
 
   partitioner->ComputePhononSampling(Erecomb);
   partitioner->DoPartition(0., Erecomb);
-  partitioner->GetSecondaries(&aParticleChange);
+  partitioner->GetSecondaries(&chParticleChange);
 
-  if (aParticleChange.GetNumberOfSecondaries() == 0) {	// Record energy release
-    aParticleChange.ProposeNonIonizingEnergyDeposit(Erecomb);
+  if (chParticleChange.GetNumberOfSecondaries() == 0) {	// Record energy release
+    chParticleChange.ProposeNonIonizingEnergyDeposit(Erecomb);
   }
 
-  aParticleChange.ProposeEnergy(0.);
-  aParticleChange.ProposeTrackStatus(fStopAndKill);
+  chParticleChange.ProposeEnergy(0.);
+  chParticleChange.ProposeTrackStatus(fStopAndKill);
 
   ClearNumberOfInteractionLengthLeft();		// All processes should do this!
-  return &aParticleChange;
+  return &chParticleChange;
 }
 
 

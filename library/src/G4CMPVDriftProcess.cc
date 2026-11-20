@@ -21,6 +21,10 @@
 // 20170620  Follow interface changes in G4CMPProcessUtils
 // 20201231  FillParticleChange() should also reset valley index if requested
 // 20230210  I. Ataee -- Change energy-momentum relation to relativistic in FillParticleChange
+// 20261016  G4CMP-686 -- First implementation of new FillParticleChange
+//         signature
+// 20261030  G4CMP-610 -- Add G4CMPParticleChangeForCharge member
+// 20261120  G4CMP-686 -- Pass wavevector to FillParticleChange
 
 #include "G4CMPVDriftProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -28,6 +32,7 @@
 #include "G4CMPDriftHole.hh"
 #include "G4CMPGeometryUtils.hh"
 #include "G4CMPDriftTrackInfo.hh"
+#include "G4CMPParticleChangeForCharge.hh"
 #include "G4CMPTrackUtils.hh"
 #include "G4CMPUtils.hh"
 #include "G4DynamicParticle.hh"
@@ -50,6 +55,7 @@ G4CMPVDriftProcess::G4CMPVDriftProcess(const G4String& processName,
                                        G4CMPProcessSubType stype)
   : G4CMPVProcess(processName, stype) {
   if (verboseLevel) G4cout << GetProcessName() << " is created " << G4endl;
+  pParticleChange = &chParticleChange;
 }
 
 G4CMPVDriftProcess::~G4CMPVDriftProcess() {;}
@@ -88,6 +94,86 @@ G4CMPVDriftProcess::PostStepGetPhysicalInteractionLength(
 
 
 // Fill ParticleChange energy and mass for electron charge carrier momentum
+// moving into a new lattice
+
+void G4CMPVDriftProcess::FillParticleChange(G4LatticePhysical* lattice,
+              G4int ivalley, const G4ThreeVector& p) {
+  // Compute kinetic energy from momentum for electrons or holes
+  G4double energy = 0., pre_energy = 0.;
+  // get the valley in the current lattice
+  const G4int lvalley = G4CMPProcessUtils::GetCurrentValley();
+  // pull energy info from lattices
+  const G4double pre_fermi = theLattice->GetFermiEnergy();
+  const G4double pre_bandgap = theLattice->GetBandGapEnergy();
+  const G4double post_fermi = lattice->GetFermiEnergy();
+  const G4double post_bandgap = lattice->GetBandGapEnergy();
+  if (IsElectron()){
+    pre_energy = theLattice->MapPtoEkin(lvalley, GetLocalDirection(p));
+  } else {
+    // Geant4 returns the mass in energy units, with the c_squared already included
+    G4double massc2 = GetCurrentTrack()->GetDynamicParticle()->GetMass();
+    pre_energy = sqrt(p.mag2() + massc2*massc2) - massc2;
+  }
+  const G4double pre_energy_above_gap = pre_energy + pre_bandgap/2. + pre_fermi;
+  energy = pre_energy_above_gap - (post_fermi + post_bandgap/2.);
+  if (energy < 0.) {
+    // we should never get here!
+    G4ExceptionDescription msg;
+    msg << "Track energy in prior lattice did not exceed the new lattice's ";
+    msg << "bandgap + Fermi energy! Setting track kinetic energy to zero.";
+    G4Exception("G4CMPVDriftProcess::FillParticleChange", "DriftProcess000",
+    JustWarning, msg);
+    energy = 0.;
+  }
+  FillParticleChange(ivalley, energy, p);
+}
+
+
+// Fill ParticleChange energy and mass for electron charge carrier momentum
+// moving into a new lattice with constant wavevector
+
+void G4CMPVDriftProcess::FillParticleChange(G4LatticePhysical* lattice,
+              G4int ivalley, const G4ThreeVector& p, const G4ThreeVector& k) {
+  // Compute kinetic energy from momentum for electrons or holes
+  G4double energy = 0., pre_energy = 0.;
+  // get the valley in the current lattice
+  const G4int lvalley = G4CMPProcessUtils::GetCurrentValley();
+  // pull energy info from lattices
+  const G4double pre_fermi = theLattice->GetFermiEnergy();
+  const G4double pre_bandgap = theLattice->GetBandGapEnergy();
+  const G4double post_fermi = lattice->GetFermiEnergy();
+  const G4double post_bandgap = lattice->GetBandGapEnergy();
+  if (IsElectron()){
+    pre_energy = theLattice->MapPtoEkin(lvalley, GetLocalDirection(p));
+  } else {
+    // Geant4 returns the mass in energy units, with the c_squared already included
+    G4double massc2 = GetCurrentTrack()->GetDynamicParticle()->GetMass();
+    pre_energy = sqrt(p.mag2() + massc2*massc2) - massc2;
+  }
+  const G4double pre_energy_above_gap = pre_energy + pre_bandgap/2. + pre_fermi;
+  energy = pre_energy_above_gap - (post_fermi + post_bandgap/2.);
+  if (energy < 0.) {
+    // we should never get here!
+    G4ExceptionDescription msg;
+    msg << "Track energy in prior lattice did not exceed the new lattice's ";
+    msg << "bandgap + Fermi energy! Setting track kinetic energy to zero.";
+    G4Exception("G4CMPVDriftProcess::FillParticleChange", "DriftProcess000",
+    JustWarning, msg);
+    energy = 0.;
+  }
+  chParticleChange.ProposeLattice(lattice);
+  chParticleChange.ProposeValley(ivalley);
+  chParticleChange.ProposeWaveVector(k);
+  currentEkin = energy;
+  chParticleChange.ProposeEnergy(energy);
+  if (IsElectron()) {   // Geant4 wants mc^2, not plain mass
+    G4double meff = lattice->GetElectronEffectiveMass(ivalley,GetLocalDirection(p));
+    chParticleChange.ProposeMass(meff*c_squared);
+  }
+}
+
+
+// Fill ParticleChange energy and mass for electron charge carrier momentum
 
 void 
 G4CMPVDriftProcess::FillParticleChange(G4int ivalley, const G4ThreeVector& p) {
@@ -107,24 +193,25 @@ G4CMPVDriftProcess::FillParticleChange(G4int ivalley, const G4ThreeVector& p) {
 
 void G4CMPVDriftProcess::FillParticleChange(G4int ivalley, G4double Ekin,
 					    const G4ThreeVector& v) {
-  G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(GetCurrentTrack())->SetValleyIndex(ivalley);
+  chParticleChange.ProposeValley(ivalley);
 
-  aParticleChange.ProposeMomentumDirection(v.unit());
+  chParticleChange.ProposeMomentumDirection(v.unit());
   currentEkin = Ekin;
-  aParticleChange.ProposeEnergy(currentEkin);
+  chParticleChange.ProposeEnergy(currentEkin);
 
   if (IsElectron()) {		// Geant4 wants mc^2, not plain mass
     G4double meff = theLattice->GetElectronEffectiveMass(ivalley,GetLocalDirection(v));
-    aParticleChange.ProposeMass(meff*c_squared);
+    chParticleChange.ProposeMass(meff*c_squared);
   }
 }
+
 
 // Initializing ParticleChange and setting up the correct energy and
 // effective for the charge carrier; used after G4Transportation.
 
 void G4CMPVDriftProcess::InitializeParticleChange(G4int ivalley,
 						  const G4Track& track) {
-  aParticleChange.Initialize(track);
+  chParticleChange.Initialize(track);
 
   // NOTE: This passes momentum vector, effective mass gets recomputed
   FillParticleChange(ivalley, track.GetMomentum());
@@ -133,4 +220,3 @@ void G4CMPVDriftProcess::InitializeParticleChange(G4int ivalley,
 void G4CMPVDriftProcess::InitializeParticleChange(const G4Track& track) {
   InitializeParticleChange(GetValleyIndex(track), track);
 }
-

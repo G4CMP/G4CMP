@@ -25,15 +25,25 @@
 // 20250219  G4CMP-513 : Provide separate specular and diffuse reflection for charges.
 // 20260430  W. Lamberson -- Update debugging printouts.
 // 20260507  G4CMP-603 : Use specular reflection material property.
+// 20260209  G4CMP-580: Multiply refl in DoElectronReflection() by ptrk.mag()
+// 20260825  G4CMP-611 -- Implementing electron boundary crossing valley
+// reassignment
+// 20261016  G4CMP-686 -- Implement new G4VDriftProcess::FillParticleChange
+//         signature in DoTransmission
+// 20261028  G4CMP-686 -- Implemented CanTransmitBoundary to short-circuit
+//         cases where transmission is not energetically possible
+// 20261030  G4CMP-610 -- Use G4CMPParticleChangeForCharge member
 
 #include "G4CMPDriftBoundaryProcess.hh"
 #include "G4CMPConfigManager.hh"
 #include "G4CMPDriftElectron.hh"
 #include "G4CMPDriftHole.hh"
+#include "G4CMPDriftTrackInfo.hh"
 #include "G4CMPEnergyPartition.hh"
 #include "G4CMPGeometryUtils.hh"
 #include "G4CMPSecondaryUtils.hh"
 #include "G4CMPSurfaceProperty.hh"
+#include "G4CMPTrackUtils.hh"
 #include "G4CMPUtils.hh"
 #include "G4GeometryTolerance.hh"
 #include "G4LatticeManager.hh"
@@ -85,7 +95,7 @@ G4CMPDriftBoundaryProcess::PostStepDoIt(const G4Track& aTrack,
   // NOTE:  G4VProcess::SetVerboseLevel is not virtual!  Can't overload it
   G4CMPBoundaryUtils::SetVerboseLevel(verboseLevel);
 
-  aParticleChange.Initialize(aTrack);
+  chParticleChange.Initialize(aTrack);
   if (!IsGoodBoundary(aStep))
     return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
 
@@ -102,10 +112,10 @@ G4CMPDriftBoundaryProcess::PostStepDoIt(const G4Track& aTrack,
            << "\n P direction: " << GetLocalMomentum(aTrack).unit() << G4endl;
   }
 
-  ApplyBoundaryAction(aTrack, aStep, aParticleChange);
+  ApplyBoundaryAction(aTrack, aStep, chParticleChange);
 
   ClearNumberOfInteractionLengthLeft();		// All processes should do this!
-  return &aParticleChange;
+  return &chParticleChange;
 }
 
 
@@ -135,8 +145,14 @@ G4bool G4CMPDriftBoundaryProcess::AbsorbTrack(const G4Track& aTrack,
 	   <<" >? absMinK " << absMinK << G4endl;
   }
 
-  return ( (kvec*surfNorm > absMinK) &&
+  G4bool result = ( (kvec*surfNorm > absMinK) &&
 	   G4CMPBoundaryUtils::AbsorbTrack(aTrack, aStep) );
+  if (!result) {
+    if (!CanTransmitBoundary(aTrack, aStep)) {
+      result = !ReflectTrack(aTrack, aStep);
+    }
+  }
+  return result;
 }
 
 
@@ -158,15 +174,15 @@ void G4CMPDriftBoundaryProcess::DoAbsorption(const G4Track& aTrack,
     // Compute direct-phonon downsampling here
     partitioner->ComputePhononSampling(eAbs);
     partitioner->DoPartition(0., eAbs);
-    partitioner->GetSecondaries(&aParticleChange);
+    partitioner->GetSecondaries(&chParticleChange);
     
-    if (aParticleChange.GetNumberOfSecondaries() == 0) {
-      aParticleChange.ProposeNonIonizingEnergyDeposit(eAbs);
+    if (chParticleChange.GetNumberOfSecondaries() == 0) {
+      chParticleChange.ProposeNonIonizingEnergyDeposit(eAbs);
     }
   }
 
-  aParticleChange.ProposeEnergy(0.);
-  aParticleChange.ProposeTrackStatus(fStopButAlive);
+  chParticleChange.ProposeEnergy(0.);
+  chParticleChange.ProposeTrackStatus(fStopButAlive);
 }
 
 
@@ -197,11 +213,11 @@ DoReflection(const G4Track& aTrack, const G4Step& aStep,
   FillParticleChange(GetCurrentValley(), GetKineticEnergy(aTrack), reflP);
 
   if (verboseLevel>3) {
-    aParticleChange.DumpInfo();
+    chParticleChange.DumpInfo();
     G4ThreeVector pcp =
-      aParticleChange.CalcMomentum(aParticleChange.GetEnergy(),
-				   *aParticleChange.GetMomentumDirection(),
-				   aParticleChange.GetMass());
+      chParticleChange.CalcMomentum(chParticleChange.GetEnergy(),
+				   *chParticleChange.GetMomentumDirection(),
+				   chParticleChange.GetMass());
 
     G4cout << " particleChange momentum " << pcp << G4endl;
   }
@@ -318,4 +334,40 @@ void G4CMPDriftBoundaryProcess::
 DoFinalReflection(const G4Track& aTrack,const G4Step& aStep,
 		  G4ParticleChange& particleChange) {
   DoAbsorption(aTrack, aStep, particleChange);
+}
+
+void G4CMPDriftBoundaryProcess::DoTransmission(
+    const G4Track& aTrack, const G4Step& aStep,
+    G4ParticleChange& /*particleChange*/) {
+  // keep wavevector constant
+  auto* trackInfo = G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(aTrack);
+  const G4ThreeVector k = trackInfo->k();
+  G4ThreeVector p = G4CMPProcessUtils::GetLocalMomentum(aTrack);
+  G4LatticeManager* LM = G4LatticeManager::GetLatticeManager();
+  G4LatticePhysical* lattice = LM->GetLattice(postPV);
+  G4int new_valley = G4CMP::FindNearestValley(lattice, p);
+  // G4CMPVDriftProcess::FillParticleChange currently uses the old lattice,
+  // not the new one. If theLattice is updated before we get here, we can
+  // use this signature.
+  // G4CMPVDriftProcess::FillParticleChange(new_valley, p);
+  // If the lattice is NOT updated before we get here, let's try the new
+  // FillParticleChange signature created for this scenario.
+  G4CMPVDriftProcess::FillParticleChange(lattice, new_valley, p, k);
+}
+
+G4bool G4CMPDriftBoundaryProcess::CanTransmitBoundary(
+    const G4Track& aTrack, const G4Step& /*aStep*/) const {
+  auto* LM = G4LatticeManager::GetLatticeManager();
+  auto* pre_lattice = LM->GetLattice(prePV);
+  auto* post_lattice = LM->GetLattice(postPV);
+  if (!pre_lattice || !post_lattice) return false;
+  const G4double ke = G4CMPProcessUtils::GetKineticEnergy(aTrack);
+  const G4double pre_fermi = pre_lattice->GetFermiEnergy();
+  const G4double pre_bandgap = pre_lattice->GetBandGapEnergy();
+  const G4double post_fermi = post_lattice->GetFermiEnergy();
+  const G4double post_bandgap = post_lattice->GetBandGapEnergy();
+  const G4double pre_energy_above_gap = ke + pre_bandgap/2. + pre_fermi;
+  const G4double post_energy_threshold = post_bandgap/2. + post_fermi;
+  G4bool val = pre_energy_above_gap > post_energy_threshold;
+  return val;
 }

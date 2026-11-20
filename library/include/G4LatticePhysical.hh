@@ -38,6 +38,9 @@
 //		Also, add long missing accessors for Miller orientation
 // 20250905  G4CMP-500 -- Removing non-fundamental superconductor parameters
 //              from logical lattice and making them physical lattice members
+// 20260825  G4CMP-612 -- implemented DOS and fermi energy calculations
+// 20261021  G4CMP-686 -- implemented PolycrystalElasticScatterMFP setter
+// 20261022  G4CMP-612 -- moved DOS/fermi energy calcs to G4LatticeLogical
 
 #ifndef G4LatticePhysical_h
 #define G4LatticePhysical_h 1
@@ -87,6 +90,8 @@ public:
 
   // Set temperature of volume/lattice for use with thermalization processes
   void SetTemperature(G4double temp) { fTemperature = temp; }
+
+  void SetPolycrystalElasticScatterMFP(G4double val) { fPolycrystalElasticScatteringMFP = val; }
 
   // Set Superconducting properties
   void SetSCDelta0(G4double val) { fSCDelta0 = val; }
@@ -218,6 +223,11 @@ public:
   G4double GetIVEnergy(G4int i) const { return fLattice->GetIVEnergy(i); }
   const std::vector<G4double>& GetIVDeform() const { return fLattice->GetIVDeform(); }
   const std::vector<G4double>& GetIVEnergy() const { return fLattice->GetIVEnergy(); }
+
+  // Fermi energy calculations
+  G4double GetElectronDOS() const;
+  G4double GetHoleDOS() const;
+  G4double GetFermiEnergy() const;
 
   // Dump logical lattice, with additional info about physical
   void Dump(std::ostream& os) const;
