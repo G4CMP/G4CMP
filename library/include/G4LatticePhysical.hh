@@ -173,28 +173,22 @@ public:
   G4double GetElectronScatter() const { return fLattice->GetElectronScatter(); }
   G4double GetHoleScatter() const     { return fLattice->GetHoleScatter(); }
   G4double GetETrappingMFP() const {
-    return (fETrappingMFP == DBL_MAX ? fLattice->GetETrappingMFP()
-            : fETrappingMFP);
+    return (fETrappingMFP < 0.0 ? fLattice->GetETrappingMFP() : fETrappingMFP);
   }
   G4double GetHTrappingMFP() const {
-    return (fHTrappingMFP == DBL_MAX ? fLattice->GetHTrappingMFP()
-            : fHTrappingMFP);
+    return (fHTrappingMFP < 0.0 ? fLattice->GetHTrappingMFP() : fHTrappingMFP);
   }
   G4double GetEDTrapIonMFP() const {
-    return (fEDTrapIonMFP == DBL_MAX ? fLattice->GetEDTrapIonMFP()
-            : fEDTrapIonMFP);
+    return (fEDTrapIonMFP < 0.0 ? fLattice->GetEDTrapIonMFP() : fEDTrapIonMFP);
   }
   G4double GetEATrapIonMFP() const {
-    return (fEATrapIonMFP == DBL_MAX ? fLattice->GetEATrapIonMFP()
-            : fEATrapIonMFP);
+    return (fEATrapIonMFP < 0.0 ? fLattice->GetEATrapIonMFP() : fEATrapIonMFP);
   }
   G4double GetHDTrapIonMFP() const {
-    return (fHDTrapIonMFP == DBL_MAX ? fLattice->GetHDTrapIonMFP()
-            : fHDTrapIonMFP);
+    return (fHDTrapIonMFP < 0.0 ? fLattice->GetHDTrapIonMFP() : fHDTrapIonMFP);
   }
   G4double GetHATrapIonMFP() const {
-    return (fHATrapIonMFP == DBL_MAX ? fLattice->GetHATrapIonMFP()
-            : fHATrapIonMFP);
+    return (fHATrapIonMFP < 0.0 ? fLattice->GetHATrapIonMFP() : fHATrapIonMFP);
   }
 
   // Superconducting properties
@@ -279,12 +273,12 @@ private:
   G4double fSCDn;                            //Normal-state diffusion constant
   G4double fSCQPLocalTrappingTau;            //Local trapping tau
   G4double fSCQPDiffusionStepTau;            //QP Diffusion Stepper Tau
-  G4double fETrappingMFP = DBL_MAX;          // Electron trapping MFP
-  G4double fHTrappingMFP = DBL_MAX;          // Hole trapping MFP
-  G4double fEDTrapIonMFP = DBL_MAX;          // e- on D-trap ionization MFP
-  G4double fEATrapIonMFP = DBL_MAX;          // e- on A-trap ionization MFP
-  G4double fHDTrapIonMFP = DBL_MAX;          // h+ on D-trap ionization MFP
-  G4double fHATrapIonMFP = DBL_MAX;          // h+ on A-trap ionization MFP
+  G4double fETrappingMFP = -1.0;             // Electron trapping MFP
+  G4double fHTrappingMFP = -1.0;             // Hole trapping MFP
+  G4double fEDTrapIonMFP = -1.0;             // e- on D-trap ionization MFP
+  G4double fEATrapIonMFP = -1.0;             // e- on A-trap ionization MFP
+  G4double fHDTrapIonMFP = -1.0;             // h+ on D-trap ionization MFP
+  G4double fHATrapIonMFP = -1.0;             // h+ on A-trap ionization MFP
 };
 
 // Write lattice structure to output stream

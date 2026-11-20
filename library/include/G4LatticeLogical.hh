@@ -373,12 +373,12 @@ private:
   G4double fVTrans;	// Speed of sound (transverse phonon)
   G4double fL0_e;	// Scattering length for electrons
   G4double fL0_h;	// Scattering length for holes
-  G4double fETrappingMFP = DBL_MAX; // Electron trapping mean free path
-  G4double fHTrappingMFP = DBL_MAX; // Hole trapping mean free path
-  G4double fEDTrapIonMFP = DBL_MAX; // e- on D-trap ionization MFP
-  G4double fEATrapIonMFP = DBL_MAX; // e- on A-trap ionization MFP
-  G4double fHDTrapIonMFP = DBL_MAX; // h+ on D-trap ionization MFP
-  G4double fHATrapIonMFP = DBL_MAX; // h+ on A-trap ionization MFP
+  G4double fETrappingMFP = -1.0;  // Electron trapping mean free path
+  G4double fHTrappingMFP = -1.0;  // Hole trapping mean free path
+  G4double fEDTrapIonMFP = -1.0;  // e- on D-trap ionization MFP
+  G4double fEATrapIonMFP = -1.0;  // e- on A-trap ionization MFP
+  G4double fHDTrapIonMFP = -1.0;  // h+ on D-trap ionization MFP
+  G4double fHATrapIonMFP = -1.0;  // h+ on A-trap ionization MFP
 
   const G4double mElectron;	 // Free electron mass (without G4's c^2)
   G4double fHoleMass;		 // Effective mass of +ve carrier

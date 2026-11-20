@@ -586,13 +586,14 @@ over the computed value.
 
 The charge trapping and trap ionization MFP keywords (`eTrappingMFP`,
 `hTrappingMFP`, and `{e,h}{D,A}TrapIonizationMFP`) are also optional and
-default to `DBL_MAX` (disabled). Processes look up these MFPs in order of
-precedence: the volume's `G4LatticePhysical` (set in user code via
-`SetETrappingMFP()`, `SetHTrappingMFP()`, or `Set{E,H}{D,A}TrapIonMFP()`),
-then the material's `G4LatticeLogical` (`config.txt`), and finally the global
-value in `G4CMPConfigManager`. Because `DBL_MAX` indicates an unset value,
-setting `DBL_MAX` at a higher-priority level falls back to the next level
-rather than disabling trapping.
+default to `-1` (unset) on `G4LatticeLogical` and `G4LatticePhysical`.
+Processes look up these MFPs in order of precedence: the volume's
+`G4LatticePhysical` (set in user code via `SetETrappingMFP()`,
+`SetHTrappingMFP()`, or `Set{E,H}{D,A}TrapIonMFP()`), then the material's
+`G4LatticeLogical` (`config.txt`), and finally the global value in
+`G4CMPConfigManager` (which defaults to `DBL_MAX`, disabled). Any negative
+value (such as `-1`) is treated as unset and falls back to the next level,
+whereas `DBL_MAX` disables the process at that level without falling back.
 
 ## Surface Interactions
 

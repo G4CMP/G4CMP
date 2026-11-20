@@ -963,33 +963,33 @@ void G4LatticeLogical::SetDebyeTemp(G4double temp) { fDebye = temp*k_Boltzmann;}
 // Return charge trapping/ionization MFPs, falling back to global config
 
 G4double G4LatticeLogical::GetETrappingMFP() const {
-  return (fETrappingMFP == DBL_MAX ? G4CMPConfigManager::GetETrappingMFP()
-          : fETrappingMFP);
+  return (fETrappingMFP < 0.0 ? G4CMPConfigManager::GetETrappingMFP()
+                              : fETrappingMFP);
 }
 
 G4double G4LatticeLogical::GetHTrappingMFP() const {
-  return (fHTrappingMFP == DBL_MAX ? G4CMPConfigManager::GetHTrappingMFP()
-          : fHTrappingMFP);
+  return (fHTrappingMFP < 0.0 ? G4CMPConfigManager::GetHTrappingMFP()
+                              : fHTrappingMFP);
 }
 
 G4double G4LatticeLogical::GetEDTrapIonMFP() const {
-  return (fEDTrapIonMFP == DBL_MAX ? G4CMPConfigManager::GetEDTrapIonMFP()
-          : fEDTrapIonMFP);
+  return (fEDTrapIonMFP < 0.0 ? G4CMPConfigManager::GetEDTrapIonMFP()
+                              : fEDTrapIonMFP);
 }
 
 G4double G4LatticeLogical::GetEATrapIonMFP() const {
-  return (fEATrapIonMFP == DBL_MAX ? G4CMPConfigManager::GetEATrapIonMFP()
-          : fEATrapIonMFP);
+  return (fEATrapIonMFP < 0.0 ? G4CMPConfigManager::GetEATrapIonMFP()
+                              : fEATrapIonMFP);
 }
 
 G4double G4LatticeLogical::GetHDTrapIonMFP() const {
-  return (fHDTrapIonMFP == DBL_MAX ? G4CMPConfigManager::GetHDTrapIonMFP()
-          : fHDTrapIonMFP);
+  return (fHDTrapIonMFP < 0.0 ? G4CMPConfigManager::GetHDTrapIonMFP()
+                              : fHDTrapIonMFP);
 }
 
 G4double G4LatticeLogical::GetHATrapIonMFP() const {
-  return (fHATrapIonMFP == DBL_MAX ? G4CMPConfigManager::GetHATrapIonMFP()
-          : fHATrapIonMFP);
+  return (fHATrapIonMFP < 0.0 ? G4CMPConfigManager::GetHATrapIonMFP()
+                              : fHATrapIonMFP);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

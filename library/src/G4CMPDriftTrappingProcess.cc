@@ -34,24 +34,23 @@ G4CMPDriftTrappingProcess::~G4CMPDriftTrappingProcess() {
 
 // Evaluate MFP for current particle type
 
-G4double 
-G4CMPDriftTrappingProcess::GetMeanFreePath(const G4ParticleDefinition* pd) {
-  return (G4CMP::IsElectron(pd) ? G4CMPConfigManager::GetETrappingMFP()
-	  : G4CMP::IsHole(pd)   ? G4CMPConfigManager::GetHTrappingMFP()
-	  : DBL_MAX);
+G4double G4CMPDriftTrappingProcess::GetMeanFreePath(
+    const G4ParticleDefinition* pd) const {
+  if (G4CMP::IsElectron(pd)) {
+    return (theLattice ? theLattice->GetETrappingMFP()
+                       : G4CMPConfigManager::GetETrappingMFP());
+  } else if (G4CMP::IsHole(pd)) {
+    return (theLattice ? theLattice->GetHTrappingMFP()
+                       : G4CMPConfigManager::GetHTrappingMFP());
+  }
+  return DBL_MAX;
 }
 
 G4double G4CMPDriftTrappingProcess::GetMeanFreePath(const G4Track& aTrack,
                                                     G4double,
                                                     G4ForceCondition*) {
   UpdateMeanFreePathForLatticeChangeover(aTrack);
-  const G4ParticleDefinition* pd = aTrack.GetParticleDefinition();
-  if (theLattice) {
-    return (G4CMP::IsElectron(pd) ? theLattice->GetETrappingMFP()
-            : G4CMP::IsHole(pd)   ? theLattice->GetHTrappingMFP()
-            : DBL_MAX);
-  }
-  return GetMeanFreePath(pd);
+  return GetMeanFreePath(GetCurrentParticle());
 }
 
 // Process actions

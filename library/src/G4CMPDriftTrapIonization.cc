@@ -54,47 +54,43 @@ G4CMPDriftTrapIonization::~G4CMPDriftTrapIonization() {;}
 
 // Compute MFP for specific beam and trap types
 
-G4double G4CMPDriftTrapIonization::
-GetMeanFreePath(const G4ParticleDefinition* impactPD,
-		const G4ParticleDefinition* trapPD) {
+G4double G4CMPDriftTrapIonization::GetMeanFreePath(
+    const G4ParticleDefinition* impactPD,
+    const G4ParticleDefinition* trapPD) const {
   if (G4CMP::IsElectron(impactPD)) {
-    return (G4CMP::IsElectron(trapPD) ? G4CMPConfigManager::GetEDTrapIonMFP() :
-	    G4CMP::IsHole(trapPD) ? G4CMPConfigManager::GetEATrapIonMFP() :
-	    DBL_MAX);
+    if (G4CMP::IsElectron(trapPD)) {
+      return (theLattice ? theLattice->GetEDTrapIonMFP()
+                         : G4CMPConfigManager::GetEDTrapIonMFP());
+    } else if (G4CMP::IsHole(trapPD)) {
+      return (theLattice ? theLattice->GetEATrapIonMFP()
+                         : G4CMPConfigManager::GetEATrapIonMFP());
+    }
   } else if (G4CMP::IsHole(impactPD)) {
-    return (G4CMP::IsElectron(trapPD) ? G4CMPConfigManager::GetHDTrapIonMFP() :
-	    G4CMP::IsHole(trapPD) ? G4CMPConfigManager::GetHATrapIonMFP() :
-	    DBL_MAX);
+    if (G4CMP::IsElectron(trapPD)) {
+      return (theLattice ? theLattice->GetHDTrapIonMFP()
+                         : G4CMPConfigManager::GetHDTrapIonMFP());
+    } else if (G4CMP::IsHole(trapPD)) {
+      return (theLattice ? theLattice->GetHATrapIonMFP()
+                         : G4CMPConfigManager::GetHATrapIonMFP());
+    }
   } else {
     // FIXME:  Show we throw an exception here, or just return?
   }
 
-  return DBL_MAX;	// Should never get here
+  return DBL_MAX;  // Should never get here
 }
 
-G4double
-G4CMPDriftTrapIonization::GetMeanFreePath(const G4Track& aTrack, G4double,
-                                          G4ForceCondition* /*cond*/) {
+G4double G4CMPDriftTrapIonization::GetMeanFreePath(const G4Track& aTrack,
+                                                   G4double,
+                                                   G4ForceCondition* /*cond*/) {
   UpdateMeanFreePathForLatticeChangeover(aTrack);
-  if (theLattice) {
-    if (G4CMP::IsElectron(impactType)) {
-      return (G4CMP::IsElectron(trapType) ? theLattice->GetEDTrapIonMFP()
-              : G4CMP::IsHole(trapType)   ? theLattice->GetEATrapIonMFP()
-              : DBL_MAX);
-    } else if (G4CMP::IsHole(impactType)) {
-      return (G4CMP::IsElectron(trapType) ? theLattice->GetHDTrapIonMFP()
-              : G4CMP::IsHole(trapType)   ? theLattice->GetHATrapIonMFP()
-              : DBL_MAX);
-    }
-    return DBL_MAX;
-  }
   return GetMeanFreePath(impactType, trapType);
 }
 
 
 // Process action
 
-G4VParticleChange* 
+G4VParticleChange*
 G4CMPDriftTrapIonization::PostStepDoIt(const G4Track& aTrack,
 				       const G4Step& /*aStep*/) {
   aParticleChange.Initialize(aTrack);

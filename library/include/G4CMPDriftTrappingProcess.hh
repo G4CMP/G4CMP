@@ -6,6 +6,7 @@
 // 20200331  C. Stanford G4CMP-195: Added charge trapping
 // 20200504  M. Kelsey: Reduce process name string; add static function to
 //		return MFP by particle type
+// 20261120  G4CMP-687: Make GetMeanFreePath(pd) non-static to query lattice.
 
 #ifndef G4CMPDriftTrappingProcess_h
 #define G4CMPDriftTrappingProcess_h 1
@@ -22,7 +23,7 @@ public:
 
   virtual G4VParticleChange* PostStepDoIt(const G4Track&, const G4Step&);
 
-  static G4double GetMeanFreePath(const G4ParticleDefinition* pd);
+  G4double GetMeanFreePath(const G4ParticleDefinition* pd) const;
 
 protected:
   virtual G4double GetMeanFreePath(const G4Track&, G4double, G4ForceCondition*);

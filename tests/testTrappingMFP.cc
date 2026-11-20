@@ -220,9 +220,10 @@ std::unique_ptr<G4Track> MakeTestTrack(
   return track;
 }
 
-/// Verifies that unconfigured lattices default to the DBL_MAX sentinel and fall
-/// back to G4CMPConfigManager global settings when physical and logical values
-/// are unset.
+/// Verifies that unconfigured lattices default to -1 (unset) and fall back to
+/// G4CMPConfigManager global settings (defaulting to DBL_MAX), while DBL_MAX
+/// on a logical lattice disables trapping without falling back to global
+/// config.
 void TestDefaultAndGlobalFallback(TestRecorder& results) {
   // Heap-allocate G4LatticeLogical to avoid stack overflow (~7 MB fKVMap).
   std::unique_ptr<G4LatticeLogical> emptyLogical(new G4LatticeLogical());
@@ -248,6 +249,25 @@ void TestDefaultAndGlobalFallback(TestRecorder& results) {
                     globalFallbackMfps.holeDonorIon, "global fallback hD");
   results.CheckNear(emptyPhysical.GetHATrapIonMFP(),
                     globalFallbackMfps.holeAcceptorIon, "global fallback hA");
+
+  emptyLogical->SetETrappingMFP(DBL_MAX);
+  results.CheckNear(emptyPhysical.GetETrappingMFP(), DBL_MAX,
+                    "logical DBL_MAX disables without global fallback");
+  emptyLogical->SetETrappingMFP(-1.0);
+  results.CheckNear(emptyPhysical.GetETrappingMFP(),
+                    globalFallbackMfps.electronTrapping,
+                    "logical -1 reset falls back to global config");
+
+  G4ParticleDefinition* electronDef = G4CMPDriftElectron::Definition();
+  G4CMPDriftTrappingProcess noLatticeTrapping;
+  G4CMPDriftTrapIonization noLatticeIonization(electronDef, electronDef);
+  results.CheckNear(noLatticeTrapping.GetMeanFreePath(electronDef),
+                    globalFallbackMfps.electronTrapping,
+                    "no-lattice proc eTrap falls back to global config");
+  results.CheckNear(
+      noLatticeIonization.GetMeanFreePath(electronDef, electronDef),
+      globalFallbackMfps.electronDonorIon,
+      "no-lattice proc eD falls back to global config");
 
   // Restore global defaults so singleton state does not leak into other tests.
   const MfpValues unsetMfps = {DBL_MAX, DBL_MAX, DBL_MAX,
@@ -288,8 +308,8 @@ void TestLatticeReaderCopyAndDump(TestRecorder& results) {
 }
 
 /// Verifies that per-volume G4LatticePhysical overrides supersede the
-/// underlying G4LatticeLogical values, and that resetting an override to
-/// DBL_MAX restores fallback to the logical lattice.
+/// underlying G4LatticeLogical values, DBL_MAX disables without falling back,
+/// and resetting an override to -1 restores fallback to the logical lattice.
 void TestPhysicalLatticeOverrides(TestRecorder& results) {
   std::unique_ptr<G4LatticeLogical> logicalLattice =
       LoadLogicalLatticeFromConfig(logicalConfigMfps);
@@ -318,9 +338,13 @@ void TestPhysicalLatticeOverrides(TestRecorder& results) {
                     physicalOverrideMfps.holeAcceptorIon, "phys override hA");
 
   physicalLattice.SetETrappingMFP(DBL_MAX);
+  results.CheckNear(physicalLattice.GetETrappingMFP(), DBL_MAX,
+                    "phys DBL_MAX disables without logical fallback");
+
+  physicalLattice.SetETrappingMFP(-1.0);
   results.CheckNear(physicalLattice.GetETrappingMFP(),
                     logicalConfigMfps.electronTrapping,
-                    "phys DBL_MAX reset falls back to logical lattice");
+                    "phys -1 reset falls back to logical lattice");
 }
 
 /// Verifies that trapping and trap-ionization processes read MFPs from the
