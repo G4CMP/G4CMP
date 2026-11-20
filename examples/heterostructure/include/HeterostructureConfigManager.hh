@@ -27,25 +27,25 @@ public:
 
   // Access current values
   static const G4String& GetHitOutput() { return Instance()->Hit_file; }
-  static double GetQAbsProbGeSi() { return Instance()->fQAbsProbGeSi; }
-  static double GetQReflProbGeSi() { return Instance()->fQReflProbGeSi; }
-  static double GetQAbsProbSiGe() { return Instance()->fQAbsProbSiGe; }
-  static double GetQReflProbSiGe() { return Instance()->fQReflProbSiGe; }
+  static double GetQAbsProbBotTop() { return Instance()->fQAbsProbBotTop; }
+  static double GetQReflProbBotTop() { return Instance()->fQReflProbBotTop; }
+  static double GetQAbsProbTopBot() { return Instance()->fQAbsProbTopBot; }
+  static double GetQReflProbTopBot() { return Instance()->fQReflProbTopBot; }
   static G4String GetTopMaterial() { return Instance()->fTopMaterial; }
   static G4String GetBottomMaterial() { return Instance()->fBottomMaterial; }
   static G4double GetTopThickness() { return Instance()->fTopThickness; }
   static G4double GetBottomThickness() { return Instance()->fBottomThickness; }
 
   // Change values (e.g., via Messenger)
-  static void SetHitOutput(const G4String& name) { Instance()->Hit_file=name; UpdateGeometry(); }
-  static void SetQAbsProbGeSi(const double qAbsProbGeSi) { Instance()->fQAbsProbGeSi=qAbsProbGeSi; UpdateGeometry(); }
-  static void SetQReflProbGeSi(const double qReflProbGeSi) { Instance()->fQReflProbGeSi=qReflProbGeSi; UpdateGeometry(); }
-  static void SetQAbsProbSiGe(const double qAbsProbSiGe) { Instance()->fQAbsProbSiGe=qAbsProbSiGe; UpdateGeometry(); }
-  static void SetQReflProbSiGe(const double qReflProbSiGe) { Instance()->fQReflProbSiGe=qReflProbSiGe; UpdateGeometry(); }
-  static void SetTopMaterial(const G4String& val) { Instance()->fTopMaterial=val; UpdateGeometry(); }
-  static void SetBottomMaterial(const G4String& val) { Instance()->fBottomMaterial=val; UpdateGeometry(); }
-  static void SetTopThickness(const G4double& val) { Instance()->fTopThickness=val; UpdateGeometry(); }
-  static void SetBottomThickness(const G4double& val) { Instance()->fBottomThickness=val; UpdateGeometry(); }
+  static void SetHitOutput(const G4String& name) { Instance()->Hit_file=name; }
+  static void SetQAbsProbBotTop(const double qAbsProbBotTop) { Instance()->fQAbsProbBotTop=qAbsProbBotTop; }
+  static void SetQReflProbBotTop(const double qReflProbBotTop) { Instance()->fQReflProbBotTop=qReflProbBotTop; }
+  static void SetQAbsProbTopBot(const double qAbsProbTopBot) { Instance()->fQAbsProbTopBot=qAbsProbTopBot; }
+  static void SetQReflProbTopBot(const double qReflProbTopBot) { Instance()->fQReflProbTopBot=qReflProbTopBot; }
+  static void SetTopMaterial(const G4String& val) { Instance()->fTopMaterial=val; }
+  static void SetBottomMaterial(const G4String& val) { Instance()->fBottomMaterial=val; }
+  static void SetTopThickness(const G4double& val) { Instance()->fTopThickness=val; }
+  static void SetBottomThickness(const G4double& val) { Instance()->fBottomThickness=val; }
 
   static void UpdateGeometry();
 
@@ -58,10 +58,10 @@ private:
 
 private:
   G4String Hit_file;	// Output file of e/h hits ($G4CMP_HIT_FILE)
-  G4double fQAbsProbGeSi;
-  G4double fQReflProbGeSi;
-  G4double fQAbsProbSiGe;
-  G4double fQReflProbSiGe;
+  G4double fQAbsProbBotTop;
+  G4double fQReflProbBotTop;
+  G4double fQAbsProbTopBot;
+  G4double fQReflProbTopBot;
   G4String fTopMaterial;
   G4String fBottomMaterial;
   G4double fTopThickness;

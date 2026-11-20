@@ -32,13 +32,11 @@ public:
 
 private:
   HeterostructureConfigManager* theManager;
-  G4UIdirectory* geomTopDirectory;
-  G4UIdirectory* geomBotDirectory;
   G4UIcmdWithAString* hitsCmd;
-  G4UIcmdWithADouble* qAbsProbGeSiCmd;
-  G4UIcmdWithADouble* qReflProbGeSiCmd;
-  G4UIcmdWithADouble* qAbsProbSiGeCmd;
-  G4UIcmdWithADouble* qReflProbSiGeCmd;
+  G4UIcmdWithADouble* qAbsProbBotTopCmd;
+  G4UIcmdWithADouble* qReflProbBotTopCmd;
+  G4UIcmdWithADouble* qAbsProbTopBotCmd;
+  G4UIcmdWithADouble* qReflProbTopBotCmd;
   G4UIcmdWithAString* topMatCmd;
   G4UIcmdWithAString* botMatCmd;
   G4UIcmdWithADoubleAndUnit* topThickCmd;

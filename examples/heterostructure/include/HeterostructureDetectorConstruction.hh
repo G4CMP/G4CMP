@@ -37,12 +37,11 @@ private:
   G4Material* fBottomMaterial;
   G4Material* fTopMaterial;
   G4VPhysicalVolume* fWorldPhys;
-  G4CMPSurfaceProperty* fGeSiInterface;
-  G4CMPSurfaceProperty* fSiGeInterface;
-  G4CMPSurfaceProperty* fGeVacInterface;
-  G4CMPSurfaceProperty* fSiVacInterface;
+  G4CMPSurfaceProperty* fBotTopInterface;
+  G4CMPSurfaceProperty* fTopBotInterface;
+  G4CMPSurfaceProperty* fBotVacInterface;
+  G4CMPSurfaceProperty* fTopVacInterface;
   G4bool fConstructed;		// Flag to not re-recreate surface properties
 };
 
 #endif
-

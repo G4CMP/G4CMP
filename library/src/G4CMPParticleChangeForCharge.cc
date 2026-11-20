@@ -23,8 +23,9 @@ void G4CMPParticleChangeForCharge::Initialize(const G4Track& track) {
   G4ParticleChange::Initialize(track);
   // initialize derived class attributes
   theLattice = G4CMP::GetLattice(track);
-  theWaveVector = G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(track)->k();
-  theValley = G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(track)->ValleyIndex();
+  G4CMPDriftTrackInfo* trackInfo = G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(track);
+  theWaveVector = trackInfo->k();
+  theValley = trackInfo->ValleyIndex();
 }
 
 // Populate G4Step with results of process' PostStepDoIt()

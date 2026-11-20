@@ -40,16 +40,16 @@
 
 HeterostructureDetectorConstruction::HeterostructureDetectorConstruction()
   : fLiquidHelium(0), fBottomMaterial(0), fTopMaterial(0), fWorldPhys(0),
-    fGeSiInterface(0), fSiGeInterface(0), fGeVacInterface(0), fSiVacInterface(0), 
+    fBotTopInterface(0), fTopBotInterface(0), fBotVacInterface(0), fTopVacInterface(0),
     fConstructed(false) {;}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 HeterostructureDetectorConstruction::~HeterostructureDetectorConstruction() {
-  delete fGeSiInterface;
-  delete fSiGeInterface;
-  delete fGeVacInterface;
-  delete fSiVacInterface;
+  delete fBotTopInterface;
+  delete fTopBotInterface;
+  delete fBotVacInterface;
+  delete fTopVacInterface;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -108,7 +108,7 @@ void HeterostructureDetectorConstruction::SetupGeometry()
                                  false,0);
   
   //
-  // Germanium layer -- should change to SiGe in the future!
+  // Germanium layer -- should change to TopBot in the future!
   // 
   G4VSolid* BottomSolid = new G4Box("BottomSolid", 1.*mm, 1.*mm,bot_thick);
   G4LogicalVolume* BottomLog =
@@ -130,7 +130,7 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   LM->RegisterLattice(BottomPhys, BottomPhysical);
 
   //
-  // Silicon layer
+  // Top layer
   //
   G4VSolid* TopSolid = new G4Box("TopSolid",1.*mm,1.*mm,top_thick);
   G4LogicalVolume* TopLog =
@@ -140,7 +140,7 @@ void HeterostructureDetectorConstruction::SetupGeometry()
     worldLogical,false,0);
 
   //
-  //Silicon lattice information
+  // Top lattice information
   //
   G4LatticeLogical* TopLogical = LM->LoadLattice(fTopMaterial, tn);
   // G4LatticePhysical assigns G4LatticeLogical a physical orientation
@@ -148,30 +148,30 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   TopPhysical->SetMillerOrientation(1,0,0);
   LM->RegisterLattice(TopPhys, TopPhysical);
 
-  double qAbsProbGeSi  = HeterostructureConfigManager::GetQAbsProbGeSi();
-  double qReflProbGeSi = HeterostructureConfigManager::GetQReflProbGeSi();
-  double qAbsProbSiGe  = HeterostructureConfigManager::GetQAbsProbSiGe();
-  double qReflProbSiGe = HeterostructureConfigManager::GetQReflProbSiGe();
+  double qAbsProbBotTop  = HeterostructureConfigManager::GetQAbsProbBotTop();
+  double qReflProbBotTop = HeterostructureConfigManager::GetQReflProbBotTop();
+  double qAbsProbTopBot  = HeterostructureConfigManager::GetQAbsProbTopBot();
+  double qReflProbTopBot = HeterostructureConfigManager::GetQReflProbTopBot();
 
 
   if (!fConstructed) {
 
-    fGeSiInterface = new G4CMPSurfaceProperty("fGeSiInterface", 
-                                          qAbsProbGeSi, qReflProbGeSi, 0.0, 0.0,
+    fBotTopInterface = new G4CMPSurfaceProperty("fBotTopInterface",
+                                          qAbsProbBotTop, qReflProbBotTop, 0.0, 0.0,
                                           0.0, 0.0, 0.0, 0.0, 
                                           0.0, 0.0);
 
-    fSiGeInterface = new G4CMPSurfaceProperty("fSiGeInterface", 
-                                          qAbsProbSiGe, qReflProbSiGe, 0.0, 0.0,
+    fTopBotInterface = new G4CMPSurfaceProperty("fTopBotInterface",
+                                          qAbsProbTopBot, qReflProbTopBot, 0.0, 0.0,
 					  	                            0.0, 0.0, 0.0, 0.0, 
                                           0.0, 0.0);
 
-    fGeVacInterface = new G4CMPSurfaceProperty("GeVacInterface", 
+    fBotVacInterface = new G4CMPSurfaceProperty("BotVacInterface",
                                             0.0, 1.0, 0.0, 0.0,
 					    	                            0.0, 1.0, 0.0, 0.0,
                                             0.0, 1.0);
 
-    fSiVacInterface = new G4CMPSurfaceProperty("SiVacInterface", 
+    fTopVacInterface = new G4CMPSurfaceProperty("TopVacInterface",
                                             0.0, 1.0, 0.0, 0.0,
                                             0.0, 1.0, 0.0, 0.0,
                                             0.0, 1.0);
@@ -180,25 +180,20 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   //
   // Border surfaces
   //
-  new G4CMPLogicalBorderSurface("GeSi", BottomPhys, TopPhys,
-        fGeSiInterface);
-  new G4CMPLogicalBorderSurface("SiGe", TopPhys, BottomPhys,
-        fSiGeInterface);
+  new G4CMPLogicalBorderSurface("BotTop", BottomPhys, TopPhys,
+        fBotTopInterface);
+  new G4CMPLogicalBorderSurface("TopBot", TopPhys, BottomPhys,
+        fTopBotInterface);
 
-  // new G4CMPLogicalSkinSurface("SiLogicalSkinSurface", fTopMaterialLogical,
-  //          fSiVacInterface);
-  // new G4CMPLogicalSkinSurface("GeLogicalSkinSurface", fBottomMaterialLogical,
-  //          fGeVacInterface);
+  new G4CMPLogicalBorderSurface("BotVac", BottomPhys, fWorldPhys,
+				fBotVacInterface);
+  new G4CMPLogicalBorderSurface("VacBot", fWorldPhys, BottomPhys,
+        fBotVacInterface);
 
-  new G4CMPLogicalBorderSurface("GeVac", BottomPhys, fWorldPhys,
-				fGeVacInterface);
-  new G4CMPLogicalBorderSurface("VacGe", fWorldPhys, BottomPhys,
-        fGeVacInterface);
-
-  new G4CMPLogicalBorderSurface("SiVac", TopPhys, fWorldPhys,
-        fSiVacInterface);
-  new G4CMPLogicalBorderSurface("VacSi", fWorldPhys, TopPhys,
-        fSiVacInterface);
+  new G4CMPLogicalBorderSurface("TopVac", TopPhys, fWorldPhys,
+        fTopVacInterface);
+  new G4CMPLogicalBorderSurface("VacTop", fWorldPhys, TopPhys,
+        fTopVacInterface);
 
   //                                        
   // Visualization attributes
@@ -206,10 +201,10 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   worldLogical->SetVisAttributes(G4VisAttributes::GetInvisible());
   G4VisAttributes* simpleBoxVisAtt= new G4VisAttributes(G4Colour(0,1.0,1.0));
   simpleBoxVisAtt->SetVisibility(true);
-  G4VisAttributes* siVisAtt= new G4VisAttributes(G4Colour(1.0,0,1.0));
-  siVisAtt->SetVisibility(true);
+  G4VisAttributes* topVisAtt= new G4VisAttributes(G4Colour(1.0,0,1.0));
+  topVisAtt->SetVisibility(true);
   BottomLog->SetVisAttributes(simpleBoxVisAtt);
-  TopLog->SetVisAttributes(siVisAtt);
+  TopLog->SetVisAttributes(topVisAtt);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -219,17 +214,17 @@ void HeterostructureDetectorConstruction::ConstructSDandField()
   
   G4SDManager* sdman = G4SDManager::GetSDMpointer();
 
-  G4VSensitiveDetector* geSD = sdman->FindSensitiveDetector("GermaniumElectrode", false);
-  if (!geSD){ // Only create detector if one doesn't exist.
-    geSD = new HeterostructureSensitivity("GermaniumElectrode");
-    sdman->AddNewDetector(geSD);
+  G4VSensitiveDetector* botSD = sdman->FindSensitiveDetector("BottomElectrode", false);
+  if (!botSD){ // Only create detector if one doesn't exist.
+    botSD = new HeterostructureSensitivity("BottomElectrode");
+    sdman->AddNewDetector(botSD);
   }
-  SetSensitiveDetector("BottomLogical",geSD);
+  SetSensitiveDetector("BottomLogical",botSD);
 
-  G4VSensitiveDetector* siSD = sdman->FindSensitiveDetector("SiliconElectrode", false);
-  if (!siSD) {
-    siSD = new HeterostructureSensitivity("SiliconElectrode");
-    sdman->AddNewDetector(siSD);
+  G4VSensitiveDetector* topSD = sdman->FindSensitiveDetector("TopElectrode", false);
+  if (!topSD) {
+    topSD = new HeterostructureSensitivity("TopElectrode");
+    sdman->AddNewDetector(topSD);
   }
-  SetSensitiveDetector("TopLogical", siSD);
+  SetSensitiveDetector("TopLogical", topSD);
 }
