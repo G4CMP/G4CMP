@@ -7,12 +7,14 @@ Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
 [ Modifications included on branch 606, put subtask tags below it: ]
-2026-10-28  G4CMP-686 : FillParticleChange for charge transmission.
+2026-11-20  G4CMP-686 : FillParticleChange for charge transmission.
 2026-10-08  G4CMP-612 : Add Fermi energy calculation to G4LatticePhysical.
 2026-08-18  G4CMP-606 : Charge transmission across boundaries.
 2026-08-18  G4CMP-613 : Heterostructure example toy geometry.
 
 [ Main line "develop" ChangeHistory; when merging, put develop updates here: ]
+2026-11-03  g4cmp-V10-07-00  Bug fixes, improvemements to examples.
+
 2026-10-21  G4CMP-675 : Fix reduced stress tensor for hexagonal crystals
 2026-10-14  G4CMP-685 : Eliminate some unused local variables in QP example.
 2026-10-14  G4CMP-684 : Remove obsolete G4PhononTrackMap.hh before G4 11.5.
