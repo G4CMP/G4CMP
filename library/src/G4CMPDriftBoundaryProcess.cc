@@ -346,13 +346,10 @@ void G4CMPDriftBoundaryProcess::DoTransmission(
   G4LatticeManager* LM = G4LatticeManager::GetLatticeManager();
   G4LatticePhysical* lattice = LM->GetLattice(postPV);
   G4int new_valley = G4CMP::FindNearestValley(lattice, p);
-  // G4CMPVDriftProcess::FillParticleChange currently uses the old lattice,
-  // not the new one. If theLattice is updated before we get here, we can
-  // use this signature.
-  // G4CMPVDriftProcess::FillParticleChange(new_valley, p);
-  // If the lattice is NOT updated before we get here, let's try the new
-  // FillParticleChange signature created for this scenario.
   G4CMPVDriftProcess::FillParticleChange(lattice, new_valley, p, k);
+  if (theLattice) trackInfo->SetLattice(lattice);
+  trackInfo->SetWaveVector(k);
+  trackInfo->SetValleyIndex(new_valley);
 }
 
 G4bool G4CMPDriftBoundaryProcess::CanTransmitBoundary(
