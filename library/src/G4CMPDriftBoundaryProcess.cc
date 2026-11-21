@@ -347,9 +347,6 @@ void G4CMPDriftBoundaryProcess::DoTransmission(
   G4LatticePhysical* lattice = LM->GetLattice(postPV);
   G4int new_valley = G4CMP::FindNearestValley(lattice, p);
   G4CMPVDriftProcess::FillParticleChange(lattice, new_valley, p, k);
-  if (theLattice) trackInfo->SetLattice(lattice);
-  trackInfo->SetWaveVector(k);
-  trackInfo->SetValleyIndex(new_valley);
 }
 
 G4bool G4CMPDriftBoundaryProcess::CanTransmitBoundary(

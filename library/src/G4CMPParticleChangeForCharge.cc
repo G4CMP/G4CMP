@@ -31,14 +31,15 @@ void G4CMPParticleChangeForCharge::Initialize(const G4Track& track) {
 // Populate G4Step with results of process' PostStepDoIt()
   
 G4Step* G4CMPParticleChangeForCharge::UpdateStepForPostStep(G4Step* pStep) {
-  // G4Track* track = pStep->GetTrack();
-  // CorrectValleyForLattice();
-  // auto* trackInfo = G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(*track);
-  // if (theLattice) trackInfo->SetLattice(theLattice);
-  // trackInfo->SetWaveVector(theWaveVector);
-  // trackInfo->SetValleyIndex(theValley);
   // Call base class function
-  return G4ParticleChange::UpdateStepForPostStep(pStep);
+  G4Step* newStep = G4ParticleChange::UpdateStepForPostStep(pStep);
+  G4Track* track = newStep->GetTrack();
+  // CorrectValleyForLattice();
+  auto* trackInfo = G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(*track);
+  if (theLattice) trackInfo->SetLattice(theLattice);
+  trackInfo->SetWaveVector(theWaveVector);
+  trackInfo->SetValleyIndex(theValley);
+  return newStep;
 }
 
 
