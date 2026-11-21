@@ -30,7 +30,6 @@ G4CMPDriftTrackInfo::G4CMPDriftTrackInfo(const G4LatticePhysical* lat,
                                          const G4ThreeVector& theK,
                                          G4int valIdx) :
                                          G4CMPVTrackInfo(lat, theK) {
-  G4cout << __LINE__ << ": " << lat->GetLattice()->GetName() << ", " << valIdx << ", " << lat->NumberOfValleys() << G4endl;
   SetValleyIndex(valIdx);
 }
 

@@ -11,6 +11,8 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 2026-10-08  G4CMP-612 : Add Fermi energy calculation to G4LatticePhysical.
 2026-08-18  G4CMP-606 : Charge transmission across boundaries.
 2026-08-18  G4CMP-613 : Heterostructure example toy geometry.
+2026-07-21  G4CMP-624 : Compute and store initial-state wavevectors for charges.
+2026-07-21  G4CMP-621 : Move wavevector from PhononTrackInfo to base VTrackInfo.
 
 2026-11-03  g4cmp-V10-07-00  Bug fixes, improvemements to examples.
 2026-10-21  G4CMP-675 : Fix reduced stress tensor for hexagonal crystals
@@ -48,8 +50,6 @@ ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 2026-08-08  G4CMP-653 : Apply Lindhard yield to steps within HitMerging.
 2026-07-27  G4CMP-650 : Add missing file to library/CMakeLists.txt header list
 2026-07-21  G4CMP-649 : Protect against missing touchable in SurfaceClearance.
-2026-07-21  G4CMP-624 : Compute and store initial-state wavevectors for charges.
-2026-07-21  G4CMP-621 : Move wavevector from PhononTrackInfo to base VTrackInfo.
 2026-07-07  G4CMP-641 : Update PhysicsModelCatalog usage for G4 11.4.2.
 
 2026-06-19  g4cmp-V10-04-01  Fixes and sanity checks for partial charge params.
