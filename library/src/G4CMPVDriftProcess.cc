@@ -22,7 +22,7 @@
 // 20201231  FillParticleChange() should also reset valley index if requested
 // 20230210  I. Ataee -- Change energy-momentum relation to relativistic in FillParticleChange
 // 20261016  G4CMP-686 -- First implementation of new FillParticleChange
-//         signature
+//           signature
 // 20261030  G4CMP-610 -- Add G4CMPParticleChangeForCharge member
 // 20261120  G4CMP-686 -- Pass wavevector to FillParticleChange
 

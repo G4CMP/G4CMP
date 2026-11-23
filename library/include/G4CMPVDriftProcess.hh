@@ -18,7 +18,7 @@
 // 20170806  Move ChargeCarrierTimeStep() to G4CMPProcessUtils
 // 20260514  Add InitializeParticleChange() without separate valley argument
 // 20261016  G4CMP-686 -- First implementation of new FillParticleChange
-//         signature
+//           signature
 // 20261030  G4CMP-610 -- Add G4CMPParticleChangeForCharge member
 
 #ifndef G4CMPVDriftProcess_h
@@ -68,6 +68,7 @@ protected:
   G4double currentEkin;	// Caching the current track kinetic energy
   G4CMPParticleChangeForCharge chParticleChange;
 
+private:
   // hide assignment operators as private 
   G4CMPVDriftProcess(G4CMPVDriftProcess&);
   G4CMPVDriftProcess& operator=(const G4CMPVDriftProcess& right);

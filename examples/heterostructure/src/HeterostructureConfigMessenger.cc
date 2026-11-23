@@ -37,12 +37,12 @@ HeterostructureConfigMessenger::HeterostructureConfigMessenger(HeterostructureCo
   qAbsProbTopBotCmd->SetRange("qAbsProbTopBot >= 0. && qAbsProbTopBot <= 1.");
 
   qReflProbBotTopCmd = CreateCommand<G4UIcmdWithADouble> ("qReflProbBotTop",
-            "Set the pReflProb parameter from bottom -> top, between 0 and 1");
+            "Set the qReflProb parameter from bottom -> top, between 0 and 1");
   qReflProbBotTopCmd->SetParameterName("value", false);
   qReflProbBotTopCmd->SetRange("value >= 0. && value <= 1.");
 
   qReflProbTopBotCmd = CreateCommand<G4UIcmdWithADouble> ("qReflProbTopBot",
-            "Set the pReflProb parameter from top -> bottom, between 0 and 1");
+            "Set the qReflProb parameter from top -> bottom, between 0 and 1");
   qReflProbTopBotCmd->SetParameterName("value", false);
   qReflProbTopBotCmd->SetRange("value >= 0. && value <= 1.");
 

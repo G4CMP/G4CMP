@@ -23,7 +23,7 @@
 
 HeterostructureSensitivity::HeterostructureSensitivity(G4String name) :
   G4CMPElectrodeSensitivity(name), fileName("") {
-  SetOutputFile(HeterostructureConfigManager::GetHitOutput());
+  SetOutputFile(G4CMP::DebuggingFileThread(HeterostructureConfigManager::GetHitOutput()));
 }
 
 HeterostructureSensitivity::~HeterostructureSensitivity() {

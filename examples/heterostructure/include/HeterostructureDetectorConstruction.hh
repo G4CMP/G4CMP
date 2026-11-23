@@ -41,7 +41,7 @@ private:
   G4CMPSurfaceProperty* fTopBotInterface;
   G4CMPSurfaceProperty* fBotVacInterface;
   G4CMPSurfaceProperty* fTopVacInterface;
-  G4bool fConstructed;		// Flag to not re-recreate surface properties
+  G4bool fConstructed;		// Flag to not recreate surface properties
 };
 
 #endif

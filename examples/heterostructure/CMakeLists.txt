@@ -22,6 +22,20 @@ include_directories(${G4CMP_INCLUDE_DIRS})
 include(${G4CMP_USE_FILE})
 include(${Geant4_USE_FILE})
 
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Use same C++ version as was used for G4CMP
+if (NOT DEFINED CMAKE_CXX_STANDARD) # Only if user did not specify
+    set(CMAKE_CXX_STANDARD ${G4CMP_CXX_STANDARD})
+endif()
+
+message(STATUS "Found G4CMP: ${G4CMP_VERSION}")
+message(STATUS "Setting CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}")
+
+# Set compiler options to print all kinds of warnings
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wshadow)
+endif()
+
 #----------------------------------------------------------------------------
 # RPATH stuff
 #

@@ -98,24 +98,24 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   const G4double top_thick = HeterostructureConfigManager::GetTopThickness();
   const G4String bn = HeterostructureConfigManager::GetBottomMaterial();
   const G4String tn = HeterostructureConfigManager::GetTopMaterial();
+  G4bool check_overlap = true;
+  // check_overlap = false;
   //     
   // World
   //
-  G4VSolid* worldSolid = new G4Box("World",1.*cm,1.*cm,1.*mm);
+  G4VSolid* worldSolid = new G4Box("World",1.*cm,1.*cm,1.*mm + top_thick + bot_thick);
   G4LogicalVolume* worldLogical =
     new G4LogicalVolume(worldSolid,fLiquidHelium,"World");
   fWorldPhys = new G4PVPlacement(0,G4ThreeVector(),worldLogical,"World",0,
-                                 false,0);
+                                 false,0,check_overlap);
   
   //
-  // Germanium layer -- should change to TopBot in the future!
-  // 
-  G4VSolid* BottomSolid = new G4Box("BottomSolid", 1.*mm, 1.*mm,bot_thick);
+  G4VSolid* BottomSolid = new G4Box("BottomSolid", 1.*mm, 1.*mm, bot_thick/2.);
   G4LogicalVolume* BottomLog =
     new G4LogicalVolume(BottomSolid,fBottomMaterial,"BottomLogical");
   G4VPhysicalVolume* BottomPhys =
     new G4PVPlacement(0,G4ThreeVector(),BottomLog,"BottomPhysical",
-                      worldLogical,false,0);
+                      worldLogical,false,0,check_overlap);
 
   //
   //Germanium lattice information
@@ -132,12 +132,12 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   //
   // Top layer
   //
-  G4VSolid* TopSolid = new G4Box("TopSolid",1.*mm,1.*mm,top_thick);
+  G4VSolid* TopSolid = new G4Box("TopSolid",1.*mm,1.*mm,top_thick/2.);
   G4LogicalVolume* TopLog =
     new G4LogicalVolume(TopSolid,fTopMaterial,"TopLogical");
   G4VPhysicalVolume* TopPhys = new G4PVPlacement(0,
-    G4ThreeVector(0.,0.,bot_thick + top_thick), TopLog, "TopPhysical",
-    worldLogical,false,0);
+    G4ThreeVector(0.,0.,bot_thick/2. + top_thick/2.), TopLog, "TopPhysical",
+    worldLogical,false,0,check_overlap);
 
   //
   // Top lattice information
@@ -199,10 +199,10 @@ void HeterostructureDetectorConstruction::SetupGeometry()
   // Visualization attributes
   //
   worldLogical->SetVisAttributes(G4VisAttributes::GetInvisible());
-  G4VisAttributes* simpleBoxVisAtt= new G4VisAttributes(G4Colour(0,1.0,1.0));
-  simpleBoxVisAtt->SetVisibility(true);
-  G4VisAttributes* topVisAtt= new G4VisAttributes(G4Colour(1.0,0,1.0));
-  topVisAtt->SetVisibility(true);
+  G4VisAttributes simpleBoxVisAtt(G4Colour(0,1.0,1.0));
+  simpleBoxVisAtt.SetVisibility(true);
+  G4VisAttributes topVisAtt(G4Colour(1.0,0,1.0));
+  topVisAtt.SetVisibility(true);
   BottomLog->SetVisAttributes(simpleBoxVisAtt);
   TopLog->SetVisAttributes(topVisAtt);
 }

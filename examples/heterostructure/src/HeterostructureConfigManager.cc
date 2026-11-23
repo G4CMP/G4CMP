@@ -37,17 +37,17 @@ HeterostructureConfigManager* HeterostructureConfigManager::Instance() {
 
 HeterostructureConfigManager::HeterostructureConfigManager()
   : Hit_file(getenv("G4CMP_HIT_FILE")?getenv("G4CMP_HIT_FILE"):"Heterostructure_hits.txt"),
-    fQAbsProbBotTop(0), fQAbsProbTopBot(0), fQReflProbBotTop(0), fQReflProbTopBot(0),
+    fQAbsProbBotTop(0), fQReflProbBotTop(0), fQAbsProbTopBot(0), fQReflProbTopBot(0),
     fTopMaterial("Si"), fBottomMaterial("Ge"),
-    fTopThickness(5.e-03), fBottomThickness(5.e-03),
+    fTopThickness(5.e-03*CLHEP::mm), fBottomThickness(5.e-03*CLHEP::mm),
     messenger(new HeterostructureConfigMessenger(this)) {;}
 
 HeterostructureConfigManager::HeterostructureConfigManager(const HeterostructureConfigManager& master)
-  : Hit_file(master.GetHitOutput()),
-    fQAbsProbBotTop(master.GetQAbsProbBotTop()), fQAbsProbTopBot(master.GetQAbsProbTopBot()),
-    fQReflProbBotTop(master.GetQReflProbBotTop()), fQReflProbTopBot(master.GetQReflProbTopBot()),
-    fTopMaterial(master.GetTopMaterial()), fBottomMaterial(master.GetBottomMaterial()),
-    fTopThickness(master.GetTopThickness()), fBottomThickness(master.GetBottomThickness()),
+  : Hit_file(master.Hit_file),
+    fQAbsProbBotTop(master.fQAbsProbBotTop),
+    fQReflProbBotTop(master.fQReflProbBotTop), fQAbsProbTopBot(master.fQAbsProbTopBot), fQReflProbTopBot(master.fQReflProbTopBot),
+    fTopMaterial(master.fTopMaterial), fBottomMaterial(master.fBottomMaterial),
+    fTopThickness(master.fTopThickness), fBottomThickness(master.fBottomThickness),
     messenger(new HeterostructureConfigMessenger(this)) {;}
 
 HeterostructureConfigManager::~HeterostructureConfigManager() {

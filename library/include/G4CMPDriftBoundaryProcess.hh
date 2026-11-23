@@ -32,7 +32,7 @@
 // 20251210  G4CMP-518 -- Make PhononVelocityIsInward() generic.
 // 20250219  G4CMP-513 : Provide separate specular and diffuse reflection for charges.
 // 20260825  G4CMP-611 -- Implementing electron boundary crossing valley
-// reassignment
+//           reassignment
 
 #ifndef G4CMPDriftBoundaryProcess_h
 #define G4CMPDriftBoundaryProcess_h 1
