@@ -1222,7 +1222,7 @@ G4double G4LatticeLogical::GetFermiEnergy(const G4double& temperature) const {
   if (temperature <= 0.) temp = G4CMPConfigManager::GetTemperature();
   const G4double kT = k_Boltzmann * temp;
   const G4double term1 = GetBandGapEnergy() / 2.;
-  const G4double term2 = kT * std::log(GetHoleMass() / mElectron) / 2.;
+  const G4double term2 = kT * 3. * std::log(GetHoleMass() / mElectron) / 4.;
   ef = term1 + term2;
   return ef;
 }
