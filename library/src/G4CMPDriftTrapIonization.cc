@@ -54,9 +54,9 @@ G4CMPDriftTrapIonization::~G4CMPDriftTrapIonization() {;}
 
 // Compute MFP for specific beam and trap types
 
-G4double G4CMPDriftTrapIonization::GetMeanFreePath(
-    const G4ParticleDefinition* impactPD,
-    const G4ParticleDefinition* trapPD) const {
+G4double G4CMPDriftTrapIonization::
+GetMeanFreePath(const G4ParticleDefinition* impactPD,
+		const G4ParticleDefinition* trapPD) const {
   if (G4CMP::IsElectron(impactPD)) {
     if (G4CMP::IsElectron(trapPD)) {
       return (theLattice ? theLattice->GetEDTrapIonMFP()
@@ -77,12 +77,12 @@ G4double G4CMPDriftTrapIonization::GetMeanFreePath(
     // FIXME:  Show we throw an exception here, or just return?
   }
 
-  return DBL_MAX;  // Should never get here
+  return DBL_MAX;	// Should never get here
 }
 
-G4double G4CMPDriftTrapIonization::GetMeanFreePath(const G4Track& aTrack,
-                                                   G4double,
-                                                   G4ForceCondition* /*cond*/) {
+G4double 
+G4CMPDriftTrapIonization::GetMeanFreePath(const G4Track& aTrack, G4double,
+					  G4ForceCondition* /*cond*/) {
   UpdateMeanFreePathForLatticeChangeover(aTrack);
   return GetMeanFreePath(impactType, trapType);
 }
@@ -90,7 +90,7 @@ G4double G4CMPDriftTrapIonization::GetMeanFreePath(const G4Track& aTrack,
 
 // Process action
 
-G4VParticleChange*
+G4VParticleChange* 
 G4CMPDriftTrapIonization::PostStepDoIt(const G4Track& aTrack,
 				       const G4Step& /*aStep*/) {
   aParticleChange.Initialize(aTrack);

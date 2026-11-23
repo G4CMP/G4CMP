@@ -34,8 +34,8 @@ G4CMPDriftTrappingProcess::~G4CMPDriftTrappingProcess() {
 
 // Evaluate MFP for current particle type
 
-G4double G4CMPDriftTrappingProcess::GetMeanFreePath(
-    const G4ParticleDefinition* pd) const {
+G4double 
+G4CMPDriftTrappingProcess::GetMeanFreePath(const G4ParticleDefinition* pd) const {
   if (G4CMP::IsElectron(pd)) {
     return (theLattice ? theLattice->GetETrappingMFP()
                        : G4CMPConfigManager::GetETrappingMFP());
@@ -46,9 +46,8 @@ G4double G4CMPDriftTrappingProcess::GetMeanFreePath(
   return DBL_MAX;
 }
 
-G4double G4CMPDriftTrappingProcess::GetMeanFreePath(const G4Track& aTrack,
-                                                    G4double,
-                                                    G4ForceCondition*) {
+G4double G4CMPDriftTrappingProcess::GetMeanFreePath(const G4Track& aTrack, G4double,
+						    G4ForceCondition*) {
   UpdateMeanFreePathForLatticeChangeover(aTrack);
   return GetMeanFreePath(GetCurrentParticle());
 }
