@@ -1214,30 +1214,15 @@ void G4LatticeLogical::CheckLatticeForSCCompleteness() const {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-// Fermi energy calculations
-G4double G4LatticeLogical::GetElectronDOS() const {
-  const G4double meff = GetElectronDOSMass();
-  G4double edos = meff / (pi * CLHEP::h_Planck * CLHEP::h_Planck);
-  return edos;
-}
+// Fermi energy calculation
 
-G4double G4LatticeLogical::GetHoleDOS() const {
-  const G4double meff = GetHoleMass() * GetElectronDOSMass() / mElectron;
-  G4double hdos = meff / (pi * CLHEP::h_Planck * CLHEP::h_Planck);
-  return hdos;
-}
-
-// https://lampz.tugraz.at/~hadley/psd/weblectures/Ef_intrinsic/index.php
 G4double G4LatticeLogical::GetFermiEnergy(const G4double& temperature) const {
   G4double ef = 0.;
   G4double temp = temperature;
   if (temperature <= 0.) temp = G4CMPConfigManager::GetTemperature();
-  const G4double edos = GetElectronDOS();
-  const G4double hdos = GetHoleDOS();
-  if (edos <= 0. || hdos <= 0.) return ef;
   const G4double kT = k_Boltzmann * temp;
   const G4double term1 = GetBandGapEnergy() / 2.;
-  const G4double term2 = kT * std::log(hdos / edos) / 2.;
+  const G4double term2 = kT * std::log(GetHoleMass() / mElectron) / 2.;
   ef = term1 + term2;
   return ef;
 }

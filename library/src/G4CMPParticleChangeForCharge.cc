@@ -33,9 +33,9 @@ void G4CMPParticleChangeForCharge::Initialize(const G4Track& track) {
 G4Step* G4CMPParticleChangeForCharge::UpdateStepForPostStep(G4Step* pStep) {
   // Call base class function
   G4Step* newStep = G4ParticleChange::UpdateStepForPostStep(pStep);
+  // propagate values to DriftTrackInfo
   G4Track* track = newStep->GetTrack();
-  // CorrectValleyForLattice();
-  auto* trackInfo = G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(*track);
+  G4CMPDriftTrackInfo* trackInfo = G4CMP::GetTrackInfo<G4CMPDriftTrackInfo>(*track);
   if (theLattice) trackInfo->SetLattice(theLattice);
   trackInfo->SetWaveVector(theWaveVector);
   trackInfo->SetValleyIndex(theValley);

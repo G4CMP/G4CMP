@@ -293,13 +293,8 @@ public:
     return (i>=0 && i<GetNIVDeform()) ? fIVEnergy[i] : 0.;
   }
 
-  // Fermi energy calculations
-  // https://web.eecs.umich.edu/~fredty/public_html/EECS320_SP12/DOS_Derivation.pdf
-  // no energy/temperature dependence -- use 2D DOS
-  G4double GetElectronDOS() const;
-  G4double GetHoleDOS() const;
+  // Fermi energy calculation
 
-  // https://lampz.tugraz.at/~hadley/psd/weblectures/Ef_intrinsic/index.php
   G4double GetFermiEnergy(const G4double& temperature) const;
 
 private:
