@@ -44,6 +44,7 @@ set(G4CMP_CXX_STANDARD ${CMAKE_CXX_STANDARD} CACHE STRING
    "C++ version used for building G4CMP")
 message(STATUS "Setting G4CMP_CXX_STANDARD: ${G4CMP_CXX_STANDARD}")
 
+
 #----------------------------------------------------------------------------
 # Utility function to define simple executables in subdirectories
 #

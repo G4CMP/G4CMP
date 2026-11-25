@@ -30,6 +30,8 @@
 // 20261009 G4CMP-618 -- Support sub-event parallelism by getting default
 //              track classification from stack manager
 // 20261014 G4CMP-684 -- Remove obsolete G4PhononTrackMap.hh before G4 11.5.
+// 20261113 G4CMP-688 -- Fix shadowed declaration of data member in
+//               G4UserStackingAction.hh.
 
 #include "G4CMPStackingAction.hh"
 
@@ -80,8 +82,8 @@ G4CMPStackingAction::ClassifyNewTrack(const G4Track* aTrack) {
   //    their ActionInitialization, that classification will be used
   //  - if the user has not defined a default classification for the track's
   //    particle type, fUrgent is used
-  G4StackManager* stackManager =
-    G4EventManager::GetEventManager()->GetStackManager();
+  if(!stackManager)
+    stackManager = G4EventManager::GetEventManager()->GetStackManager();
   classification = stackManager->GetDefaultClassification();
 #endif // G4VERSION_NUMBER >= 1120
 
