@@ -9,11 +9,13 @@
 // 20200504  G4CMP-195:  Reduce length of charge-trapping parameter names;
 //		provide static function for MFP access; remove unnecessary
 //		#includes.
+// 20261118  G4CMP-687:  Query lattice for crystal/volume trapping MFP.
 
 #include "G4CMPDriftTrappingProcess.hh"
 #include "G4CMPConfigManager.hh"
 #include "G4CMPEnergyPartition.hh"
 #include "G4CMPUtils.hh"
+#include "G4LatticePhysical.hh"
 #include "G4Track.hh"
 
 
@@ -33,14 +35,20 @@ G4CMPDriftTrappingProcess::~G4CMPDriftTrappingProcess() {
 // Evaluate MFP for current particle type
 
 G4double 
-G4CMPDriftTrappingProcess::GetMeanFreePath(const G4ParticleDefinition* pd) {
-  return (G4CMP::IsElectron(pd) ? G4CMPConfigManager::GetETrappingMFP()
-	  : G4CMP::IsHole(pd)   ? G4CMPConfigManager::GetHTrappingMFP()
-	  : DBL_MAX);
+G4CMPDriftTrappingProcess::GetMeanFreePath(const G4ParticleDefinition* pd) const {
+  if (G4CMP::IsElectron(pd)) {
+    return (theLattice ? theLattice->GetETrappingMFP()
+                       : G4CMPConfigManager::GetETrappingMFP());
+  } else if (G4CMP::IsHole(pd)) {
+    return (theLattice ? theLattice->GetHTrappingMFP()
+                       : G4CMPConfigManager::GetHTrappingMFP());
+  }
+  return DBL_MAX;
 }
 
-G4double G4CMPDriftTrappingProcess::GetMeanFreePath(const G4Track&, G4double,
+G4double G4CMPDriftTrappingProcess::GetMeanFreePath(const G4Track& aTrack, G4double,
 						    G4ForceCondition*) {
+  UpdateMeanFreePathForLatticeChangeover(aTrack);
   return GetMeanFreePath(GetCurrentParticle());
 }
 

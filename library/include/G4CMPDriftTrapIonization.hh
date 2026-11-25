@@ -6,6 +6,8 @@
 // 20200331  G4CMP-196: Added impact ionization process
 // 20200426  G4CMP-196: Change name to TrapIonization, specify beam and trap
 //		particle types
+// 20261120  G4CMP-687: Make GetMeanFreePath(impactPD,trapPD) non-static to
+//           query lattice.
 
 #ifndef G4CMPDriftTrapIonization_h
 #define G4CMPDriftTrapIonization_h 1
@@ -30,8 +32,8 @@ public:
   virtual G4VParticleChange* PostStepDoIt(const G4Track&, const G4Step&);
 
   // Compute MFP for specific beam and trap types
-  static G4double GetMeanFreePath(const G4ParticleDefinition* impactPD,
-				  const G4ParticleDefinition* trapPD);
+  G4double GetMeanFreePath(const G4ParticleDefinition* impactPD,
+                           const G4ParticleDefinition* trapPD) const;
 
 protected:
   virtual G4double GetMeanFreePath(const G4Track&, G4double, G4ForceCondition*);

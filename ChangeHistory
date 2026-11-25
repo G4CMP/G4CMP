@@ -6,6 +6,8 @@ Releases are tagged on the 'master' branch as "g4cmp-Vxx-yy-zz".
 Features and bug fixes are tagged on the 'develop' branch using the JIRA
 ticket identifier, "G4CMP-nnn", or using the GitHub pull request, "PR-nn".
 
+2026-11-25  G4CMP-687 : Add lattice-dependent charge trapping/ionization MFPs.
+
 2026-11-20  g4cmp-V10-07-01  Solve x2 CPU slowdown, compiler warnings.
 2026-11-20  G4CMP-655 : Address G4CMP runtime deficiencies (sys time).
 2026-11-20  G4CMP-688 : Add compile options to cmake.

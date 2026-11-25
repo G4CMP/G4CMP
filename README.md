@@ -550,6 +550,12 @@ the crystal system.
 | fanoFactor | val    | Spread of e-h pair energy  |                   |
 | l0_e    | len       | electron scattering length | length            |
 | l0_h	  | len       | hole scattering length     | length            |
+| eTrappingMFP | len  | electron trapping MFP      | length            |
+| hTrappingMFP | len  | hole trapping MFP          | length            |
+| eDTrapIonizationMFP | len | e- on D-trap ionization MFP | length     |
+| eATrapIonizationMFP | len | e- on A-trap ionization MFP | length     |
+| hDTrapIonizationMFP | len | h+ on D-trap ionization MFP | length     |
+| hATrapIonizationMFP | len | h+ on A-trap ionization MFP | length     |
 | hmass   | m_h       | effective mass of hole   | electron mass ratio |
 | emass   | m_xx m_yy m_zz | electron mass tensor | (same)             |
 | valley  | theta phi psi unit | Euler angles     | angle (deg/rad)    |
@@ -577,6 +583,17 @@ config.txt, they will be computed from other physical constants:
 ```
 If they are specified in config.txt, the value in config.txt takes precedence
 over the computed value.
+
+The charge trapping and trap ionization MFP keywords (`eTrappingMFP`,
+`hTrappingMFP`, and `{e,h}{D,A}TrapIonizationMFP`) are also optional and
+default to `-1` (unset) on `G4LatticeLogical` and `G4LatticePhysical`.
+Processes look up these MFPs in order of precedence: the volume's
+`G4LatticePhysical` (set in user code via `SetETrappingMFP()`,
+`SetHTrappingMFP()`, or `Set{E,H}{D,A}TrapIonMFP()`), then the material's
+`G4LatticeLogical` (`config.txt`), and finally the global value in
+`G4CMPConfigManager` (which defaults to `DBL_MAX`, disabled). Any negative
+value (such as `-1`) is treated as unset and falls back to the next level,
+whereas `DBL_MAX` disables the process at that level without falling back.
 
 ## Surface Interactions
 

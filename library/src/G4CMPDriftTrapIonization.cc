@@ -8,12 +8,14 @@
 //		particle types
 // 20200604  G4CMP-208: Comment out unused function arguments
 // 20250929  G4CMP-478: Change secondary minimal energy from 1e-3 to 1e-6
+// 20261118  G4CMP-687: Query lattice for crystal/volume trap-ionization MFP.
 
 #include "G4CMPDriftTrapIonization.hh"
 #include "G4CMPConfigManager.hh"
 #include "G4CMPSecondaryUtils.hh"
 #include "G4CMPUtils.hh"
 #include "G4ExceptionSeverity.hh"
+#include "G4LatticePhysical.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4RandomDirection.hh"
 #include "G4SystemOfUnits.hh"
@@ -54,15 +56,23 @@ G4CMPDriftTrapIonization::~G4CMPDriftTrapIonization() {;}
 
 G4double G4CMPDriftTrapIonization::
 GetMeanFreePath(const G4ParticleDefinition* impactPD,
-		const G4ParticleDefinition* trapPD) {
+		const G4ParticleDefinition* trapPD) const {
   if (G4CMP::IsElectron(impactPD)) {
-    return (G4CMP::IsElectron(trapPD) ? G4CMPConfigManager::GetEDTrapIonMFP() :
-	    G4CMP::IsHole(trapPD) ? G4CMPConfigManager::GetEATrapIonMFP() :
-	    DBL_MAX);
+    if (G4CMP::IsElectron(trapPD)) {
+      return (theLattice ? theLattice->GetEDTrapIonMFP()
+                         : G4CMPConfigManager::GetEDTrapIonMFP());
+    } else if (G4CMP::IsHole(trapPD)) {
+      return (theLattice ? theLattice->GetEATrapIonMFP()
+                         : G4CMPConfigManager::GetEATrapIonMFP());
+    }
   } else if (G4CMP::IsHole(impactPD)) {
-    return (G4CMP::IsElectron(trapPD) ? G4CMPConfigManager::GetHDTrapIonMFP() :
-	    G4CMP::IsHole(trapPD) ? G4CMPConfigManager::GetHATrapIonMFP() :
-	    DBL_MAX);
+    if (G4CMP::IsElectron(trapPD)) {
+      return (theLattice ? theLattice->GetHDTrapIonMFP()
+                         : G4CMPConfigManager::GetHDTrapIonMFP());
+    } else if (G4CMP::IsHole(trapPD)) {
+      return (theLattice ? theLattice->GetHATrapIonMFP()
+                         : G4CMPConfigManager::GetHATrapIonMFP());
+    }
   } else {
     // FIXME:  Show we throw an exception here, or just return?
   }
