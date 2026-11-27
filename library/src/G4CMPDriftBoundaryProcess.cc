@@ -146,14 +146,8 @@ G4bool G4CMPDriftBoundaryProcess::AbsorbTrack(const G4Track& aTrack,
 	   <<" >? absMinK " << absMinK << G4endl;
   }
 
-  G4bool result = ( (kvec*surfNorm > absMinK) &&
+  return ( (kvec*surfNorm > absMinK) &&
 	   G4CMPBoundaryUtils::AbsorbTrack(aTrack, aStep) );
-  if (!result) {
-    if (!CanTransmitBoundary(aTrack, aStep)) {
-      result = !ReflectTrack(aTrack, aStep);
-    }
-  }
-  return result;
 }
 
 

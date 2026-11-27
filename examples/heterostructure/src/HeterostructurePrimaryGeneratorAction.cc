@@ -42,7 +42,7 @@ HeterostructurePrimaryGeneratorAction::~HeterostructurePrimaryGeneratorAction() 
 
 void HeterostructurePrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   if (fParticleGun->GetParticleDefinition() == G4Geantino::Definition()) {
-    fParticleGun->SetParticlePosition(G4ThreeVector(0.0,0.0,HeterostructureConfigManager::GetBottomThickness() - 1.*nm));
+    fParticleGun->SetParticlePosition(G4ThreeVector(0.0,0.0,HeterostructureConfigManager::GetBottomThickness()/2. - 1.*nm));
     // Generate hole
     fParticleGun->SetParticleDefinition(G4CMPDriftHole::Definition());
     // fParticleGun->SetParticleMomentumDirection(G4RandomDirection());
