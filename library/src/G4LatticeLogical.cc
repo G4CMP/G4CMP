@@ -1083,13 +1083,13 @@ void G4LatticeLogical::Dump(std::ostream& os) const {
     for (size_t i = 0; i < mos.size(); ++i) {
       const G4ThreeVector mo = mos.at(i);
       os << "\n(" << mo[0] << "," << mo[1] << "," << mo[2] << ") ";
-      if (fElectronAffinity.find(mo) != fElectronAffinity) {
+      if (fElectronAffinity.find(mo) != fElectronAffinity.end()) {
         os << fElectronAffinity.at(mo) << " ";
       }
       else {
         os << "0 ";
       }
-      if (fWorkFunction.find(mo) != fWorkFunction) {
+      if (fWorkFunction.find(mo) != fWorkFunction.end()) {
         os << fWorkFunction.at(mo) << " ";
       }
       else {
