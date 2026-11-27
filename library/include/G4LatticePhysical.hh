@@ -13,7 +13,7 @@
 // 20140312  Add pass-through calls for charge-carrier support
 // 20140319  Add output functions for diagnostics
 // 20140321  Move placement transformations to G4CMPProcessUtils, put
-//		lattice orientation into ctor arguments
+//    lattice orientation into ctor arguments
 // 20140324  Add intervalley scattering parameters
 // 20140401  Add valley momentum calculations
 // 20140425  Add "effective mass" calculation for electrons
@@ -29,17 +29,19 @@
 // 20181001  M. Kelsey -- Clarify IV rate parameters systematically
 // 20190704  M. Kelsey -- Add IV rate function selector for material
 // 20190801  M. Kelsey -- Use G4ThreeVector buffer instead of pass-by-value;
-//		add pass through call to GetValleyInv().
+//    add pass through call to GetValleyInv().
 // 20200520  For MT thread safety, wrap G4ThreeVector buffer in function to
-//		return thread-local instance.
+//    return thread-local instance.
 // 20200608  Fix -Wshadow warnings from tempvec
 // 20210919  M. Kelsey -- Allow SetVerboseLevel() from const instances.
 // 20220921  G4CMP-319 -- Add utilities for thermal (Maxwellian) distributions
-//		Also, add long missing accessors for Miller orientation
+//    Also, add long missing accessors for Miller orientation
 // 20250905  G4CMP-500 -- Removing non-fundamental superconductor parameters
 //              from logical lattice and making them physical lattice members
 // 20260825  G4CMP-612 -- implemented DOS and fermi energy calculations
+// 20261021  G4CMP-686 -- implemented PolycrystalElasticScatterMFP setter
 // 20261022  G4CMP-612 -- moved DOS/fermi energy calcs to G4LatticeLogical
+// 20261124  G4CMP-612 -- Add band offset params, remove Fermi energy calc
 
 #ifndef G4LatticePhysical_h
 #define G4LatticePhysical_h 1
@@ -49,16 +51,16 @@
 #include "G4ThreeVector.hh"
 #include <iosfwd>
 
-#define G4CMP_HAS_TEMPERATURE	/* G4CMP-319 -- New feature for user code */
+#define G4CMP_HAS_TEMPERATURE /* G4CMP-319 -- New feature for user code */
 
 
 class G4LatticePhysical {
 public:
-  G4LatticePhysical();		// User *MUST* set configuration manually
+  G4LatticePhysical();    // User *MUST* set configuration manually
 
   // Miller orientation aligns lattice normal (hkl) with geometry +Z
   G4LatticePhysical(const G4LatticeLogical* Lat,
-		    G4int h=0, G4int k=0, G4int l=0, G4double rot=0.);
+        G4int h=0, G4int k=0, G4int l=0, G4double rot=0.);
 
 
   // Miller orientation aligns lattice normal (hkl) with geometry +Z
@@ -72,7 +74,7 @@ public:
                     G4double scQPDiffusionStepTau=DBL_MAX,
                     G4int h=0, G4int k=0, G4int l=0, G4double rot=0.);
 
-  
+
   void SetVerboseLevel(G4int vb) const {
     verboseLevel = vb;
     if (fLattice) fLattice->SetVerboseLevel(vb);
@@ -89,6 +91,8 @@ public:
 
   // Set temperature of volume/lattice for use with thermalization processes
   void SetTemperature(G4double temp) { fTemperature = temp; }
+
+  void SetPolycrystalElasticScatterMFP(G4double val) { fPolycrystalElasticScatteringMFP = val; }
 
   // Set Superconducting properties
   void SetSCDelta0(G4double val) { fSCDelta0 = val; }
@@ -123,7 +127,7 @@ public:
   G4double MapPtoEkin(G4int ivalley, const G4ThreeVector& p_e) const;
   G4double MapV_elToEkin(G4int ivalley, const G4ThreeVector& v_e) const;
 
-public:  
+public:
   const G4LatticeLogical* GetLattice() const { return fLattice; }
 
   // Return Miller orientation
@@ -175,7 +179,7 @@ public:
   G4double GetSCDn() const { return fSCDn; }
   G4double GetSCQPLocalTrappingTau() const { return fSCQPLocalTrappingTau; }
   G4double GetSCQPDiffusionStepTau() const { return fSCQPDiffusionStepTau; }
-  
+
   // Charge carriers have effective mass
   G4double GetHoleMass() const { return fLattice->GetHoleMass(); }
   G4double GetElectronMass() const { return fLattice->GetElectronMass(); }
@@ -221,14 +225,16 @@ public:
   const std::vector<G4double>& GetIVDeform() const { return fLattice->GetIVDeform(); }
   const std::vector<G4double>& GetIVEnergy() const { return fLattice->GetIVEnergy(); }
 
-  // Fermi energy calculations
-  G4double GetElectronDOS() const;
-  G4double GetHoleDOS() const;
-  G4double GetFermiEnergy() const;
+  G4double GetElectronAffinity() const {
+    return fLattice->GetElectronAffinity(GetMillerIndices());
+  }
+  G4double GetWorkFunction() const {
+    return fLattice->GetWorkFunction(GetMillerIndices());
+  }
 
   // Dump logical lattice, with additional info about physical
   void Dump(std::ostream& os) const;
-  
+
 private:
   // Create a thread-local buffer to use with MapAtoB() functions
   inline G4ThreeVector& tempvec() const {
@@ -238,13 +244,13 @@ private:
   }
 
 private:
-  mutable G4int verboseLevel;		// Enable diagnostic output
-  const G4LatticeLogical* fLattice;	// Underlying lattice parameters
-  G4RotationMatrix fOrient;		// Rotate geometry into lattice frame
+  mutable G4int verboseLevel;   // Enable diagnostic output
+  const G4LatticeLogical* fLattice; // Underlying lattice parameters
+  G4RotationMatrix fOrient;   // Rotate geometry into lattice frame
   G4RotationMatrix fInverse;
-  G4int hMiller, kMiller, lMiller;	// Save Miller indices for dumps
+  G4int hMiller, kMiller, lMiller;  // Save Miller indices for dumps
   G4double fRot;
-  G4double fTemperature;		// Temperature assigned to volume
+  G4double fTemperature;    // Temperature assigned to volume
 
   G4double fPolycrystalElasticScatteringMFP; //Polycrystal scattering length
   G4double fSCDelta0;                        //Zero-temp SC gap energy

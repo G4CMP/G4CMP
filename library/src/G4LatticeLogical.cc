@@ -17,7 +17,7 @@
 // 20150601  Add mapping from electron velocity back to momentum
 // 20160517  Add basis vectors for lattice, to use with Miller orientation
 // 20160520  Add reporting function to format valley Euler angles
-// 20160614  Add elasticity tensors and density (set from G4Material) 
+// 20160614  Add elasticity tensors and density (set from G4Material)
 // 20160624  Add direct calculation of phonon kinematics from elasticity
 // 20160627  Interpolate values from lookup tables
 // 20160629  Add post-constuction initialization (for tables, computed pars)
@@ -34,27 +34,27 @@
 // 20170928  Replace "polarizationState" with "mode"
 // 20180829  Add to Dump to print correct IVRate variables depending on model
 // 20180830  Create variables IVRate1 IVRateQuad IVExponentQuad used in IVrate
-//		calculation 
+//    calculation
 // 20180831  IVField, IVRate, IVRate1, IVRateQuad, IVExponentQuad, and
-//		IVExponent represent E0(Eq.1), Gamma0 (Eq.2), Gamma1 (Eq.2),
-//		Gamma0 (Eq.1), alpha (Eq.1), alpha (Eq.2) from arXiv:1807.07986
+//    IVExponent represent E0(Eq.1), Gamma0 (Eq.2), Gamma1 (Eq.2),
+//    Gamma0 (Eq.1), alpha (Eq.1), alpha (Eq.2) from arXiv:1807.07986
 // 20190704  M. Kelsey -- Add IV rate function selector for material
 // 20190723  M. Kelsey -- Include valley axis as comment in dump
 // 20190801  M. Kelsey -- Use G4ThreeVector buffer instead of pass-by-value,
-//		precompute valley inverse transforms
+//    precompute valley inverse transforms
 // 20190906  M. Kelsey -- Default IV rate model to G4CMPConfigManager value.
 // 20200520  For MT thread safety, wrap G4ThreeVector buffer in function to
-//		return thread-local instance.
+//    return thread-local instance.
 // 20211021  Wrap verbose output in #ifdef G4CMP_DEBUG for performace
 // 20230210  I. Ataee -- Add post-newtonian correction to the MapPtoEkin and
-//		MapV_elToEkin
+//    MapV_elToEkin
 // 20230210  I. Ataee -- Change effective mass tensor to use relativistic
-//		expressions
+//    expressions
 // 20230702  I. Ataee -- Change velocity, momentum, energy, and wavevector
-//		relationships to correctly reflect the physics of the band
-//		structure relativistically. Also, introduced quasti-momentum
-//		p_Q and its relationship with the expectation value of momentum
-//		<p> (transport momentum).
+//    relationships to correctly reflect the physics of the band
+//    structure relativistically. Also, introduced quasti-momentum
+//    p_Q and its relationship with the expectation value of momentum
+//    <p> (transport momentum).
 // 20231017  E. Michaud -- Add 'AddValley(const G4ThreeVector&)'
 // 20240426  S. Zatschler -- Add explicit fallthrough statements to switch cases
 // 20240510  E. Michhaud -- Add function to compute L0 from other parameters
@@ -65,12 +65,13 @@
 // 20260618  E. Michaud -- If ValleyDir 0 0 0, then AddValley Identity Matrix
 // 20260810  G4CMP-654 -- Avoid FatalException error if no charge transport.
 // 20261022  G4CMP-612 -- moved DOS/fermi energy calcs from G4LatticePhysical
+// 20261124  G4CMP-612 -- Add band offset params, remove Fermi energy calc
 
 #include "G4LatticeLogical.hh"
-#include "G4CMPPhononKinematics.hh"	// **** THIS BREAKS G4 PORTING ****
-#include "G4CMPPhononKinTable.hh"	// **** THIS BREAKS G4 PORTING ****
-#include "G4CMPConfigManager.hh"	// **** THIS BREAKS G4 PORTING ****
-#include "G4CMPUnitsTable.hh"		// **** THIS BREAKS G4 PORTING ****
+#include "G4CMPPhononKinematics.hh" // **** THIS BREAKS G4 PORTING ****
+#include "G4CMPPhononKinTable.hh" // **** THIS BREAKS G4 PORTING ****
+#include "G4CMPConfigManager.hh"  // **** THIS BREAKS G4 PORTING ****
+#include "G4CMPUnitsTable.hh"   // **** THIS BREAKS G4 PORTING ****
 #include "G4RotationMatrix.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
@@ -84,10 +85,10 @@ G4LatticeLogical::G4LatticeLogical(const G4String& name)
   : verboseLevel(0), fName(name), fDensity(0.), fNImpurity(0.),
     fPermittivity(1.), fElasticity{}, fElReduced{}, fHasElasticity(false),
     fpPhononKin(0), fpPhononTable(0),
-    fA(0), fB(0), fLDOS(0), fSTDOS(0), fFTDOS(0), fTTFrac(0), 
+    fA(0), fB(0), fLDOS(0), fSTDOS(0), fFTDOS(0), fTTFrac(0),
     fBeta(0), fGamma(0), fLambda(0), fMu(0), fDebye(0),
     fSC_Tau0_qp(DBL_MAX), fSC_Tau0_ph(DBL_MAX),
-    fVSound(0.), fVTrans(0.), fL0_e(0.), fL0_h(0.), 
+    fVSound(0.), fVTrans(0.), fL0_e(0.), fL0_h(0.),
     mElectron(electron_mass_c2/c_squared),
     fHoleMass(mElectron), fElectronMass(mElectron), fElectronMDOS(mElectron),
     fBandGap(0.), fPairEnergy(0.), fFanoFactor(1.),
@@ -96,11 +97,12 @@ G4LatticeLogical::G4LatticeLogical(const G4String& name)
     fAlpha(0.), fAcDeform_e(0.), fAcDeform_h(0.),
     fIVQuadField(0.), fIVQuadRate(0.), fIVQuadExponent(0.),
     fIVLinExponent(0.), fIVLinRate0(0.), fIVLinRate1(0.),
-    fIVModel(G4CMPConfigManager::GetIVRateModel()) {
+    fIVModel(G4CMPConfigManager::GetIVRateModel()), fElectronAffinity(),
+    fWorkFunction() {
   for (G4int i=0; i<G4PhononPolarization::NUM_MODES; i++) {
     for (G4int j=0; j<KVBINS; j++) {
       for (G4int k=0; k<KVBINS; k++) {
-	fKVMap[i][j][k].set(0.,0.,0.);
+  fKVMap[i][j][k].set(0.,0.,0.);
       }
     }
   }
@@ -120,7 +122,7 @@ G4LatticeLogical::G4LatticeLogical(G4LatticeLogical&& rhs)
   : G4LatticeLogical() { std::swap(*this, rhs); }
 
 G4LatticeLogical& G4LatticeLogical::operator=(const G4LatticeLogical& rhs) {
-  if (this == &rhs) return *this;	// Avoid unnecessary work;
+  if (this == &rhs) return *this; // Avoid unnecessary work;
 
   verboseLevel = rhs.verboseLevel;
   fName = rhs.fName;
@@ -172,7 +174,9 @@ G4LatticeLogical& G4LatticeLogical::operator=(const G4LatticeLogical& rhs) {
   fIVLinRate0 = rhs.fIVLinRate0;
   fIVLinRate1 = rhs.fIVLinRate1;
   fIVModel = rhs.fIVModel;
-  
+  fElectronAffinity = rhs.fElectronAffinity;
+  fWorkFunction = rhs.fWorkFunction;
+
   if (!rhs.fpPhononKin)   fpPhononKin = new G4CMPPhononKinematics(this);
   if (!rhs.fpPhononTable) fpPhononTable = new G4CMPPhononKinTable(fpPhononKin);
 
@@ -182,7 +186,7 @@ G4LatticeLogical& G4LatticeLogical::operator=(const G4LatticeLogical& rhs) {
   for (G4int i=0; i<G4PhononPolarization::NUM_MODES; i++) {
     for (G4int j=0; j<KVBINS; j++) {
       for (G4int k=0; k<KVBINS; k++) {
-	fKVMap[i][j][k] = rhs.fKVMap[i][j][k];
+  fKVMap[i][j][k] = rhs.fKVMap[i][j][k];
       }
     }
   }
@@ -223,11 +227,11 @@ void G4LatticeLogical::SetCpq(G4int p, G4int q, G4double value) {
 // Configure crystal symmetry group and lattice spacing/angles
 /////////////////////////////////////////////////////////////
 void G4LatticeLogical::SetCrystal(G4CMPCrystalGroup::Bravais group, G4double a,
-				  G4double b, G4double c, G4double alpha,
-				  G4double beta, G4double gamma) {
-  fCrystal.Set(group, alpha, beta, gamma);	// Defines unit cell axes
+          G4double b, G4double c, G4double alpha,
+          G4double beta, G4double gamma) {
+  fCrystal.Set(group, alpha, beta, gamma);  // Defines unit cell axes
 
-  fBasis[0] = a*fCrystal.axis[0];	// Basis vectors include spacing
+  fBasis[0] = a*fCrystal.axis[0]; // Basis vectors include spacing
   fBasis[1] = b*fCrystal.axis[1];
   fBasis[2] = c*fCrystal.axis[2];
 }
@@ -241,11 +245,11 @@ void G4LatticeLogical::SetCrystal(G4CMPCrystalGroup::Bravais group, G4double a,
 void G4LatticeLogical::Initialize(const G4String& newName) {
   if (!newName.empty()) SetName(newName);
 
-  CheckBasis();				// Ensure complete, right handed frame
+  CheckBasis();       // Ensure complete, right handed frame
 
   // If elasticity matrix available, create phonon calculator
   if (fHasElasticity) {
-    FillElasticity();			// Unpack reduced matrix to full Cijkl
+    FillElasticity();     // Unpack reduced matrix to full Cijkl
     if (!fpPhononKin) fpPhononKin = new G4CMPPhononKinematics(this);
   }
 
@@ -288,7 +292,7 @@ void G4LatticeLogical::CheckBasis() {
 
 // Unpack reduced elasticity tensor into full four-dimensional Cijkl
 void G4LatticeLogical::FillElasticity() {
-  fCrystal.FillElReduced(fElReduced);		// Apply symmetry conditions
+  fCrystal.FillElReduced(fElReduced);   // Apply symmetry conditions
   /* The reduced matrix looks like this:
    * Cxxxx, Cxxyy, Cxxzz, Cxxyz, Cxxxz, Cxxxy
    * Cxxyy, Cyyyy, Cyyzz, Cyyyz, Cyyxz, Cyyxy
@@ -343,62 +347,62 @@ void G4LatticeLogical::FillElasticity() {
 // Populate lookup tables using kinematics calculator
 
 void G4LatticeLogical::FillMaps() {
-  if (!fpPhononKin) return;			// Can't fill without solver
+  if (!fpPhononKin) return;     // Can't fill without solver
 
   G4ThreeVector k;
   for (G4int itheta = 0; itheta<KVBINS; itheta++) {
-    G4double theta = itheta*pi/(KVBINS-1);	// Last entry is at pi
+    G4double theta = itheta*pi/(KVBINS-1);  // Last entry is at pi
 
     for (G4int iphi = 0; iphi<KVBINS; iphi++) {
-      G4double phi = iphi*twopi/(KVBINS-1);	// Last entry is at 2pi
+      G4double phi = iphi*twopi/(KVBINS-1); // Last entry is at 2pi
 
       k.setRThetaPhi(1.,theta,phi);
       for (G4int mode=0; mode<G4PhononPolarization::NUM_MODES; mode++) {
-	fKVMap[mode][itheta][iphi] = fpPhononKin->getGroupVelocity(mode,k);
+  fKVMap[mode][itheta][iphi] = fpPhononKin->getGroupVelocity(mode,k);
       }
     }
   }
 
   if (verboseLevel) {
     G4cout << "G4LatticeLogical::FillMaps populated " << KVBINS
-	   << " bins in theta and phi for all polarizations." << G4endl;
+     << " bins in theta and phi for all polarizations." << G4endl;
   }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-//Given the phonon wave vector k and mode(0=LON, 1=FT, 2=ST), 
+//Given the phonon wave vector k and mode(0=LON, 1=FT, 2=ST),
 //returns phonon group velocity vector
 
 G4ThreeVector G4LatticeLogical::MapKtoVg(G4int mode,
-					 const G4ThreeVector& k) const {
+           const G4ThreeVector& k) const {
   return ( (fpPhononKin && G4CMPConfigManager::UseKVSolver())
-	   ? ComputeKtoVg(mode,k)
-	   : LookupKtoVg(mode,k) );
+     ? ComputeKtoVg(mode,k)
+     : LookupKtoVg(mode,k) );
 }
 
 G4ThreeVector G4LatticeLogical::ComputeKtoVg(G4int mode,
-					     const G4ThreeVector& k) const {  
+               const G4ThreeVector& k) const {
   if (!fpPhononKin) {
     G4Exception("G4LatticeLogical::ComputeKtoV", "Lattice001",
-		RunMustBeAborted, "Phonon kinematics not available.");
+    RunMustBeAborted, "Phonon kinematics not available.");
   }
 
   return fpPhononKin->getGroupVelocity(mode,k);
 }
 
 G4ThreeVector G4LatticeLogical::LookupKtoVg(G4int mode,
-					    const G4ThreeVector& k) const {  
+              const G4ThreeVector& k) const {
   if (fpPhononTable)
     return (fpPhononTable->interpGroupVelocity(mode, k.unit())*
-	    fpPhononTable->interpGroupVelocity_N(mode, k.unit()).unit()
-	    );
+      fpPhononTable->interpGroupVelocity_N(mode, k.unit()).unit()
+      );
 
-  G4int iTheta, iPhi;		// Bin indices
-  G4double dTheta, dPhi;	// Offsets in bin for interpolation
+  G4int iTheta, iPhi;   // Bin indices
+  G4double dTheta, dPhi;  // Offsets in bin for interpolation
   if (!FindLookupBins(k, iTheta, iPhi, dTheta, dPhi)) {
     G4Exception("G4LatticeLogical::LookupKtoVDir", "Lattice006",
-		EventMustBeAborted, "Interpolation failed.");
+    EventMustBeAborted, "Interpolation failed.");
     return G4ThreeVector();
   }
 
@@ -416,9 +420,9 @@ G4ThreeVector G4LatticeLogical::LookupKtoVg(G4int mode,
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) {
     G4cout << "G4LatticeLogical::MapKtoVDir theta,phi="
-	   << k.theta() << " " << k.phi()
-	   << " : ith,iph " << iTheta << " " << iPhi
-	   << " : dir " << vdir << G4endl;
+     << k.theta() << " " << k.phi()
+     << " : ith,iph " << iTheta << " " << iPhi
+     << " : dir " << vdir << G4endl;
   }
 #endif
 
@@ -429,35 +433,35 @@ G4ThreeVector G4LatticeLogical::LookupKtoVg(G4int mode,
 
 // Get theta, phi bins and offsets for interpolation
 
-G4bool 
+G4bool
 G4LatticeLogical::FindLookupBins(const G4ThreeVector& k,
-				 G4int& iTheta, G4int& iPhi,
-				 G4double& dTheta, G4double& dPhi) const {
-  G4double tStep = pi/(KVBINS-1);	// Last element is upper edge
+         G4int& iTheta, G4int& iPhi,
+         G4double& dTheta, G4double& dPhi) const {
+  G4double tStep = pi/(KVBINS-1); // Last element is upper edge
   G4double pStep = twopi/(KVBINS-1);
 
-  G4double theta = k.getTheta();	// Normalize theta to [0,pi)
+  G4double theta = k.getTheta();  // Normalize theta to [0,pi)
   if (theta<0) theta+=pi;
 
-  G4double phi = k.getPhi();		// Normalize phi to [0,twopi)
+  G4double phi = k.getPhi();    // Normalize phi to [0,twopi)
   if (phi<0) phi += twopi;
 
   dTheta = theta/tStep;
   iTheta = int(dTheta);
-  dTheta -= iTheta;			// Fraction of bin width
+  dTheta -= iTheta;     // Fraction of bin width
 
   dPhi = phi/pStep;
   iPhi = int(dPhi);
-  dPhi -= iPhi;				// Fraction of bin width
+  dPhi -= iPhi;       // Fraction of bin width
 
-  return (iTheta<KVBINS && iPhi<KVBINS);	// Sanity check on bin indexing
+  return (iTheta<KVBINS && iPhi<KVBINS);  // Sanity check on bin indexing
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 // Convert electron momentum to valley velocity, wavevector, and HV vector
 
-G4ThreeVector 
+G4ThreeVector
 G4LatticeLogical::MapPtoV_el(G4int ivalley, const G4ThreeVector& p_e) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
@@ -467,7 +471,7 @@ G4LatticeLogical::MapPtoV_el(G4int ivalley, const G4ThreeVector& p_e) const {
   return p_e*c_light/(MapPtoEkin(ivalley,p_e) + GetElectronMass()*c_squared);
 }
 
-G4ThreeVector 
+G4ThreeVector
 G4LatticeLogical::MapV_elToP(G4int ivalley, const G4ThreeVector& v_e) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
@@ -484,32 +488,32 @@ G4LatticeLogical::MapV_elToP(G4int ivalley, const G4ThreeVector& v_e) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) {
     G4cout << " <v|M|v> " << bandV << G4endl << " gamma " << gamma
-	   << G4endl << " returning " << gamma*electron_mass_c2*v_e/c_light << G4endl;
+     << G4endl << " returning " << gamma*electron_mass_c2*v_e/c_light << G4endl;
   }
 #endif
   return gamma*GetElectronMass()*c_light*v_e;
 }
 
-G4ThreeVector 
+G4ThreeVector
 G4LatticeLogical::MapPToP_Q(G4int ivalley, const G4ThreeVector& P) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticeLogical::MapPToP_Q " << ivalley << " " << P
-	   << G4endl;
+     << G4endl;
 #endif
 
   const G4RotationMatrix& vToN = GetValley(ivalley);
   const G4RotationMatrix& nToV = GetValleyInv(ivalley);
 
 #ifdef G4CMP_DEBUG
-  if (verboseLevel>1) 
+  if (verboseLevel>1)
     G4cout << " P_Q " << nToV*(GetMassTensor()*(vToN*P*c_squared/electron_mass_c2)) << G4endl;
 #endif
 
   return nToV*(GetMassTensor()*(vToN*P/GetElectronMass()));
 }
 
-G4ThreeVector 
+G4ThreeVector
 G4LatticeLogical::MapP_QToP(G4int ivalley, const G4ThreeVector& P_Q) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
@@ -520,7 +524,7 @@ G4LatticeLogical::MapP_QToP(G4int ivalley, const G4ThreeVector& P_Q) const {
   const G4RotationMatrix& nToV = GetValleyInv(ivalley);
 
 #ifdef G4CMP_DEBUG
-  if (verboseLevel>1) 
+  if (verboseLevel>1)
     G4cout << " P " << nToV*(GetMInvTensor()*(vToN*P_Q*electron_mass_c2/c_squared)) << G4endl;
 #endif
 
@@ -538,7 +542,7 @@ G4LatticeLogical::MapV_elToK(G4int ivalley, const G4ThreeVector &v_e) const {
   return MapPtoK(ivalley, tempvec());
 }
 
-G4ThreeVector 
+G4ThreeVector
 G4LatticeLogical::MapPtoK(G4int ivalley, const G4ThreeVector& p_e) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
@@ -546,7 +550,7 @@ G4LatticeLogical::MapPtoK(G4int ivalley, const G4ThreeVector& p_e) const {
 #endif
 
   tempvec() = MapPToP_Q(ivalley, p_e);
-  tempvec() /= hbarc;				// Convert to wavevector
+  tempvec() /= hbarc;       // Convert to wavevector
 
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) G4cout << " k " << tempvec() << G4endl;
@@ -561,14 +565,14 @@ G4LatticeLogical::MapKtoP(G4int ivalley, const G4ThreeVector& k) const {
   if (verboseLevel>1)
     G4cout << "G4LatticeLogical::MapKtoP " << ivalley << " " << k << G4endl;
 #endif
-  
+
     tempvec() = k;
-    tempvec() *= hbarc;			// Convert wavevector to momentum
+    tempvec() *= hbarc;     // Convert wavevector to momentum
 
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) {
     G4cout << " P_Q " << tempvec() << G4endl
-	   << " returning P " << MapP_QToP(ivalley, tempvec()) << G4endl;
+     << " returning P " << MapP_QToP(ivalley, tempvec()) << G4endl;
   }
 #endif
 
@@ -579,7 +583,7 @@ G4LatticeLogical::MapKtoP(G4int ivalley, const G4ThreeVector& k) const {
 
 // Apply energy-momentum relationship for electron transport
 
-G4double  
+G4double
 G4LatticeLogical::MapP_QtoEkin(G4int iv, const G4ThreeVector& p) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
@@ -589,7 +593,7 @@ G4LatticeLogical::MapP_QtoEkin(G4int iv, const G4ThreeVector& p) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) {
     G4cout << " P " << MapP_QToP(iv, p) << G4endl
-	   << " returning Ekin " << MapPtoEkin(iv, MapP_QToP(iv, p)) << G4endl;
+     << " returning Ekin " << MapPtoEkin(iv, MapP_QToP(iv, p)) << G4endl;
   }
 #endif
 
@@ -609,10 +613,10 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
     fMassTensor.yy()*tempvec().y()*tempvec().y() +
     fMassTensor.zz()*tempvec().z()*tempvec().z());
   G4double PMag = sqrt(GetElectronMass()*(Ekin*Ekin+2.*Ekin*GetElectronMass()*c_squared)/(bandP));
-  
+
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) {
-    G4cout << " <pdir|M|pdir> " << bandP << G4endl << " PMag " << PMag << G4endl 
+    G4cout << " <pdir|M|pdir> " << bandP << G4endl << " PMag " << PMag << G4endl
     << " returning P " << pdir*PMag << G4endl;
   }
 #endif
@@ -620,7 +624,7 @@ G4LatticeLogical::MapEkintoP(G4int iv, const G4ThreeVector& pdir, const G4double
   return pdir*PMag;
 }
 
-G4double  
+G4double
 G4LatticeLogical::MapPtoEkin(G4int iv, const G4ThreeVector& p) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
@@ -628,21 +632,21 @@ G4LatticeLogical::MapPtoEkin(G4int iv, const G4ThreeVector& p) const {
 #endif
 
   tempvec() = p;
-  tempvec().transform(GetValley(iv));		// Rotate to valley frame
+  tempvec().transform(GetValley(iv));   // Rotate to valley frame
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) G4cout << " p (valley) " << tempvec() << G4endl;
 #endif
 
   G4double bandP2 = ((tempvec().x()*tempvec().x()*fMassTensor.xx() +
-		      tempvec().y()*tempvec().y()*fMassTensor.yy() +
-		      tempvec().z()*tempvec().z()*fMassTensor.zz())
-		     / GetElectronMass());
+          tempvec().y()*tempvec().y()*fMassTensor.yy() +
+          tempvec().z()*tempvec().z()*fMassTensor.zz())
+         / GetElectronMass());
   G4double mc2 = GetElectronMass()*c_squared;
 
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) {
     G4cout << " <P|M/m0|P> " << bandP2 << G4endl
-	   << " returning Ekin " << sqrt(bandP2 + mc2*mc2) - mc2 << G4endl;
+     << " returning Ekin " << sqrt(bandP2 + mc2*mc2) - mc2 << G4endl;
   }
 #endif
 
@@ -661,17 +665,17 @@ G4LatticeLogical::MapV_elToEkin(G4int iv, const G4ThreeVector& v) const {
 
 // Compute effective "scalar" electron mass to match energy/momentum relation
 
-G4double 
+G4double
 G4LatticeLogical::GetElectronEffectiveMass(G4int iv,
-					   const G4ThreeVector& p) const {
+             const G4ThreeVector& p) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticeLogical::GetElectronEffectiveMass " << iv
-	   << " " << p << " p2 = " << p.mag2() << G4endl;
+     << " " << p << " p2 = " << p.mag2() << G4endl;
 #endif
   G4double Ekin = MapPtoEkin(iv, p);
-  // return p.mag2()/(2*c_squared*Ekin);		// Non-relativistic
-  return (p.mag2()-Ekin*Ekin)/(2.*Ekin*c_squared);	// Relativistic
+  // return p.mag2()/(2*c_squared*Ekin);    // Non-relativistic
+  return (p.mag2()-Ekin*Ekin)/(2.*Ekin*c_squared);  // Relativistic
 }
 
 // Compute vector in spherical frame from the ellipsoidal fame
@@ -689,7 +693,7 @@ G4LatticeLogical::RotateToValley(G4int iv, const G4ThreeVector& v) const {
     G4cout << "G4LatticeLogical::RotateToValley " << iv
       << " " << v << " returning " << tempvec() << G4endl;
   #endif
-  
+
   return tempvec();
   }
 
@@ -743,14 +747,14 @@ G4LatticeLogical::SphericalToEllipsoidalTranformation(G4int iv, const G4ThreeVec
 void G4LatticeLogical::SetMassTensor(G4double mXX, G4double mYY, G4double mZZ) {
   if (verboseLevel>1) {
     G4cout << "G4LatticeLogical::SetMassTensor " << mXX << " " << mYY
-	   << " " << mZZ << " *m_e" << G4endl;
+     << " " << mZZ << " *m_e" << G4endl;
   }
 
   // NOTE:  Use of G4RotationMatrix not appropriate here, as matrix is
   //        not normalized.  But CLHEP/Matrix not available in GEANT4.
   fMassTensor.set(G4Rep3x3(mXX*mElectron, 0., 0.,
-			   0., mYY*mElectron, 0.,
-			   0., 0., mZZ*mElectron));
+         0., mYY*mElectron, 0.,
+         0., 0., mZZ*mElectron));
 
   FillMassInfo();
 }
@@ -762,15 +766,15 @@ void G4LatticeLogical::SetMassTensor(const G4RotationMatrix& etens) {
 
   // Check if mass tensor already has electron mass, or is just coefficients
   G4bool hasEmass = (etens.xx()/mElectron > 1e-3 ||
-		     etens.yy()/mElectron > 1e-3 ||
-		     etens.zz()/mElectron > 1e-3);
+         etens.yy()/mElectron > 1e-3 ||
+         etens.zz()/mElectron > 1e-3);
   G4double mscale = hasEmass ? 1. : mElectron;
 
   // NOTE:  Use of G4RotationMatrix not appropriate here, as matrix is
   //        not normalized.  But CLHEP/Matrix not available in GEANT4.
   fMassTensor.set(G4Rep3x3(etens.xx()*mscale, 0., 0.,
-			   0., etens.yy()*mscale, 0.,
-			   0., 0., etens.zz()*mscale));
+         0., etens.yy()*mscale, 0.,
+         0., 0., etens.zz()*mscale));
 
   FillMassInfo();
 }
@@ -781,24 +785,24 @@ void G4LatticeLogical::SetMassTensor(const G4RotationMatrix& etens) {
 void G4LatticeLogical::FillMassInfo() {
   // Effective mass for conductivity calculations
   fElectronMass = 3. / ( 1./fMassTensor.xx() + 1./fMassTensor.yy()
-			 + 1./fMassTensor.zz() );  
+       + 1./fMassTensor.zz() );
 
   // Density of states effective mass, used for intervalley scattering
   fElectronMDOS = cbrt(fMassTensor.xx()*fMassTensor.yy()*fMassTensor.zz());
 
   // 1/m mass tensor used for k and v calculations in valley coordinates
   fMassInverse.set(G4Rep3x3(1./fMassTensor.xx(), 0., 0.,
-			    0., 1./fMassTensor.yy(), 0.,
-			    0., 0., 1./fMassTensor.zz()));
+          0., 1./fMassTensor.yy(), 0.,
+          0., 0., 1./fMassTensor.zz()));
 
   // Mass ratio tensor used for scattering and field calculations
   fMassRatioSqrt.set(G4Rep3x3(sqrt(fMassTensor.xx()/fElectronMass), 0., 0.,
-			      0., sqrt(fMassTensor.yy()/fElectronMass), 0.,
-			      0., 0., sqrt(fMassTensor.zz()/fElectronMass)));
+            0., sqrt(fMassTensor.yy()/fElectronMass), 0.,
+            0., 0., sqrt(fMassTensor.zz()/fElectronMass)));
 
   fMInvRatioSqrt.set(G4Rep3x3(1./fMassRatioSqrt.xx(), 0., 0.,
-			      0., 1./fMassRatioSqrt.yy(), 0.,
-			      0., 0., 1./fMassRatioSqrt.zz()));
+            0., 1./fMassRatioSqrt.yy(), 0.,
+            0., 0., 1./fMassRatioSqrt.zz()));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -808,52 +812,52 @@ void G4LatticeLogical::FillMassInfo() {
 void G4LatticeLogical::AddValley(G4double phi, G4double theta, G4double psi) {
   if (verboseLevel>1) {
     G4cout << "G4LatticeLogical::AddValley " << phi << " " << theta
-	   << " " << psi << " rad" << G4endl;
+     << " " << psi << " rad" << G4endl;
   }
 
   // Extend vector first, then fill last value, to reduce temporaries
   fValley.resize(fValley.size()+1);
   fValley.back().set(phi,theta,psi);
 
-  fValleyInv.push_back(fValley.back());		// Precompute inverse matrix
+  fValleyInv.push_back(fValley.back());   // Precompute inverse matrix
   fValleyInv.back().invert();
 
   // NOTE:  Rotation matrices take external vector along valley axis to X-hat
-  fValleyAxis.push_back(fValleyInv.back()*G4ThreeVector(1.,0.,0.));    
+  fValleyAxis.push_back(fValleyInv.back()*G4ThreeVector(1.,0.,0.));
 }
 
 // Store drifting-electron valley using valley's direction
 
 void G4LatticeLogical::AddValley(const G4ThreeVector& valleyDirVec, G4bool antival) {
-      
+
   // Find the rotation matrix elements
   // ( [vx,vy,vz],
   //     [a,b,c],
   //     [d,e,f] )
-    
+
   // We chose the following convention :
   //  - The rotated y axis must stay in the X-Y plane (c=0)
-  //  - Valley's rotated Z axis must have positive z component (f>0) 
-  //  - Anti-valley's rotated Z axis must have positive z component (f<0) 
+  //  - Valley's rotated Z axis must have positive z component (f>0)
+  //  - Anti-valley's rotated Z axis must have positive z component (f<0)
   //  - The three rotated axis should stay normalized and be orthogonal
   //  - It must be a right hand coordinate system :
-  //	(vx,vy,vz) X (a,b,c) = (d,e,f) 
-    
+  //  (vx,vy,vz) X (a,b,c) = (d,e,f)
+
   // If vx=0 and/or vy=0, we compute a and b differently
 
   G4ThreeVector& vdir=tempvec();
   vdir=valleyDirVec.unit();
-    
+
   double vx=vdir.x();
   double vy=vdir.y();
   double vz=vdir.z();
-  
-  // rotated z axis points in the +z direction for valleys and -z for anti-valleys  
+
+  // rotated z axis points in the +z direction for valleys and -z for anti-valleys
   G4double f = sqrt(1. - vz*vz) * (antival?-1:1);
-    
+
   G4double a = (vy==0 ? 0 : vx==0 ? -1 : -vy/f);
   G4double b = (vy==0 ? 1 : vx==0 ? 0 : vx/f);
-     
+
   G4double d=-vz*b;
   G4double e=vz*a;
 
@@ -869,14 +873,14 @@ void G4LatticeLogical::AddValley(const G4ThreeVector& valleyDirVec, G4bool antiv
   fValley.back().setRows(vdir, G4ThreeVector(a,b,0), G4ThreeVector(d,e,f));
   fValleyInv.push_back(fValley.back());
   fValleyInv.back().invert();
-  fValleyAxis.push_back(vdir);  
+  fValleyAxis.push_back(vdir);
 }
 
 // Store rotation matrix and corresponding axis vector for valley
 
 void G4LatticeLogical::AddValley(const G4RotationMatrix& valley) {
   fValley.push_back(valley);
-  fValleyInv.push_back(valley);		// Precompute inverse matrix
+  fValleyInv.push_back(valley);   // Precompute inverse matrix
   fValleyInv.back().invert();
 
   // NOTE:  Rotation matrices take external vector along valley axis to X-hat
@@ -933,6 +937,26 @@ const G4ThreeVector& G4LatticeLogical::GetValleyAxis(G4int iv) const {
   return nullVec;
 }
 
+G4double G4LatticeLogical::GetElectronAffinity(const G4ThreeVector& miller_indices) const {
+  G4double val = 0.;
+  if (fElectronAffinity.empty()) return val;
+  val = fElectronAffinity.begin()->second;
+  if (fElectronAffinity.find(miller_indices) != fElectronAffinity.end()) {
+    val = fElectronAffinity.at(miller_indices);
+  }
+  return val;
+}
+
+G4double G4LatticeLogical::GetWorkFunction(const G4ThreeVector& miller_indices) const {
+  G4double val = 0.;
+  if (fWorkFunction.empty()) return val;
+  val = fWorkFunction.begin()->second;
+  if (fWorkFunction.find(miller_indices) != fWorkFunction.end()) {
+    val = fWorkFunction.at(miller_indices);
+  }
+  return val;
+}
+
 // Process scattering length l0_e and l0_h
 
 G4double G4LatticeLogical::ComputeL0(G4double mass, G4double acDeform) const {
@@ -951,6 +975,18 @@ G4double G4LatticeLogical::ComputeL0(G4double mass, G4double acDeform) const {
 void G4LatticeLogical::SetDebyeFreq(G4double nu) { fDebye = nu*h_Planck; }
 
 void G4LatticeLogical::SetDebyeTemp(G4double temp) { fDebye = temp*k_Boltzmann;}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+void G4LatticeLogical::SetElectronAffinity(const G4ThreeVector& miller_indices,
+                            const G4double& eaff) {
+  fElectronAffinity[miller_indices] = eaff;
+}
+
+void G4LatticeLogical::SetWorkFunction(const G4ThreeVector& miller_indices,
+                            const G4double& phi) {
+  fWorkFunction[miller_indices] = phi;
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
@@ -1027,10 +1063,40 @@ void G4LatticeLogical::Dump(std::ostream& os) const {
 
   os << "# Linear intervalley scattering parameters"
      << "\nivLinRate0 " << fIVLinRate0/hertz << " Hz"
-     << "\nivLinRate1 " << fIVLinRate1/hertz << " Hz" 
+     << "\nivLinRate1 " << fIVLinRate1/hertz << " Hz"
      << "\nivLinPower " << fIVLinExponent << std::endl;
 
   if (!fIVModel.empty()) os << "ivModel " << fIVModel << std::endl;
+
+  if (!fElectronAffinity.empty() || !fWorkFunction.empty())
+  {
+    os << "# Band offset parameters"
+       << "\nMiller orientation e- affinity work function";
+    std::vector<G4ThreeVector> mos;
+    for (auto& it: fElectronAffinity) mos.push_back(it.first);
+    for (auto& it: fWorkFunction) {
+      if (fElectronAffinity.find(it.first) != fElectronAffinity.end()) {
+        continue;
+      }
+      mos.push_back(it.first);
+    }
+    for (size_t i = 0; i < mos.size(); ++i) {
+      const G4ThreeVector mo = mos.at(i);
+      os << "\n(" << mo[0] << "," << mo[1] << "," << mo[2] << ") ";
+      if (fElectronAffinity.find(mo) != fElectronAffinity) {
+        os << fElectronAffinity.at(mo) << " ";
+      }
+      else {
+        os << "0 ";
+      }
+      if (fWorkFunction.find(mo) != fWorkFunction) {
+        os << fWorkFunction.at(mo) << " ";
+      }
+      else {
+        os << "0 ";
+      }
+    }
+  }
 }
 
 // Print out Euler angles of requested valley
@@ -1047,12 +1113,12 @@ void G4LatticeLogical::DumpValley(std::ostream& os, G4int iv) const {
 // Print out crystal symmetry information
 
 void G4LatticeLogical::DumpCrystalInfo(std::ostream& os) const {
-  G4double a=fBasis[0].mag()/angstrom;		// Lattice params for printing
+  G4double a=fBasis[0].mag()/angstrom;    // Lattice params for printing
   G4double b=fBasis[1].mag()/angstrom;
   G4double c=fBasis[2].mag()/angstrom;
 
   os << fCrystal.Name() << " ";
-  switch (fCrystal.group) {		// Lattice constants and angles
+  switch (fCrystal.group) {   // Lattice constants and angles
   case G4CMPCrystalGroup::cubic:
     os << a << " Ang"; break;
   case G4CMPCrystalGroup::tetragonal:
@@ -1073,14 +1139,14 @@ void G4LatticeLogical::DumpCrystalInfo(std::ostream& os) const {
   }
   os << std::endl;
 
-  switch (fCrystal.group) {		// Reduced elasticity tensor
+  switch (fCrystal.group) {   // Reduced elasticity tensor
   case G4CMPCrystalGroup::tetragonal:
-    DumpCpq(os,1,6); [[fallthrough]];			// Plus all below
+    DumpCpq(os,1,6); [[fallthrough]];     // Plus all below
   case G4CMPCrystalGroup::hexagonal:
-    DumpCpq(os,1,3); DumpCpq(os,3,3); DumpCpq(os,6,6);	// Plus all below
+    DumpCpq(os,1,3); DumpCpq(os,3,3); DumpCpq(os,6,6);  // Plus all below
     [[fallthrough]];
   case G4CMPCrystalGroup::cubic:
-    DumpCpq(os,4,4); [[fallthrough]];			// Plus all below
+    DumpCpq(os,4,4); [[fallthrough]];     // Plus all below
   case G4CMPCrystalGroup::amorphous:
     DumpCpq(os,1,1); DumpCpq(os,1,2); break;
   case G4CMPCrystalGroup::rhombohedral:
@@ -1088,15 +1154,15 @@ void G4LatticeLogical::DumpCrystalInfo(std::ostream& os) const {
     DumpCpq(os,1,4); DumpCpq(os,1,5);
     DumpCpq(os,3,3); DumpCpq(os,4,4); DumpCpq(os,6,6); break;
   case G4CMPCrystalGroup::monoclinic:
-    DumpCpq(os,1,6); DumpCpq(os,2,6); DumpCpq(os,3,6);	// Plus all below
+    DumpCpq(os,1,6); DumpCpq(os,2,6); DumpCpq(os,3,6);  // Plus all below
     DumpCpq(os,4,5); [[fallthrough]];
   case G4CMPCrystalGroup::orthorhombic:
-    for (int p=1; p<7; p++) {		// Upper corner and lower diagonal
+    for (int p=1; p<7; p++) {   // Upper corner and lower diagonal
       for (int q=p; q<4; q++) DumpCpq(os,p,q);
       if (p>3) DumpCpq(os,p,p);
     }
     break;
-  case G4CMPCrystalGroup::triclinic:	// Entire upper half, no zeroes
+  case G4CMPCrystalGroup::triclinic:  // Entire upper half, no zeroes
     for (int p=1; p<7; p++) for (int q=p; q<7; q++) DumpCpq(os,p,q);
     break;
   default: break;
@@ -1113,9 +1179,9 @@ void G4LatticeLogical::DumpCpq(std::ostream& os, G4int p, G4int q) const {
 // Print out list of values scaled by specified unit
 
 void G4LatticeLogical::DumpList(std::ostream& os,
-				const std::vector<G4double>& vlist,
-				const G4String& unit) const {
-  if (vlist.empty()) return;		// Avoid unnecessary work
+        const std::vector<G4double>& vlist,
+        const G4String& unit) const {
+  if (vlist.empty()) return;    // Avoid unnecessary work
 
   G4double uval = G4UnitDefinition::GetValueOf(unit);
   for (size_t i=0; i<vlist.size(); i++) {
@@ -1131,13 +1197,13 @@ void G4LatticeLogical::DumpList(std::ostream& os,
 void G4LatticeLogical::CheckLatticeChargeParameters() {
   // Flag if charge transport is supposed to be supported at all
   G4bool hasCharge = (fabs(fElectronMass-mElectron)/mElectron > 1e-3 ||
-		      fBandGap > 0.);
+          fBandGap > 0.);
 
   // No bandgap will suppress e/h creation, but allow single tracking
   if (fBandGap <= 0. && fPairEnergy <= 0.) {
     if (verboseLevel) {
       G4cout << "Lattice " << fName << " does not have bandgap or pair energy"
-	     << " defined.  No charge production." << G4endl;
+       << " defined.  No charge production." << G4endl;
     }
   }
 
@@ -1145,7 +1211,7 @@ void G4LatticeLogical::CheckLatticeChargeParameters() {
   if (hasCharge && fPairEnergy < fBandGap) {
     G4ExceptionDescription msg;
     msg << "Lattice " << fName << " has pair energy " << fPairEnergy/eV
-	<< " eV, which is below bandgap " << fBandGap/eV << " eV.";
+  << " eV, which is below bandgap " << fBandGap/eV << " eV.";
     G4Exception("G4LatticeLogical", "Lattice008", FatalException, msg);
   }
 
@@ -1154,7 +1220,7 @@ void G4LatticeLogical::CheckLatticeChargeParameters() {
       fabs(fHoleMass-mElectron)/mElectron < 1e-3) {
     G4ExceptionDescription msg;
     msg << "Lattice " << fName << " does not have charge carrier masses set."
-	<< "\n Bare electron mass assumed.";
+  << "\n Bare electron mass assumed.";
 
     if (hasCharge) {
       G4Exception("G4LatticeLogical", "Lattice009", JustWarning, msg);
@@ -1178,10 +1244,10 @@ void G4LatticeLogical::CheckLatticeChargeParameters() {
   // Without valleys, assume a direct gap semiconductor with Gamma 'valley'
   // TODO: Move to CheckIVConsistency() under G4CMP-404
   if (fValley.size() < 1U) {
-    if (hasCharge) {		// Don't bother with message for phonon-only
+    if (hasCharge) {    // Don't bother with message for phonon-only
       G4ExceptionDescription msg;
       msg << "Lattice " << fName << " has no valley definitions.\n"
-	  << " Assuming direct gap semiconductor with Gamma valley.";
+    << " Assuming direct gap semiconductor with Gamma valley.";
       G4Exception("G4LatticeLogical", "Lattice012", JustWarning, msg);
     }
 
@@ -1202,42 +1268,12 @@ void G4LatticeLogical::CheckLatticeChargeParameters() {
 void G4LatticeLogical::CheckLatticeForSCCompleteness() const {
   // If any of the QP parameters are set, then they all must be set
   G4bool allOrNone = ( (fSC_Tau0_qp != DBL_MAX && fSC_Tau0_ph != DBL_MAX) ||
-		       (fSC_Tau0_qp == DBL_MAX && fSC_Tau0_ph == DBL_MAX) );
+           (fSC_Tau0_qp == DBL_MAX && fSC_Tau0_ph == DBL_MAX) );
 
   if (!allOrNone) {   // Terminate job if QP parameters are not consisent
     G4ExceptionDescription msg;
     msg << "Lattice " << fName << ": Both Tau0_qp and Tau0_ph required"
-	<< " for superconductors.";
+  << " for superconductors.";
     G4Exception("G4LatticeLogical", "Lattice007", FatalException, msg);
   }
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-
-// Fermi energy calculations
-G4double G4LatticeLogical::GetElectronDOS() const {
-  const G4double meff = GetElectronDOSMass();
-  G4double edos = meff / (pi * CLHEP::h_Planck * CLHEP::h_Planck);
-  return edos;
-}
-
-G4double G4LatticeLogical::GetHoleDOS() const {
-  const G4double meff = GetHoleMass() * GetElectronDOSMass() / mElectron;
-  G4double hdos = meff / (pi * CLHEP::h_Planck * CLHEP::h_Planck);
-  return hdos;
-}
-
-// https://lampz.tugraz.at/~hadley/psd/weblectures/Ef_intrinsic/index.php
-G4double G4LatticeLogical::GetFermiEnergy(const G4double& temperature) const {
-  G4double ef = 0.;
-  G4double temp = temperature;
-  if (temperature <= 0.) temp = G4CMPConfigManager::GetTemperature();
-  const G4double edos = GetElectronDOS();
-  const G4double hdos = GetHoleDOS();
-  if (edos <= 0. || hdos <= 0.) return ef;
-  const G4double kT = k_Boltzmann * temp;
-  const G4double term1 = GetBandGapEnergy() / 2.;
-  const G4double term2 = kT * std::log(hdos / edos) / 2.;
-  ef = term1 + term2;
-  return ef;
 }

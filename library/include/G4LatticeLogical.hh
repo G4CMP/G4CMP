@@ -20,7 +20,7 @@
 // 20150601  Add mapping from electron velocity back to momentum
 // 20160517  Add basis vectors for lattice, to use with Miller orientation
 // 20160520  Add reporting function to format valley Euler angles
-// 20160614  Add elasticity tensors and density (set from G4Material) 
+// 20160614  Add elasticity tensors and density (set from G4Material)
 // 20160624  Add direct calculation of phonon kinematics from elasticity
 // 20160629  Add post-constuction initialization (for tables, computed pars)
 // 20160630  Drop loading of K-Vg lookup table files
@@ -35,12 +35,12 @@
 // 20181001  M. Kelsey -- Clarify IV rate parameters systematically
 // 20190704  M. Kelsey -- Add IV rate function selector for material
 // 20190801  M. Kelsey -- Use G4ThreeVector buffer instead of pass-by-value,
-//		precompute valley inverse transforms
+//    precompute valley inverse transforms
 // 20200608  Fix -Wshadow warnings from tempvec
 // 20210919  M. Kelsey -- Allow SetVerboseLevel() from const instances.
 // 20230702  I. Ataee -- Add methods for relationship between quasi-momentum
-//		(p_Q) and expectation value of momentum (p).
-// 20231017  E. Michaud -- Add 'AddValley(const G4ThreeVector&)' 
+//    (p_Q) and expectation value of momentum (p).
+// 20231017  E. Michaud -- Add 'AddValley(const G4ThreeVector&)'
 // 20240510  E. Michhaud -- Add function to compute L0 from other parameters
 // 20250904  R. Linehan -- Linked Tcrit to Delta0 for superconductors
 // 20250905  G4CMP-500  -- Removed non-fundamental superconductor params from
@@ -48,6 +48,7 @@
 // 20260617  G4CMP-633 -- Cross-check that sufficient charge parameters are set
 // 20260618  G4CMP-637 -- Move calculation of L0 from acDeform out of Manager.
 // 20261022  G4CMP-612 -- moved DOS/fermi energy calcs from G4LatticePhysical
+// 20261124  G4CMP-612 -- Add 'fElectronAffinity', remove Fermi energy calc
 
 #ifndef G4LatticeLogical_h
 #define G4LatticeLogical_h
@@ -58,6 +59,7 @@
 #include "G4RotationMatrix.hh"
 #include "G4PhononPolarization.hh"
 #include <iosfwd>
+#include <map>
 #include <vector>
 
 class G4CMPPhononKinematics;
@@ -122,7 +124,7 @@ public:
 
   // Configure crystal symmetry group and lattice spacing/angles
   void SetCrystal(G4CMPCrystalGroup::Bravais group, G4double a, G4double b,
-		  G4double c, G4double alpha, G4double beta, G4double gamma);
+      G4double c, G4double alpha, G4double beta, G4double gamma);
 
   // Get specified basis vector (returns null if invalid index)
   const G4ThreeVector& GetBasis(G4int i) const {
@@ -154,7 +156,7 @@ public:
 
   // Parameters for phonon production and propagation
   void SetDynamicalConstants(G4double Beta, G4double Gamma,
-			     G4double Lambda, G4double Mu) {
+           G4double Lambda, G4double Mu) {
     fBeta=Beta; fGamma=Gamma; fLambda=Lambda; fMu=Mu;
   }
 
@@ -168,7 +170,7 @@ public:
   void SetLDOS(G4double LDOS) { fLDOS=LDOS; }
   void SetSTDOS(G4double STDOS) { fSTDOS=STDOS; }
   void SetFTDOS(G4double FTDOS) { fFTDOS=FTDOS; }
-  
+
   void SetDebyeEnergy(G4double energy) { fDebye = energy; }
   void SetDebyeFreq(G4double nu);
   void SetDebyeTemp(G4double temp);
@@ -187,7 +189,7 @@ public:
 
   G4double GetSCTau0qp() const { return fSC_Tau0_qp; }
   G4double GetSCTau0ph() const { return fSC_Tau0_ph; }
-  
+
   // Parameters and structures for charge carrier transport
   void SetBandGapEnergy(G4double bg) { fBandGap = bg; }
   void SetPairProductionEnergy(G4double pp) { fPairEnergy = pp; }
@@ -208,8 +210,8 @@ public:
   G4double GetHoleScatter() const               { return fL0_h; }
   G4double GetHoleMass() const                  { return fHoleMass; }
   G4double GetElectronScatter() const           { return fL0_e; }
-  G4double GetElectronMass() const 		{ return fElectronMass; }
-  G4double GetElectronDOSMass() const 		{ return fElectronMDOS; }
+  G4double GetElectronMass() const    { return fElectronMass; }
+  G4double GetElectronDOSMass() const     { return fElectronMDOS; }
   const G4RotationMatrix& GetMassTensor() const { return fMassTensor; }
   const G4RotationMatrix& GetMInvTensor() const { return fMassInverse; }
   const G4RotationMatrix& GetSqrtTensor() const { return fMassRatioSqrt; }
@@ -217,7 +219,7 @@ public:
 
   // Compute "effective mass" for electron to preserve E/p relationship
   G4double GetElectronEffectiveMass(G4int iv, const G4ThreeVector& p) const;
-    
+
   G4ThreeVector RotateToValley(G4int iv, const G4ThreeVector& v) const;
   G4ThreeVector RotateFromValley(G4int iv, const G4ThreeVector& v) const;
   G4ThreeVector EllipsoidalToSphericalTranformation(G4int iv, const G4ThreeVector& v) const;
@@ -247,7 +249,7 @@ public:
 
   // Print out list of values, scaled by unit
   void DumpList(std::ostream& os, const std::vector<G4double>& vlist,
-		const G4String& unit) const;
+    const G4String& unit) const;
 
   // Parameters for electron intervalley scattering (Edelweiss, Linear, matrix)
   void SetIVModel(const G4String& v) { fIVModel = v; }
@@ -260,7 +262,7 @@ public:
   void SetIVLinRate1(G4double v)     { fIVLinRate1 = v; }
   void SetIVLinExponent(G4double v)  { fIVLinExponent = v; }
 
-  void SetAlpha(G4double v)	     { fAlpha = v; }
+  void SetAlpha(G4double v)      { fAlpha = v; }
   void SetElectronAcousticDeform(G4double v) { fAcDeform_e = v; }
   void SetHoleAcousticDeform(G4double v) { fAcDeform_h = v; }
   void SetIVDeform(const std::vector<G4double>& vlist) { fIVDeform = vlist; }
@@ -268,8 +270,20 @@ public:
 
   //Set functions for superconductor properties
   void SetSCTau0qp(G4double v)              { fSC_Tau0_qp = v; }
-  void SetSCTau0ph(G4double v)              { fSC_Tau0_ph = v; }  
-  
+  void SetSCTau0ph(G4double v)              { fSC_Tau0_ph = v; }
+
+  //Set functions for band offset parameters
+  void SetElectronAffinity(const std::map<G4ThreeVector, G4double>& eaff) {
+    fElectronAffinity = eaff;
+  }
+  void SetElectronAffinity(const G4ThreeVector& miller_indices,
+                              const G4double& eaff);
+  void SetWorkFunction(const std::map<G4ThreeVector, G4double>& phi) {
+    fWorkFunction = phi;
+  }
+  void SetWorkFunction(const G4ThreeVector& miller_indices,
+                              const G4double& phi);
+
   const G4String& GetIVModel() const { return fIVModel; }
 
   G4double GetIVQuadField() const    { return fIVQuadField; }
@@ -280,7 +294,7 @@ public:
   G4double GetIVLinRate1() const     { return fIVLinRate1; }
   G4double GetIVLinExponent() const  { return fIVLinExponent; }
 
-  G4double GetAlpha() const	     { return fAlpha; }
+  G4double GetAlpha() const      { return fAlpha; }
   G4double GetElectronAcousticDeform() const { return fAcDeform_e; }
   G4double GetHoleAcousticDeform() const { return fAcDeform_h; }
   G4int    GetNIVDeform() const { return (G4int)fIVDeform.size(); }
@@ -292,25 +306,24 @@ public:
   G4double GetIVEnergy(G4int i) const {
     return (i>=0 && i<GetNIVDeform()) ? fIVEnergy[i] : 0.;
   }
-
-  // Fermi energy calculations
-  // https://web.eecs.umich.edu/~fredty/public_html/EECS320_SP12/DOS_Derivation.pdf
-  // no energy/temperature dependence -- use 2D DOS
-  G4double GetElectronDOS() const;
-  G4double GetHoleDOS() const;
-
-  // https://lampz.tugraz.at/~hadley/psd/weblectures/Ef_intrinsic/index.php
-  G4double GetFermiEnergy(const G4double& temperature) const;
+  const std::map<G4ThreeVector, G4double>& GetElectronAffinity() {
+    return fElectronAffinity;
+  }
+  G4double GetElectronAffinity(const G4ThreeVector& miller_indices) const;
+  const std::map<G4ThreeVector, G4double>& GetWorkFunction() {
+    return fWorkFunction;
+  }
+  G4double GetWorkFunction(const G4ThreeVector& miller_indices) const;
 
 private:
-  void CheckBasis();	// Initialize or complete (via cross) basis vectors
-  void FillElasticity();	// Unpack reduced Cij into full Cijlk
-  void FillMaps();	// Populate lookup tables using kinematics calculator
-  void FillMassInfo();	// Called from SetMassTensor() to compute derived forms
+  void CheckBasis();  // Initialize or complete (via cross) basis vectors
+  void FillElasticity();  // Unpack reduced Cij into full Cijlk
+  void FillMaps();  // Populate lookup tables using kinematics calculator
+  void FillMassInfo();  // Called from SetMassTensor() to compute derived forms
 
   // Get theta, phi bins and offsets for interpolation
   G4bool FindLookupBins(const G4ThreeVector& k, G4int& iTheta, G4int& iPhi,
-			G4double& dTheta, G4double& dPhi) const;
+      G4double& dTheta, G4double& dPhi) const;
 
   // Use lookup table to get group velocity for phonons
   G4ThreeVector LookupKtoVg(G4int mode, const G4ThreeVector& k) const;
@@ -322,11 +335,11 @@ private:
   G4double ComputeL0(G4double mass, G4double acDeform) const;
 
   // Internal check to ensure that we have sufficient charge parameters
-  void CheckLatticeChargeParameters();		// Non-const for AddValley() use
+  void CheckLatticeChargeParameters();    // Non-const for AddValley() use
 
   // Internal check to make sure that we have all SC parameters
   void CheckLatticeForSCCompleteness() const;
-  
+
 private:
   // Create a thread-local buffer to use with MapAtoB() functions
   inline G4ThreeVector& tempvec() const {
@@ -336,21 +349,21 @@ private:
   }
 
 private:
-  mutable G4int verboseLevel;		    // Enable diagnostic output
-  G4String fName;			    // Name of lattice for messages
-  G4CMPCrystalGroup fCrystal;		    // Symmetry group, axis unit vectors
-  G4ThreeVector fBasis[3];		    // Basis vectors for Miller indices
-  G4double fDensity;			    // Material density (natural units)
-  G4double fNImpurity;			    // Neutral impurity number density
-  G4double fPermittivity;		    // Material epsilon/epsilon0 
-  Elasticity fElasticity;	    	    // Full 4D elasticity tensor
-  ReducedElasticity fElReduced;		    // Reduced 2D elasticity tensor
-  G4bool fHasElasticity;		    // Flag valid elasticity tensors
-  G4CMPPhononKinematics* fpPhononKin;	    // Kinematics calculator with tensor
-  G4CMPPhononKinTable* fpPhononTable;	    // Kinematics interpolator
+  mutable G4int verboseLevel;       // Enable diagnostic output
+  G4String fName;         // Name of lattice for messages
+  G4CMPCrystalGroup fCrystal;       // Symmetry group, axis unit vectors
+  G4ThreeVector fBasis[3];        // Basis vectors for Miller indices
+  G4double fDensity;          // Material density (natural units)
+  G4double fNImpurity;          // Neutral impurity number density
+  G4double fPermittivity;       // Material epsilon/epsilon0
+  Elasticity fElasticity;           // Full 4D elasticity tensor
+  ReducedElasticity fElReduced;       // Reduced 2D elasticity tensor
+  G4bool fHasElasticity;        // Flag valid elasticity tensors
+  G4CMPPhononKinematics* fpPhononKin;     // Kinematics calculator with tensor
+  G4CMPPhononKinTable* fpPhononTable;     // Kinematics interpolator
 
   // map for group velocity vectors
-  enum { KVBINS=315 };			    // K-Vg lookup table binning
+  enum { KVBINS=315 };          // K-Vg lookup table binning
   G4ThreeVector fKVMap[G4PhononPolarization::NUM_MODES][KVBINS][KVBINS];
 
   G4double fA;       // Scaling constant for Anh.Dec. mean free path
@@ -365,21 +378,21 @@ private:
   //Superconducting properties a la Kaplan
   G4double fSC_Tau0_qp; //Characteristic lifetime for QPs
   G4double fSC_Tau0_ph; //Characteristic lifetime for phonons
-  
-  G4double fVSound;	// Speed of sound (longitudinal phonon)
-  G4double fVTrans;	// Speed of sound (transverse phonon)
-  G4double fL0_e;	// Scattering length for electrons
-  G4double fL0_h;	// Scattering length for holes
 
-  const G4double mElectron;	 // Free electron mass (without G4's c^2)
-  G4double fHoleMass;		 // Effective mass of +ve carrier
-  G4double fElectronMass;	 // Effective mass (scalar) of -ve carrier
-  G4double fElectronMDOS;	 // Density of states weighed -ve carrier mass
+  G4double fVSound; // Speed of sound (longitudinal phonon)
+  G4double fVTrans; // Speed of sound (transverse phonon)
+  G4double fL0_e; // Scattering length for electrons
+  G4double fL0_h; // Scattering length for holes
 
-  G4double fBandGap;	 // Minimum band gap energy
+  const G4double mElectron;  // Free electron mass (without G4's c^2)
+  G4double fHoleMass;    // Effective mass of +ve carrier
+  G4double fElectronMass;  // Effective mass (scalar) of -ve carrier
+  G4double fElectronMDOS;  // Density of states weighed -ve carrier mass
+
+  G4double fBandGap;   // Minimum band gap energy
   G4double fPairEnergy;   // electron-hole pair production average energy
   G4double fFanoFactor;   // Fano factor (duh)
-  G4RotationMatrix fMassTensor;	 // Full electron mass tensor
+  G4RotationMatrix fMassTensor;  // Full electron mass tensor
   G4RotationMatrix fMassInverse; // Inverse electron mass tensor (convenience)
   G4RotationMatrix fMassRatioSqrt;       // SQRT of tensor/scalar ratio
   G4RotationMatrix fMInvRatioSqrt;       // SQRT of scalar/tensor ratio
@@ -387,20 +400,23 @@ private:
   std::vector<G4RotationMatrix> fValleyInv;
   std::vector<G4ThreeVector> fValleyAxis;
 
-  G4double fAlpha;			// Non-parabolicity of -ve potential
-  G4double fAcDeform_e;		 	// Deformation potential for electron-acoustic phonon
-  G4double fAcDeform_h;		 	// Deformation potential for hole-acoustic phonon
-  std::vector<G4double> fIVDeform;	// D0, D1 potentials for optical IV
-  std::vector<G4double> fIVEnergy;	// D0, D1 thresholds for optical IV
+  G4double fAlpha;      // Non-parabolicity of -ve potential
+  G4double fAcDeform_e;     // Deformation potential for electron-acoustic phonon
+  G4double fAcDeform_h;     // Deformation potential for hole-acoustic phonon
+  std::vector<G4double> fIVDeform;  // D0, D1 potentials for optical IV
+  std::vector<G4double> fIVEnergy;  // D0, D1 thresholds for optical IV
 
-  G4double fIVQuadField;	 // Edelweiss field scale for IV scattering
-  G4double fIVQuadRate;		 // Edelweiss rate factor for IV scattering
-  G4double fIVQuadExponent;	 // Edelweiss power law for E-field in IV
-  G4double fIVLinExponent;	 // Power law for linear scaled IV scattering
-  G4double fIVLinRate0;		 // Constant rate for linear scaled IV scat.
-  G4double fIVLinRate1;		 // Linear rate for linear scaled IV scat.
+  G4double fIVQuadField;   // Edelweiss field scale for IV scattering
+  G4double fIVQuadRate;    // Edelweiss rate factor for IV scattering
+  G4double fIVQuadExponent;  // Edelweiss power law for E-field in IV
+  G4double fIVLinExponent;   // Power law for linear scaled IV scattering
+  G4double fIVLinRate0;    // Constant rate for linear scaled IV scat.
+  G4double fIVLinRate1;    // Linear rate for linear scaled IV scat.
 
-  G4String fIVModel;		 // Name of IV rate function to be used
+  G4String fIVModel;     // Name of IV rate function to be used
+
+  std::map<G4ThreeVector, G4double> fElectronAffinity; // by Miller orientation
+  std::map<G4ThreeVector, G4double> fWorkFunction; // by Miller orientation
 };
 
 // Write lattice structure to output stream

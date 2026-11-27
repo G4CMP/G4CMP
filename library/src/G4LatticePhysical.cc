@@ -12,7 +12,7 @@
 // 20131116  Replace G4Transform3D with G4RotationMatrix
 // 20140319  Add output functions for diagnostics
 // 20140321  Move placement transformations to G4CMPProcessUtils, put
-//		lattice orientation into ctor arguments
+//    lattice orientation into ctor arguments
 // 20140401  Add valley momentum calculations
 // 20140408  Move vally momentum calcs to G4LatticeLogical
 // 20140425  Add "effective mass" calculation for electrons
@@ -23,7 +23,7 @@
 // 20170928  Replce "polarizationState" with "mode"
 // 20190801  M. Kelsey -- Use G4ThreeVector buffer instead of pass-by-value
 // 20200520  For MT thread safety, wrap G4ThreeVector buffer in function to
-//		return thread-local instance.
+//    return thread-local instance.
 // 20211021  Wrap verbose output in #ifdef G4CMP_DEBUG for performace
 // 20220921  G4CMP-319 -- Add utilities for thermal (Maxwellian) distributions
 // 20250507  G4CMP-480 -- Swap rotation matrix for local<-->lattice transforms.
@@ -31,6 +31,7 @@
 // 20260131  G4CMP-572 -- Restore behaviour from G4CMP-480, lost by G4CMP-500.
 // 20260825  G4CMP-612 -- implemented DOS and fermi energy calculations
 // 20261022  G4CMP-612 -- moved DOS/fermi energy calcs to G4LatticeLogical
+// 20261124  G4CMP-612 -- Add band offset params, remove Fermi energy calc
 
 #include "G4LatticePhysical.hh"
 #include "G4CMPConfigManager.hh"
@@ -60,14 +61,14 @@ G4LatticePhysical::G4LatticePhysical()
 // Set lattice orientation (relative to G4VSolid) with Miller indices
 
 G4LatticePhysical::G4LatticePhysical(const G4LatticeLogical* Lat,
-				     G4int h, G4int k, G4int l, G4double rot)
+             G4int h, G4int k, G4int l, G4double rot)
   : verboseLevel(0), fLattice(Lat), fTemperature(-1.),
     fPolycrystalElasticScatteringMFP(DBL_MAX), fSCDelta0(0.), fSCTcrit(0.),
     fSCTeff(0.), fSCDn(0.), fSCQPLocalTrappingTau(DBL_MAX),
     fSCQPDiffusionStepTau(DBL_MAX) {
 
   //Use the set delta0 to set a Tcrit via BCS
-  
+
   SetMillerOrientation(h, k, l, rot);
 }
 
@@ -84,12 +85,12 @@ G4LatticePhysical::G4LatticePhysical(const G4LatticeLogical* Lat,
                                      G4int h, G4int k, G4int l, G4double rot)
   : verboseLevel(0), fLattice(Lat), fTemperature(-1.),
     fPolycrystalElasticScatteringMFP(polycrystalElasticScatteringMFP),
-    fSCDelta0(scDelta0), fSCTcrit(scDelta0 / CLHEP::k_Boltzmann / 1.764),    
+    fSCDelta0(scDelta0), fSCTcrit(scDelta0 / CLHEP::k_Boltzmann / 1.764),
     fSCTeff(scTeff), fSCDn(scDn), fSCQPLocalTrappingTau(scQPLocalTrappingTau),
     fSCQPDiffusionStepTau(scQPDiffusionStepTau){
 
   //Use the set delta0 to set a Tcrit via BCS
-  
+
   SetMillerOrientation(h, k, l, rot);
 }
 
@@ -100,10 +101,10 @@ G4LatticePhysical::G4LatticePhysical(const G4LatticeLogical* Lat,
 
 // Align Miller normal vector (hkl) with +Z axis, and rotation about axis
 void G4LatticePhysical::SetMillerOrientation(G4int h, G4int k, G4int l,
-					     G4double rot) {
+               G4double rot) {
   if (verboseLevel) {
     G4cout << "G4LatticePhysical::SetMillerOrientation(" << h << " "
-	   << k << " " << l << ", " << rot/deg << " deg)" << G4endl;
+     << k << " " << l << ", " << rot/deg << " deg)" << G4endl;
   }
 
   hMiller = h;
@@ -130,7 +131,7 @@ void G4LatticePhysical::SetMillerOrientation(G4int h, G4int k, G4int l,
 
 G4double G4LatticePhysical::GetTemperature() const {
   return (fTemperature < 0. ? G4CMPConfigManager::GetTemperature()
-	  : fTemperature);
+    : fTemperature);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -142,7 +143,7 @@ G4LatticePhysical::RotateToLattice(G4ThreeVector& dir) const {
   return dir.transform(fOrient);
 }
 
-const G4ThreeVector& 
+const G4ThreeVector&
 G4LatticePhysical::RotateToSolid(G4ThreeVector& dir) const {
   return dir.transform(fInverse);
 }
@@ -219,8 +220,8 @@ G4double G4LatticePhysical::MapPtoEkin(G4int iv, const G4ThreeVector& p) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) {
     G4cout << " in lattice frame " << tempvec() << G4endl
-	   << " returning Ekin " << fLattice->MapPtoEkin(iv, tempvec())
-	   << G4endl;
+     << " returning Ekin " << fLattice->MapPtoEkin(iv, tempvec())
+     << G4endl;
   }
 #endif
 
@@ -237,8 +238,8 @@ G4double G4LatticePhysical::MapV_elToEkin(G4int iv, const G4ThreeVector& v) cons
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) {
     G4cout << " in lattice frame " << tempvec() << G4endl
-	   << " returning Ekin " << fLattice->MapV_elToEkin(iv, tempvec())
-	   << G4endl;
+     << " returning Ekin " << fLattice->MapV_elToEkin(iv, tempvec())
+     << G4endl;
   }
 #endif
 
@@ -249,12 +250,12 @@ G4double G4LatticePhysical::MapV_elToEkin(G4int iv, const G4ThreeVector& v) cons
 
 // Convert electron momentum to valley velocity, wavevector, and HV vector
 
-G4ThreeVector 
+G4ThreeVector
 G4LatticePhysical::MapPtoV_el(G4int ivalley, const G4ThreeVector& p_e) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticePhysical::MapPtoV_el " << ivalley << " " << p_e
-	   << G4endl;
+     << G4endl;
 #endif
 
   RotateToLattice(tempvec()=p_e);
@@ -270,12 +271,12 @@ G4LatticePhysical::MapPtoV_el(G4int ivalley, const G4ThreeVector& p_e) const {
   return RotateToSolid(tempvec());
 }
 
-G4ThreeVector 
+G4ThreeVector
 G4LatticePhysical::MapV_elToP(G4int ivalley, const G4ThreeVector& v_e) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticePhysical::MapV_elToP " << ivalley << " " << v_e
-	   << G4endl;
+     << G4endl;
 #endif
 
   RotateToLattice(tempvec()=v_e);
@@ -291,12 +292,12 @@ G4LatticePhysical::MapV_elToP(G4int ivalley, const G4ThreeVector& v_e) const {
   return RotateToSolid(tempvec());
 }
 
-G4ThreeVector 
+G4ThreeVector
 G4LatticePhysical::MapPToP_Q(G4int ivalley, const G4ThreeVector& P) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticePhysical::MapPToP_Q " << ivalley << " " << P
-	   << G4endl;
+     << G4endl;
 #endif
 
   RotateToLattice(tempvec()=P);
@@ -312,12 +313,12 @@ G4LatticePhysical::MapPToP_Q(G4int ivalley, const G4ThreeVector& P) const {
   return RotateToSolid(tempvec());
 }
 
-G4ThreeVector 
+G4ThreeVector
 G4LatticePhysical::MapP_QToP(G4int ivalley, const G4ThreeVector& P_Q) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticePhysical::MapP_QToP " << ivalley << " " << P_Q
-	   << G4endl;
+     << G4endl;
 #endif
 
   RotateToLattice(tempvec()=P_Q);
@@ -354,19 +355,19 @@ G4LatticePhysical::MapV_elToK(G4int ivalley, const G4ThreeVector& v_e) const {
   return RotateToSolid(tempvec());
 }
 
-G4ThreeVector 
+G4ThreeVector
 G4LatticePhysical::MapPtoK(G4int ivalley, const G4ThreeVector& p_e) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticePhysical::MapPtoK " << ivalley << " " << p_e
      << G4endl;
 #endif
-  
+
   RotateToLattice(tempvec()=p_e);
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) G4cout << " in lattice frame " << tempvec() << G4endl;
 #endif
-  
+
   tempvec() = fLattice->MapPtoK(ivalley, tempvec());
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) G4cout << " k (lattice) " << tempvec() << G4endl;
@@ -375,19 +376,19 @@ G4LatticePhysical::MapPtoK(G4int ivalley, const G4ThreeVector& p_e) const {
   return RotateToSolid(tempvec());
 }
 
-G4ThreeVector 
+G4ThreeVector
 G4LatticePhysical::MapKtoP(G4int ivalley, const G4ThreeVector& k) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticePhysical::MapKtoP " << ivalley << " " << k
      << G4endl;
 #endif
-    
+
   RotateToLattice(tempvec()=k);
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) G4cout << " in lattice frame " << tempvec() << G4endl;
 #endif
-    
+
   tempvec() = fLattice->MapKtoP(ivalley, tempvec());
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) G4cout << " p (lattice) " << tempvec() << G4endl;
@@ -396,13 +397,13 @@ G4LatticePhysical::MapKtoP(G4int ivalley, const G4ThreeVector& k) const {
   return RotateToSolid(tempvec());
 }
 
-G4double 
+G4double
 G4LatticePhysical::GetElectronEffectiveMass(G4int iv,
-					   const G4ThreeVector& p) const {
+             const G4ThreeVector& p) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticePhysical::GetElectronEffectiveMass " << iv
-	   << " " << p << G4endl;
+     << " " << p << G4endl;
 #endif
 
   RotateToLattice(tempvec()=p);
@@ -418,14 +419,14 @@ G4LatticePhysical::RotateToValley(G4int iv, const G4ThreeVector& v) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticePhysical::RotateToValley " << iv
-	   << " " << v << G4endl;
+     << " " << v << G4endl;
 #endif
-  
+
     RotateToLattice(tempvec()=v);
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1) G4cout << " in lattice frame " << tempvec() << G4endl;
 #endif
-    
+
     return fLattice->RotateToValley(iv, tempvec());
   }
 
@@ -434,7 +435,7 @@ G4LatticePhysical::RotateFromValley(G4int iv, const G4ThreeVector& v) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticePhysical::RotateFromValley " << iv
-	   << " " << v << G4endl;
+     << " " << v << G4endl;
 #endif
 
   tempvec() = fLattice->RotateFromValley(iv, v);
@@ -446,7 +447,7 @@ EllipsoidalToSphericalTranformation(G4int iv, const G4ThreeVector& v) const {
 #ifdef G4CMP_DEBUG
   if (verboseLevel>1)
     G4cout << "G4LatticePhysical::EllipsoidalToSphericalTranformation " << iv
-	   << " " << v << G4endl;
+     << " " << v << G4endl;
 #endif
 
   RotateToLattice(tempvec()=v);
@@ -474,21 +475,6 @@ SphericalToEllipsoidalTranformation(G4int iv, const G4ThreeVector& v) const {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-// Fermi energy calculations
-G4double G4LatticePhysical::GetElectronDOS() const {
-  return fLattice->GetElectronDOS();
-}
-
-G4double G4LatticePhysical::GetHoleDOS() const {
-  return fLattice->GetHoleDOS();
-}
-
-G4double G4LatticePhysical::GetFermiEnergy() const {
-  return fLattice->GetFermiEnergy(GetTemperature());
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-
 // Dump contained logical lattice with volume information
 
 void G4LatticePhysical::Dump(std::ostream& os) const {
@@ -498,4 +484,3 @@ void G4LatticePhysical::Dump(std::ostream& os) const {
      << " @ " << fTemperature/kelvin << " K"
      << "\n# Logical lattice:\n" << *fLattice << std::endl;
 }
-
