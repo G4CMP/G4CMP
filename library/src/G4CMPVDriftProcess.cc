@@ -102,11 +102,14 @@ void G4CMPVDriftProcess::FillParticleChange(G4LatticePhysical* lattice,
   G4double energy = 0., pre_energy = 0.;
   // get the valley in the current lattice
   const G4int lvalley = G4CMPProcessUtils::GetCurrentValley();
-  // pull energy info from lattices
-  const G4double pre_fermi = theLattice->GetFermiEnergy();
-  const G4double pre_bandgap = theLattice->GetBandGapEnergy();
-  const G4double post_fermi = lattice->GetFermiEnergy();
-  const G4double post_bandgap = lattice->GetBandGapEnergy();
+  // calculate band offset
+  G4double pre_band = theLattice->GetElectronAffinity();
+  G4double post_band = lattice->GetElectronAffinity();
+  if (pre_band == 0. || post_band == 0.) {
+    pre_band = theLattice->GetWorkFunction();
+    post_band = lattice->GetWorkFunction();
+  }
+  const G4double delta_e = post_band - pre_band;
   if (IsElectron()){
     pre_energy = theLattice->MapPtoEkin(lvalley, GetLocalDirection(p));
   } else {
@@ -114,18 +117,18 @@ void G4CMPVDriftProcess::FillParticleChange(G4LatticePhysical* lattice,
     G4double massc2 = GetCurrentTrack()->GetDynamicParticle()->GetMass();
     pre_energy = sqrt(p.mag2() + massc2*massc2) - massc2;
   }
-  const G4double pre_energy_above_gap = pre_energy + pre_bandgap/2. + pre_fermi;
-  energy = pre_energy_above_gap - (post_fermi + post_bandgap/2.);
+  energy = pre_energy + delta_e;
   if (energy < 0.) {
     // we should never get here!
     G4ExceptionDescription msg;
     msg << "Track energy in prior lattice did not exceed the new lattice's ";
-    msg << "bandgap + Fermi energy! Setting track kinetic energy to zero.";
+    msg << "conduction band energy. Setting track energy to 0.";
     G4Exception("G4CMPVDriftProcess::FillParticleChange", "DriftProcess000",
     JustWarning, msg);
     energy = 0.;
   }
-  FillParticleChange(ivalley, energy, p);
+  const G4ThreeVector new_p = lattice->MapEkintoP(ivalley, p.unit(), energy);
+  FillParticleChange(ivalley, energy, new_p);
 }
 
 
@@ -138,11 +141,14 @@ void G4CMPVDriftProcess::FillParticleChange(G4LatticePhysical* lattice,
   G4double energy = 0., pre_energy = 0.;
   // get the valley in the current lattice
   const G4int lvalley = G4CMPProcessUtils::GetCurrentValley();
-  // pull energy info from lattices
-  const G4double pre_fermi = theLattice->GetFermiEnergy();
-  const G4double pre_bandgap = theLattice->GetBandGapEnergy();
-  const G4double post_fermi = lattice->GetFermiEnergy();
-  const G4double post_bandgap = lattice->GetBandGapEnergy();
+  // calculate band offset
+  G4double pre_band = theLattice->GetElectronAffinity();
+  G4double post_band = lattice->GetElectronAffinity();
+  if (pre_band == 0. || post_band == 0.) {
+    pre_band = theLattice->GetWorkFunction();
+    post_band = lattice->GetWorkFunction();
+  }
+  const G4double delta_e = post_band - pre_band;
   if (IsElectron()){
     pre_energy = theLattice->MapPtoEkin(lvalley, GetLocalDirection(p));
   } else {
@@ -150,24 +156,25 @@ void G4CMPVDriftProcess::FillParticleChange(G4LatticePhysical* lattice,
     G4double massc2 = GetCurrentTrack()->GetDynamicParticle()->GetMass();
     pre_energy = sqrt(p.mag2() + massc2*massc2) - massc2;
   }
-  const G4double pre_energy_above_gap = pre_energy + pre_bandgap/2. + pre_fermi;
-  energy = pre_energy_above_gap - (post_fermi + post_bandgap/2.);
+  energy = pre_energy + delta_e;
   if (energy < 0.) {
     // we should never get here!
     G4ExceptionDescription msg;
     msg << "Track energy in prior lattice did not exceed the new lattice's ";
-    msg << "bandgap + Fermi energy! Setting track kinetic energy to zero.";
+    msg << "conduction band energy. Setting track energy to 0.";
     G4Exception("G4CMPVDriftProcess::FillParticleChange", "DriftProcess000",
     JustWarning, msg);
     energy = 0.;
   }
+  const G4ThreeVector new_p = lattice->MapEkintoP(ivalley, p.unit(), energy);
   chParticleChange.ProposeLattice(lattice);
   chParticleChange.ProposeValley(ivalley);
   chParticleChange.ProposeWaveVector(k);
+  chParticleChange.ProposeMomentumDirection(new_p.unit());
   currentEkin = energy;
   chParticleChange.ProposeEnergy(energy);
   if (IsElectron()) {   // Geant4 wants mc^2, not plain mass
-    G4double meff = lattice->GetElectronEffectiveMass(ivalley,GetLocalDirection(p));
+    G4double meff = lattice->GetElectronEffectiveMass(ivalley,GetLocalDirection(new_p));
     chParticleChange.ProposeMass(meff*c_squared);
   }
 }

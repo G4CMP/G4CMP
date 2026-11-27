@@ -33,6 +33,7 @@
 // 20261028  G4CMP-686 -- Implemented CanTransmitBoundary to short-circuit
 //         cases where transmission is not energetically possible
 // 20261030  G4CMP-610 -- Use G4CMPParticleChangeForCharge member
+// 20261127  G4CMP-686 -- Implement ReflectTrack
 
 #include "G4CMPDriftBoundaryProcess.hh"
 #include "G4CMPConfigManager.hh"
@@ -151,6 +152,18 @@ G4bool G4CMPDriftBoundaryProcess::AbsorbTrack(const G4Track& aTrack,
     if (!CanTransmitBoundary(aTrack, aStep)) {
       result = !ReflectTrack(aTrack, aStep);
     }
+  }
+  return result;
+}
+
+
+G4bool G4CMPDriftBoundaryProcess::ReflectTrack(const G4Track& aTrack,
+                                              const G4Step& aStep) const {
+  G4bool result = G4CMPBoundaryUtils::ReflectTrack(aTrack, aStep);
+  if (!result) {
+    // if charge carrier energy + difference in conduction band energies
+    // is negative, particle cannot transmit boundary and must reflect
+    result = !CanTransmitBoundary(aTrack, aStep);
   }
   return result;
 }
@@ -356,12 +369,14 @@ G4bool G4CMPDriftBoundaryProcess::CanTransmitBoundary(
   auto* post_lattice = LM->GetLattice(postPV);
   if (!pre_lattice || !post_lattice) return false;
   const G4double ke = G4CMPProcessUtils::GetKineticEnergy(aTrack);
-  const G4double pre_fermi = pre_lattice->GetFermiEnergy();
-  const G4double pre_bandgap = pre_lattice->GetBandGapEnergy();
-  const G4double post_fermi = post_lattice->GetFermiEnergy();
-  const G4double post_bandgap = post_lattice->GetBandGapEnergy();
-  const G4double pre_energy_above_gap = ke + pre_bandgap/2. + pre_fermi;
-  const G4double post_energy_threshold = post_bandgap/2. + post_fermi;
-  G4bool val = pre_energy_above_gap > post_energy_threshold;
+  // calculate band offset
+  G4double pre_band = pre_lattice->GetElectronAffinity();
+  G4double post_band = post_lattice->GetElectronAffinity();
+  if (pre_band == 0. || post_band == 0.) {
+    pre_band = pre_lattice->GetWorkFunction();
+    post_band = post_lattice->GetWorkFunction();
+  }
+  const G4double delta_e = post_band - pre_band;
+  G4bool val = ke + delta_e > 0.;
   return val;
 }

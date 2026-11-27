@@ -33,6 +33,7 @@
 // 20250219  G4CMP-513 : Provide separate specular and diffuse reflection for charges.
 // 20260825  G4CMP-611 -- Implementing electron boundary crossing valley
 //           reassignment
+// 20261127  G4CMP-686 -- Implement ReflectTrack
 
 #ifndef G4CMPDriftBoundaryProcess_h
 #define G4CMPDriftBoundaryProcess_h 1
@@ -60,6 +61,8 @@ protected:
 
   // Decide and apply different surface actions; subclasses may override
   virtual G4bool AbsorbTrack(const G4Track& aTrack, const G4Step& aStep) const;
+
+  virtual G4bool ReflectTrack(const G4Track& aTrack, const G4Step& aStep) const;
 
   virtual void DoAbsorption(const G4Track& aTrack, const G4Step& aStep,
 			    G4ParticleChange& aParticleChange);
