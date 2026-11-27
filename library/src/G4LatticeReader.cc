@@ -168,7 +168,7 @@ G4bool G4LatticeReader::ProcessToken() {
   if (fToken == "ivenergy") return ProcessThresholds();  // D0, D1 Emin
   if (fToken == "ivmodel")  return ProcessString(fToken);  // IV rate function
   if (fToken == "eaffinity") return ProcessAffinity(); // Electron affinity
-  if (fToken == "workFunction") return ProcessWorkFunction(); // Work function
+  if (fToken == "workfunction") return ProcessWorkFunction(); // Work function
 
   if (G4CMPCrystalGroup::Group(fToken) >= 0)    // Crystal dimensions
                             return ProcessCrystalGroup(fToken);
